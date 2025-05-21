@@ -1,0 +1,15 @@
+package com.example.customer_service.dtos;
+
+import lombok.Data;
+
+@Data
+public class CustomerDTO {
+    private Long id;
+    private String cifCode;
+    private String fullName;
+    private String address;
+    private String email;
+    private String phoneNumber;
+    private String status;
+    private String kycStatus;
+}

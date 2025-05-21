@@ -7,7 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
+        <module name="transaction-service" />
+        <module name="common-service" />
         <module name="account-service" />
+        <module name="customer-service" />
+
         <module name="loan-service" />
       </profile>
       <profile name="Annotation profile for corebanking-service" enabled="true">
@@ -15,7 +19,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="corebanking-service" />
       </profile>
@@ -25,8 +29,12 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account-service" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
+      <module name="common-service" options="-parameters" />
       <module name="corebanking-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
+      <module name="customer-service" options="-parameters" />
+      <module name="loan-service" options="-parameters" />
+      <module name="transaction-service" options="-parameters" />
     </option>
   </component>
 </project>
