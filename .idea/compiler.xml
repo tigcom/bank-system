@@ -11,6 +11,7 @@
         <module name="common-service" />
         <module name="account-service" />
         <module name="customer-service" />
+
         <module name="loan-service" />
       </profile>
       <profile name="Annotation profile for corebanking-service" enabled="true">
@@ -30,6 +31,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="common-service" options="-parameters" />
       <module name="corebanking-service" options="-parameters" />
+      <module name="loan-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
       <module name="transaction-service" options="-parameters" />
