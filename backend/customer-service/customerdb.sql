@@ -11,7 +11,7 @@ CREATE TABLE customers (
     address TEXT NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone_number VARCHAR(15) UNIQUE,
-    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'closed')),
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'CLOSED')),
     kyc_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (kyc_status IN ('pending', 'verified', 'rejected')),
     kyc_response JSON,
     kyc_verified_at DATETIME,
@@ -32,10 +32,15 @@ INSERT INTO customers (
     status, kyc_status, kyc_response, kyc_verified_at, password_hash
 ) VALUES (
     'CIF001', 'Nguyen Van A', '1990-01-15', 'male', '123456789', '123 Le Loi, Hanoi', 
-    'a.nguyen@example.com', '0901234567', 'active', 'verified', 
+    'a.nguyen@example.com', '0901234567', 'ACTIVE', 'verified', 
     '{"verified": true, "score": 0.95, "details": "Identity matched"}', 
     '2025-05-20 14:41:00', 
     '$2a$10$your.bcrypt.encoded.password'
 );
 
-SELECT * FROM customers WHERE email = 'a.nguyen@example.com';
+SELECT * FROM customers;
+
+SELECT customer_id, cif_code, full_name, status FROM customers;
+
+SELECT kyc_response FROM customers WHERE kyc_response IS NOT NULL;
+

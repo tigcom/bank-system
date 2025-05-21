@@ -44,7 +44,8 @@ public class Customer {
     private String phoneNumber;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private CustomerStatus status;
 
     @Column(name = "kyc_status", nullable = false)
     private String kycStatus;

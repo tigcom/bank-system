@@ -3,11 +3,9 @@ package com.example.customer_service.dtos;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
+public class UpdateCustomerDTO {
+    private Long id;
     private String fullName;
     private String address;
-    private String identityNumber;
-    private String email;
     private String phoneNumber;
-    private String password;
 }

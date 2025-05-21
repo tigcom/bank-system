@@ -9,6 +9,8 @@
         <option value="$PROJECT_DIR$/backend/corebanking-service/corebanking-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/corebanking-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/loan-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/customer-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/transaction-service/pom.xml" />
       </list>
     </option>
   </component>

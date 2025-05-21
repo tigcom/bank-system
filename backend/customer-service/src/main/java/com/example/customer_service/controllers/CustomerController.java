@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
@@ -18,7 +16,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponseWrapper<RegisterResponse>> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponseWrapper<RegisterResponse>> register(@RequestBody RegisterCustomerDTO request) {
         RegisterResponse response = customerService.register(request);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST)
                 .body(new ApiResponseWrapper<>(
@@ -28,7 +26,7 @@ public class CustomerController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponseWrapper<LoginResponse>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponseWrapper<LoginResponse>> login(@RequestBody LoginCustomerDTO request) {
         LoginResponse response = customerService.login(request);
         return ResponseEntity.status(response.getToken() != null ? HttpStatus.OK : HttpStatus.UNAUTHORIZED)
                 .body(new ApiResponseWrapper<>(
@@ -38,38 +36,38 @@ public class CustomerController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponseWrapper<ForgotPasswordResponse>> forgotPassword(@RequestBody String email) {
-        ForgotPasswordResponse response = customerService.forgotPassword(email);
+    public ResponseEntity<ApiResponseWrapper<String>> forgotPassword(@RequestBody String email) {
+        RegisterResponse response = customerService.forgotPassword(email);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.NOT_FOUND)
                 .body(new ApiResponseWrapper<>(
                         response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.NOT_FOUND.value(),
                         response.getMessage(),
-                        response));
+                        null));
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponseWrapper<List<CustomerDTO>>> getCustomerList() {
-        List<CustomerDTO> customers = customerService.getCustomerList();
+    public ResponseEntity<ApiResponseWrapper<CustomerListResponse>> getCustomerList() {
+        CustomerListResponse response = customerService.getCustomerList();
         return ResponseEntity.ok(new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),
                 "Customers retrieved successfully",
-                customers));
+                response));
     }
 
     @GetMapping("/detail")
-    public ResponseEntity<ApiResponseWrapper<CustomerDTO>> getCustomerDetail(
+    public ResponseEntity<ApiResponseWrapper<CustomerResponse>> getCustomerDetail(
             @RequestParam(required = false) String cifCode) {
-        CustomerDTO customerDTO = customerService.getCustomerDetail(cifCode);
-        return ResponseEntity.status(customerDTO != null ? HttpStatus.OK : HttpStatus.NOT_FOUND)
+        CustomerResponse customer = customerService.getCustomerDetail(cifCode);
+        return ResponseEntity.status(customer != null ? HttpStatus.OK : HttpStatus.NOT_FOUND)
                 .body(new ApiResponseWrapper<>(
-                        customerDTO != null ? HttpStatus.OK.value() : HttpStatus.NOT_FOUND.value(),
-                        customerDTO != null ? "Customer retrieved successfully" : "Customer not found",
-                        customerDTO));
+                        customer != null ? HttpStatus.OK.value() : HttpStatus.NOT_FOUND.value(),
+                        customer != null ? "Customer retrieved successfully" : "Customer not found",
+                        customer));
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ApiResponseWrapper<UpdateCustomerResponse>> updateCustomer(@RequestBody UpdateCustomerRequest request) {
-        UpdateCustomerResponse response = customerService.updateCustomer(request);
+    public ResponseEntity<ApiResponseWrapper<RegisterResponse>> updateCustomer(@RequestBody UpdateCustomerDTO request) {
+        RegisterResponse response = customerService.updateCustomer(request);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
                 .body(new ApiResponseWrapper<>(
                         response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
@@ -78,11 +76,21 @@ public class CustomerController {
     }
 
     @PutMapping("/status")
-    public ResponseEntity<ApiResponseWrapper<UpdateStatusResponse>> updateCustomerStatus(@RequestBody UpdateStatusRequest request) {
-        UpdateStatusResponse response = customerService.updateCustomerStatus(request);
+    public ResponseEntity<ApiResponseWrapper<RegisterResponse>> updateCustomerStatus(@RequestBody UpdateStatusRequest request) {
+        RegisterResponse response = customerService.updateCustomerStatus(request);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
                 .body(new ApiResponseWrapper<>(
                         response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
+                        response.getMessage(),
+                        response));
+    }
+
+    @PostMapping("/kyc/verify")
+    public ResponseEntity<ApiResponseWrapper<KycResponse>> verifyKyc(@RequestBody KycRequest request) {
+        KycResponse response = customerService.verifyKyc(request);
+        return ResponseEntity.status(response.isVerified() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
+                .body(new ApiResponseWrapper<>(
+                        response.isVerified() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
                         response.getMessage(),
                         response));
     }
