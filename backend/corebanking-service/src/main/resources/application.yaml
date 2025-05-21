@@ -1,0 +1,105 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /corebanking
+
+spring:
+  application:
+    name: corebanking-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/coredb
+    username: root
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+#  cloud:
+#    vault:
+#      kv:
+#        enabled: true  # B?t Vault Key-Value backend
+#      authentication: TOKEN  # S? d?ng token ?? xác th?c
+#      token: myroot  # Token ?? xác th?c v?i Vault
+#      scheme: http  # Giao th?c HTTP
+#      host: 127.0.0.1  # ??a ch? host, m?c ??nh là localhost n?u không có bi?n môi tr??ng DOCKER_HOST
+#      port: 8200  # C?ng k?t n?i ??n Vault
+#  config:
+#    import: vault://secret/auth-service
+#  messages:
+#    basename:
+#      - i18n/messages
+#    encoding: UTF-8
+#
+#  cache:
+#    type: redis
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+#
+##  kafka:
+#    bootstrap-servers: localhost:9094
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#dubbo:
+#  application:
+#    name: "auth-service"
+#    qos-enable: false
+#  protocol:
+#    name: "dubbo"
+#    port: -1
+#  registry:
+#    address: "zookeeper://${DOCKER_HOST:localhost}:2181"
+#logging:
+#  level:
+#    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+#    org.springframework.data.redis.cache: DEBUG
+#    org.springframework.boot.autoconfigure.cache: DEBUG
+#    org.springframework.cloud.vault: DEBUG
+#  file:
+#    name: logs/access_log.log
+#
+#temporal:
+#  service:
+#    address: localhost:7233  # ??a ch? Temporal Server
+#springdoc:
+#  api-docs:
+#    path: /v3/api-docs
+#  swagger-ui:
+#    path: /swagger-ui.html
+#resilience4j.circuitbreaker:
+#  instances:
+#    myCircuitBreaker:
+#      registerHealthIndicator: true
+#      failureRateThreshold: 50
+#      waitDurationInOpenState: 10s
+#      permittedNumberOfCallsInHalfOpenState: 3
+#      slidingWindowSize: 10
+#      slidingWindowType: COUNT_BASED
+#      minimumNumberOfCalls: 10
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: prometheus,health
+#  endpoint:
+#    health:
+#      show-details: always
+#  tracing:
+#    sampling:
+#      probability: 0.8
+#  health:
+#    circuitbreakers:
+#      enabled: true
+#    ratelimiters:
+#      enabled: true
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true
+#
+#
+
