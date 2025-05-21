@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "loan")
@@ -46,4 +47,7 @@ public class Loan {
 
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
+
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Repayment> repayments;
 }

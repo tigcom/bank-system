@@ -17,8 +17,9 @@ public class Repayment {
     @Column(name = "repayment_id")
     private Long repaymentId;
 
-    @Column(name = "loan_id", nullable = false)
-    private Long loanId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_id", nullable = false)
+    private Loan loan;
 
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
