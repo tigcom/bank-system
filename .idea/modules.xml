@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/backend/account-service/account-service.iml" filepath="$PROJECT_DIR$/backend/account-service/account-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/backend/api-gateway/api-gateway.iml" filepath="$PROJECT_DIR$/backend/api-gateway/api-gateway.iml" />
-      <module fileurl="file://$PROJECT_DIR$/backend/common-service/common-service.iml" filepath="$PROJECT_DIR$/backend/common-service/common-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/backend/customer-service/customer-service.iml" filepath="$PROJECT_DIR$/backend/customer-service/customer-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/java-banking-phase2.iml" filepath="$PROJECT_DIR$/.idea/java-banking-phase2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/backend/loan-service/loan-service.iml" filepath="$PROJECT_DIR$/backend/loan-service/loan-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/backend/transaction-service/transaction-service.iml" filepath="$PROJECT_DIR$/backend/transaction-service/transaction-service.iml" />
     </modules>
   </component>
 </project>
