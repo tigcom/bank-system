@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ForgotPasswordResponse {
-    private boolean success;
+public class KycResponse {
+    private boolean verified;
     private String message;
+    private String details;
 }
