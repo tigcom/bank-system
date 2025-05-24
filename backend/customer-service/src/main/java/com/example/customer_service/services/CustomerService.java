@@ -4,12 +4,13 @@ import com.example.customer_service.dtos.*;
 import com.example.customer_service.responses.*;
 
 public interface CustomerService {
-    RegisterResponse register(RegisterCustomerDTO request);
-    LoginResponse login(LoginCustomerDTO request);
-    RegisterResponse forgotPassword(String email);
+    Response register(RegisterCustomerDTO request) throws Exception;
+//    LoginResponse login(LoginCustomerDTO request) throws Exception;
+    Response forgotPassword(String email);
     CustomerListResponse getCustomerList();
     CustomerResponse getCustomerDetail(String cifCode);
-    RegisterResponse updateCustomer(UpdateCustomerDTO request);
-    RegisterResponse updateCustomerStatus(UpdateStatusRequest request);
+    Response updateCustomerPassword(ChangePasswordDTO request);
+    Response updateCustomer(UpdateCustomerDTO request);
+    Response updateCustomerStatus(UpdateStatusRequest request);
     KycResponse verifyKyc(KycRequest request);
 }
