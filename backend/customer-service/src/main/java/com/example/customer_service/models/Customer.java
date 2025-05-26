@@ -28,6 +28,9 @@ public class Customer {
     @Column(name = "cif_code", unique = true, nullable = false)
     private String cifCode;
 
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
+
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
@@ -49,9 +52,6 @@ public class Customer {
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
-
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

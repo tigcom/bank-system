@@ -118,6 +118,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         user.setEmail(request.getEmail());
         user.setEnabled(true);
+        user.setEmailVerified(true);
 
         CredentialRepresentation passwordCred = new CredentialRepresentation();
         passwordCred.setTemporary(false);
