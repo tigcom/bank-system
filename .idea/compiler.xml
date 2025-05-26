@@ -2,18 +2,20 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="common-service" />
-        <module name="customer-service" />
-        <module name="loan-service" />
-        <module name="corebanking-service" />
-        <module name="api-gateway" />
-        <module name="transaction-service" />
-        <module name="account-service" />
-      </profile>
+  <sourceOutputDir name="target/generated-sources/annotations" />
+  <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+  <outputRelativeToContentRoot value="true" />
+  <module name="common-service" />
+  <module name="customer-service" />
+  <module name="api-gateway" />
+  <module name="transaction-service" />
+  <module name="account-service" />
+  <module name="loan-service" />
+  <module name="corebanking-service" />
+</profile>
+
     </annotationProcessing>
   </component>
   <component name="JavacSettings">

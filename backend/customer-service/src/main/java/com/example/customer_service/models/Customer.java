@@ -9,18 +9,27 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "customers")
-@Data
 @EntityListeners(AuditingEntityListener.class)
+@Builder
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
 
+    @Column(name = "user_id", unique = true)
+    private String userId;
+
     @Column(name = "cif_code", unique = true, nullable = false)
     private String cifCode;
+
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -28,8 +37,9 @@ public class Customer {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
 
     @Column(name = "identity_number", unique = true, nullable = false)
     private String identityNumber;
@@ -43,20 +53,9 @@ public class Customer {
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
-
-    @Column(name = "kyc_status", nullable = false)
-    private String kycStatus;
-
-    @Column(name = "kyc_response", columnDefinition = "json")
-    private String kycResponse;
-
-    @Column(name = "kyc_verified_at")
-    private LocalDateTime kycVerifiedAt;
-
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    private CustomerStatus status;
 
     @Column(name = "reset_token")
     private String resetToken;
@@ -65,10 +64,13 @@ public class Customer {
     private LocalDateTime resetTokenExpiry;
 
     @CreatedDate
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private KycProfile kycProfile;
 }
