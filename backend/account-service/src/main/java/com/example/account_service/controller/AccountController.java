@@ -40,7 +40,7 @@ public class AccountController {
     }
     @GetMapping("/getALlAcount")
     public ApiResponseWrapper<List<AccountCreateReponse>> getALlAcount() {
-        List<AccountCreateReponse> accountResponses = accountService.getAllAccounts();
+        List<AccountCreateReponse> accountResponses = accountService.getAllAccountsbyCifCode();
         ApiResponseWrapper<List<AccountCreateReponse>> response = new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),
                 messageUtils.getMessage("account.get-all.success"),

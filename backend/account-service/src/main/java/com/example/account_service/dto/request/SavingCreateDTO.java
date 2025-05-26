@@ -24,9 +24,6 @@ public class SavingCreateDTO implements BaseAccountCreateDTO  {
     @NotBlank
     private String accountNumberSource;
 
-    @NotBlank(message = "CIF code is required")
-    private String cifCode;
-
     @NotNull(message = "Account status is required")
     private Long initialDeposit;
 

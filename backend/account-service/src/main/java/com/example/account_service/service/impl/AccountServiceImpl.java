@@ -12,13 +12,16 @@ import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.service.BaseAccountCreateDTO;
 import com.example.common_service.constant.AccountStatus;
+import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.CorePaymentAccountDTO;
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +35,7 @@ import java.util.Random;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
-    @DubboReference
+    @DubboReference(timeout = 5000)
     private final CommonService commonService;
 
     @DubboReference(timeout = 5000)
@@ -43,20 +46,27 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountCreateReponse createPayment(PaymentCreateDTO paymentCreateDTO) {
         /// Kiem tra cif code , check status tai khoan- call api cua custommer- lay dc status account neu hop le
+        /// cif se get tu current Customer logged
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id "+ userId);
+        log.info(" Recive payment request");
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        log.info("Current Customer : {}", currentCustomer);
         log.info("Create payment request received");
         log.info("Payment createDTO: {}", paymentCreateDTO);
-        log.info("checked : " + commonService.checkCustomer(paymentCreateDTO.getCifCode()));
-        boolean isActive = commonService.checkCustomer(paymentCreateDTO.getCifCode());
-        if (isActive) {
+//        log.info("checked : " + commonService.checkCustomer(paymentCreateDTO.getCifCode()));
+//        boolean isActive = commonService.checkCustomer(paymentCreateDTO.getCifCode());
+        if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
             /// /
             /// Map tu request ve account
             //Account account = accountMapper.toEntityFromPayment(paymentCreateDTO);
             Account account = Account.builder()
                     .accountType(paymentCreateDTO.getAccountType())
-                    .cifCode(paymentCreateDTO.getCifCode())
+                    .cifCode(currentCustomer.getCifCode())
                     .status(AccountStatus.ACTIVE)
                     .build();
-            account.setAccountNumber(generateAccountNumber(paymentCreateDTO));
+            account.setAccountNumber(generateAccountNumber(account));
             log.info("Account : " + account);
             /// set up  account
             /// Call core banking create Account tren db core setup balance or terms
@@ -84,21 +94,27 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountCreateReponse createSaving(SavingCreateDTO savingCreateDTO) {
-
-        boolean isActive = commonService.checkCustomer(savingCreateDTO.getCifCode());
-        if (isActive) {
+        log.info(" Recive create saving account request");
+        /// Get Current Customer
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id "+ userId);
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+//        boolean isActive = commonService.checkCustomer(savingCreateDTO.getCifCode());
+        //Check customer stattus
+        if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
             ///  Create account
             Account account = Account.builder()
                     .accountType(savingCreateDTO.getAccountType())
-                    .cifCode(savingCreateDTO.getCifCode())
+                    .cifCode(currentCustomer.getCifCode())
                     .status(AccountStatus.ACTIVE)
-                    .accountNumber(generateAccountNumber(savingCreateDTO))
                     .build();
+            account.setAccountNumber(generateAccountNumber(account));
             ///  got accountnumberSource from DTO
             log.info("Account number Soucre : " + savingCreateDTO.getAccountNumberSource());
 
             coreSavingAccountDTO coreSavingAccountDTO = com.example.common_service.dto.coreSavingAccountDTO.builder()
-                    .cifCode(savingCreateDTO.getCifCode())
+                    .cifCode(account.getCifCode())
                     .term(savingCreateDTO.getTerm())
                     .initialDeposit(savingCreateDTO.getInitialDeposit())
                     .accountNumber(account.getAccountNumber())
@@ -120,17 +136,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountCreateReponse> getAllAccounts() {
-        // check ma cif cua customer
-        //cif lay tu context  k
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userID = authentication.getName(); // userID keycloak
-        //get customer info by userID
-        //check status customer by cif code
+    public List<AccountCreateReponse> getAllAccountsbyCifCode() {
         return List.of();
     }
 
-    public String generateAccountNumber(BaseAccountCreateDTO dto) {
+
+    public String generateAccountNumber(Account dto) {
         String cif = dto.getCifCode();
         int typeCode;
         if (dto.getAccountType().name().equals("PAYMENT")) {

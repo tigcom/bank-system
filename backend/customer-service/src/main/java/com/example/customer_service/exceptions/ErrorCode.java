@@ -8,6 +8,7 @@ public enum ErrorCode {
     USERNAME_EXISTS("Tên đăng nhập đã tồn tại"),
     EMAIL_EXISTS("Email đã tồn tại"),
     KEYCLOAK_ERROR("Lỗi khi gọi Keycloak API"),
+    CUSTOMER_NOTEXISTED("Customer is not existed"),
     INVALID_CREDENTIALS("Sai tên đăng nhập hoặc mật khẩu");
 
     private final String message;

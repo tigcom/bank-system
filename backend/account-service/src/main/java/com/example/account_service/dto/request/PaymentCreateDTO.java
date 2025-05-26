@@ -12,12 +12,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class PaymentCreateDTO  implements BaseAccountCreateDTO {
 
     private final com.example.common_service.constant.AccountType accountType = com.example.common_service.constant.AccountType.PAYMENT;
-    @NotBlank(message = "customer.cif.blank")
-    private String cifCode;
 
 }
