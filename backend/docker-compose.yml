@@ -1,0 +1,40 @@
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=mysql
+      - KC_DB_URL=jdbc:mysql://host.docker.internal:3306/keycloak?useSSL=false&serverTimezone=UTC
+      - KC_DB_USERNAME=root
+      - KC_DB_PASSWORD=123456
+      - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=edge
+    ports:
+      - "8081:8080"
+    command:
+      - start-dev
+    networks:
+      - customer-network
+
+#  # Tùy chọn: Dịch vụ Angular (chạy frontend trong Docker)
+#  angular:
+#    image: node:18
+#    user: "node"
+#    working_dir: /home/node/app
+#    volumes:
+#      - ./angular-app:/home/node/app
+#    ports:
+#      - "4200:4200"
+#    command: "npm start"
+#    depends_on:
+#      - keycloak
+#    networks:
+#      - keycloak-network
+
+networks:
+  customer-network:
+    driver: bridge

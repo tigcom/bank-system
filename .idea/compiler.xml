@@ -11,8 +11,10 @@
         <module name="transaction-service" />
         <module name="account-service" />
         <module name="customer-service" />
-        <module name="corebanking-service" />
+        <module name="common-service" />
+        <module name="account-service" />
         <module name="loan-service" />
+        <module name="corebanking-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -20,6 +22,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account-service" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
+      <module name="common-service" options="-parameters" />
       <module name="corebanking-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
