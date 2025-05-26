@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class CoreAccount {
     private AccountType accountType;
 
     @Column(name = "balance")
-    private Long balance;
+    private BigDecimal balance;
 
     @Column(name = "status", length = 20)
     private String status;

@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaRepositories
 public interface  CoreAccountRepo extends  JpaRepository<CoreAccount,String>{
+    CoreAccount findByAccountNumber(String accountNumber);
 }

@@ -65,6 +65,9 @@ public class Transaction {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
         }
+        if(this.timestamp == null){
+            this.timestamp = LocalDateTime.now();
+        }
         if (this.bankType == null) {
             this.bankType = BankType.INTERNAL;
         }
