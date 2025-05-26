@@ -1,6 +1,7 @@
 package com.example.loan_service.entity;
 
 
+import com.example.loan_service.models.LoanStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -34,7 +35,8 @@ public class Loan {
     @Column(name = "declared_income")
     private BigDecimal declaredIncome;
     @Column(nullable = false, length = 20)
-    private String status = "PENDING";
+    @Enumerated(EnumType.STRING)
+    private LoanStatus status = LoanStatus.PENDING;
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name = "approved_at")

@@ -18,22 +18,6 @@ import java.util.List;
 public class RepaymentController {
 
     private final LoanHandler loanHandler;
-    @PostMapping("/generate")
-    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> generateRepaymentSchedule(@RequestBody Loan loan) {
-        ApiResponseWrapper<List<Repayment>> response = new ApiResponseWrapper<>();
-        try {
-            List<Repayment> schedule = loanHandler.generateRepaymentSchedule(loan);
-            response.setData(schedule);
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Repayment schedule generated successfully");
-        } catch (Exception e) {
-            response.setData(null);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to generate repayment schedule: " + e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
     @GetMapping("/loan/{loanId}")
     public ResponseEntity<ApiResponseWrapper<List<Repayment>>> getRepaymentsByLoanId(@PathVariable Long loanId) {
         ApiResponseWrapper<List<Repayment>> response = new ApiResponseWrapper<>();
@@ -67,12 +51,27 @@ public class RepaymentController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @PatchMapping("/{repaymentId}/status")
-    public ResponseEntity<ApiResponseWrapper<Repayment>> updateRepaymentStatus(@PathVariable Long repaymentId,
-                                                                               @RequestParam String status) {
+    @PatchMapping("/{repaymentId}/late/")
+    public ResponseEntity<ApiResponseWrapper<Repayment>> lateRepaymentStatus(@PathVariable Long repaymentId) {
         ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
         try {
-            Repayment updatedRepayment = loanHandler.updateRepaymentStatus(repaymentId, status);
+            Repayment updatedRepayment = loanHandler.lateRepayment(repaymentId);
+            response.setData(updatedRepayment);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Repayment status updated successfully");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to update repayment status: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @PatchMapping("/{repaymentId}/unpaid/")
+    public ResponseEntity<ApiResponseWrapper<Repayment>> unpaidRepaymentStatus(@PathVariable Long repaymentId) {
+        ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
+        try {
+            Repayment updatedRepayment = loanHandler.unpaidRepayment(repaymentId);
             response.setData(updatedRepayment);
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Repayment status updated successfully");
@@ -101,21 +100,34 @@ public class RepaymentController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @PostMapping("/update-schedule")
-    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> updateRepaymentSchedule(
-            @RequestBody Loan loan,
-            @RequestParam int startPeriodIndex,
-            @RequestParam BigDecimal remainingPrincipal) {
+    @GetMapping("/history/{loanId}")
+    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> getRepaymentHistory(@PathVariable Long loanId) {
         ApiResponseWrapper<List<Repayment>> response = new ApiResponseWrapper<>();
         try {
-            List<Repayment> updatedSchedule = loanHandler.updateRepaymentSchedule(loan, startPeriodIndex, remainingPrincipal);
-            response.setData(updatedSchedule);
+            List<Repayment> repayment = loanHandler.getHistory(loanId);
+            response.setData(repayment);
             response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Repayment schedule updated successfully");
+            response.setMessage("Get history successfully");
         } catch (Exception e) {
             response.setData(null);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to update repayment schedule: " + e.getMessage());
+            response.setMessage("Failed to get history : " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @GetMapping("/current/{loanId}")
+    public ResponseEntity<ApiResponseWrapper<Repayment>> getCurrentRepayment(@PathVariable Long loanId) {
+        ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
+        try {
+            Repayment repayment = loanHandler.getCurrentRepayment(loanId);
+            response.setData(repayment);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Get Current Repayment successfully");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to get current Repayment : " + e.getMessage());
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }

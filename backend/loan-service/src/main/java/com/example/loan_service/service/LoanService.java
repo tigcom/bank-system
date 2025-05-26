@@ -10,20 +10,15 @@ public interface LoanService {
     Loan createLoan(Loan loan);
 
     Loan updateLoan(Loan loan);
-
     Loan approveLoan(Long loanId);
-
     Optional<Loan> getLoanById(Long loanId);
-
     List<Loan> findAllLoan();
-
+    List<Loan> getLoansApprove();
     List<Loan> getLoansByCustomerId(Long customerId);
 
-    Optional<Loan> getLoanByCustomerId(Long customerId,Long loanId);
+    Loan rejectedLoan(Long loanId);
 
-    List<Repayment> generateRepaymentSchedule(Loan loan);
-
-    Loan updateLoanStatus(Long loanId, String status);
+    Loan closedLoan(Long loanId);
 
     void deleteLoan(Long loanId);
 }

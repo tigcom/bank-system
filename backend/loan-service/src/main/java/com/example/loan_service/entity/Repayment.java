@@ -1,5 +1,6 @@
 package com.example.loan_service.entity;
 
+import com.example.loan_service.models.RepaymentStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,6 @@ public class Repayment {
     private BigDecimal paidAmount = BigDecimal.ZERO;
 
     @Column(nullable = false, length = 20)
-    private String status = "UNPAID";
+    @Enumerated(EnumType.STRING)
+    private RepaymentStatus status = RepaymentStatus.UNPAID;
 }

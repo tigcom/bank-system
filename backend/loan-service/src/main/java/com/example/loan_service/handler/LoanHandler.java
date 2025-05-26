@@ -3,6 +3,7 @@ package com.example.loan_service.handler;
 
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
+import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
@@ -46,20 +47,28 @@ public class LoanHandler {
         return loanService.getLoansByCustomerId(customerId);
     }
 
-    public Optional<Loan> getLoanByCustomerAndLoanId(Long customerId, Long loanId) {
-        return loanService.getLoanByCustomerId(customerId, loanId);
+    public Loan closedLoan(Long loanId) {
+        Loan loan =  new Loan();
+        try {
+            loan = loanService.closedLoan(loanId);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return loan;
     }
 
-    public Loan updateLoanStatus(Long loanId, String status) {
-        return loanService.updateLoanStatus(loanId, status);
+    public Loan rejectedLoan(Long loanId) {
+        Loan loan =  new Loan();
+        try {
+            loan = loanService.rejectedLoan(loanId);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return loan;
     }
 
     public void deleteLoan(Long loanId) {
         loanService.deleteLoan(loanId);
-    }
-
-    public List<Repayment> generateRepaymentSchedule(Loan loan) {
-        return repaymentService.generateRepaymentSchedule(loan);
     }
 
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
@@ -70,16 +79,20 @@ public class LoanHandler {
         return repaymentService.makeRepayment(repaymentId, amount);
     }
 
+    public List<Repayment> getHistory(Long loanId) { return repaymentService.getHistoryRepayment(loanId);}
+
+    public Repayment getCurrentRepayment(Long loanId) { return repaymentService.getCurrentRepayment(loanId);}
+
     public Optional<Repayment> getRepaymentById(Long repaymentId) {
         return repaymentService.getRepaymentById(repaymentId);
     }
 
-    public Repayment updateRepaymentStatus(Long repaymentId, String status) {
-        return repaymentService.updateRepaymentStatus(repaymentId, status);
+    public Repayment unpaidRepayment(Long repaymentId) {
+        return repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.UNPAID);
     }
 
-    public List<Repayment> updateRepaymentSchedule(Loan loan, int startPeriodIndex, BigDecimal remainingPrincipal) {
-        return repaymentService.updateRepaymentSchedule(loan, startPeriodIndex, remainingPrincipal);
+    public Repayment lateRepayment(Long repaymentId) {
+        return repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.LATE);
     }
 
     public void deleteRepaymentsByLoanId(Long loanId) {

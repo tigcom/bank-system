@@ -64,6 +64,36 @@ public class LoanController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
+    @PostMapping("/{loanId}/close")
+    public ResponseEntity<ApiResponseWrapper<Loan>> closedLoan(@PathVariable Long loanId) {
+        ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
+        try {
+            response.setData(loanHandler.closedLoan(loanId));
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Successfully approved Loan");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to close Loan: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @PostMapping("/{loanId}/reject")
+    public ResponseEntity<ApiResponseWrapper<Loan>> rejectedLoan(@PathVariable Long loanId) {
+        ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
+        try {
+            response.setData(loanHandler.rejectedLoan(loanId));
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Successfully approved Loan");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to reject Loan: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
     @GetMapping("/{loanId}")
     public ResponseEntity<ApiResponseWrapper<Loan>> getLoanById(@PathVariable Long loanId) {
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
@@ -97,23 +127,6 @@ public class LoanController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @PatchMapping("/{loanId}/status")
-    public ResponseEntity<ApiResponseWrapper<Loan>> updateLoanStatus(@PathVariable Long loanId,
-                                                                     @RequestParam String status) {
-        ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
-        try {
-            Loan updatedLoan = loanHandler.updateLoanStatus(loanId, status);
-            response.setData(updatedLoan);
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Loan status updated successfully");
-        } catch (Exception e) {
-            response.setData(null);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to update loan status: " + e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
     @DeleteMapping("/{loanId}")
     public ResponseEntity<ApiResponseWrapper<Void>> deleteLoan(@PathVariable Long loanId) {
         ApiResponseWrapper<Void> response = new ApiResponseWrapper<>();
@@ -129,68 +142,4 @@ public class LoanController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @GetMapping("/{loanId}/repayments")
-    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> getRepaymentsByLoanId(@PathVariable Long loanId) {
-        ApiResponseWrapper<List<Repayment>> response = new ApiResponseWrapper<>();
-        try {
-            List<Repayment> repayments = loanHandler.getRepaymentsByLoanId(loanId);
-            response.setData(repayments);
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Repayments retrieved successfully");
-        } catch (Exception e) {
-            response.setData(null);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to retrieve repayments: " + e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
-    @PostMapping("/repayments/{repaymentId}/pay")
-    public ResponseEntity<ApiResponseWrapper<Repayment>> makeRepayment(@PathVariable Long repaymentId,
-                                                                       @RequestParam BigDecimal amount) {
-        ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
-        try {
-            Repayment repayment = loanHandler.makeRepayment(repaymentId, amount);
-            response.setData(repayment);
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Repayment successful");
-        } catch (Exception e) {
-            response.setData(null);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to make repayment: " + e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
-    @PatchMapping("/repayments/{repaymentId}/status")
-    public ResponseEntity<ApiResponseWrapper<Repayment>> updateRepaymentStatus(@PathVariable Long repaymentId,
-                                                                               @RequestParam String status) {
-        ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
-        try {
-            Repayment repayment = loanHandler.updateRepaymentStatus(repaymentId, status);
-            response.setData(repayment);
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Repayment status updated successfully");
-        } catch (Exception e) {
-            response.setData(null);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to update repayment status: " + e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
-    @DeleteMapping("/{loanId}/repayments")
-    public ResponseEntity<ApiResponseWrapper<Void>> deleteRepaymentsByLoanId(@PathVariable Long loanId) {
-        ApiResponseWrapper<Void> response = new ApiResponseWrapper<>();
-        try {
-            loanHandler.deleteRepaymentsByLoanId(loanId);
-            response.setData(null);
-            response.setStatus(HttpStatus.NO_CONTENT.value());
-            response.setMessage("Repayments deleted successfully");
-        } catch (Exception e) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setMessage("Failed to delete repayments: " + e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
 }

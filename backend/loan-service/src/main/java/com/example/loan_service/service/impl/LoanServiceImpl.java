@@ -2,6 +2,8 @@ package com.example.loan_service.service.impl;
 
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
+import com.example.loan_service.models.LoanStatus;
+import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.repository.LoanRepository;
 import com.example.loan_service.service.LoanService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,7 +26,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public Loan createLoan(Loan loan) {
-        loan.setStatus("PENDING");
+        loan.setStatus(LoanStatus.PENDING);
         loan.setCreatedAt(LocalDateTime.now());
         return loanRepository.save(loan);
     }
@@ -36,7 +38,12 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public List<Loan> findAllLoan() {
-        return List.of();
+        return loanRepository.findAll();
+    }
+
+    @Override
+    public List<Loan> getLoansApprove() {
+        return loanRepository.findAllByStatusIs(LoanStatus.APPROVED);
     }
 
     @Override
@@ -45,19 +52,11 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan updateLoanStatus(Long loanId, String status) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
-        loan.setStatus(status);
-        return loanRepository.save(loan);
-    }
-
-    @Override
     public void deleteLoan(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
 
-        if (!"PENDING".equalsIgnoreCase(loan.getStatus())) {
+        if (!LoanStatus.PENDING.equals(loan.getStatus())) {
             throw new IllegalStateException("Only PENDING loans can be deleted");
         }
 
@@ -69,11 +68,11 @@ public class LoanServiceImpl implements LoanService {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
 
-        if (!"PENDING".equalsIgnoreCase(loan.getStatus())) {
+        if (!LoanStatus.PENDING.equals(loan.getStatus())) {
             throw new IllegalStateException("Loan is not in PENDING status");
         }
 
-        loan.setStatus("APPROVED");
+        loan.setStatus(LoanStatus.APPROVED);
         loan.setApprovedAt(LocalDateTime.now());
         return loanRepository.save(loan);
     }
@@ -86,42 +85,30 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Optional<Loan> getLoanByCustomerId(Long customerId,Long loanId) {
-        return this.getLoansByCustomerId(customerId).stream()
-                .filter(loan -> loan.getLoanId().equals(loanId))
-                .findFirst();
+    public Loan rejectedLoan(Long loanId) {
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
+
+        if (!LoanStatus.PENDING.equals(loan.getStatus())) {
+            throw new IllegalStateException("Loan is not in PENDING status");
+        }
+
+        loan.setStatus(LoanStatus.REJECTED);
+        loan.setApprovedAt(LocalDateTime.now());
+        return loanRepository.save(loan);
     }
 
     @Override
-    public List<Repayment> generateRepaymentSchedule(Loan loan) {
-        List<Repayment> repayments = new ArrayList<>();
+    public Loan closedLoan(Long loanId) {
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new EntityNotFoundException("Loan not found"));
 
-        BigDecimal monthlyInterestRate = loan.getInterestRate()
-                .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
-                .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
-
-        BigDecimal monthlyPrincipal = loan.getAmount()
-                .divide(BigDecimal.valueOf(loan.getTermMonths()), 2, RoundingMode.HALF_UP);
-
-        LocalDate dueDate = LocalDate.now().plusMonths(1);
-
-        for (int i = 0; i < loan.getTermMonths(); i++) {
-            BigDecimal interest = loan.getAmount().subtract(monthlyPrincipal.multiply(BigDecimal.valueOf(i)))
-                    .multiply(monthlyInterestRate)
-                    .setScale(2, RoundingMode.HALF_UP);
-
-            Repayment repayment = new Repayment();
-            repayment.setLoan(loan);
-            repayment.setDueDate(dueDate.plusMonths(i));
-            repayment.setPrincipal(monthlyPrincipal);
-            repayment.setInterest(interest);
-            repayment.setPaidAmount(BigDecimal.ZERO);
-            repayment.setStatus("UNPAID");
-
-            repayments.add(repayment);
+        if (!LoanStatus.APPROVED.equals(loan.getStatus())) {
+            throw new IllegalStateException("Loan is not in APPROVED status");
         }
-
-        return repayments;
+        loan.setStatus(LoanStatus.CLOSED);
+        loan.setApprovedAt(LocalDateTime.now());
+        return loanRepository.save(loan);
     }
 
 
