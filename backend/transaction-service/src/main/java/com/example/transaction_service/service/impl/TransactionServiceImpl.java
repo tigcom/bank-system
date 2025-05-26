@@ -20,6 +20,7 @@ import com.example.transaction_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,9 @@ public class TransactionServiceImpl implements TransactionService{
     @DubboReference
     private final CoreTransactionService coreTransactionService;
 
+    @Value("${masterAccount}")
+    private String masterAccount;
+
     @Override
     @Transactional(noRollbackFor = Exception.class)
     public TransactionDTO transfer(TransferRequest transferRequest) {
@@ -55,13 +59,11 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setDescription(transferRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(transferRequest.getCurrency()));
         transaction.setType(TransactionType.TRANSFER);
-        validateTransaction(transaction);
 
+//      Validate Transaction
+        validateTransaction(transaction);
 //      Khởi tạo transaction
         initTransaction(transaction);
-
-//      Lưu trạng thái transaction là PENDING
-        transactionRepository.save(transaction);
 
 //      Thực thi transaction
         processTransaction(transaction);
@@ -71,7 +73,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = Exception.class)
     public TransactionDTO deposit(DepositRequest depositRequest) {
         Transaction transaction = new Transaction();
         transaction.setToAccountNumber(depositRequest.getToAccountNumber());
@@ -80,25 +82,21 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(depositRequest.getCurrency()));
         transaction.setType(TransactionType.DEPOSIT);
 
-//        Lấy tài khoản master
-        String masterAccount = "masterAccount";
         transaction.setFromAccountNumber(masterAccount);
 //      Validate Transaction
         validateTransaction(transaction);
-        transaction.setStatus(TransactionStatus.PENDING);
+
+        initTransaction(transaction);
 
         transactionRepository.save(transaction);
-        try {
-//      Thực thi transaction
-            processTransaction(transaction);
-        }catch (Exception ex){
-            transaction.setStatus(TransactionStatus.FAILED);
-           throw ex;
-        }
-        return null;
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
     @Override
+    @Transactional(noRollbackFor = Exception.class)
     public TransactionDTO withdraw(WithdrawRequest withdrawRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(withdrawRequest.getFromAccountNumber());
@@ -107,19 +105,17 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(withdrawRequest.getCurrency()));
         transaction.setType(TransactionType.WITHDRAW);
 
-//        Lấy tài khoản master
-        String masterAccount = "masterAccount";
         transaction.setToAccountNumber(masterAccount);
-
+//      Validate
         validateTransaction(transaction);
-        transaction.setStatus(TransactionStatus.PENDING);
-        try {
-            processTransaction(transaction);
-        }catch (Exception ex){
-            transaction.setStatus(TransactionStatus.FAILED);
-            throw ex;
-        }
-        return null;
+//      khởi tạo transaction
+        initTransaction(transaction);
+        transactionRepository.save(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
     @Override
@@ -212,6 +208,7 @@ public class TransactionServiceImpl implements TransactionService{
             String referenceCode = "TXN-"+ transaction.getFromAccountNumber() + "-"+ dateTimeNow +uniqueSuffix;
             transaction.setReferenceCode(referenceCode);
         }
+        transaction.setStatus(TransactionStatus.PENDING);
     }
     private void processTransaction(Transaction transaction) {
         try {
