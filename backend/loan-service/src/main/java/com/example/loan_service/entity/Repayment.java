@@ -1,5 +1,7 @@
 package com.example.loan_service.entity;
 
+import com.example.loan_service.models.RepaymentStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,8 +19,10 @@ public class Repayment {
     @Column(name = "repayment_id")
     private Long repaymentId;
 
-    @Column(name = "loan_id", nullable = false)
-    private Long loanId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_id", nullable = false)
+    @JsonBackReference
+    private Loan loan;
 
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
@@ -33,5 +37,6 @@ public class Repayment {
     private BigDecimal paidAmount = BigDecimal.ZERO;
 
     @Column(nullable = false, length = 20)
-    private String status = "UNPAID";
+    @Enumerated(EnumType.STRING)
+    private RepaymentStatus status = RepaymentStatus.UNPAID;
 }
