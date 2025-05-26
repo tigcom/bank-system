@@ -1,10 +1,11 @@
-package com.example.customer_service.dtos;
+package com.example.customer_service.responses;
 
 import com.example.customer_service.models.CustomerStatus;
+import com.example.customer_service.models.KycStatus;
 import lombok.Data;
 
 @Data
-public class CustomerDTO {
+public class CustomerResponse {
     private Long id;
     private String cifCode;
     private String fullName;
@@ -12,5 +13,5 @@ public class CustomerDTO {
     private String email;
     private String phoneNumber;
     private CustomerStatus status;
-    private String kycStatus;
+    private KycStatus kycStatus;
 }

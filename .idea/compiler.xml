@@ -31,6 +31,11 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
+        <module name="account-service" />
+        <module name="customer-service" />
+        <module name="common-service" />
+        <module name="account-service" />
+        <module name="loan-service" />
         <module name="corebanking-service" />
       </profile>
     </annotationProcessing>
