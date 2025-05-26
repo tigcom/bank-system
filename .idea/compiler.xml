@@ -1,38 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="common-service" />
-        <module name="customer-service" />
-        <module name="loan-service" />
-        <module name="api-gateway" />
-        <module name="transaction-service" />
-        <module name="account-service" />
-      </profile>
-      <profile name="Annotation profile for corebanking-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
-        <module name="corebanking-service" />
-      </profile>
-    </annotationProcessing>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="account-service" options="-parameters" />
-      <module name="api-gateway" options="-parameters" />
-      <module name="common-service" options="-parameters" />
-      <module name="corebanking-service" options="-parameters" />
-      <module name="customer-service" options="-parameters" />
-      <module name="loan-service" options="-parameters" />
-      <module name="transaction-service" options="-parameters" />
-    </option>
+    <bytecodeTargetLevel>
+      <module name="account-service" target="17" />
+      <module name="api-gateway" target="17" />
+      <module name="common-service" target="17" />
+      <module name="corebanking-service" target="17" />
+      <module name="customer-service" target="17" />
+      <module name="loan-service" target="17" />
+      <module name="transaction-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

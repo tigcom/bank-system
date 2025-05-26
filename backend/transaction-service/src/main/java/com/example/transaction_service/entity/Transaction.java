@@ -65,15 +65,8 @@ public class Transaction {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
         }
-        if (this.currency == null) {
-            this.currency = CurrencyType.VND;
-        }
-        if (this.status == null) {
-            this.status = TransactionStatus.PENDING;
-        }
-        if (this.referenceCode == null) {
-            String dateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-            this.referenceCode = "TXN-"+ fromAccountNumber + "-"+ dateTimeNow ;
+        if(this.timestamp == null){
+            this.timestamp = LocalDateTime.now();
         }
         if (this.bankType == null) {
             this.bankType = BankType.INTERNAL;

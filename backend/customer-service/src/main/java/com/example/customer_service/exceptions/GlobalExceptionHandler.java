@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -21,16 +22,18 @@ public class GlobalExceptionHandler {
     private final MessageSource messageSource;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .toList();
+    public ResponseEntity<ApiResponseWrapper<Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("message", errors.get(0));
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(
+                new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), errorMessage, null)
+        );
     }
+
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleDataNotFound(EntityNotFoundException ex) {
@@ -60,6 +63,26 @@ public class GlobalExceptionHandler {
                 null
         );
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponseWrapper<Object>> handleBusinessException(BusinessException ex) {
+        ApiResponseWrapper<Object> response = new ApiResponseWrapper<>(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                null
+        );
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponseWrapper<Object>> handleGeneralException(Exception ex) {
+        ApiResponseWrapper<Object> response = new ApiResponseWrapper<>(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Lỗi hệ thống",
+                null
+        );
+        return ResponseEntity.internalServerError().body(response);
     }
 
 }
