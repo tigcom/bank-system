@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/backend/api-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/corebanking-service/corebanking-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/corebanking-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/customer-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/loan-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/transaction-service/src/main/java" charset="UTF-8" />
   </component>
 </project>
