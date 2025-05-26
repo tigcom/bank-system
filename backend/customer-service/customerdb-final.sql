@@ -1,10 +1,11 @@
-CREATE DATABASE IF NOT EXISTS customerdb;
+CREATE DATABASE customerdb;
 USE customerdb;
 
 CREATE TABLE customers (
     customer_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id VARCHAR(50) UNIQUE NOT NULL, -- mapping với Keycloak ID
+    user_id VARCHAR(50) UNIQUE NOT NULL,
     cif_code VARCHAR(20) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     date_of_birth DATE,
     gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
@@ -41,11 +42,11 @@ CREATE INDEX idx_customers_user_id ON customers(user_id);
 
 
 INSERT INTO customers (
-    user_id, cif_code, full_name, date_of_birth, gender, identity_number, 
-    address, email, phone_number, status, username
+    user_id, cif_code, username , full_name, date_of_birth, gender, identity_number, 
+    address, email, phone_number, status
 ) VALUES (
-    'c6a123bc-456d-78ef-90gh-ijklmnopqrst', 'CIF001', 'Nguyen Van A', '1990-01-15', 
-    'male', '123456789', '123 Le Loi, Hanoi', 'a.nguyen@example.com', '0901234567', 'ACTIVE', test
+    'c6a123bc-456d-78ef-90gh-ijklmnopqrst', 'CIF001', "nguyenvana" , 'Nguyen Van A', '1990-01-15', 
+    'male', '123456789', '123 Le Loi, Hanoi', 'a.nguyen@example.com', '0901234567', 'ACTIVE'
 );
 
 INSERT INTO kyc (
