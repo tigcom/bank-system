@@ -14,15 +14,33 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+dubbo:
+  application:
+    name: "corebanking-service"
+    qos-enable: false
+    metadata-type: remote
+    serialize-check-status: STRICT
+    serialization:
+      security:
+        check: true
+        # Tr·ªè ƒë·∫øn file allowlist c·ªßa b·∫°n
+        allowlist: "file:security/serialize.allowlist"
+  protocol:
+    name: "dubbo"
+    port: -1
+  registry:
+    address: "zookeeper://${DOCKER_HOST:localhost}:2181"
+
+
 
 #  cloud:
 #    vault:
 #      kv:
 #        enabled: true  # B?t Vault Key-Value backend
-#      authentication: TOKEN  # S? d?ng token ?? x·c th?c
-#      token: myroot  # Token ?? x·c th?c v?i Vault
+#      authentication: TOKEN  # S? d?ng token ?? xÔøΩc th?c
+#      token: myroot  # Token ?? xÔøΩc th?c v?i Vault
 #      scheme: http  # Giao th?c HTTP
-#      host: 127.0.0.1  # ??a ch? host, m?c ??nh l‡ localhost n?u khÙng cÛ bi?n mÙi tr??ng DOCKER_HOST
+#      host: 127.0.0.1  # ??a ch? host, m?c ??nh lÔøΩ localhost n?u khÔøΩng cÔøΩ bi?n mÔøΩi tr??ng DOCKER_HOST
 #      port: 8200  # C?ng k?t n?i ??n Vault
 #  config:
 #    import: vault://secret/auth-service

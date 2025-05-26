@@ -14,3 +14,25 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  messages:
+    basename:
+      - i18n/messages
+    encoding: UTF-8
+
+dubbo:
+  application:
+    name: "account-service"
+    qos-enable: false
+    metadata-type: remote
+    serialize-check-status: STRICT
+    serialization:
+      security:
+        check: true
+      # Trỏ đến file allowlist của bạn
+        allowlist: "file:security/serialize.allowlist"
+  protocol:
+    name: "dubbo"
+    port: -1
+  registry:
+    address: "zookeeper://${DOCKER_HOST:localhost}:2181"
+

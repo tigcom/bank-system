@@ -9,9 +9,7 @@
         <module name="api-gateway" />
         <module name="transaction-service" />
         <module name="common-service" />
-        <module name="account-service" />
         <module name="customer-service" />
-
         <module name="loan-service" />
       </profile>
       <profile name="Annotation profile for corebanking-service" enabled="true">
@@ -19,9 +17,20 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="corebanking-service" />
+      </profile>
+      <profile name="Annotation profile for account-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="account-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -31,7 +40,6 @@
       <module name="api-gateway" options="-parameters" />
       <module name="common-service" options="-parameters" />
       <module name="corebanking-service" options="-parameters" />
-      <module name="loan-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
       <module name="transaction-service" options="-parameters" />
