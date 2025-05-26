@@ -7,22 +7,35 @@ spring:
   application:
     name: corebanking-service
   datasource:
-    url: jdbc:mysql://localhost:3306/coredb
+    url: jdbc:mysql://localhost:3307/coredb
     username: root
-    password: 123456
+    password: 0986341885dai
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
+#Dubbo
+dubbo:
+  application:
+    name: corebanking-service
+  protocol:
+    name: dubbo
+    port: 20881
+  registry:
+    address: zookeeper://localhost:2181
+  scan:
+    base-packages: com.example.corebanking_service.service
+
+
 #  cloud:
 #    vault:
 #      kv:
 #        enabled: true  # B?t Vault Key-Value backend
-#      authentication: TOKEN  # S? d?ng token ?? xác th?c
-#      token: myroot  # Token ?? xác th?c v?i Vault
+#      authentication: TOKEN  # S? d?ng token ?? x?c th?c
+#      token: myroot  # Token ?? x?c th?c v?i Vault
 #      scheme: http  # Giao th?c HTTP
-#      host: 127.0.0.1  # ??a ch? host, m?c ??nh là localhost n?u không có bi?n môi tr??ng DOCKER_HOST
+#      host: 127.0.0.1  # ??a ch? host, m?c ??nh l? localhost n?u kh?ng c? bi?n m?i tr??ng DOCKER_HOST
 #      port: 8200  # C?ng k?t n?i ??n Vault
 #  config:
 #    import: vault://secret/auth-service

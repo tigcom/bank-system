@@ -7,14 +7,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="common-service" />
+        <module name="customer-service" />
+        <module name="loan-service" />
+        <module name="corebanking-service" />
         <module name="api-gateway" />
         <module name="transaction-service" />
         <module name="account-service" />
-        <module name="customer-service" />
-        <module name="common-service" />
-        <module name="account-service" />
-        <module name="loan-service" />
-        <module name="corebanking-service" />
       </profile>
     </annotationProcessing>
   </component>

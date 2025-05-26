@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
+    FROM_ACCOUNT_NOT_PAYMENT(400,"Tài khoản gửi không phải tài khoản thanh toán" ),
+    TO_ACCOUNT_NOT_PAYMENT(400,"Tài khoản nhận không phải tài khoản thanh toán" ),
     TRANSACTION_NOT_EXIST(400,"Giao dịch không tồn tại" ),
     SAME_ACCOUNT_TRANSFER(400,"Số tài khoản nguồn và tài khoản đích không được trùng" ),
     FROM_ACCOUNT_NOT_EXIST(400,"Tài khoản nguồn không tồn tại" ),
