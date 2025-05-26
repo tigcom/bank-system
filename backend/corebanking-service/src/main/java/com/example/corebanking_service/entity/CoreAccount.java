@@ -1,10 +1,13 @@
 package com.example.corebanking_service.entity;
 
-import com.example.corebanking_service.constant.AccountType;
+import com.example.common_service.constant.AccountStatus;
+import com.example.common_service.constant.AccountType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "core_accounts")
+@SuperBuilder
 @Inheritance(strategy = InheritanceType.JOINED)
 public class CoreAccount {
     @Id
@@ -28,8 +32,9 @@ public class CoreAccount {
     @Column(name = "balance")
     private BigDecimal balance;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private String status;
+    private AccountStatus status;
 
     @Column(name = "opened_date")
     private LocalDate openedDate;

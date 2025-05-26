@@ -27,14 +27,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
-
-		<!-- Nếu cần thêm các class dùng chung như DTO, Utils, Constants -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
+		<!-- Nếu cần thêm các class dùng chung như DTO, Utils, Constants -->
 	</dependencies>
 
 	<build>
