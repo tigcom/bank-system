@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -23,7 +25,7 @@ public class CoreCreditAccount extends CoreAccount {
     public CoreCreditAccount() {
         super();
         this.setAccountType(AccountType.CREDIT); // Đặt loại tài khoản là CREDIT
-        this.setBalance(0L); // Tài khoản tín dụng không có balance thực, gán 0
+        this.setBalance(BigDecimal.ZERO); // Tài khoản tín dụng không có balance thực, gán 0
         this.setCurrentDebt(0L); // Mặc định nợ là 0 khi mới tạo
     }
 }
