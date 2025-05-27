@@ -1,9 +1,8 @@
 package com.example.transaction_service.service;
 
+import com.example.common_service.dto.PayRepaymentRequest;
 import com.example.transaction_service.dto.TransactionDTO;
-import com.example.transaction_service.dto.request.DepositRequest;
-import com.example.transaction_service.dto.request.TransferRequest;
-import com.example.transaction_service.dto.request.WithdrawRequest;
+import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.enums.TransactionStatus;
 
 import java.util.List;
@@ -12,9 +11,13 @@ public interface TransactionService {
     TransactionDTO transfer(TransferRequest transferRequest);
     TransactionDTO deposit(DepositRequest depositRequest);
     TransactionDTO withdraw(WithdrawRequest withdrawRequest);
-    TransactionDTO payBill(TransactionDTO transactionDTO);
+    TransactionDTO payBill(PayRepaymentRequest repaymentRequest);
+    TransactionDTO disburse(DisburseRequest disburseRequest);
+    TransactionDTO confirmTransaction(ConfirmTransactionRequest confirmTransactionRequest);
+
+    void resendOtp(String referenceCode);
     TransactionDTO getTransactionById(String transactionId);
-    List<TransactionDTO> getTransactionByAccount(String accountId);
+    List<TransactionDTO> getAccountTransactions(String accountNumber);
     TransactionDTO getTransactionByTransactionCode(String referenceCode);
     TransactionDTO updateTransactionsStatus(String transactionId, TransactionStatus status);
 }

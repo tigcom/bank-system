@@ -10,6 +10,7 @@ spring:
     url: jdbc:mysql://localhost:3307/coredb
     username: root
     password: 0986341885dai
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -115,4 +116,3 @@ dubbo:
 #        enabled: true
 #
 #
-
