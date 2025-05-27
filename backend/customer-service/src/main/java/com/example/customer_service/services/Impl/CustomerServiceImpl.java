@@ -9,8 +9,11 @@ import com.example.customer_service.repositories.KycProfileRepository;
 import com.example.customer_service.responses.*;
 import com.example.customer_service.services.CustomerService;
 import com.example.customer_service.services.KycService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -21,6 +24,8 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+//@DubboService
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
@@ -129,7 +135,6 @@ public class CustomerServiceImpl implements CustomerService {
         return user;
     }
 
-
     private String createKeycloakUser(RegisterCustomerDTO request) {
         try (Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(keycloakUrl)
@@ -140,32 +145,75 @@ public class CustomerServiceImpl implements CustomerService {
                 .build()) {
 
             log.info("Đang cố gắng tạo người dùng trong Keycloak với username: {}", request.getUsername());
-            log.info("Keycloak URL: {}, Realm: {}, ClientId: {}", keycloakUrl, realm, clientId);
 
             UserRepresentation user = buildUserRepresentation(request);
 
             jakarta.ws.rs.core.Response response = keycloak.realm(realm).users().create(user);
             int status = response.getStatus();
-            String errorBody = response.readEntity(String.class);
-            log.info("Trạng thái phản hồi từ Keycloak khi tạo người dùng: {}", status);
-            log.info("Nội dung phản hồi từ Keycloak khi tạo người dùng: {}", errorBody);
+            String responseBody = response.readEntity(String.class);
 
-            if (response.getStatus() == 201) {
+            log.info("Trạng thái phản hồi từ Keycloak khi tạo người dùng: {}", status);
+            log.info("Nội dung phản hồi từ Keycloak khi tạo người dùng: {}", responseBody);
+
+            if (status == 201) {
                 String userId = CreatedResponseUtil.getCreatedId(response);
                 RoleRepresentation role = keycloak.realm(realm).roles().get("CUSTOMER").toRepresentation();
                 keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
                 log.info("Đã tạo người dùng Keycloak với ID: {}", userId);
                 return userId;
-            } else if (response.getStatus() == 409) {
-                throw new AppException(ErrorCode.USERNAME_EXISTS);
             } else {
-                throw new AppException(ErrorCode.KEYCLOAK_ERROR);
+                // Đọc lỗi chi tiết từ JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode errorJson = objectMapper.readTree(responseBody);
+                String errorMessage = errorJson.has("error_description")
+                        ? errorJson.get("error_description").asText()
+                        : "Unknown Keycloak error";
+
+                throw new IllegalArgumentException("Keycloak error: " + errorMessage);
             }
         } catch (Exception e) {
             log.error("Lỗi khi tạo người dùng Keycloak: {}", e.getMessage(), e);
-            throw new RuntimeException("Không thể tạo người dùng Keycloak", e);
+            throw new RuntimeException(e.getMessage(), e); // giữ lại message chi tiết
         }
     }
+
+
+//    private String createKeycloakUser(RegisterCustomerDTO request) {
+//        try (Keycloak keycloak = KeycloakBuilder.builder()
+//                .serverUrl(keycloakUrl)
+//                .realm(realm)
+//                .clientId(clientId)
+//                .clientSecret(clientSecret)
+//                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+//                .build()) {
+//
+//            log.info("Đang cố gắng tạo người dùng trong Keycloak với username: {}", request.getUsername());
+//            log.info("Keycloak URL: {}, Realm: {}, ClientId: {}", keycloakUrl, realm, clientId);
+//
+//            UserRepresentation user = buildUserRepresentation(request);
+//
+//            jakarta.ws.rs.core.Response response = keycloak.realm(realm).users().create(user);
+//            int status = response.getStatus();
+//            String errorBody = response.readEntity(String.class);
+//            log.info("Trạng thái phản hồi từ Keycloak khi tạo người dùng: {}", status);
+//            log.info("Nội dung phản hồi từ Keycloak khi tạo người dùng: {}", errorBody);
+//
+//            if (response.getStatus() == 201) {
+//                String userId = CreatedResponseUtil.getCreatedId(response);
+//                RoleRepresentation role = keycloak.realm(realm).roles().get("CUSTOMER").toRepresentation();
+//                keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+//                log.info("Đã tạo người dùng Keycloak với ID: {}", userId);
+//                return userId;
+//            } else if (response.getStatus() == 409) {
+//                throw new AppException(ErrorCode.USERNAME_EXISTS);
+//            } else {
+//                throw new AppException(ErrorCode.KEYCLOAK_ERROR);
+//            }
+//        } catch (Exception e) {
+//            log.error("Lỗi khi tạo người dùng Keycloak: {}", e.getMessage(), e);
+//            throw new RuntimeException("Không thể tạo người dùng Keycloak", e);
+//        }
+//    }
 
     private String getKeycloakToken(String usernameOrPhone, String password) throws Exception {
         String tokenEndpoint = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
@@ -275,14 +323,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponse getCustomerDetail(String cifCode) {
-        Optional<Customer> customerOpt = customerRepository.findByCifCode(cifCode);
+    public CustomerResponse getCustomerDetail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        Optional<Customer> customerOpt = customerRepository.findByUserId(userID);
         return customerOpt.map(this::toCustomerResponse).orElse(null);
     }
 
     @Override
     public Response updateCustomerPassword(ChangePasswordDTO request) {
-        Optional<Customer> customerOpt = customerRepository.findById(request.getCustomerId());
+//        Optional<Customer> customerOpt = customerRepository.findById(request.getCustomerId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        Optional<Customer> customerOpt = customerRepository.findByUserId(userID);
         if (customerOpt.isEmpty()) {
             return new Response(false, "Không tìm thấy khách hàng");
         }
@@ -430,7 +483,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private CustomerResponse toCustomerResponse(Customer customer) {
         CustomerResponse response = new CustomerResponse();
-        response.setId(customer.getCustomerId());
         response.setCifCode(customer.getCifCode());
         response.setFullName(customer.getFullName());
         response.setAddress(customer.getAddress());
