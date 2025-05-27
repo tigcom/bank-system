@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    Optional<Customer> findByCifCode(String cifCode);
+    Optional<Customer> findByUserId(String userId);
     Optional<Customer> findByIdentityNumber(String identityNumber);
     Optional<Customer> findByPhoneNumber(String phoneNumber);
     Optional<Customer> findByUsername(String username);

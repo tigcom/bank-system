@@ -9,9 +9,6 @@ import lombok.Data;
 @Schema(description = "DTO thay đổi mật khẩu khách hàng")
 public class ChangePasswordDTO {
 
-    @Schema(description = "ID khách hàng", example = "123")
-    private Long customerId;
-
     @Schema(description = "Mật khẩu cũ", example = "oldPass123", required = true)
     @NotBlank(message = "Mật khẩu cũ không được để trống")
     private String oldPassword;
