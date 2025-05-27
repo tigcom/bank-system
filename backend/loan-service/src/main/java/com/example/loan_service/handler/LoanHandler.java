@@ -1,6 +1,7 @@
 package com.example.loan_service.handler;
 
 
+import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.models.CustomerStatus;
 import com.example.common_service.models.KycStatus;
@@ -30,16 +31,12 @@ public class LoanHandler {
 //    private  CustomerService customerService;
 
     public Loan createLoan(Loan loan) {
-        CustomerResponseDTO customer = new CustomerResponseDTO();
-        customer.setId(12312L);
-        customer.setCifCode("12312312");
-        customer.setAddress("Hồ Chí Minh");
-        customer.setEmail("khang@gmail.com");
-        customer.setDateOfBirth(LocalDate.of(2003, 5, 10));
-        customer.setStatus(CustomerStatus.ACTIVE);
-        customer.setFullName("Phan Khang");
-        customer.setKycStatus(KycStatus.PENDING);
-        customer.setPhoneNumber("1234567890");
+        CustomerResponseDTO customer = CustomerResponseDTO.builder()
+                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
+                .dateOfBirth(LocalDate.of(2003, 5, 10))
+                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.PENDING)
+                .phoneNumber("1234567890").build();
+        AccountDTO account = AccountDTO.builder().build();
 
 
 

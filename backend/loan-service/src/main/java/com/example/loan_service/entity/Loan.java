@@ -25,7 +25,7 @@ public class Loan {
     @Column(name = "customer_id", nullable = false)
     private Long customerId;
     @Column(name = "account_id", nullable = false, length = 20)
-    private String accountId;
+    private String accountNumber;
     @Column(nullable = false)
     private BigDecimal amount;
     @Column(name = "interest_rate", nullable = false)
