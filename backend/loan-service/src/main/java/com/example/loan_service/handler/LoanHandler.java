@@ -1,15 +1,22 @@
 package com.example.loan_service.handler;
 
 
+import com.example.common_service.dto.CustomerResponseDTO;
+import com.example.common_service.models.CustomerStatus;
+import com.example.common_service.models.KycStatus;
+import com.example.common_service.services.customer.CustomerService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
+import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,8 +26,23 @@ public class LoanHandler {
 
     private final LoanService loanService;
     private final RepaymentService repaymentService;
+//    @DubboReference
+//    private  CustomerService customerService;
 
     public Loan createLoan(Loan loan) {
+        CustomerResponseDTO customer = new CustomerResponseDTO();
+        customer.setId(12312L);
+        customer.setCifCode("12312312");
+        customer.setAddress("Hồ Chí Minh");
+        customer.setEmail("khang@gmail.com");
+        customer.setDateOfBirth(LocalDate.of(2003, 5, 10));
+        customer.setStatus(CustomerStatus.ACTIVE);
+        customer.setFullName("Phan Khang");
+        customer.setKycStatus(KycStatus.PENDING);
+        customer.setPhoneNumber("1234567890");
+
+
+
         return loanService.createLoan(loan);
     }
 
