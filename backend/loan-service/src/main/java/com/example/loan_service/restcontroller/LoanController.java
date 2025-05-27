@@ -26,8 +26,10 @@ public class LoanController {
             response.setData(loanHandler.createLoan(loan));
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Successfully created Loan");
+        } catch (IllegalArgumentException e) {
+            response.setMessage(e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
-            response.setData(null);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setMessage("Failed to create Loan: " + e.getMessage());
         }

@@ -14,10 +14,12 @@ import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,17 +32,28 @@ public class LoanHandler {
 //    @DubboReference
 //    private  CustomerService customerService;
 
-    public Loan createLoan(Loan loan) {
+    public Loan createLoan(Loan loan) throws  Exception{
         CustomerResponseDTO customer = CustomerResponseDTO.builder()
                 .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
                 .dateOfBirth(LocalDate.of(2003, 5, 10))
-                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.PENDING)
+                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.VERIFIED)
                 .phoneNumber("1234567890").build();
-        AccountDTO account = AccountDTO.builder().build();
-
-
-
-        return loanService.createLoan(loan);
+        AccountDTO account = AccountDTO.builder()
+                .accountNumber("123").cifCode("213122").accountType("PAYMENT")
+                .balance(BigDecimal.valueOf(1231232.00)).status("ACTIVE").build();
+        if (!customer.getKycStatus().equals(KycStatus.PENDING)) {
+            throw new IllegalArgumentException("KYC status is not  PENDING");
+        }else if (!customer.getStatus().equals(CustomerStatus.ACTIVE)){
+            throw new IllegalArgumentException("Customer status is not  ACTIVE");
+        } else if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() >= 18) {
+            throw new IllegalArgumentException("Customer is not old enough");
+        } else if (!account.getStatus().equalsIgnoreCase("ACTIVE")) {
+            throw new IllegalArgumentException("Account status is not  ACTIVE");
+        }else if (loan.getDeclaredIncome().compareTo(BigDecimal.valueOf(8000000.00)) <0){
+            throw new IllegalArgumentException("Declared is not enough");
+        }else{
+            return loanService.createLoan(loan);
+        }
     }
 
     public Loan updateLoan(Loan loan) {
