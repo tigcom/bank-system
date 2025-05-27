@@ -6,4 +6,6 @@ public interface CommonService {
     Boolean checkCustomer(String cifCode);
 
     CustomerDTO getCurrentCustomer(String userID);
+
+    CustomerDTO getCustomerByCifCode(String cifCode);
 }

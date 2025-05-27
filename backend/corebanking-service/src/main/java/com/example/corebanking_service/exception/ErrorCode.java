@@ -1,4 +1,4 @@
-package com.example.account_service.exception;
+package com.example.corebanking_service.exception;
 
 public enum ErrorCode {
 
@@ -20,8 +20,7 @@ public enum ErrorCode {
     UNCATERROR_ERROR(1002, "uncategorized.error"),
     CUSTOMER_NOTACTIVE(1002, "customer.notactive"),
     CREDIT_REQUEST_NOTEXISTED(1002, "credit.request.notexisted"),
-    INCOME_INVALID(1002, "credit.income.invalid"),
-    AGE_INVALID(1002, "credit.age.invalid"),
+    CARTCREDIT_TYPE_NOTEXISTED(1002, "credit.carttype.notexisted"),
     UNAUTHORIZATED(401,"error.unauthorizated");
 
 
