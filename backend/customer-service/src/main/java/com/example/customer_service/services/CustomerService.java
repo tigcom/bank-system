@@ -8,7 +8,7 @@ public interface CustomerService {
 //    LoginResponse login(LoginCustomerDTO request) throws Exception;
     Response forgotPassword(String email);
     CustomerListResponse getCustomerList();
-    CustomerResponse getCustomerDetail(String cifCode);
+    CustomerResponse getCustomerDetail();
     Response updateCustomerPassword(ChangePasswordDTO request);
     Response updateCustomer(UpdateCustomerDTO request);
     Response updateCustomerStatus(UpdateStatusRequest request);

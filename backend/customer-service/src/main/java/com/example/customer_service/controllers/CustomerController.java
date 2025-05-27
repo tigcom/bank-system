@@ -15,7 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -31,6 +36,24 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Đăng ký thành công"),
             @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
     })
+//    @PostMapping("/register")
+//    public ResponseEntity<ApiResponseWrapper<Response>> register(@Valid @RequestBody RegisterCustomerDTO request) {
+//        try {
+//            Response response = customerService.register(request);
+//            log.info("Register request for username: {}", request.getUsername());
+//            return ResponseEntity.status(response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST)
+//                    .body(new ApiResponseWrapper<>(
+//                            response.isSuccess() ? HttpStatus.CREATED.value() : HttpStatus.BAD_REQUEST.value(),
+//                            response.getMessage(),
+//                            response));
+//        } catch (Exception e) {
+//            log.error("Registration failed for username: {} - {}", request.getUsername(), e.getMessage());
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseWrapper<>(
+//                    HttpStatus.BAD_REQUEST.value(),
+//                    "Registration failed: " + e.getMessage(),
+//                    null));
+//        }
+//    }
     @PostMapping("/register")
     public ResponseEntity<ApiResponseWrapper<Response>> register(@Valid @RequestBody RegisterCustomerDTO request) {
         try {
@@ -41,14 +64,22 @@ public class CustomerController {
                             response.isSuccess() ? HttpStatus.CREATED.value() : HttpStatus.BAD_REQUEST.value(),
                             response.getMessage(),
                             response));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            // Bắt lỗi do Keycloak trả về
             log.error("Registration failed for username: {} - {}", request.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseWrapper<>(
                     HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(),
+                    null));
+        } catch (Exception e) {
+            log.error("Registration failed for username: {} - {}", request.getUsername(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponseWrapper<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     "Registration failed: " + e.getMessage(),
                     null));
         }
     }
+
 
     @Operation(summary = "Quên mật khẩu", description = "Gửi yêu cầu lấy lại mật khẩu qua email")
     @ApiResponses({
@@ -70,7 +101,8 @@ public class CustomerController {
     @Operation(summary = "Lấy danh sách khách hàng", description = "Truy vấn tất cả khách hàng")
     @ApiResponse(responseCode = "200", description = "Lấy danh sách khách hàng thành công",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerListResponse.class)))
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CUSTOMER')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
     public ResponseEntity<ApiResponseWrapper<CustomerListResponse>> getCustomerList() {
         log.info("Fetching customer list");
@@ -87,11 +119,14 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerResponse.class))),
             @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
     })
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/detail")
-    public ResponseEntity<ApiResponseWrapper<CustomerResponse>> getCustomerDetail(
-            @RequestParam String cifCode) {
-        log.info("Fetching customer detail for cifCode: {}", cifCode);
-        CustomerResponse customer = customerService.getCustomerDetail(cifCode);
+    public ResponseEntity<ApiResponseWrapper<CustomerResponse>> getCustomerDetail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        log.info("Fetching customer detail for userId: {}", userID);
+
+        CustomerResponse customer = customerService.getCustomerDetail();
         return ResponseEntity.status(customer != null ? HttpStatus.OK : HttpStatus.NOT_FOUND)
                 .body(new ApiResponseWrapper<>(
                         customer != null ? HttpStatus.OK.value() : HttpStatus.NOT_FOUND.value(),
@@ -105,10 +140,13 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Response.class))),
             @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
     })
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/update-password")
     public ResponseEntity<ApiResponseWrapper<Response>> updatePassword(
             @Valid @RequestBody ChangePasswordDTO request) {
-        log.info("Update password request for customerId: {}", request.getCustomerId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        log.info("Update password request for customerId: {}", userID);
         Response response = customerService.updateCustomerPassword(request);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
                 .body(new ApiResponseWrapper<>(
@@ -123,6 +161,7 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Response.class))),
             @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
     })
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/update")
     public ResponseEntity<ApiResponseWrapper<Response>> updateCustomer(@Valid @RequestBody UpdateCustomerDTO request) {
         log.info("Update customer request for customerId: {}", request.getId());
@@ -158,6 +197,7 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = KycResponse.class))),
             @ApiResponse(responseCode = "400", description = "Xác minh thất bại")
     })
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/kyc/verify")
     public ResponseEntity<ApiResponseWrapper<KycResponse>> verifyKyc(@Valid @RequestBody KycRequest request) {
         log.info("KYC verification request for customerId: {}", request.getCustomerId());

@@ -1,15 +1,21 @@
 server:
   port: 8082
-  servlet:
-    context-path: /account
 
 spring:
   application:
     name: account-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/myrealm
+
   datasource:
     url: jdbc:mysql://localhost:3306/accountdb
     username: root
     password: 123456
+
   jpa:
     hibernate:
       ddl-auto: update
