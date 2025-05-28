@@ -1,5 +1,8 @@
 package com.example.customer_service.services.Impl;
 
+import com.example.common_service.dto.customer.CoreCustomerDTO;
+import com.example.common_service.dto.customer.CoreResponse;
+import com.example.common_service.services.customer.CoreCustomerService;
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.exceptions.AppException;
 import com.example.customer_service.exceptions.ErrorCode;
@@ -7,13 +10,14 @@ import com.example.customer_service.models.*;
 import com.example.customer_service.repositories.CustomerRepository;
 import com.example.customer_service.repositories.KycProfileRepository;
 import com.example.customer_service.responses.*;
+import com.example.customer_service.services.CoreBankingClient;
 import com.example.customer_service.services.CustomerService;
 import com.example.customer_service.services.KycService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -26,26 +30,29 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-//@DubboService
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final KycService kycService;
     private final KycProfileRepository kycProfileRepository;
     private final RestTemplate restTemplate;
+
+//    @DubboReference
+//    private CoreCustomerService coreCustomerService;
+    private final CoreBankingClient coreBankingClient;
 
     @Value("${idp.url}")
     private String keycloakUrl;
@@ -59,10 +66,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Value("${idp.client-secret}")
     private String clientSecret;
 
-    @Override
     @Transactional
+    @Override
     public Response register(RegisterCustomerDTO request) {
-
+        // Kiểm tra trùng lặp
         if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại");
         }
@@ -77,8 +84,15 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         // Tạo người dùng trong Keycloak
-        String userId = createKeycloakUser(request);
+        String userId;
+        try {
+            userId = createKeycloakUser(request);
+        } catch (Exception e) {
+            log.error("Tạo người dùng Keycloak thất bại: {}", e.getMessage(), e);
+            throw e;
+        }
 
+        // Tạo khách hàng
         Customer customer = Customer.builder()
                 .userId(userId)
                 .username(request.getUsername())
@@ -93,25 +107,53 @@ public class CustomerServiceImpl implements CustomerService {
                 .cifCode("TEMP_" + UUID.randomUUID().toString().substring(0, 10))
                 .build();
 
-        Customer savedCustomer = customerRepository.save(customer);
-        savedCustomer.setCifCode(generateCifCode(savedCustomer.getCustomerId()));
-        customerRepository.save(savedCustomer);
+        try {
+            // Lưu khách hàng
+            Customer savedCustomer = customerRepository.save(customer);
 
-        // Tạo KycProfile
-        KycProfile kycProfile = KycProfile.builder()
-                .status(KycStatus.PENDING)
-                .identityNumber(customer.getIdentityNumber())
-                .fullName(customer.getFullName())
-                .dateOfBirth(customer.getDateOfBirth())
-                .gender(customer.getGender().toString())
-                .build();
+            String cifCode = generateCifCode(
+                    savedCustomer.getCustomerId(),
+                    savedCustomer.getDateOfBirth(),
+                    savedCustomer.getGender(),
+                    savedCustomer.getPhoneNumber()
+            );
+            savedCustomer.setCifCode(cifCode);
 
-        kycProfile.setCustomer(customer);
-        customer.setKycProfile(kycProfile);
+            customerRepository.save(savedCustomer);
 
-        kycProfileRepository.save(kycProfile);
+            // Đồng bộ với core banking
+            CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
+                    .cifCode(savedCustomer.getCifCode())
+                    .status(savedCustomer.getStatus().toString())
+                    .build();
 
-        return new Response(true, "Đăng ký thành công, vui lòng hoàn tất xác minh KYC");
+            log.info("Đang gọi đồng bộ core banking với CIF: {}", savedCustomer.getCifCode());
+            // ✅ Gọi qua RestTemplate
+            CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
+            if (!coreResponse.isSuccess()) {
+                log.error("Đồng bộ core banking thất bại: {}", coreResponse.getMessage());
+                throw new RuntimeException("Đồng bộ core banking thất bại: " + coreResponse.getMessage());
+            }
+
+            // Tạo KycProfile
+            KycProfile kycProfile = KycProfile.builder()
+                    .status(KycStatus.PENDING)
+                    .identityNumber(customer.getIdentityNumber())
+                    .fullName(customer.getFullName())
+                    .dateOfBirth(customer.getDateOfBirth())
+                    .gender(customer.getGender().toString())
+                    .build();
+
+            kycProfile.setCustomer(savedCustomer);
+            savedCustomer.setKycProfile(kycProfile);
+            kycProfileRepository.save(kycProfile);
+
+            return new Response(true, "Đăng ký thành công, vui lòng hoàn tất xác minh KYC");
+        } catch (Exception e) {
+            log.error("Đăng ký thất bại, đang xóa người dùng Keycloak ID: {}", userId, e);
+            deleteKeycloakUser(userId);
+            throw new RuntimeException("Đăng ký thất bại: " + e.getMessage(), e);
+        }
     }
 
     private UserRepresentation buildUserRepresentation(RegisterCustomerDTO request) {
@@ -145,6 +187,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .build()) {
 
             log.info("Đang cố gắng tạo người dùng trong Keycloak với username: {}", request.getUsername());
+            log.info("URL Keycloak: {}, Realm: {}, ClientId: {}", keycloakUrl, realm, clientId);
 
             UserRepresentation user = buildUserRepresentation(request);
 
@@ -152,68 +195,58 @@ public class CustomerServiceImpl implements CustomerService {
             int status = response.getStatus();
             String responseBody = response.readEntity(String.class);
 
-            log.info("Trạng thái phản hồi từ Keycloak khi tạo người dùng: {}", status);
-            log.info("Nội dung phản hồi từ Keycloak khi tạo người dùng: {}", responseBody);
+            log.info("Mã trạng thái phản hồi Keycloak: {}", status);
+            log.info("Nội dung phản hồi Keycloak: {}", responseBody);
+            log.info("Tiêu đề phản hồi Keycloak: {}", response.getHeaders());
 
             if (status == 201) {
                 String userId = CreatedResponseUtil.getCreatedId(response);
-                RoleRepresentation role = keycloak.realm(realm).roles().get("CUSTOMER").toRepresentation();
-                keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
-                log.info("Đã tạo người dùng Keycloak với ID: {}", userId);
+                try {
+                    RoleRepresentation role = keycloak.realm(realm).roles().get("CUSTOMER").toRepresentation();
+                    keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+                    log.info("Đã tạo người dùng Keycloak với ID: {} và gán vai trò CUSTOMER", userId);
+                } catch (Exception e) {
+                    log.error("Lỗi khi gán vai trò CUSTOMER cho người dùng Keycloak ID: {}", userId, e);
+                    keycloak.realm(realm).users().get(userId).remove();
+                    throw new IllegalArgumentException("Không thể gán vai trò CUSTOMER: " + e.getMessage());
+                }
                 return userId;
+            } else if (status == 409) {
+                throw new AppException(ErrorCode.USERNAME_EXISTS);
             } else {
-                // Đọc lỗi chi tiết từ JSON
                 ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode errorJson = objectMapper.readTree(responseBody);
-                String errorMessage = errorJson.has("error_description")
-                        ? errorJson.get("error_description").asText()
-                        : "Unknown Keycloak error";
-
-                throw new IllegalArgumentException("Keycloak error: " + errorMessage);
+                try {
+                    JsonNode errorJson = objectMapper.readTree(responseBody);
+                    String errorMessage = errorJson.has("error_description")
+                            ? errorJson.get("error_description").asText()
+                            : errorJson.has("error")
+                            ? errorJson.get("error").asText()
+                            : "Lỗi Keycloak không xác định";
+                    throw new IllegalArgumentException("Lỗi Keycloak: " + errorMessage + " (Mã trạng thái: " + status + ")");
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Lỗi Keycloak: Không thể phân tích phản hồi - Mã trạng thái: " + status + ", Nội dung: " + responseBody);
+                }
             }
         } catch (Exception e) {
             log.error("Lỗi khi tạo người dùng Keycloak: {}", e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e); // giữ lại message chi tiết
+            throw new RuntimeException("Không thể tạo người dùng Keycloak: " + e.getMessage(), e);
         }
     }
 
-
-//    private String createKeycloakUser(RegisterCustomerDTO request) {
-//        try (Keycloak keycloak = KeycloakBuilder.builder()
-//                .serverUrl(keycloakUrl)
-//                .realm(realm)
-//                .clientId(clientId)
-//                .clientSecret(clientSecret)
-//                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-//                .build()) {
-//
-//            log.info("Đang cố gắng tạo người dùng trong Keycloak với username: {}", request.getUsername());
-//            log.info("Keycloak URL: {}, Realm: {}, ClientId: {}", keycloakUrl, realm, clientId);
-//
-//            UserRepresentation user = buildUserRepresentation(request);
-//
-//            jakarta.ws.rs.core.Response response = keycloak.realm(realm).users().create(user);
-//            int status = response.getStatus();
-//            String errorBody = response.readEntity(String.class);
-//            log.info("Trạng thái phản hồi từ Keycloak khi tạo người dùng: {}", status);
-//            log.info("Nội dung phản hồi từ Keycloak khi tạo người dùng: {}", errorBody);
-//
-//            if (response.getStatus() == 201) {
-//                String userId = CreatedResponseUtil.getCreatedId(response);
-//                RoleRepresentation role = keycloak.realm(realm).roles().get("CUSTOMER").toRepresentation();
-//                keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
-//                log.info("Đã tạo người dùng Keycloak với ID: {}", userId);
-//                return userId;
-//            } else if (response.getStatus() == 409) {
-//                throw new AppException(ErrorCode.USERNAME_EXISTS);
-//            } else {
-//                throw new AppException(ErrorCode.KEYCLOAK_ERROR);
-//            }
-//        } catch (Exception e) {
-//            log.error("Lỗi khi tạo người dùng Keycloak: {}", e.getMessage(), e);
-//            throw new RuntimeException("Không thể tạo người dùng Keycloak", e);
-//        }
-//    }
+    private void deleteKeycloakUser(String userId) {
+        try (Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(keycloakUrl)
+                .realm(realm)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .build()) {
+            keycloak.realm(realm).users().get(userId).remove();
+            log.info("Đã xóa người dùng Keycloak với ID: {}", userId);
+        } catch (Exception e) {
+            log.error("Xóa người dùng Keycloak thất bại: {}", e.getMessage(), e);
+        }
+    }
 
     private String getKeycloakToken(String usernameOrPhone, String password) throws Exception {
         String tokenEndpoint = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
@@ -331,8 +364,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerResponse getCustomerDetailByCifCode(String cifCode) {
+        Optional<Customer> customerOpt = customerRepository.findByCifCode(cifCode);
+        return customerOpt.map(this::toCustomerResponse).orElse(null);
+    }
+
+    @Override
     public Response updateCustomerPassword(ChangePasswordDTO request) {
-//        Optional<Customer> customerOpt = customerRepository.findById(request.getCustomerId());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
         Optional<Customer> customerOpt = customerRepository.findByUserId(userID);
@@ -372,6 +410,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Transactional
     public Response updateCustomerStatus(UpdateStatusRequest request) {
         Optional<Customer> customerOpt = customerRepository.findById(request.getId());
         if (customerOpt.isEmpty()) {
@@ -392,6 +431,21 @@ public class CustomerServiceImpl implements CustomerService {
         if (!customer.getStatus().equals(newStatus)) {
             customer.setStatus(newStatus);
             customerRepository.save(customer);
+
+            // Đồng bộ sang corebanking-service
+            CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
+                    .cifCode(customer.getCifCode())
+                    .status(customer.getStatus().toString())
+                    .build();
+
+            log.info("Đang đồng bộ trạng thái khách hàng với CIF: {}", customer.getCifCode());
+            CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
+            if (!coreResponse.isSuccess()) {
+                log.error("Đồng bộ trạng thái khách hàng thất bại với CIF: {}. Lỗi: {}",
+                        customer.getCifCode(), coreResponse.getMessage());
+                throw new RuntimeException("Đồng bộ trạng thái khách hàng thất bại: " + coreResponse.getMessage());
+            }
+            log.info("Đồng bộ trạng thái khách hàng thành công với CIF: {}", customer.getCifCode());
         }
 
         return new Response(true, "Cập nhật trạng thái thành công");
@@ -399,7 +453,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Transactional
     public KycResponse verifyKyc(KycRequest request) {
-
         try {
             if (!isValidKycRequest(request)) {
                 return new KycResponse(false, "Dữ liệu đầu vào không hợp lệ", null);
@@ -436,12 +489,29 @@ public class CustomerServiceImpl implements CustomerService {
                         request.getGender()
                 );
                 customer.setStatus(CustomerStatus.ACTIVE);
+
+                // Đồng bộ sang corebanking-service
+                CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
+                        .cifCode(customer.getCifCode())
+                        .status(customer.getStatus().toString())
+                        .build();
+
+                log.info("Đang đồng bộ trạng thái KYC với CIF: {}", customer.getCifCode());
+                CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
+                if (!coreResponse.isSuccess()) {
+                    log.error("Đồng bộ trạng thái KYC thất bại với CIF: {}. Lỗi: {}",
+                            customer.getCifCode(), coreResponse.getMessage());
+                    throw new RuntimeException("Đồng bộ trạng thái KYC thất bại: " + coreResponse.getMessage());
+                }
+
                 customerRepository.save(customer);
+                log.info("Đồng bộ trạng thái KYC thành công với CIF: {}", customer.getCifCode());
             }
 
             return kycResponse;
         } catch (Exception e) {
-            log.error("KYC verification failed for customerId: {} - {}", request.getCustomerId(), e.getMessage());
+            log.error("Xác minh KYC thất bại cho customerId: {}. Lỗi: {}",
+                    request.getCustomerId(), e.getMessage(), e);
             return new KycResponse(false, "Xác minh KYC thất bại: " + e.getMessage(), null);
         }
     }
@@ -477,8 +547,25 @@ public class CustomerServiceImpl implements CustomerService {
         return null;
     }
 
-    private String generateCifCode(Long id) {
-        return String.format("CIF%08d", id);
+    public String generateCifCode(Long id, LocalDate dateOfBirth, Gender gender, String phoneNumber) {
+
+        // Mã BIN quốc gia và ngân hàng
+        String binCode = "970452";
+
+        // Lấy YYMD từ ngày tháng sinh
+        int dobPart = dateOfBirth.getYear() % 10;
+
+        // Gán mã giới tính
+        String genderCode = gender == Gender.male ? "1" : "0";
+
+        // Lấy 3 số cuối điện thoại
+        String phonePart = phoneNumber.substring(phoneNumber.length() - 3);
+
+        // Format ID tăng dần thành 2 chữ số
+        String idPart = String.format("%02d", id % 100);
+
+        // Kết hợp tất cả thành mã CIF
+        return binCode + dobPart + genderCode + phonePart + idPart;
     }
 
     private CustomerResponse toCustomerResponse(Customer customer) {

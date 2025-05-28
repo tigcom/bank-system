@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "core_accounts")
 @Inheritance(strategy = InheritanceType.JOINED)
+@SuperBuilder
 public class CoreAccount {
     @Id
     @Column(name = "account_number", nullable = false, length = 20)

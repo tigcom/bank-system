@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Table(name = "credit_account")
+@SuperBuilder
 public class CoreCreditAccount extends CoreAccount {
 
     @Column(name = "credit_limit", nullable = false)

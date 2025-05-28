@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .authorizeExchange(auth -> auth
                         .pathMatchers(
                                 "/api/customers/register",
+                                "/api/core/customers/sync",
                                 "/api/customers/forgot-password",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
