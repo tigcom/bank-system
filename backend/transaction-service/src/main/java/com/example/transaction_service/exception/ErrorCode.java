@@ -15,6 +15,9 @@ public enum ErrorCode {
     CORE_BANKING_UNAVAILABLE(400,"Có lỗi khi kiểm tra số dư" ),
     INSUFFICIENT_FUNDS(400,"Số dư không đủ" ),
     INVALID_AMOUNT(400,"Số tiền giao dịch không hợp lệ"),
+    OTP_EXPIRED(400,"Mã OTP đã hết hạn" ),
+    INVALID_OTP(400,"Mã OTP không đúng" ),
+    INVALID_TRANSACTION_STATUS(400,"Trạng thái giao dịch không hợp lệ " ),
     BANK_CODE_VALID(400,"Mã ngân hàng không hợp lệ" );
 
     private final int code;

@@ -2,13 +2,13 @@ package com.example.transaction_service.service.impl;
 
 
 import com.example.common_service.dto.AccountDTO;
+import com.example.common_service.dto.PayRepaymentRequest;
 import com.example.common_service.dto.TransactionRequest;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.transaction.CoreTransactionService;
 import com.example.transaction_service.dto.TransactionDTO;
-import com.example.transaction_service.dto.request.DepositRequest;
-import com.example.transaction_service.dto.request.TransferRequest;
-import com.example.transaction_service.dto.request.WithdrawRequest;
+import com.example.transaction_service.dto.request.*;
+import com.example.transaction_service.dto.response.PayRepaymentResponse;
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.CurrencyType;
 import com.example.transaction_service.enums.TransactionStatus;
@@ -19,18 +19,26 @@ import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.dubbo.rpc.RpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +55,11 @@ public class TransactionServiceImpl implements TransactionService{
     @DubboReference
     private final CoreTransactionService coreTransactionService;
 
+    private final RedisTemplate<String,String> redisTemplate;
+
     @Value("${masterAccount}")
     private String masterAccount;
+    private static final Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Override
     @Transactional(noRollbackFor = Exception.class)
@@ -61,16 +72,14 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(transferRequest.getCurrency()));
         transaction.setType(TransactionType.TRANSFER);
 
-//      Validate Transaction
-        validateTransaction(transaction);
-//      Khởi tạo transaction
-        initTransaction(transaction);
-
-//      Thực thi transaction
-        processTransaction(transaction);
-
-        transactionRepository.save(transaction);
-        return transactionMapper.toDTO(transaction);
+    //      Validate Transaction
+            validateTransaction(transaction);
+    //      Khởi tạo transaction
+            initTransaction(transaction);
+    //      Gửi OTP
+            sendOTP(transaction.getReferenceCode());
+            transactionRepository.save(transaction);
+            return transactionMapper.toDTO(transaction);
     }
 
     @Override
@@ -88,10 +97,8 @@ public class TransactionServiceImpl implements TransactionService{
         validateTransaction(transaction);
 
         initTransaction(transaction);
-
-        transactionRepository.save(transaction);
-        processTransaction(transaction);
-
+//       Gửi OTP
+        sendOTP(transaction.getReferenceCode());
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }
@@ -111,19 +118,104 @@ public class TransactionServiceImpl implements TransactionService{
         validateTransaction(transaction);
 //      khởi tạo transaction
         initTransaction(transaction);
-        transactionRepository.save(transaction);
-//      Thực thi transaction
-        processTransaction(transaction);
+//        Gửi OTP
+        sendOTP(transaction.getReferenceCode());
 
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }
 
     @Override
-    public TransactionDTO payBill(TransactionDTO transactionDTO) {
-        return null;
+    @Transactional(noRollbackFor = Exception.class)
+    public TransactionDTO payBill(PayRepaymentRequest repaymentRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(repaymentRequest.getFromAccountNumber());
+        transaction.setAmount(repaymentRequest.getAmount());
+        transaction.setDescription(repaymentRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(repaymentRequest.getCurrency()));
+        transaction.setType(TransactionType.PAY_BILL);
+
+        transaction.setToAccountNumber(masterAccount);
+
+        //      Validate
+        try{
+            validateTransaction(transaction);
+        }catch (RpcException rpcEx) {
+            transaction.setStatus(TransactionStatus.FAILED);
+            log.error("Dubbo provider not available or registry issue: " + rpcEx.getMessage());
+            throw rpcEx;
+        }
+//      khởi tạo transaction
+        initTransaction(transaction);
+        transactionRepository.save(transaction);
+
+//        Gửi OTP
+        sendOTP(transaction.getReferenceCode());
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
+    @Override
+    public TransactionDTO disburse(DisburseRequest disburseRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(disburseRequest.getToAccountNumber());
+        transaction.setAmount(disburseRequest.getAmount());
+        transaction.setDescription(disburseRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(disburseRequest.getCurrency()));
+        transaction.setType(TransactionType.DISBURSEMENT);
+
+        transaction.setFromAccountNumber(masterAccount);
+//      Validate Transaction
+        validateTransaction(transaction);
+
+        initTransaction(transaction);
+//       Gửi OTP
+        sendOTP(transaction.getReferenceCode());
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    @Transactional
+    public TransactionDTO confirmTransaction(ConfirmTransactionRequest request){
+//        Lấy OTP từ redis
+        String keyOTP = "OTP:" + request.getReferenceCode();
+        String storedOtp = redisTemplate.opsForValue().get(keyOTP);
+
+        if (storedOtp == null) {
+            throw new AppException(ErrorCode.OTP_EXPIRED);
+        }
+
+        if (!storedOtp.equals(request.getOtpCode())) {
+            throw new AppException(ErrorCode.INVALID_OTP);
+        }
+        Transaction txn = transactionRepository.findByReferenceCode(request.getReferenceCode());
+        if(txn == null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
+        if (txn.getStatus() != TransactionStatus.PENDING) {
+            throw new AppException(ErrorCode.INVALID_TRANSACTION_STATUS);
+        }
+//        Thực thi giao dịch
+        processTransaction(txn);
+        transactionRepository.save(txn);
+
+//        Xóa key khỏi redis
+        redisTemplate.delete(keyOTP);
+        return transactionMapper.toDTO(txn);
+    }
+
+    @Override
+    public void resendOtp(String referenceCode) {
+        Transaction txn = transactionRepository.findByReferenceCode(referenceCode);
+        if(txn == null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
+        if (txn.getStatus() != TransactionStatus.PENDING) {
+            throw new AppException(ErrorCode.INVALID_TRANSACTION_STATUS);
+        }
+        String keyOTP = "OTP:" + referenceCode;
+        String otp = String.valueOf(100000 + new Random().nextInt(900000));
+        redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(60));
+        System.out.println(otp);
+    }
 
     @Override
     public TransactionDTO getTransactionById(String transactionId) {
@@ -133,13 +225,17 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    public List<TransactionDTO> getTransactionByAccount(String accountId) {
-        return null;
+    public List<TransactionDTO> getAccountTransactions(String accountNumber) {
+        List<Transaction> transactionList = transactionRepository.getAccountTransactions(accountNumber);
+        return transactionList.stream()
+                .map(transaction -> transactionMapper.toDTO(transaction)).collect(Collectors.toList());
     }
 
     @Override
     public TransactionDTO getTransactionByTransactionCode(String referenceCode) {
-        return null;
+        Transaction transaction = transactionRepository.findByReferenceCode(referenceCode);
+        if(transaction==null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
+        return transactionMapper.toDTO(transaction);
     }
 
     @Override
@@ -180,13 +276,14 @@ public class TransactionServiceImpl implements TransactionService{
             throw new AppException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 //         Nếu là loại giao dịch cần trừ tiền trong tài khoản nguồn, thì kiểm tra số dư
-        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
+        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
                 TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
             BigDecimal balance;
             try {
 //                kiểm tra số dư
                balance = accountQueryService.getBalance(transaction.getFromAccountNumber());
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
             }
 
@@ -211,7 +308,15 @@ public class TransactionServiceImpl implements TransactionService{
         }
         transaction.setStatus(TransactionStatus.PENDING);
     }
+
+    private void sendOTP(String referenceCode){
+        String keyOTP = "OTP:"+referenceCode;
+        String otp = String.valueOf(100000 + new Random().nextInt(900000));
+        redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(60));
+        System.out.println(otp);
+    }
     private void processTransaction(Transaction transaction) {
+
         try {
             TransactionRequest request = TransactionRequest.builder()
                     .fromAccountNumber(transaction.getFromAccountNumber())

@@ -95,6 +95,28 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: "myroot"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
     restart: always
+  init-vault:
+    image: hashicorp/vault
+    depends_on:
+      - vault-server
+    command: >
+      sh -c "
+      sleep 15;
+      export VAULT_ADDR=http://vault-server:8200;
+      export VAULT_TOKEN=myroot;
+      vault secrets enable -path=secret kv-v2 || true;
+      vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=970452999999999;
+      "
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeperRegistry
@@ -108,6 +130,7 @@ services:
       ZOOKEEPER_SYNC_LIMIT: 2
 volumes:
   vault-data:
+  redis-data:
   #networks:
   #  temporal-network:
   #    driver: bridge
