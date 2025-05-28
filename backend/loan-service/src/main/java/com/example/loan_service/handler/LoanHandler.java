@@ -32,7 +32,7 @@ public class LoanHandler {
 //    @DubboReference
 //    private  CustomerService customerService;
 
-    public Loan createLoan(Loan loan) throws  Exception{
+    public Loan createLoan(Loan loan) throws  Exception {
         CustomerResponseDTO customer = CustomerResponseDTO.builder()
                 .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
                 .dateOfBirth(LocalDate.of(2003, 5, 10))
@@ -108,6 +108,8 @@ public class LoanHandler {
     }
 
     public Repayment makeRepayment(Long repaymentId, java.math.BigDecimal amount) {
+
+
         return repaymentService.makeRepayment(repaymentId, amount);
     }
 
