@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -14,9 +16,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Builder
 @Table(name = "credit_request")
-public class CreditRequest {
+public class CreditRequest  extends  Auditable implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -38,12 +42,11 @@ public class CreditRequest {
     @Column(name = "status")
     private CreditRequestStatus status; // PENDING, APPROVED, REJECTED
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+//    @Column(name = "created_at")
+//    private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
         if (this.status == null) {
             this.status = CreditRequestStatus.PENDING;
         }

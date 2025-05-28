@@ -22,6 +22,7 @@ public enum ErrorCode {
     CREDIT_REQUEST_NOTEXISTED(1002, "credit.request.notexisted"),
     INCOME_INVALID(1002, "credit.income.invalid"),
     AGE_INVALID(1002, "credit.age.invalid"),
+    CREDIT_REQUEST_STATUS_INVALID(1002, "credit.request.status.invalid"),
     UNAUTHORIZATED(401,"error.unauthorizated");
 
 

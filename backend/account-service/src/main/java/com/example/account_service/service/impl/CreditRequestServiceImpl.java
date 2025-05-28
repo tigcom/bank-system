@@ -28,6 +28,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -51,87 +52,135 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private final CreditRequestRepository creditRequestRepository;
 
     private final AccountNumberUtils    accountNumberUtils;
+    private final RestTemplate restTemplate;
+
     @Override
     public CreditRequestReponse createCreditRequest(CreditRequestCreateDTO creditRequestCreateDTO) {
-        /// get current Customer
-        ///
-        log.info("Create credit request" + creditRequestCreateDTO);
-
+        log.info("Starting createCreditRequest with input: {}", creditRequestCreateDTO);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        log.info("User id " + userId);
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        log.info("Current Customer : {}", currentCustomer);
-        if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
-            CreditRequest creditRequest = CreditRequest.builder()
-                    .cifCode(currentCustomer.getCifCode())
-                    .occupation(creditRequestCreateDTO.getOccupation())
-                    .cartTypeId(creditRequestCreateDTO.getCartTypeId())
-                    .monthlyIncome(creditRequestCreateDTO.getMonthlyIncome())
-                    .status(CreditRequestStatus.PENDING)
-                    .build();
-            creditRequestRepository.save(creditRequest);
-            return CreditRequestReponse.builder()
-                    .id(creditRequest.getId())
-                    .cifCode(creditRequest.getCifCode())
-                    .occupation(creditRequest.getOccupation())
-                    .cartTypeId(creditRequest.getCartTypeId())
-                    .createdAt(creditRequest.getCreatedAt())
-                    .monthlyIncome(creditRequest.getMonthlyIncome())
-                    .status(creditRequest.getStatus())
-                    .build();
+        if (authentication == null) {
+            log.error("No authentication found in security context");
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-        throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+
+        String userId = authentication.getName();
+        log.info("Authenticated userId: {}", userId);
+
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        log.info("Current Customer retrieved: {}", currentCustomer);
+
+        if (currentCustomer.getStatus() != CustomerStatus.ACTIVE) {
+            log.warn("Customer status is not ACTIVE: {}", currentCustomer.getStatus());
+            throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+
+        CreditRequest creditRequest = CreditRequest.builder()
+                .cifCode(currentCustomer.getCifCode())
+                .occupation(creditRequestCreateDTO.getOccupation())
+                .cartTypeId(creditRequestCreateDTO.getCartTypeId())
+                .monthlyIncome(creditRequestCreateDTO.getMonthlyIncome())
+                .status(CreditRequestStatus.PENDING)
+                .build();
+
+        log.info("Saving new CreditRequest: {}", creditRequest);
+        creditRequestRepository.save(creditRequest);
+        log.info("CreditRequest saved successfully with id: {}", creditRequest.getId());
+
+        CreditRequestReponse response = CreditRequestReponse.builder()
+                .id(creditRequest.getId())
+                .cifCode(creditRequest.getCifCode())
+                .occupation(creditRequest.getOccupation())
+                .cartTypeId(creditRequest.getCartTypeId())
+                .monthlyIncome(creditRequest.getMonthlyIncome())
+                .status(creditRequest.getStatus())
+                .build();
+
+        log.info("Returning response: {}", response);
+        return response;
     }
+
 
     @Override
     public AccountCreateReponse approveCreditRequest(String id) {
-        /// Check credit request conditon
-        log.info("Approve credit request" + id);
+        log.info("Starting approval process for credit request with id: {}", id);
+
         CreditRequest creditRequest = creditRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED));
+                .orElseThrow(() -> {
+                    log.error("CreditRequest not found with id: {}", id);
+                    return new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED);
+                });
+        if (creditRequest.getStatus() != CreditRequestStatus.PENDING) {
+            throw new AppException(ErrorCode.CREDIT_REQUEST_STATUS_INVALID);
+        }
+
+        log.info("Found CreditRequest: {}", creditRequest);
+
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(creditRequest.getCifCode());
-        CartTypeDTO cartTypeDTO = commonServiceCore.getCartTypebyID(creditRequest.getCartTypeId());
+        log.info("Retrieved customer information for cifCode: {}", creditRequest.getCifCode());
+
+        //dung dubbo call ham get cart info by id
+       /// CartTypeDTO cartTypeDTO = commonServiceCore.getCartTypebyID(creditRequest.getCartTypeId());
+
+        /// call api get cart type tren core Banking by rest template
+        String urlGetCard = "http://localhost:8083/corebanking/get-cart-type/" + creditRequest.getCartTypeId();
+        CartTypeDTO cartTypeDTO = restTemplate.getForObject(urlGetCard, CartTypeDTO.class);
+
+        log.info("Retrieved CartType information for id: {}", creditRequest.getCartTypeId());
+
         int age = Period.between(customerDTO.getDateOfBirth(), LocalDate.now()).getYears();
-        if(creditRequest.getMonthlyIncome().compareTo(cartTypeDTO.getMinimumIncome()) < 0)
-        {
+        log.info("Calculated customer age: {} years", age);
+
+        if (creditRequest.getMonthlyIncome().compareTo(cartTypeDTO.getMinimumIncome()) < 0) {
+            log.warn("Monthly income is insufficient: {} < {}", creditRequest.getMonthlyIncome(), cartTypeDTO.getMinimumIncome());
             throw new AppException(ErrorCode.INCOME_INVALID);
         } else if (age < 21) {
+            log.warn("Customer age is below required minimum: {}", age);
             throw new AppException(ErrorCode.AGE_INVALID);
         }
 
+        log.info("Creating new account for credit request");
 
-        ///  Create Account and save to account db
-         Account account = Account.builder()
-                 .cifCode(creditRequest.getCifCode())
-                 .status(AccountStatus.ACTIVE)
-                 .accountType(AccountType.CREDIT)
-                 .build();
-         account.setAccountNumber(accountNumberUtils.generateAccountNumber(account));
-         accountRepository.save(account);
+        Account account = Account.builder()
+                .cifCode(creditRequest.getCifCode())
+                .status(AccountStatus.ACTIVE)
+                .accountType(AccountType.CREDIT)
+                .build();
 
-         /// Send account and save in db core banking
-        coreCreditAccountDTO coreCreditAccountDTO = com.example.common_service.dto.coreCreditAccountDTO.builder()
+        account.setAccountNumber(accountNumberUtils.generateAccountNumber(account));
+        accountRepository.save(account);
+        log.info("Successfully saved account with accountNumber: {}", account.getAccountNumber());
+
+        com.example.common_service.dto.coreCreditAccountDTO coreCreditAccountDTO = com.example.common_service.dto.coreCreditAccountDTO.builder()
                 .accountNumber(account.getAccountNumber())
                 .cifCode(account.getCifCode())
                 .cartTypeId(creditRequest.getCartTypeId())
                 .monthlyIncome(creditRequest.getMonthlyIncome())
                 .build();
-        commonServiceCore.createCoreAccountCredit(coreCreditAccountDTO);
 
-        /// Update status of  that credit request : to APPROVED
+        log.info("Sending account information to core banking service: {}", coreCreditAccountDTO);
+        /// dung dubbo goi ham tao credit account tren core banking
+       /// commonServiceCore.createCoreAccountCredit(coreCreditAccountDTO);
+        String url = "http://localhost:8083/corebanking/create-credit-account";
+        restTemplate.postForObject(url ,coreCreditAccountDTO,Void.class);
+        log.info("Successfully sent account information to core banking");
+
         creditRequest.setStatus(CreditRequestStatus.APPROVED);
         creditRequestRepository.save(creditRequest);
+        log.info("Updated credit request status to APPROVED");
 
-        return  AccountCreateReponse.builder()
+        AccountCreateReponse response = AccountCreateReponse.builder()
                 .accountNumber(account.getAccountNumber())
                 .cifCode(account.getCifCode())
                 .id(account.getId())
                 .accountType(account.getAccountType())
                 .status(account.getStatus())
                 .build();
+
+        log.info("Returning response: {}", response);
+        return response;
     }
+
 
     @Override
     public List<CreditRequestReponse> getAllCreditRequest() {
@@ -140,6 +189,28 @@ public class CreditRequestServiceImpl implements CreditRequestService {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public CreditRequestReponse rejectCreditRequest(String id) {
+        CreditRequest creditRequest = creditRequestRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("CreditRequest not found with id: {}", id);
+                    return new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED);
+                });
+        creditRequest.setStatus(CreditRequestStatus.REJECTED);
+        //Gui email thong bao
+        creditRequestRepository.save(creditRequest);
+
+        return CreditRequestReponse.builder()
+                .id(creditRequest.getId())
+                .cifCode(creditRequest.getCifCode())
+                .occupation(creditRequest.getOccupation())
+                .status(creditRequest.getStatus())
+                .monthlyIncome(creditRequest.getMonthlyIncome())
+                .cartTypeId(creditRequest.getCartTypeId())
+                .build();
+    }
+
     public CreditRequestReponse mapToDto(CreditRequest request) {
             CreditRequestReponse creditRequestReponse = CreditRequestReponse.builder()
                     .id(request.getId())
@@ -148,7 +219,6 @@ public class CreditRequestServiceImpl implements CreditRequestService {
                     .cartTypeId(request.getCartTypeId())
                     .monthlyIncome(request.getMonthlyIncome())
                     .status(request.getStatus())
-                    .createdAt(request.getCreatedAt())
                     .build();
         return creditRequestReponse;
     }

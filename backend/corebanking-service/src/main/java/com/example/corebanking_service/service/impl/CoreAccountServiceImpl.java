@@ -6,6 +6,7 @@ import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.services.CommonServiceCore;
 import com.example.corebanking_service.entity.CoreAccount;
 import com.example.corebanking_service.entity.CoreCreditAccount;
@@ -18,14 +19,16 @@ import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
-@DubboService(interfaceClass = CommonServiceCore.class)
+@Service
 @RequiredArgsConstructor
-public class CommonServiceCoreImpl implements CommonServiceCore {
+public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountService {
     private final CoreCustomerRepo coreCustomerRepo;
     private final CoreAccountRepo coreAccountRepo;
     private final CoreAccountSavingRepo coreAccountSavingRepo;
@@ -104,4 +107,12 @@ public class CommonServiceCoreImpl implements CommonServiceCore {
                 .build();
         coreAccountCreditRepo.save(coreCreditAccount);
     }
+
+    @Override
+    public List<AccountSummaryDTO> getAllAccountsByCif(String id) {
+            return coreAccountRepo.getAllAccountsByCif(id);
+
+    }
+
+
 }

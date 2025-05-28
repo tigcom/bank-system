@@ -4,28 +4,32 @@ import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.entity.Account;
-//import com.example.account_service.mapper.AccountMapper;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
 import com.example.account_service.mapper.AccountMapper;
 import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.service.AccountService;
-import com.example.account_service.service.BaseAccountCreateDTO;
 import com.example.common_service.constant.AccountStatus;
+import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 
@@ -41,42 +45,41 @@ public class AccountServiceImpl implements AccountService {
     @DubboReference(timeout = 5000)
     private final CommonServiceCore commonServiceCore;
 
-    private final AccountMapper accountMapper;
+    private final RestTemplate restTemplate;
+
 
     @Override
-    public AccountCreateReponse createPayment(PaymentCreateDTO paymentCreateDTO) {
-        /// Kiem tra cif code , check status tai khoan- call api cua custommer- lay dc status account neu hop le
-        /// cif se get tu current Customer logged
+    public AccountCreateReponse createPayment() {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        log.info("User id "+ userId);
-        log.info(" Recive payment request");
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
         log.info("Current Customer : {}", currentCustomer);
+
         log.info("Create payment request received");
-        log.info("Payment createDTO: {}", paymentCreateDTO);
-//        log.info("checked : " + commonService.checkCustomer(paymentCreateDTO.getCifCode()));
-//        boolean isActive = commonService.checkCustomer(paymentCreateDTO.getCifCode());
+
         if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
-            /// /
-            /// Map tu request ve account
-            //Account account = accountMapper.toEntityFromPayment(paymentCreateDTO);
             Account account = Account.builder()
-                    .accountType(paymentCreateDTO.getAccountType())
+                    .accountType(AccountType.PAYMENT)
                     .cifCode(currentCustomer.getCifCode())
                     .status(AccountStatus.ACTIVE)
                     .build();
             account.setAccountNumber(generateAccountNumber(account));
             log.info("Account : " + account);
-            /// set up  account
-            /// Call core banking create Account tren db core setup balance or terms
-            ///  Map paymendto sang core
+
             CorePaymentAccountDTO corePaymentAccountDTO = CorePaymentAccountDTO.builder()
                     .cifCode(account.getCifCode())
                     .accountNumber(account.getAccountNumber())
                     .build();
             log.info("corePaymentAccountDTO: {}", corePaymentAccountDTO);
-            commonServiceCore.createCoreAccountPayment(corePaymentAccountDTO);
+            //dung dubbo luu account payment len core
+//            commonServiceCore.createCoreAccountPayment(corePaymentAccountDTO);
+
+            //// dung restTemplate call API save account tren CoreBanking
+            String url = "http://localhost:8083/corebanking/create-payment-account";
+            restTemplate.postForObject(url ,corePaymentAccountDTO,Void.class);
+
             accountRepository.save(account);
 
             return AccountCreateReponse.builder()
@@ -86,8 +89,6 @@ public class AccountServiceImpl implements AccountService {
                     .accountType(account.getAccountType())
                     .status(account.getStatus())
                     .build();
-            ///  save account
-            ///  map account ve response va tra ve
         }
         throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
     }
@@ -110,7 +111,9 @@ public class AccountServiceImpl implements AccountService {
                     .status(AccountStatus.ACTIVE)
                     .build();
             account.setAccountNumber(generateAccountNumber(account));
+
             ///  got accountnumberSource from DTO
+
             log.info("Account number Soucre : " + savingCreateDTO.getAccountNumberSource());
 
             coreSavingAccountDTO coreSavingAccountDTO = com.example.common_service.dto.coreSavingAccountDTO.builder()
@@ -120,8 +123,14 @@ public class AccountServiceImpl implements AccountService {
                     .accountNumber(account.getAccountNumber())
                     .build();
             log.info("coreSavingAccountDTO: {}", coreSavingAccountDTO);
-;
+
+            /// dung dubbo goi ham save saving account tren core banking
             commonServiceCore.createCoreAccountSaving(coreSavingAccountDTO);
+
+            ///  dung restTemplate call api saving account tren core banking
+            //// dung restTemplate call API save account tren CoreBanking
+            String url = "http://localhost:8083/corebanking/create-savings-account";
+            restTemplate.postForObject(url ,coreSavingAccountDTO,Void.class);
             accountRepository.save(account);
 
             return AccountCreateReponse.builder()
@@ -135,10 +144,30 @@ public class AccountServiceImpl implements AccountService {
         throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
     }
 
-    @Override
-    public List<AccountCreateReponse> getAllAccountsbyCifCode() {
-        return List.of();
+    public List<AccountSummaryDTO> getAllAccountsbyCifCode() {
+        // Lấy thông tin người dùng từ context bảo mật
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
+
+        // Lấy thông tin khách hàng hiện tại
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+
+        // Tạo URL gọi tới corebanking
+        String url = "http://localhost:8083/corebanking/get-all-account-by-cifcode/" + currentCustomer.getCifCode();
+
+        // Gửi request GET và nhận về danh sách AccountSummaryDTO
+        ResponseEntity<List<AccountSummaryDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<AccountSummaryDTO>>() {}
+        );
+
+        // Trả về danh sách
+        return response.getBody();
     }
+
 
 
     public String generateAccountNumber(Account dto) {

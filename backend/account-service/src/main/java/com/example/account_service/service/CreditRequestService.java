@@ -15,4 +15,6 @@ public interface CreditRequestService {
     AccountCreateReponse approveCreditRequest(String id);
 
     List<CreditRequestReponse> getAllCreditRequest();
+
+    CreditRequestReponse rejectCreditRequest(String id);
 }

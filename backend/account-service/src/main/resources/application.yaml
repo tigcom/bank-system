@@ -41,3 +41,8 @@ dubbo:
   registry:
     address: "zookeeper://${DOCKER_HOST:localhost}:2181"
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
