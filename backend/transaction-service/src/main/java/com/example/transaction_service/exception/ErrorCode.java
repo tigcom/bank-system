@@ -7,6 +7,10 @@ public enum ErrorCode {
 
     FROM_ACCOUNT_NOT_PAYMENT(400,"Tài khoản gửi không phải tài khoản thanh toán" ),
     TO_ACCOUNT_NOT_PAYMENT(400,"Tài khoản nhận không phải tài khoản thanh toán" ),
+    FROM_ACCOUNT_NOT_ACTIVE(400,"Tài khoản gửi không hoạt động" ),
+    TO_ACCOUNT_NOT_ACTIVE(400,"Tài khoản nhận không hoạt động" ),
+    FROM_CUSTOMER_NOT_ACTIVE(400,"Người gửi bị cấm hoặc không khả dụng" ),
+    TO_CUSTOMER_NOT_ACTIVE(400,"Người nhận không khả dụng hoặc bị cấm" ),
     TRANSACTION_NOT_EXIST(400,"Giao dịch không tồn tại" ),
     SAME_ACCOUNT_TRANSFER(400,"Số tài khoản nguồn và tài khoản đích không được trùng" ),
     FROM_ACCOUNT_NOT_EXIST(400,"Tài khoản nguồn không tồn tại" ),
@@ -18,6 +22,7 @@ public enum ErrorCode {
     OTP_EXPIRED(400,"Mã OTP đã hết hạn" ),
     INVALID_OTP(400,"Mã OTP không đúng" ),
     INVALID_TRANSACTION_STATUS(400,"Trạng thái giao dịch không hợp lệ " ),
+    CUSTOMER_NOT_EXIST(400,"Khách hàng không tồn tại" ),
     BANK_CODE_VALID(400,"Mã ngân hàng không hợp lệ" );
 
     private final int code;

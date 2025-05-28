@@ -1,4 +1,4 @@
-package com.example.account_service.constant;
+package com.example.common_service.constant;
 
 public enum AccountStatus {
         ACTIVE, CLOSED

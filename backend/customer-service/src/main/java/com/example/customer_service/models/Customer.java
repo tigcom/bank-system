@@ -1,5 +1,6 @@
 package com.example.customer_service.models;
 
+import com.example.common_service.constant.CustomerStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

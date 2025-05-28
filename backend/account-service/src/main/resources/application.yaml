@@ -7,10 +7,31 @@ spring:
   application:
     name: account-service
   datasource:
-    url: jdbc:mysql://localhost:3306/accountdb
+    url: jdbc:mysql://localhost:3307/accountdb
     username: root
-    password: 123456
+    password: 0986341885dai
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/myrealm
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+  messages:
+    basename:
+      - i18n/messages
+    encoding: UTF-8
+
+dubbo:
+  application:
+    name: account-service
+  protocol:
+    name: dubbo
+    port: 20882
+  registry:
+    address: zookeeper://localhost:2181
+  scan:
+    base-packages: com.example.account_service.service
+

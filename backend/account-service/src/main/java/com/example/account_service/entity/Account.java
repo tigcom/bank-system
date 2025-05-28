@@ -1,7 +1,7 @@
 package com.example.account_service.entity;
 
-import com.example.account_service.constant.AccountStatus;
-import com.example.account_service.constant.AccountType;
+import com.example.common_service.constant.AccountStatus;
+import com.example.common_service.constant.AccountType;
 import jakarta.persistence.*;
 import jdk.jfr.DataAmount;
 import lombok.AllArgsConstructor;
@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(name = "account_number", nullable = false, unique = true, length = 20)
     private String accountNumber;

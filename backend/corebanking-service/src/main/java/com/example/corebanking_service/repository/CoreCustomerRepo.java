@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaRepositories
 public interface CoreCustomerRepo extends  JpaRepository<CoreCustomer,String>{
+    CoreCustomer getCoreCustomerByCifCode(String cifCode);
 }

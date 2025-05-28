@@ -1,4 +1,4 @@
-package com.example.customer_service.models;
+package com.example.common_service.constant;
 
 public enum CustomerStatus {
     ACTIVE,
