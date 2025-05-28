@@ -21,8 +21,11 @@ public enum ErrorCode {
     INVALID_AMOUNT(400,"Số tiền giao dịch không hợp lệ"),
     OTP_EXPIRED(400,"Mã OTP đã hết hạn" ),
     INVALID_OTP(400,"Mã OTP không đúng" ),
+    OTP_FAILED_TOO_MANY_TIMES(400,"Nhập sai OTP quá 3 lần" ),
     INVALID_TRANSACTION_STATUS(400,"Trạng thái giao dịch không hợp lệ " ),
     CUSTOMER_NOT_EXIST(400,"Khách hàng không tồn tại" ),
+    TIME_OUT(400,"Quá thời gian cho phép của giao dịch" ),
+    TRANSACTION_FAILED(400,"Giao dịch thất bại" ),
     BANK_CODE_VALID(400,"Mã ngân hàng không hợp lệ" );
 
     private final int code;

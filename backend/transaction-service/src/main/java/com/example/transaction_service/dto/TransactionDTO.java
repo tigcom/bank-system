@@ -45,4 +45,6 @@ public class TransactionDTO {
     @NotBlank(message = "Reference code is required")
     @Size(max = 100, message = "Reference code must not exceed 100 characters")
     private String referenceCode;
+
+    private String failedReason;
 }

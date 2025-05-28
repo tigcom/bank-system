@@ -6,11 +6,10 @@ import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.PayRepaymentRequest;
 import com.example.common_service.dto.TransactionRequest;
 import com.example.common_service.services.account.AccountQueryService;
-import com.example.common_service.services.account.CoreQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
-import com.example.common_service.services.transaction.CoreTransactionService;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
+import com.example.transaction_service.dto.response.ApiResponse;
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.CurrencyType;
 import com.example.transaction_service.enums.TransactionStatus;
@@ -20,25 +19,28 @@ import com.example.transaction_service.exception.ErrorCode;
 import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,23 +55,22 @@ public class TransactionServiceImpl implements TransactionService{
     @DubboReference
     private final AccountQueryService accountQueryService;
 
-    @DubboReference
-    private final CoreQueryService coreQueryService;
-
-    @DubboReference
-    private final CoreTransactionService coreTransactionService;
 
     @DubboReference
     private final CustomerQueryService customerQueryService;
 
     private final RedisTemplate<String,String> redisTemplate;
 
+    private String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
+
     @Value("${masterAccount}")
     private String masterAccount;
     private static final Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
+    @Autowired
+    private RestTemplate restTemplate;
     @Override
-    @Transactional(noRollbackFor = Exception.class)
+    @Transactional
     public TransactionDTO transfer(TransferRequest transferRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(transferRequest.getFromAccountNumber());
@@ -90,7 +91,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    @Transactional(noRollbackFor = Exception.class)
+    @Transactional
     public TransactionDTO deposit(DepositRequest depositRequest) {
         Transaction transaction = new Transaction();
         transaction.setToAccountNumber(depositRequest.getToAccountNumber());
@@ -111,7 +112,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    @Transactional(noRollbackFor = Exception.class)
+    @Transactional
     public TransactionDTO withdraw(WithdrawRequest withdrawRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(withdrawRequest.getFromAccountNumber());
@@ -133,7 +134,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    @Transactional(noRollbackFor = Exception.class)
+    @Transactional
     public TransactionDTO payBill(PayRepaymentRequest repaymentRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(repaymentRequest.getFromAccountNumber());
@@ -164,6 +165,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Transactional
     public TransactionDTO disburse(DisburseRequest disburseRequest) {
         Transaction transaction = new Transaction();
         transaction.setToAccountNumber(disburseRequest.getToAccountNumber());
@@ -190,23 +192,42 @@ public class TransactionServiceImpl implements TransactionService{
         String keyOTP = "OTP:" + request.getReferenceCode();
         String storedOtp = redisTemplate.opsForValue().get(keyOTP);
 
+        String keyFailCount = "OTP_FAIL_COUNT:" + request.getReferenceCode();
         if (storedOtp == null) {
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
 
         if (!storedOtp.equals(request.getOtpCode())) {
+            String failStr = redisTemplate.opsForValue().get(keyFailCount);
+            int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
+
+            failCount++;
+            redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount));
+            if (failCount > 3) {
+                Transaction txn = transactionRepository.findByReferenceCode(request.getReferenceCode());
+                if (txn != null) {
+                    txn.setStatus(TransactionStatus.FAILED);
+                    txn.setFailedReason(ErrorCode.OTP_FAILED_TOO_MANY_TIMES.getMessage());
+                    transactionRepository.save(txn);
+                }
+                log.error("Giao dịch thất bại: {}",ErrorCode.OTP_FAILED_TOO_MANY_TIMES);
+                return transactionMapper.toDTO(txn);
+
+            }
             throw new AppException(ErrorCode.INVALID_OTP);
         }
+
+
         Transaction txn = transactionRepository.findByReferenceCode(request.getReferenceCode());
         if(txn == null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
         if (txn.getStatus() != TransactionStatus.PENDING) {
             throw new AppException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
-//        Thực thi giao dịch
+//      Thực thi giao dịch
         processTransaction(txn);
         transactionRepository.save(txn);
-
 //        Xóa key khỏi redis
+        redisTemplate.delete(keyFailCount);
         redisTemplate.delete(keyOTP);
         return transactionMapper.toDTO(txn);
     }
@@ -279,7 +300,6 @@ public class TransactionServiceImpl implements TransactionService{
         }
         CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
         CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
-
         if (fromCustomer==null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
@@ -288,10 +308,10 @@ public class TransactionServiceImpl implements TransactionService{
             throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
         }
 
-        if(fromCustomer.getStatus().equals("ACTIVE")){
+        if(!fromCustomer.getStatus().name().equals("ACTIVE")){
             throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
         }
-        if(toCustomer.getStatus().equals("ACTIVE")){
+        if(!toCustomer.getStatus().name().equals("ACTIVE")){
             throw new AppException(ErrorCode.TO_CUSTOMER_NOT_ACTIVE);
         }
 
@@ -310,7 +330,18 @@ public class TransactionServiceImpl implements TransactionService{
             BigDecimal balance;
             try {
 //                kiểm tra số dư
-               balance = coreQueryService.getBalance(transaction.getFromAccountNumber());
+               String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+               ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                        new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+               ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        responseType,
+                        transaction.getFromAccountNumber()
+                );
+               balance = response.getBody().getResult();
+               System.out.println("Số dư: " + balance);
             }
             catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
@@ -345,7 +376,6 @@ public class TransactionServiceImpl implements TransactionService{
         System.out.println(otp);
     }
     private void processTransaction(Transaction transaction) {
-
         try {
             TransactionRequest request = TransactionRequest.builder()
                     .fromAccountNumber(transaction.getFromAccountNumber())
@@ -356,11 +386,60 @@ public class TransactionServiceImpl implements TransactionService{
                     .timestamp(transaction.getTimestamp())
                     .type(transaction.getType().name())
                     .build();
-           coreTransactionService.performTransfer(request);
-           transaction.setStatus(TransactionStatus.COMPLETED);
+            String url = URL_CORE_BANK+"/perform-transaction";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(request, headers);
+            // Định nghĩa kiểu dữ liệu trả về
+            ParameterizedTypeReference<ApiResponse<TransactionDTO>> responseType =
+                    new ParameterizedTypeReference<ApiResponse<TransactionDTO>>() {};
+
+// Gửi POST request
+            ResponseEntity<ApiResponse<TransactionDTO>> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    httpEntity,
+                    responseType
+            );
+            ApiResponse<TransactionDTO> apiResponse = responseEntity.getBody();
+            if(apiResponse.getCode()==200){
+                transaction.setStatus(TransactionStatus.COMPLETED);
+            }else {
+                transaction.setStatus(TransactionStatus.FAILED);
+                transaction.setFailedReason(apiResponse.getMessage());
+            }
+        } catch (HttpClientErrorException e) {
+            // Lấy body lỗi trả về dạng JSON
+            String errorBody = e.getResponseBodyAsString();
+
+            String failedReason = "Lỗi không xác định";
+
+            if (errorBody != null && !errorBody.isEmpty()) {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    // Map hoặc class tương ứng với response lỗi
+                    Map<String, Object> errorMap = objectMapper.readValue(errorBody, Map.class);
+                    if (errorMap.containsKey("message")) {
+                        failedReason = (String) errorMap.get("message");
+                    }
+                } catch (Exception jsonEx) {
+                    failedReason = errorBody;
+                }
+            } else {
+                failedReason = e.getStatusText();
+            }
+
+            transaction.setStatus(TransactionStatus.FAILED);
+            transaction.setFailedReason(failedReason);
+
+            log.error("Transaction failed: {}", failedReason, e);
+
         } catch (Exception ex) {
             transaction.setStatus(TransactionStatus.FAILED);
-            throw ex;
+            transaction.setFailedReason("Lỗi hệ thống");
+            log.error("Unexpected error:", ex);
         }
+
     }
 }

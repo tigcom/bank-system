@@ -60,6 +60,10 @@ public class Transaction {
     private BankType bankType;
 
     private String destinationBankCode;
+
+    @Column(length = 500)
+    private String failedReason;
+
     @PrePersist
     public void prePersist(){
         if (this.id == null) {

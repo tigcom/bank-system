@@ -64,7 +64,7 @@ public class TransactionController {
     public ApiResponse<TransactionDTO> confirmTransaction(@RequestBody @Valid ConfirmTransactionRequest request) {
         return ApiResponse.<TransactionDTO>builder()
                 .code(200)
-                .message("Giao dịch thành công")
+                .message("Thông tin chi tiết giao dịch")
                 .result(transactionService.confirmTransaction(request))
                 .build();
     }
