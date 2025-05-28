@@ -128,6 +128,23 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=mysql
+      - KC_DB_URL=jdbc:mysql://host.docker.internal:3307/keycloak?useSSL=false&serverTimezone=UTC
+      - KC_DB_USERNAME=root
+      - KC_DB_PASSWORD=0986341885dai
+      - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=edge
+    ports:
+      - "8081:8080"
+    command:
+      - start-dev
 volumes:
   vault-data:
   redis-data:

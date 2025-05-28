@@ -23,7 +23,7 @@ public class KycProfile {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'PENDING'")
     private KycStatus status = KycStatus.PENDING;
 
     @OneToOne

@@ -2,13 +2,15 @@ package com.example.transaction_service.service.impl;
 
 
 import com.example.common_service.dto.AccountDTO;
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.PayRepaymentRequest;
 import com.example.common_service.dto.TransactionRequest;
 import com.example.common_service.services.account.AccountQueryService;
+import com.example.common_service.services.account.CoreQueryService;
+import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.transaction.CoreTransactionService;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
-import com.example.transaction_service.dto.response.PayRepaymentResponse;
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.CurrencyType;
 import com.example.transaction_service.enums.TransactionStatus;
@@ -19,7 +21,6 @@ import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.RpcException;
@@ -53,7 +54,13 @@ public class TransactionServiceImpl implements TransactionService{
     private final AccountQueryService accountQueryService;
 
     @DubboReference
+    private final CoreQueryService coreQueryService;
+
+    @DubboReference
     private final CoreTransactionService coreTransactionService;
+
+    @DubboReference
+    private final CustomerQueryService customerQueryService;
 
     private final RedisTemplate<String,String> redisTemplate;
 
@@ -246,16 +253,8 @@ public class TransactionServiceImpl implements TransactionService{
 
 //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
-        AccountDTO fromAccount = accountQueryService.getAccountByNumber(transaction.getFromAccountNumber());
-        AccountDTO toAccount = accountQueryService.getAccountByNumber(transaction.getToAccountNumber());
-
-        if (!fromAccount.getAccountType().equals("PAYMENT")) {
-            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
-        }
-
-        if (!toAccount.getAccountType().equals("PAYMENT")) {
-            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
-        }
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
+        AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
 
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
@@ -264,7 +263,37 @@ public class TransactionServiceImpl implements TransactionService{
         if (toAccount==null) {
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
         }
-//      Lấy customer by account ID
+        if (!fromAccount.getAccountType().equals("PAYMENT")) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
+        }
+
+        if (!toAccount.getAccountType().equals("PAYMENT")) {
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
+        }
+
+        if(!fromAccount.getStatus().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_ACTIVE);
+        }
+        if(!toAccount.getStatus().equals("ACTIVE")){
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
+        }
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
+
+        if (fromCustomer==null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
+        }
+
+        if (toCustomer==null) {
+            throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
+        }
+
+        if(fromCustomer.getStatus().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
+        }
+        if(toCustomer.getStatus().equals("ACTIVE")){
+            throw new AppException(ErrorCode.TO_CUSTOMER_NOT_ACTIVE);
+        }
 
         if (transaction.getFromAccountNumber().equals(transaction.getToAccountNumber())) {
             throw new AppException(ErrorCode.SAME_ACCOUNT_TRANSFER);
@@ -281,7 +310,7 @@ public class TransactionServiceImpl implements TransactionService{
             BigDecimal balance;
             try {
 //                kiểm tra số dư
-               balance = accountQueryService.getBalance(transaction.getFromAccountNumber());
+               balance = coreQueryService.getBalance(transaction.getFromAccountNumber());
             }
             catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);

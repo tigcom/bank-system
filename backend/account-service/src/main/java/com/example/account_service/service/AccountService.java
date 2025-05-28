@@ -12,5 +12,6 @@ public interface AccountService {
 
     AccountCreateReponse createSaving(SavingCreateDTO savingCreateDTO);
 
-    List<AccountCreateReponse> getAllAccounts();
+    List<AccountCreateReponse> getAllAccountsbyCifCode();
+
 }

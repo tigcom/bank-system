@@ -1,5 +1,6 @@
 package com.example.customer_service.services.Impl;
 
+import com.example.common_service.constant.CustomerStatus;
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.exceptions.AppException;
 import com.example.customer_service.exceptions.ErrorCode;
@@ -21,7 +22,6 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -81,7 +81,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .identityNumber(request.getIdentityNumber())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .status(CustomerStatus.SUSPENDED)
+                .status(com.example.common_service.constant.CustomerStatus.SUSPENDED)
                 .dateOfBirth(request.getDateOfBirth())
                 .gender(request.getGender())
                 .cifCode("TEMP_" + UUID.randomUUID().toString().substring(0, 10))
@@ -326,13 +326,13 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         Customer customer = customerOpt.get();
-        CustomerStatus newStatus = request.getStatus();
+        com.example.common_service.constant.CustomerStatus newStatus = request.getStatus();
 
         if (newStatus == null) {
             return new Response(false, "Trạng thái không hợp lệ");
         }
 
-        if (customer.getStatus() == CustomerStatus.CLOSED) {
+        if (customer.getStatus() == com.example.common_service.constant.CustomerStatus.CLOSED) {
             return new Response(false, "Không thể thay đổi trạng thái từ CLOSED");
         }
 

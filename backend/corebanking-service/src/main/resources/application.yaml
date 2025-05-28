@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8083
   servlet:
     context-path: /corebanking
 
@@ -16,7 +16,6 @@ spring:
       ddl-auto: update
     show-sql: true
 
-#Dubbo
 dubbo:
   application:
     name: corebanking-service
@@ -33,10 +32,12 @@ dubbo:
 #    vault:
 #      kv:
 #        enabled: true  # B?t Vault Key-Value backend
-#      authentication: TOKEN  # S? d?ng token ?? x?c th?c
-#      token: myroot  # Token ?? x?c th?c v?i Vault
+
+#      authentication: TOKEN  # S? d?ng token ?? x�c th?c
+#      token: myroot  # Token ?? x�c th?c v?i Vault
 #      scheme: http  # Giao th?c HTTP
-#      host: 127.0.0.1  # ??a ch? host, m?c ??nh l? localhost n?u kh?ng c? bi?n m?i tr??ng DOCKER_HOST
+#      host: 127.0.0.1  # ??a ch? host, m?c ??nh l� localhost n?u kh�ng c� bi?n m�i tr??ng DOCKER_HOST
+
 #      port: 8200  # C?ng k?t n?i ??n Vault
 #  config:
 #    import: vault://secret/auth-service

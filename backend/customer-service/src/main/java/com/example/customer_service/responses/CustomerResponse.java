@@ -1,6 +1,6 @@
 package com.example.customer_service.responses;
 
-import com.example.customer_service.models.CustomerStatus;
+import com.example.common_service.constant.CustomerStatus;
 import com.example.customer_service.models.KycStatus;
 import lombok.Data;
 
@@ -14,4 +14,5 @@ public class CustomerResponse {
     private String phoneNumber;
     private CustomerStatus status;
     private KycStatus kycStatus;
+
 }
