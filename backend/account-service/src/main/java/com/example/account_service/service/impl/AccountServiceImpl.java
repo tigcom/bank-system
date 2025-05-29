@@ -15,7 +15,9 @@ import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 
@@ -96,13 +99,24 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountCreateReponse createSaving(SavingCreateDTO savingCreateDTO) {
         log.info(" Recive create saving account request");
+        /// get  balanece by account number tren core banking
+        String urlGetBaLance = "http://localhost:8083/corebanking/api/core-bank/get-balance/" + savingCreateDTO.getAccountNumberSource();
+        ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                urlGetBaLance,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {}
+        );
+        BigDecimal balance = response.getBody().getResult();
+        log.info("balance of src account payment : {}", balance);
+        if (balance.compareTo(savingCreateDTO.getInitialDeposit()) < 0) {
+            throw new AppException(ErrorCode.BALANCE_NOT_ENOUGH);
+        }
         /// Get Current Customer
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         log.info("User id "+ userId);
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-//        boolean isActive = commonService.checkCustomer(savingCreateDTO.getCifCode());
-        //Check customer stattus
         if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
             ///  Create account
             Account account = Account.builder()
@@ -111,11 +125,6 @@ public class AccountServiceImpl implements AccountService {
                     .status(AccountStatus.ACTIVE)
                     .build();
             account.setAccountNumber(generateAccountNumber(account));
-
-            ///  got accountnumberSource from DTO
-
-            log.info("Account number Soucre : " + savingCreateDTO.getAccountNumberSource());
-
             coreSavingAccountDTO coreSavingAccountDTO = com.example.common_service.dto.coreSavingAccountDTO.builder()
                     .cifCode(account.getCifCode())
                     .term(savingCreateDTO.getTerm())
@@ -123,16 +132,12 @@ public class AccountServiceImpl implements AccountService {
                     .accountNumber(account.getAccountNumber())
                     .build();
             log.info("coreSavingAccountDTO: {}", coreSavingAccountDTO);
-
-            /// dung dubbo goi ham save saving account tren core banking
-            commonServiceCore.createCoreAccountSaving(coreSavingAccountDTO);
-
-            ///  dung restTemplate call api saving account tren core banking
             //// dung restTemplate call API save account tren CoreBanking
             String url = "http://localhost:8083/corebanking/create-savings-account";
             restTemplate.postForObject(url ,coreSavingAccountDTO,Void.class);
-            accountRepository.save(account);
+            /// chuyen tien tu account paymen src to master
 
+            accountRepository.save(account);
             return AccountCreateReponse.builder()
                     .accountNumber(account.getAccountNumber())
                     .cifCode(account.getCifCode())
@@ -168,6 +173,29 @@ public class AccountServiceImpl implements AccountService {
         return response.getBody();
     }
 
+    @Override
+    public List<AccountPaymentResponse> getAllPaymentAccountsbyCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
+
+        // Lấy thông tin khách hàng hiện tại
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+
+        // Tạo URL gọi tới corebanking
+        String url = "http://localhost:8083/corebanking/get-all-paymentaccount-by-cifcode/" + currentCustomer.getCifCode();
+
+        // Gửi request GET và nhận về danh sách AccountSummaryDTO
+        ResponseEntity<List<AccountPaymentResponse>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<AccountPaymentResponse>>() {}
+        );
+
+        // Trả về danh sách
+        return response.getBody();
+    }
 
 
     public String generateAccountNumber(Account dto) {

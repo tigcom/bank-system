@@ -6,6 +6,7 @@ import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
+import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,7 +38,7 @@ public class AccountController {
                 AccountCreateReponse accountCreateReponse= accountService.createPayment();
                 return ApiResponseWrapper.<AccountCreateReponse>builder()
                         .status(HttpStatus.CREATED.value())
-                        .message("account.payment.createSuccess")
+                        .message(messageUtils.getMessage("account.payment.createSuccess"))
                         .data(accountCreateReponse)
                         .build();
     }
@@ -55,7 +56,7 @@ public class AccountController {
         AccountCreateReponse accountCreateReponse= accountService.createSaving(savingCreateDTO);
         return ApiResponseWrapper.<AccountCreateReponse>builder()
                 .status(HttpStatus.CREATED.value())
-                .message("account.saving.createSuccess")
+                .message(messageUtils.getMessage("account.saving.createSuccess"))
                 .data(accountCreateReponse)
                 .build();
     }
@@ -78,4 +79,15 @@ public class AccountController {
         );
         return response;
     }
+    @GetMapping("/getAllPaymentAccount")
+    public ApiResponseWrapper<List<AccountPaymentResponse>> getALlPaymentAccountByCurrentCustomer() {
+        List<AccountPaymentResponse> accountResponses = accountService.getAllPaymentAccountsbyCifCode();
+        ApiResponseWrapper<List<AccountPaymentResponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                accountResponses
+        );
+        return response;
+    }
+
 }

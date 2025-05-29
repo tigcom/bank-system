@@ -4,6 +4,7 @@ import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.corebanking_service.repository.CoreAccountRepo;
 import com.example.corebanking_service.service.CoreAccountService;
@@ -39,7 +40,11 @@ public class CoreAccountController {
     public List<AccountSummaryDTO> getAllAccountByCifCode(@PathVariable String id) {
         List<AccountSummaryDTO> list = coreAccountService.getAllAccountsByCif(id);
         return list;
-
+    }
+    @GetMapping("/get-all-paymentaccount-by-cifcode/{id}")
+    public List<AccountPaymentResponse> getAllPaymentAccountByCifCode(@PathVariable String id) {
+        List<AccountPaymentResponse> list = coreAccountService.getAllPaymentAccountsByCif(id);
+        return list;
     }
 }
 

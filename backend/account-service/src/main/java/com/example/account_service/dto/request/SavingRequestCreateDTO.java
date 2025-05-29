@@ -2,6 +2,7 @@ package com.example.account_service.dto.request;
 
 import com.example.common_service.constant.AccountType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,10 +17,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SavingCreateDTO   {
-
-    @Schema(description = "Loại tài khoản, mặc định là SAVING", example = "SAVING", accessMode = Schema.AccessMode.READ_ONLY)
-    private final AccountType accountType = AccountType.SAVING;
+public class SavingRequestCreateDTO {
 
     @Schema(description = "Số tài khoản nguồn chuyển tiền", example = "1234567890", required = true)
     @NotBlank(message = "Account number source cannot be blank")
@@ -33,4 +31,6 @@ public class SavingCreateDTO   {
     @NotNull(message = "Term (in months) is required")
     @Min(value = 1, message = "Term must be at least 1 month")
     private Integer term; // kỳ hạn (tháng)
+
+    private BigDecimal interestRate;
 }

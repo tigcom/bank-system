@@ -21,6 +21,7 @@ public enum ErrorCode {
     CUSTOMER_NOTACTIVE(1002, "customer.notactive"),
     CREDIT_REQUEST_NOTEXISTED(1002, "credit.request.notexisted"),
     CARTCREDIT_TYPE_NOTEXISTED(1002, "credit.carttype.notexisted"),
+    ACCOUNT_NOT_EXIST(400,"Tài khoản không tồn tại" ),
     UNAUTHORIZATED(401,"error.unauthorizated");
 
 

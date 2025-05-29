@@ -6,6 +6,7 @@ import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.services.CommonServiceCore;
 import com.example.corebanking_service.entity.CoreAccount;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -54,7 +56,7 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
         CoreSavingsAccount coreSavingsAccount=CoreSavingsAccount.builder()
                 .accountNumber(dto.getAccountNumber())
                 .accountType(dto.getAccountType())
-                .balance(BigDecimal.ZERO)
+                .balance(dto.getInitialDeposit())
                 .status(AccountStatus.ACTIVE)
                 .openedDate(LocalDate.now())
                 .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
@@ -114,5 +116,23 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
 
     }
 
+    @Override
+    public List<AccountPaymentResponse> getAllPaymentAccountsByCif(String cifCode) {
+        List<CoreAccount> list = coreAccountRepo.getAllCorePaymentAccounts(cifCode);
+        return list.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+    public AccountPaymentResponse mapToDto(CoreAccount request) {
+        AccountPaymentResponse response = AccountPaymentResponse.builder()
+                .accountNumber(request.getAccountNumber())
+                .accountType(request.getAccountType())
+                .openedDate(request.getOpenedDate())
+                .balance(request.getBalance())
+                .status(request.getStatus())
+                .cifCode(request.getCoreCustomer().getCifCode())
+                .build();
+        return response;
 
+    }
 }

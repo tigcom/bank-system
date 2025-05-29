@@ -13,4 +13,10 @@ import java.util.List;
 public interface CoreAccountRepo extends JpaRepository<CoreAccount, String> {
     @Query(name = "AccountSummaryQueryResult", nativeQuery = true)
     List<AccountSummaryDTO> getAllAccountsByCif(@Param("cifCode") String cifCode);
+
+    @Query("SELECT c FROM CoreAccount c WHERE c.coreCustomer.cifCode = :cifCode AND c.accountType = 'PAYMENT'")
+    List<CoreAccount> getAllCorePaymentAccounts(@Param("cifCode") String cifCode);
+
+
+    CoreAccount findByAccountNumber(String accountNumber);
 }
