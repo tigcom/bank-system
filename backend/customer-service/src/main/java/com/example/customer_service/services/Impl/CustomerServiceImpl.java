@@ -50,8 +50,6 @@ public class CustomerServiceImpl implements CustomerService {
     private final KycProfileRepository kycProfileRepository;
     private final RestTemplate restTemplate;
 
-//    @DubboReference
-//    private CoreCustomerService coreCustomerService;
     private final CoreBankingClient coreBankingClient;
 
     @Value("${idp.url}")
@@ -128,7 +126,7 @@ public class CustomerServiceImpl implements CustomerService {
                     .build();
 
             log.info("Đang gọi đồng bộ core banking với CIF: {}", savedCustomer.getCifCode());
-            // ✅ Gọi qua RestTemplate
+            // Gọi qua RestTemplate
             CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
             if (!coreResponse.isSuccess()) {
                 log.error("Đồng bộ core banking thất bại: {}", coreResponse.getMessage());
@@ -245,31 +243,6 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("Đã xóa người dùng Keycloak với ID: {}", userId);
         } catch (Exception e) {
             log.error("Xóa người dùng Keycloak thất bại: {}", e.getMessage(), e);
-        }
-    }
-
-    private String getKeycloakToken(String usernameOrPhone, String password) throws Exception {
-        String tokenEndpoint = keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
-
-        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-        requestBody.add("grant_type", "password");
-        requestBody.add("client_id", clientId);
-        requestBody.add("client_secret", clientSecret);
-        requestBody.add("username", usernameOrPhone);
-        requestBody.add("password", password);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<Map> response = restTemplate.postForEntity(tokenEndpoint, request, Map.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return (String) response.getBody().get("access_token");
-        } else if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-            throw new IllegalArgumentException("Sai tên đăng nhập hoặc mật khẩu");
-        } else {
-            throw new Exception("Không thể lấy token từ Keycloak: " + response.getStatusCode());
         }
     }
 
