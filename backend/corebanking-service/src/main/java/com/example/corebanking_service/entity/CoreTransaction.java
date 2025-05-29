@@ -2,9 +2,11 @@ package com.example.corebanking_service.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "core_transactions")
 public class CoreTransaction {
 
@@ -20,7 +23,7 @@ public class CoreTransaction {
     private Long transactionId;
 
     @Column(name = "amount")
-    private Long amount;
+    private BigDecimal amount;
 
     @Column(name = "transaction_type", length = 20)
     private String transactionType;

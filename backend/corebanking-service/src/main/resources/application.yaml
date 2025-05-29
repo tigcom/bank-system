@@ -9,38 +9,35 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/coredb
     username: root
-    password: 123456
+    password: 22572
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
 dubbo:
   application:
-    name: "corebanking-service"
-    qos-enable: false
-    metadata-type: remote
-    serialize-check-status: STRICT
-    serialization:
-      security:
-        check: true
-        # Trỏ đến file allowlist của bạn
-        allowlist: "file:security/serialize.allowlist"
+    name: corebanking-service
   protocol:
-    name: "dubbo"
-    port: -1
+    name: dubbo
+    port: 20881
   registry:
-    address: "zookeeper://${DOCKER_HOST:localhost}:2181"
-
+    address: zookeeper://localhost:2181
+  scan:
+    base-packages: com.example.corebanking_service.service
 
 
 #  cloud:
 #    vault:
 #      kv:
 #        enabled: true  # B?t Vault Key-Value backend
+
 #      authentication: TOKEN  # S? d?ng token ?? x�c th?c
 #      token: myroot  # Token ?? x�c th?c v?i Vault
 #      scheme: http  # Giao th?c HTTP
 #      host: 127.0.0.1  # ??a ch? host, m?c ??nh l� localhost n?u kh�ng c� bi?n m�i tr??ng DOCKER_HOST
+
 #      port: 8200  # C?ng k?t n?i ??n Vault
 #  config:
 #    import: vault://secret/auth-service
@@ -120,4 +117,3 @@ dubbo:
 #        enabled: true
 #
 #
-

@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/accountdb
     username: root
-    password: 123456
+    password: 22572
   security:
     oauth2:
       resourceserver:
@@ -26,20 +26,14 @@ spring:
 
 dubbo:
   application:
-    name: "account-service"
-    qos-enable: false
-    metadata-type: remote
-    serialize-check-status: STRICT
-    serialization:
-      security:
-        check: true
-      # Trỏ đến file allowlist của bạn
-        allowlist: "file:security/serialize.allowlist"
+    name: account-service
   protocol:
-    name: "dubbo"
-    port: -1
+    name: dubbo
+    port: 20882
   registry:
-    address: "zookeeper://${DOCKER_HOST:localhost}:2181"
+    address: zookeeper://localhost:2181
+  scan:
+    base-packages: com.example.account_service.service
 
 springdoc:
   api-docs:

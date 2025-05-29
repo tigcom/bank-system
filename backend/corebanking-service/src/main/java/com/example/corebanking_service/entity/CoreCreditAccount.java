@@ -9,6 +9,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter

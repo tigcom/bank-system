@@ -60,10 +60,17 @@ public class Transaction {
     private BankType bankType;
 
     private String destinationBankCode;
+
+    @Column(length = 500)
+    private String failedReason;
+
     @PrePersist
     public void prePersist(){
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
+        }
+        if(this.timestamp == null){
+            this.timestamp = LocalDateTime.now();
         }
         if (this.bankType == null) {
             this.bankType = BankType.INTERNAL;

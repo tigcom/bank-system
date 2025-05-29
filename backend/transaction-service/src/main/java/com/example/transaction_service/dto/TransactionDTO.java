@@ -27,7 +27,6 @@ public class TransactionDTO {
     @Size(max = 255, message = "Description must not exceed 255 characters")
     private String description;
 
-    @NotNull(message = "Timestamp is required")
     @PastOrPresent(message = "Timestamp cannot be in the future")
     private LocalDateTime timestamp;
 
@@ -46,4 +45,6 @@ public class TransactionDTO {
     @NotBlank(message = "Reference code is required")
     @Size(max = 100, message = "Reference code must not exceed 100 characters")
     private String referenceCode;
+
+    private String failedReason;
 }

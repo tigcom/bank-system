@@ -5,9 +5,9 @@ import com.example.common_service.constant.AccountType;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
