@@ -34,9 +34,15 @@ public class SavingsController {
                 .data(reponse)
                 .build();
     }
-//    @PostMapping("/Send-otp-to-email/{id}")
-//    public ApiResponseWrapper<String> SendOTP(@PathVariable String id) {
-//
-//    }
+    @PostMapping("/Send-otp-to-email/{id}")
+    public ApiResponseWrapper<String> SendOTP(@PathVariable String id) {
+         savingRequestService.sendOTP(id);
+        return ApiResponseWrapper.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("OTP đã được gửi thành công.")
+                .data("OTP sent to user contact.")
+                .build();
+
+    }
 
 }

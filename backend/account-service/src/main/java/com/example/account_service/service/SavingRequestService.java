@@ -11,4 +11,6 @@ import java.util.List;
 public interface SavingRequestService {
 
     SavingsRequestResponse CreateSavingRequest(SavingRequestCreateDTO savingRequestCreateDTO);
+
+    void sendOTP(String id);
 }

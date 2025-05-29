@@ -24,7 +24,7 @@ public enum ErrorCode {
     AGE_INVALID(1002, "credit.age.invalid"),
     CREDIT_REQUEST_STATUS_INVALID(1002, "credit.request.status.invalid"),
     BALANCE_NOT_ENOUGH(1003, "account.balance.notenough"),
-
+    SAVING_REQUEST_NOTEXISTED(1003, "saving.request.notexisted"),
     UNAUTHORIZATED(401,"error.unauthorizated");
 
 

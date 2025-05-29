@@ -19,12 +19,14 @@ import com.example.account_service.utils.AccountNumberUtils;
 import com.example.common_service.constant.*;
 import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     private final AccountNumberUtils    accountNumberUtils;
     private final RestTemplate restTemplate;
     private final SavingsRequestRepository savingsRequestRepository;
+    private final StreamBridge streamBridge;
 
 
     @Override
@@ -92,6 +95,24 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .cifCode(savingsRequest.getCifCode())
                 .interestRate(savingRequestCreateDTO.getInterestRate())
                 .build();
+    }
+
+    @Override
+    public void sendOTP(String savingsRequestId) {
+        SavingsRequest savingsRequest = savingsRequestRepository.findById(savingsRequestId).orElseThrow(
+                ()->  new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED)
+        );
+        log.info("Saving request: {}", savingsRequest);
+        CustomerDTO customerDTO = commonService.getCustomerByCifCode(savingsRequest.getCifCode());
+
+        MailMessageDTO  mailMessageDTO= MailMessageDTO.builder()
+                .recipientName(customerDTO.getFullName())
+                .recipient(customerDTO.getEmail())
+                .body("Mã OTP")
+                .subject("Xác thực OTP")
+                .build();
+        streamBridge.send("mail-out-0", mailMessageDTO);
+
     }
 }
 
