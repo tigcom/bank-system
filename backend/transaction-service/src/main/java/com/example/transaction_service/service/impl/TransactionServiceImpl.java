@@ -2,9 +2,9 @@ package com.example.transaction_service.service.impl;
 
 
 import com.example.common_service.dto.AccountDTO;
+import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
-import com.example.common_service.dto.PayRepaymentRequest;
-import com.example.common_service.dto.TransactionRequest;
+import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.transaction_service.dto.TransactionDTO;
@@ -22,7 +22,6 @@ import com.example.transaction_service.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@DubboService
 public class TransactionServiceImpl implements TransactionService{
 
     private final TransactionRepository transactionRepository;
@@ -80,11 +78,11 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(transferRequest.getCurrency()));
         transaction.setType(TransactionType.TRANSFER);
 
-    //      Validate Transaction
+//          Validate Transaction
             validateTransaction(transaction);
-    //      Khởi tạo transaction
+//          Khởi tạo transaction
             initTransaction(transaction);
-    //      Gửi OTP
+//          Gửi OTP
             sendOTP(transaction.getReferenceCode());
             transactionRepository.save(transaction);
             return transactionMapper.toDTO(transaction);
@@ -135,7 +133,7 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     @Transactional
-    public TransactionDTO payBill(PayRepaymentRequest repaymentRequest) {
+    public TransactionDTO payBill(PaymentRequest repaymentRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(repaymentRequest.getFromAccountNumber());
         transaction.setAmount(repaymentRequest.getAmount());
@@ -341,7 +339,6 @@ public class TransactionServiceImpl implements TransactionService{
                         transaction.getFromAccountNumber()
                 );
                balance = response.getBody().getResult();
-               System.out.println("Số dư: " + balance);
             }
             catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
@@ -391,18 +388,18 @@ public class TransactionServiceImpl implements TransactionService{
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(request, headers);
-            // Định nghĩa kiểu dữ liệu trả về
-            ParameterizedTypeReference<ApiResponse<TransactionDTO>> responseType =
-                    new ParameterizedTypeReference<ApiResponse<TransactionDTO>>() {};
+//          Định nghĩa kiểu dữ liệu trả về
+            ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>> responseType =
+                    new ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>>() {};
 
-// Gửi POST request
-            ResponseEntity<ApiResponse<TransactionDTO>> responseEntity = restTemplate.exchange(
+//          Gửi POST request
+            ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     httpEntity,
                     responseType
             );
-            ApiResponse<TransactionDTO> apiResponse = responseEntity.getBody();
+            ApiResponse<CommonTransactionDTO> apiResponse = responseEntity.getBody();
             if(apiResponse.getCode()==200){
                 transaction.setStatus(TransactionStatus.COMPLETED);
             }else {

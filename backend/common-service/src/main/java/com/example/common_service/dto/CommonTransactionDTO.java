@@ -1,4 +1,4 @@
-package com.example.corebanking_service.dto;
+package com.example.common_service.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class TransactionDTO {
+public class CommonTransactionDTO {
     private String fromAccountNumber;
 
     private String toAccountNumber;
@@ -22,4 +22,10 @@ public class TransactionDTO {
     private String status;
 
     private String type;
+
+    private String currency;
+
+    private String referenceCode;
+
+    private String failedReason;
 }

@@ -1,7 +1,6 @@
 package com.example.transaction_service.controller;
 
 
-import com.example.common_service.dto.PayRepaymentRequest;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.ApiResponse;
@@ -45,7 +44,7 @@ public class TransactionController {
                 .build();
     }
     @PostMapping("/pay-bill")
-    public ApiResponse<TransactionDTO> payBill(@RequestBody @Valid PayRepaymentRequest request) {
+    public ApiResponse<TransactionDTO> payBill(@RequestBody @Valid PaymentRequest request) {
         return ApiResponse.<TransactionDTO>builder()
                 .code(200)
                 .message("Thanh toán hóa đơn")

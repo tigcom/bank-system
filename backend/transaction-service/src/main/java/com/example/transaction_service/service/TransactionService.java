@@ -1,6 +1,5 @@
 package com.example.transaction_service.service;
 
-import com.example.common_service.dto.PayRepaymentRequest;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.enums.TransactionStatus;
@@ -11,7 +10,7 @@ public interface TransactionService {
     TransactionDTO transfer(TransferRequest transferRequest);
     TransactionDTO deposit(DepositRequest depositRequest);
     TransactionDTO withdraw(WithdrawRequest withdrawRequest);
-    TransactionDTO payBill(PayRepaymentRequest repaymentRequest);
+    TransactionDTO payBill(PaymentRequest repaymentRequest);
     TransactionDTO disburse(DisburseRequest disburseRequest);
     TransactionDTO confirmTransaction(ConfirmTransactionRequest confirmTransactionRequest);
 

@@ -1,15 +1,13 @@
 package com.example.transaction_service.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class DepositRequest {
 
     @NotBlank(message = "{toAccountNumber.notblank}")
@@ -25,7 +23,5 @@ public class DepositRequest {
     @NotBlank(message = "{currency.notblank}")
     @Pattern(regexp = "VND|USD|EUR", message = "{currency.pattern}")
     private String currency;
-
-
 
 }

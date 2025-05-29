@@ -1,7 +1,7 @@
 package com.example.corebanking_service.service.impl;
 
+import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.corebanking_service.dto.request.TransactionRequest;
-import com.example.corebanking_service.dto.TransactionDTO;
 import com.example.corebanking_service.entity.CoreAccount;
 import com.example.corebanking_service.entity.CoreTransaction;
 import com.example.corebanking_service.exception.AppException;
@@ -28,7 +28,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
 
     @Override
     @Transactional
-    public TransactionDTO performTransfer(TransactionRequest request) {
+    public CommonTransactionDTO performTransfer(TransactionRequest request) {
         CoreAccount fromAccount = accountRepo.findByAccountNumber(request.getFromAccountNumber());
         CoreAccount toAccount = accountRepo.findByAccountNumber(request.getToAccountNumber());
         if (fromAccount == null || toAccount == null) {
@@ -52,7 +52,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
                 .toAccount(toAccount)
                 .build();
         transactionRepo.save(transaction);
-        TransactionDTO transactionDTO = TransactionDTO.builder()
+        CommonTransactionDTO transactionDTO = CommonTransactionDTO.builder()
                 .amount(transaction.getAmount())
                 .type(transaction.getTransactionType())
                 .timestamp(transaction.getTimestamp())
