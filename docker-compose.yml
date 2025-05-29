@@ -134,9 +134,9 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KC_DB=mysql
-      - KC_DB_URL=jdbc:mysql://host.docker.internal:3307/keycloak?useSSL=false&serverTimezone=UTC
+      - KC_DB_URL=jdbc:mysql://host.docker.internal:3306/keycloak?useSSL=false&serverTimezone=UTC
       - KC_DB_USERNAME=root
-      - KC_DB_PASSWORD=0986341885dai
+      - KC_DB_PASSWORD=22572
       - KC_HOSTNAME=localhost
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_STRICT=false

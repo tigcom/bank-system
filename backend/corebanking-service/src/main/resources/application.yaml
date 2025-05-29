@@ -7,9 +7,9 @@ spring:
   application:
     name: corebanking-service
   datasource:
-    url: jdbc:mysql://localhost:3307/coredb
+    url: jdbc:mysql://localhost:3306/coredb
     username: root
-    password: 0986341885dai
+    password: 22572
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

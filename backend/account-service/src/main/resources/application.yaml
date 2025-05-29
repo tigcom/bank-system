@@ -7,9 +7,9 @@ spring:
   application:
     name: account-service
   datasource:
-    url: jdbc:mysql://localhost:3307/accountdb
+    url: jdbc:mysql://localhost:3306/accountdb
     username: root
-    password: 0986341885dai
+    password: 22572
   security:
     oauth2:
       resourceserver:
