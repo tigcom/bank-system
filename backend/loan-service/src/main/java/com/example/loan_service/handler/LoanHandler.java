@@ -3,8 +3,10 @@ package com.example.loan_service.handler;
 
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
-import com.example.common_service.models.CustomerStatus;
+import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.models.KycStatus;
+import com.example.common_service.services.account.AccountQueryService;
+import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.customer.CustomerService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
@@ -29,23 +31,27 @@ public class LoanHandler {
 
     private final LoanService loanService;
     private final RepaymentService repaymentService;
-//    @DubboReference
-//    private  CustomerService customerService;
+    @DubboReference
+    private final CustomerQueryService customerQueryService;
+
+    @DubboReference
+    private final AccountQueryService accountQueryService;
 
     public Loan createLoan(Loan loan) throws  Exception {
-        CustomerResponseDTO customer = CustomerResponseDTO.builder()
-                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
-                .dateOfBirth(LocalDate.of(2003, 5, 10))
-                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.VERIFIED)
-                .phoneNumber("1234567890").build();
-        AccountDTO account = AccountDTO.builder()
-                .accountNumber("123").cifCode("213122").accountType("PAYMENT")
-                .balance(BigDecimal.valueOf(1231232.00)).status("ACTIVE").build();
-        if (!customer.getKycStatus().equals(KycStatus.PENDING)) {
-            throw new IllegalArgumentException("KYC status is not  PENDING");
-        }else if (!customer.getStatus().equals(CustomerStatus.ACTIVE)){
+//        CustomerResponseDTO customer = CustomerResponseDTO.builder()
+//                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
+//                .dateOfBirth(LocalDate.of(2003, 5, 10))
+//                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.VERIFIED)
+//                .phoneNumber("1234567890").build();
+//        AccountDTO account = AccountDTO.builder()
+//                .accountNumber("123").cifCode("213122").accountType("PAYMENT")
+//                .balance(BigDecimal.valueOf(1231232.00)).status("ACTIVE").build();
+        CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+        System.out.println(customer.getDateOfBirth());
+        AccountDTO account = accountQueryService.getAccountByAccountNumber(loan.getAccountNumber());
+        if (!customer.getStatus().equals(CustomerStatus.ACTIVE)){
             throw new IllegalArgumentException("Customer status is not  ACTIVE");
-        } else if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() >= 18) {
+        } else if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
             throw new IllegalArgumentException("Customer is not old enough");
         } else if (!account.getStatus().equalsIgnoreCase("ACTIVE")) {
             throw new IllegalArgumentException("Account status is not  ACTIVE");

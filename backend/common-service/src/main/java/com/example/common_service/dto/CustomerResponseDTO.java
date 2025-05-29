@@ -1,6 +1,6 @@
 package com.example.common_service.dto;
 
-import com.example.common_service.models.CustomerStatus;
+import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.models.KycStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +23,5 @@ public class CustomerResponseDTO implements Serializable {
     private String email;
     private String phoneNumber;
     private CustomerStatus status;
-    private KycStatus kycStatus;
 }
 
