@@ -9,7 +9,9 @@ public enum ErrorCode {
     EMAIL_EXISTS("Email đã tồn tại"),
     KEYCLOAK_ERROR("Lỗi khi gọi Keycloak API"),
     CUSTOMER_NOTEXISTED("Customer is not existed"),
-    INVALID_CREDENTIALS("Sai tên đăng nhập hoặc mật khẩu");
+    INVALID_CREDENTIALS("Sai tên đăng nhập hoặc mật khẩu"),
+    INVALID_REQUEST("Yêu cầu không hợp lệ"),
+    UNAUTHORIZED("Xác thực Keycloak thất bại");
 
     private final String message;
 

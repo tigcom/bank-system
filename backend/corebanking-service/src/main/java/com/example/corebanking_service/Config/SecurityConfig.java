@@ -1,4 +1,4 @@
-package com.example.account_service.config;
+package com.example.corebanking_service.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,6 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-@SuppressWarnings("unused")
 public class SecurityConfig {
 
     @Bean
@@ -29,9 +28,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/account/testAuth").authenticated()
-                        .requestMatchers("/api/account/**").hasRole("CUSTOMER")
-                        .anyRequest().authenticated())
+//                        .requestMatchers("/api/core/customers/sync").permitAll()
+                        .anyRequest().permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())));

@@ -1,4 +1,7 @@
 CREATE DATABASE customerdb;
+CREATE DATABASE transaction_service;
+CREATE DATABASE accountdb;
+CREATE DATABASE coredb;
 USE customerdb;
 
 CREATE TABLE customers (

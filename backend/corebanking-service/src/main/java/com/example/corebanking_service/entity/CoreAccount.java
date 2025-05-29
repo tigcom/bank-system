@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import lombok.experimental.SuperBuilder;
 
@@ -70,6 +71,7 @@ import java.util.List;
 @Table(name = "core_accounts")
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.JOINED)
+@SuperBuilder
 public class CoreAccount {
     @Id
     @Column(name = "account_number", nullable = false, length = 20)
