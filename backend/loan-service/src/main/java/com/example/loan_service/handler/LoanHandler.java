@@ -104,7 +104,9 @@ public class LoanHandler {
         }
         return loan;
     }
-
+    public List<Loan> findall(){
+        return loanService.findAllLoan();
+    }
     public void deleteLoan(Long loanId) {
         loanService.deleteLoan(loanId);
     }

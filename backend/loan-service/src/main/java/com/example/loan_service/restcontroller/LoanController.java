@@ -143,5 +143,19 @@ public class LoanController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
-
+    @GetMapping("/api/loans")
+    public ResponseEntity<ApiResponseWrapper<List<Loan>>> allgetLoanById() {
+        ApiResponseWrapper<List<Loan>> response = new ApiResponseWrapper<>();
+        try {
+            List<Loan> loan = loanHandler.findall();
+            response.setData(loan);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Loan found");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.setMessage(e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
 }

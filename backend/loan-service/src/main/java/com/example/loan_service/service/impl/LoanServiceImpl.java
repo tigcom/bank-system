@@ -8,13 +8,10 @@ import com.example.loan_service.repository.LoanRepository;
 import com.example.loan_service.service.LoanService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
+import com.example.common_service.dto.MailMessageDTO;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +32,16 @@ public class LoanServiceImpl implements LoanService {
     public Loan updateLoan(Loan loan) {
         return loanRepository.save(loan);
     }
+    private final StreamBridge streamBridge;
 
     @Override
     public List<Loan> findAllLoan() {
+        MailMessageDTO mailMessage = new MailMessageDTO();
+        mailMessage.setSubject("Test notifi");
+        mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
+        mailMessage.setBody("Loan Service gui mail");
+        mailMessage.setRecipientName("khang đẹp trai");
+        streamBridge.send("mail-out-0", mailMessage);
         return loanRepository.findAll();
     }
 
