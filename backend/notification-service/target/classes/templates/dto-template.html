@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Xác nhận OTP - Ngân hàng ABC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0; padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #004080;
+        }
+        .otp-code {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #d32f2f;
+            letter-spacing: 6px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Ngân hàng ABC</h1>
+    <p>Xin chào <span th:text="${name}">[Tên khách hàng]</span>,</p>
+    <p>Mã xác thực (OTP) của bạn là:</p>
+    <div class="otp-code" th:text="${content}">123456</div>
+    <p>Vui lòng không chia sẻ mã này với bất kỳ ai.</p>
+    <p>Mã sẽ hết hạn trong 5 phút.</p>
+    <div class="footer">
+        © 2025 Ngân hàng ABC. Mọi quyền được bảo lưu.
+    </div>
+</div>
+</body>
+</html>
