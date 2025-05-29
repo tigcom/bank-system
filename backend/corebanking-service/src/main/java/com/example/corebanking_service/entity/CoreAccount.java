@@ -71,7 +71,6 @@ import java.util.List;
 @Table(name = "core_accounts")
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.JOINED)
-@SuperBuilder
 public class CoreAccount {
     @Id
     @Column(name = "account_number", nullable = false, length = 20)
