@@ -417,6 +417,7 @@ public class TransactionServiceImpl implements TransactionService{
                 .recipient(fromCustomer.getEmail())
                 .recipientName(fromCustomer.getFullName())
                 .build();
+        System.out.println("OTP:"+otp);
         streamBridge.send("mail-out-0", mailMessage);
     }
     private void processTransaction(Transaction transaction) {
