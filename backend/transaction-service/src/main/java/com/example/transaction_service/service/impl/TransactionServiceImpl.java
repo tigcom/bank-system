@@ -4,6 +4,7 @@ package com.example.transaction_service.service.impl;
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
@@ -78,14 +79,14 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(transferRequest.getCurrency()));
         transaction.setType(TransactionType.TRANSFER);
 
-//          Validate Transaction
-            validateTransaction(transaction);
-//          Khởi tạo transaction
-            initTransaction(transaction);
-//          Gửi OTP
-            sendOTP(transaction.getReferenceCode());
-            transactionRepository.save(transaction);
-            return transactionMapper.toDTO(transaction);
+//      Validate Transaction
+        validateTransaction(transaction);
+//      Khởi tạo transaction
+        initTransaction(transaction);
+//      Gửi OTP
+        sendOTP(transaction.getReferenceCode());
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
     @Override
@@ -178,7 +179,28 @@ public class TransactionServiceImpl implements TransactionService{
 
         initTransaction(transaction);
 //       Gửi OTP
-        sendOTP(transaction.getReferenceCode());
+        processTransaction(transaction);
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public TransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(accountSavingRequest.getFromAccountNumber());
+        transaction.setAmount(accountSavingRequest.getAmount());
+        transaction.setDescription(accountSavingRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(accountSavingRequest.getCurrency()));
+        transaction.setType(TransactionType.CREATE_ACCOUNT_SAVING);
+
+        transaction.setToAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }

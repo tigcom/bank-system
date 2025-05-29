@@ -1,9 +1,6 @@
 package com.example.common_service.services.transactions;
 
-import com.example.common_service.dto.request.CommonConfirmTransactionRequest;
-import com.example.common_service.dto.request.CommonDepositRequest;
-import com.example.common_service.dto.request.CommonDisburseRequest;
-import com.example.common_service.dto.request.PayRepaymentRequest;
+import com.example.common_service.dto.request.*;
 import com.example.common_service.dto.CommonTransactionDTO;
 
 public interface CommonTransactionService {
@@ -12,6 +9,8 @@ public interface CommonTransactionService {
     CommonTransactionDTO loanDisbursement(CommonDisburseRequest disburseRequest);
 
     CommonTransactionDTO deposit(CommonDepositRequest depositRequest);
+
+    CommonTransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest);
 
     CommonTransactionDTO confirmTransaction(CommonConfirmTransactionRequest confirmTransactionRequest);
 

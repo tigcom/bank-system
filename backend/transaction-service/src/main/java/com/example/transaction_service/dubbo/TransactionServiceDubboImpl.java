@@ -1,10 +1,7 @@
 package com.example.transaction_service.dubbo;
 
 import com.example.common_service.dto.CommonTransactionDTO;
-import com.example.common_service.dto.request.CommonConfirmTransactionRequest;
-import com.example.common_service.dto.request.CommonDepositRequest;
-import com.example.common_service.dto.request.CommonDisburseRequest;
-import com.example.common_service.dto.request.PayRepaymentRequest;
+import com.example.common_service.dto.request.*;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.ConfirmTransactionRequest;
@@ -54,6 +51,12 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
                 .description(depositRequest.getDescription())
                 .build();
         TransactionDTO transactionDTO = transactionService.deposit(request);
+        return toCommonTransactionDTO(transactionDTO);
+    }
+
+    @Override
+    public CommonTransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest) {
+        TransactionDTO transactionDTO = transactionService.createAccountSaving(accountSavingRequest);
         return toCommonTransactionDTO(transactionDTO);
     }
 
