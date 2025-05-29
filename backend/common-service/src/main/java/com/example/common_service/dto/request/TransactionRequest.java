@@ -1,5 +1,6 @@
-package com.example.common_service.dto;
+package com.example.common_service.dto.request;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +29,6 @@ public class TransactionRequest implements Serializable {
     private String status;
 
     private String type;
+
 
 }

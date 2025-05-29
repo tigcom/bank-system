@@ -1,11 +1,13 @@
 package com.example.transaction_service.repository;
 
 import com.example.transaction_service.entity.Transaction;
+import com.example.transaction_service.enums.TransactionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -15,4 +17,6 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
             "WHERE from_account_number = :accountNumber OR to_account_number = :accountNumber",
             nativeQuery = true)
     List<Transaction> getAccountTransactions(@Param("accountNumber") String accountNumber);
+
+    List<Transaction> findAllByStatusAndTimestampBefore(TransactionStatus status, LocalDateTime beforeTime);
 }
