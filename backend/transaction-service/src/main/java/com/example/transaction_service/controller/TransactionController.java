@@ -268,9 +268,9 @@ public class TransactionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OTP đã được gửi lại thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Giao dịch không hợp lệ")
     })
-    @PostMapping("/{referenceCode}/resend-otp")
-    public ApiResponse<String> resendOtp(@PathVariable String referenceCode) {
-        transactionService.resendOtp(referenceCode);
+    @PostMapping("/resend-otp")
+    public ApiResponse<String> resendOtp(@RequestBody ResendOtpRequest resendOtpRequest) {
+        transactionService.resendOtp(resendOtpRequest);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message("Mã OTP mới đã được gửi thành công")

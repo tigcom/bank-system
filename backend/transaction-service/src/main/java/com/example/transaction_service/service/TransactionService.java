@@ -16,7 +16,7 @@ public interface TransactionService {
     TransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest);
     TransactionDTO confirmTransaction(ConfirmTransactionRequest confirmTransactionRequest);
 
-    void resendOtp(String referenceCode);
+    void resendOtp(ResendOtpRequest resendOtpRequest);
     TransactionDTO getTransactionById(String transactionId);
     List<TransactionDTO> getAccountTransactions(String accountNumber);
     TransactionDTO getTransactionByTransactionCode(String referenceCode);
