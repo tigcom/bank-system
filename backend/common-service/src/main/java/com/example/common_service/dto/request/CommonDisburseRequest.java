@@ -1,6 +1,4 @@
 package com.example.common_service.dto.request;
-
-import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
