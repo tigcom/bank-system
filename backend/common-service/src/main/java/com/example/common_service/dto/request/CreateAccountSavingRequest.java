@@ -6,8 +6,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-public class CommonDepositRequest implements Serializable {
-    private String toAccountNumber;
+public class CreateAccountSavingRequest implements Serializable {
+
+    private String fromAccountNumber;
 
     private BigDecimal amount;
 

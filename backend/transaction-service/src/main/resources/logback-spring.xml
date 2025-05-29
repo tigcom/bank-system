@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+<!--    &lt;!&ndash; Cấu hình pattern để định dạng log &ndash;&gt;-->
+<!--    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash;    Access Log&ndash;&gt;-->
+<!--    <appender name="ACCESS_LOG" class="ch.qos.logback.core.FileAppender">-->
+<!--        <file>backend/transaction-service/logs/access_log.log</file>-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; Cấu hình appender ghi vào file log &ndash;&gt;-->
+<!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+<!--        <file>backend/transaction-service/logs/app.log</file>-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+<!--    &lt;!&ndash; Định nghĩa appender để ghi log của Hibernate &ndash;&gt;-->
+<!--    <appender name="HIBERNATE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>backend/transaction-service/logs/hibernate.log</file>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>backend/transaction-service/logs/hibernate.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+<!--            <maxHistory>30</maxHistory>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>-->
+<!--                %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg MDC:[traceId=%X{traceId}, spanId=%X{spanId}]%n-->
+<!--            </pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; Định nghĩa appender để ghi log của Spring Security &ndash;&gt;-->
+<!--    <appender name="SECURITY" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>backend/transaction-service/logs/security.log</file>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>backend/transaction-service/logs/security.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+<!--            <maxHistory>30</maxHistory>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>-->
+<!--                %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg MDC:[traceId=%X{traceId}, spanId=%X{spanId}]%n-->
+<!--            </pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; Root logger để sử dụng các appenders &ndash;&gt;-->
+<!--    <root level="info">-->
+<!--        <appender-ref ref="CONSOLE" />-->
+<!--        <appender-ref ref="FILE" />-->
+<!--    </root>-->
+<!--    &lt;!&ndash; Log cho Hibernate &ndash;&gt;-->
+<!--    <logger name="org.hibernate" level="DEBUG" additivity="false">-->
+<!--        <appender-ref ref="HIBERNATE" />-->
+<!--    </logger>-->
+
+<!--    &lt;!&ndash; Log cho Spring Security &ndash;&gt;-->
+<!--    <logger name="org.springframework.security" level="DEBUG" additivity="false">-->
+<!--        <appender-ref ref="SECURITY" />-->
+<!--    </logger>-->
+
+<!--    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" additivity="false">-->
+<!--        <appender-ref ref="ACCESS_LOG"/>-->
+<!--    </logger>-->
+
+</configuration>

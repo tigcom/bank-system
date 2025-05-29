@@ -171,6 +171,9 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         /// chuyen tien tu account paymen src to master
 
         /// chuyen thanh cong thi save account
+
+
+
         Account account = Account.builder()
                 .accountType(AccountType.SAVING)
                 .cifCode(savingsRequest.getCifCode())
@@ -191,9 +194,18 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         accountRepository.save(account);
         log.info("Mã otp hợp lệ . ");
 
+        savingsRequest.setStatus(SavingsRequestStatus.APPROVED);
+        savingsRequestRepository.save(savingsRequest);
 
 
-        return null;
+        return SavingsRequestResponse.builder()
+                .id(savingsRequest.getId())
+                .cifCode(savingsRequest.getCifCode())
+                .term(savingsRequest.getTerm())
+                .initialDeposit(savingsRequest.getInitialDeposit())
+                .status(SavingsRequestStatus.APPROVED)
+                .accountNumberSource(account.getAccountNumber())
+                .build();
     }
 
     public String createOTP(String savingsRequestId) {

@@ -7,14 +7,13 @@ import lombok.Data;
 
 @Data
 @Builder
-@Schema(description = "Yêu cầu xác nhận giao dịch bằng mã OTP")
-public class ConfirmTransactionRequest {
-
+@Schema(description = "Yêu cầu gửi lại mã OTP")
+public class ResendOtpRequest {
     @Schema(description = "Mã tham chiếu giao dịch", example = "TXN123456789", required = true)
     @NotBlank(message = "{referenceCode.notblank}")
     private String referenceCode;
 
-    @Schema(description = "Mã OTP xác nhận giao dịch", example = "839201", required = true)
-    @NotBlank(message = "{otpCode.notblank}")
-    private String otpCode;
+    @Schema(description = "Tài khoản người nhận mail", example = "8392012112", required = true)
+    @NotBlank(message = "{recipient.notblank}")
+    private String accountNumberRecipient;
 }
