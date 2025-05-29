@@ -164,7 +164,7 @@ public class CustomerController {
     @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/update")
     public ResponseEntity<ApiResponseWrapper<Response>> updateCustomer(@Valid @RequestBody UpdateCustomerDTO request) {
-        log.info("Update customer request for customerId: {}", request.getId());
+        log.info("Update customer request for name: {}", request.getFullName());
         Response response = customerService.updateCustomer(request);
         return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
                 .body(new ApiResponseWrapper<>(

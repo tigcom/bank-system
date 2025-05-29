@@ -2,6 +2,7 @@ package com.example.customer_service.repositories;
 
 import com.example.customer_service.models.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByUsername(String username);
 
     Optional<Customer> findByEmail(String email);
+
+    @Query("SELECT COALESCE(MAX(c.customerId), 0) + 1 FROM Customer c")
+    Long getNextId();
 }
