@@ -1,5 +1,6 @@
 package com.example.account_service.controller;
 
+import com.example.account_service.dto.request.ConfirmRequestDTO;
 import com.example.account_service.dto.request.CreditRequestCreateDTO;
 import com.example.account_service.dto.request.SavingRequestCreateDTO;
 import com.example.account_service.dto.response.ApiResponseWrapper;
@@ -44,5 +45,15 @@ public class SavingsController {
                 .build();
 
     }
-
+    /// api confirm otp va save account saving
+    @PostMapping("/confirm-otp")
+    public ApiResponseWrapper<SavingsRequestResponse> confirmRequest(@RequestBody ConfirmRequestDTO confirmRequestDTO)
+    {
+        SavingsRequestResponse savingsRequestResponse = savingRequestService.confirmOTPandSave(confirmRequestDTO);
+        return ApiResponseWrapper.<SavingsRequestResponse>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(messageUtils.getMessage("account.saving-request.confirmed"))
+                .data(savingsRequestResponse)
+                .build();
+    }
 }

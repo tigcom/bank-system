@@ -1,5 +1,6 @@
 package com.example.account_service.service.impl;
 
+import com.example.account_service.dto.request.ConfirmRequestDTO;
 import com.example.account_service.dto.request.CreditRequestCreateDTO;
 import com.example.account_service.dto.request.SavingRequestCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
@@ -17,24 +18,29 @@ import com.example.account_service.service.CreditRequestService;
 import com.example.account_service.service.SavingRequestService;
 import com.example.account_service.utils.AccountNumberUtils;
 import com.example.common_service.constant.*;
-import com.example.common_service.dto.CartTypeDTO;
-import com.example.common_service.dto.CustomerDTO;
-import com.example.common_service.dto.MailMessageDTO;
-import com.example.common_service.dto.coreCreditAccountDTO;
+import com.example.common_service.dto.*;
+import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,10 +62,25 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     private final RestTemplate restTemplate;
     private final SavingsRequestRepository savingsRequestRepository;
     private final StreamBridge streamBridge;
+    private final RedisTemplate<Object, Object> redisTemplate;
 
 
     @Override
     public SavingsRequestResponse CreateSavingRequest(SavingRequestCreateDTO savingRequestCreateDTO) {
+
+        String urlGetBaLance = "http://localhost:8083/corebanking/api/core-bank/get-balance/" + savingRequestCreateDTO.getAccountNumberSource();
+        ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                urlGetBaLance,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {}
+        );
+        BigDecimal balance = response.getBody().getResult();
+        log.info("balance of src account payment : {}", balance);
+        if (balance.compareTo(savingRequestCreateDTO.getInitialDeposit()) < 0) {
+            throw new AppException(ErrorCode.BALANCE_NOT_ENOUGH);
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             log.error("No authentication found in security context");
@@ -105,13 +126,94 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         log.info("Saving request: {}", savingsRequest);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(savingsRequest.getCifCode());
 
+        String keyOTP = "OTP:"+savingsRequestId;
+        String  OTP = createOTP(savingsRequestId);
+        log.info("OTP created: {}", OTP);
+        String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
+        log.info("OTP on redis : {}", OTP);
         MailMessageDTO  mailMessageDTO= MailMessageDTO.builder()
                 .recipientName(customerDTO.getFullName())
                 .recipient(customerDTO.getEmail())
-                .body("Mã OTP")
+                .body(OTP)
                 .subject("Xác thực OTP")
                 .build();
         streamBridge.send("mail-out-0", mailMessageDTO);
+
+    }
+
+    @Override
+    public SavingsRequestResponse confirmOTPandSave(ConfirmRequestDTO confirmRequestDTO) {
+        String keyOTP = "OTP:"+confirmRequestDTO.getSavingRequestID();
+        String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
+        log.info("OTP on redis : {}", storedOtp);
+        SavingsRequest savingsRequest = savingsRequestRepository.findById(confirmRequestDTO.getSavingRequestID()).orElseThrow(
+                ()->  new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED)
+        );
+        if (storedOtp == null) {
+            throw new AppException(ErrorCode.OTP_EXPIRED);
+        }
+        if (!storedOtp.equals(confirmRequestDTO.getOtpCode())) {
+            String keyFailCount = "OTP_FAIL_COUNT:" + confirmRequestDTO.getSavingRequestID();
+            String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
+            int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
+
+            failCount++;
+            redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount),Duration.ofSeconds(120));
+            if (failCount > 3) {
+            savingsRequest.setStatus(SavingsRequestStatus.REJECTED);
+            savingsRequestRepository.save(savingsRequest);
+            log.error("Giao dịch thất bại vì nhập sai OTP quá 3 lần ");
+            throw  new AppException(ErrorCode.OTP_WRONG_MANY);
+            }
+            throw new AppException(ErrorCode.INVALID_OTP);
+        }
+        ///  ma otp hop le luu vao account db va core db
+        /// chuyen tien tu account paymen src to master
+
+        /// chuyen thanh cong thi save account
+        Account account = Account.builder()
+                .accountType(AccountType.SAVING)
+                .cifCode(savingsRequest.getCifCode())
+                .status(AccountStatus.ACTIVE)
+                .build();
+        account.setAccountNumber(generateAccountNumber(account));
+        coreSavingAccountDTO coreSavingAccountDTO = com.example.common_service.dto.coreSavingAccountDTO.builder()
+                .cifCode(account.getCifCode())
+                .term(savingsRequest.getTerm())
+                .initialDeposit(savingsRequest.getInitialDeposit())
+                .accountNumber(account.getAccountNumber())
+                .build();
+        log.info("coreSavingAccountDTO: {}", coreSavingAccountDTO);
+        //// dung restTemplate call API save account tren CoreBanking
+        String url = "http://localhost:8083/corebanking/create-savings-account";
+        restTemplate.postForObject(url ,coreSavingAccountDTO,Void.class);
+
+        accountRepository.save(account);
+        log.info("Mã otp hợp lệ . ");
+
+
+
+        return null;
+    }
+
+    public String createOTP(String savingsRequestId) {
+        String keyOTP = "OTP:"+savingsRequestId;
+        String otp = String.valueOf(100000 + new Random().nextInt(900000));
+        redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(120));
+        return otp;
+    }
+    public String generateAccountNumber(Account dto) {
+        String cif = dto.getCifCode();
+        int typeCode;
+        if (dto.getAccountType().name().equals("PAYMENT")) {
+            typeCode = 0;
+        } else if (dto.getAccountType().name().equals("CREDIT")) {
+            typeCode = 1;
+        } else {
+            typeCode = 2;
+        }
+        String randomPart = String.format("%03d", new Random().nextInt(1000));
+        return cif + typeCode + randomPart;
 
     }
 }

@@ -25,7 +25,11 @@ public enum ErrorCode {
     CREDIT_REQUEST_STATUS_INVALID(1002, "credit.request.status.invalid"),
     BALANCE_NOT_ENOUGH(1003, "account.balance.notenough"),
     SAVING_REQUEST_NOTEXISTED(1003, "saving.request.notexisted"),
+    OTP_EXPIRED(1003, "otp.expired"),
+    OTP_WRONG_MANY(1003, "otp.wrong.many"),
+    INVALID_OTP(1003, "otp.invalid"),
     UNAUTHORIZATED(401,"error.unauthorizated");
+
 
 
 
