@@ -36,7 +36,8 @@ public class LoanHandler {
 
     @DubboReference
     private final AccountQueryService accountQueryService;
-
+    @DubboReference
+    private final CustomerService customerService;
     public Loan createLoan(Loan loan) throws  Exception {
 //        CustomerResponseDTO customer = CustomerResponseDTO.builder()
 //                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
@@ -69,6 +70,8 @@ public class LoanHandler {
     public Loan approveLoan(Long loanId) {
         Loan loan =  new Loan();
         try {
+
+
             loan = loanService.approveLoan(loanId);
             repaymentService.generateRepaymentSchedule(loan);
         }catch (Exception e) {

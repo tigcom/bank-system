@@ -2,55 +2,106 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>Xác nhận OTP - Ngân hàng ABC</title>
+    <title>Xác nhận OTP - Ngân hàng Galaxy</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f9fc;
-            margin: 0; padding: 20px;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
         }
+
+        .banner {
+            background: linear-gradient(to right, #1f4037, #99f2c8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #00c9a7;
+        }
+
+        .banner-logo {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .banner-logo svg {
+            height: 50px;
+            width: 50px;
+        }
+
+        .banner-title {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            vertical-align: middle;
+        }
+
         .container {
             max-width: 600px;
-            margin: auto;
-            background: white;
+            background-color: #1a1a2e;
+            margin: 40px auto;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
             text-align: center;
         }
-        h1 {
-            color: #004080;
+
+        h2 {
+            color: #00ffe7;
         }
+
         .otp-code {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
-            margin: 20px 0;
-            color: #d32f2f;
-            letter-spacing: 6px;
+            margin: 25px 0;
+            color: #ff4081;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 8px;
         }
+
         p {
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #d0d0d0;
         }
+
         .footer {
-            margin-top: 40px;
+            margin-top: 50px;
             font-size: 12px;
-            color: #888;
+            color: #777;
         }
+
     </style>
 </head>
 <body>
+
+<div class="banner">
+    <div class="banner-logo">
+        <svg viewBox="0 0 64 64" fill="#00ffe7" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="30" stroke="#00ffe7" stroke-width="4" fill="none"/>
+            <path d="M32 12 L42 32 L32 52 L22 32 Z" fill="#00ffe7"/>
+        </svg>
+    </div>
+    <div class="banner-title">Ngân hàng ABC</div>
+</div>
+
 <div class="container">
-    <h1>Ngân hàng ABC</h1>
-    <p>Xin chào <span th:text="${name}">[Tên khách hàng]</span>,</p>
-    <p>Mã xác thực (OTP) của bạn là:</p>
-    <div class="otp-code" th:text="${content}">123456</div>
-    <p>Vui lòng không chia sẻ mã này với bất kỳ ai.</p>
-    <p>Mã sẽ hết hạn trong 5 phút.</p>
+    <h2>Xin chào <span th:text="${name}"></span>,</h2>
+    <p>Bạn vừa yêu cầu một mã xác thực OTP để thực hiện giao dịch.</p>
+    <p>Mã OTP của bạn là:</p>
+    <div class="otp-code" th:text="${content}"></div>
+    <p>⚠️ Vui lòng không chia sẻ mã này với bất kỳ ai.</p>
+    <p>Mã sẽ hết hạn sau <strong>2 phút</strong>. Nếu bạn không yêu cầu OTP này, vui lòng liên hệ bộ phận hỗ trợ ngay.</p>
+
     <div class="footer">
-        © 2025 Ngân hàng ABC. Mọi quyền được bảo lưu.
+        © 2025 Ngân hàng Galaxy. Thiết kế bởi CTV JAVA TEAM PRO.
     </div>
 </div>
+
 </body>
 </html>

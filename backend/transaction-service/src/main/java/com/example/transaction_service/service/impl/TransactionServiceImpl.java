@@ -177,8 +177,7 @@ public class TransactionServiceImpl implements TransactionService{
         validateTransaction(transaction);
 
         initTransaction(transaction);
-//       Gửi OTP
-        sendOTP(transaction.getReferenceCode());
+        processTransaction(transaction);
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }
