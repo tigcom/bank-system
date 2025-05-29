@@ -1,4 +1,4 @@
-package com.example.account_service.Config;
+package com.example.account_service.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
