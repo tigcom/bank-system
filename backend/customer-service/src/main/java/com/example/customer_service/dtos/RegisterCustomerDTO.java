@@ -2,11 +2,10 @@ package com.example.customer_service.dtos;
 
 import com.example.customer_service.models.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-
-import jakarta.validation.constraints.*;
 
 @Data
 @Schema(description = "Thông tin đăng ký khách hàng")
@@ -28,19 +27,25 @@ public class RegisterCustomerDTO {
 
     @Schema(description = "Số CMND/CCCD", example = "012345678", required = true)
     @NotBlank(message = "Số CMND/CCCD không được để trống")
+    @Pattern(regexp = "\\d{9}|\\d{12}", message = "Số CMND/CCCD phải có 9 hoặc 12 chữ số")
     private String identityNumber;
 
-    @Schema(description = "Email", example = "example@gmail.com", required = true)
-    @Email(message = "Email không hợp lệ")
+    @Schema(description = "Email", example = "john.doe@example.com", required = true)
     @NotBlank(message = "Email không được để trống")
+    @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Email không hợp lệ")
     private String email;
 
     @Schema(description = "Số điện thoại", example = "0901234567", required = true)
     @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "\\d{10}", message = "Số điện thoại phải có 10 chữ số")
     private String phoneNumber;
 
-    @Schema(description = "Mật khẩu", required = true)
+    @Schema(description = "Mật khẩu, ít nhất 8 ký tự, 1 chữ hoa, 1 ký tự đặc biệt", example = "Password123!", required = true)
     @NotBlank(message = "Mật khẩu không được để trống")
+    @Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$",
+            message = "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ hoa và 1 ký tự đặc biệt (!@#$%^&*)"
+    )
     private String password;
 
     @Schema(description = "Ngày sinh", example = "1990-01-01", required = true)
@@ -51,5 +56,4 @@ public class RegisterCustomerDTO {
     @Schema(description = "Giới tính", example = "male", required = true)
     @NotNull(message = "Giới tính không được để trống")
     private Gender gender;
-
 }

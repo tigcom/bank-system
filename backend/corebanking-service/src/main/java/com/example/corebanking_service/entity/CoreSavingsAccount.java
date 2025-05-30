@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Table(name = "savings_account")
 public class CoreSavingsAccount  extends CoreAccount{
     @Column(name = "initial_deposit", nullable = false)
-    private Long initialDeposit;
+    private BigDecimal initialDeposit;
 
     @ManyToOne
     @JoinColumn(name = "term_id", nullable = false)

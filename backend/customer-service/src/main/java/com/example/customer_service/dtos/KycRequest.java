@@ -16,6 +16,7 @@ public class KycRequest {
 
     @Schema(description = "Số CMND/CCCD", example = "012345678", required = true)
     @NotBlank(message = "Số CMND/CCCD không được để trống")
+    @Pattern(regexp = "\\d{9}|\\d{12}", message = "Số CMND/CCCD phải có 9 hoặc 12 chữ số")
     private String identityNumber;
 
     @Schema(description = "Họ tên khách hàng", example = "Nguyễn Văn A", required = true)

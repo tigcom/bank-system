@@ -19,5 +19,6 @@ public class CustomerDTO implements  Serializable {
     private String username;
     private String fullName;
     private String email;
+    private LocalDate dateOfBirth;
     private CustomerStatus status;
 }

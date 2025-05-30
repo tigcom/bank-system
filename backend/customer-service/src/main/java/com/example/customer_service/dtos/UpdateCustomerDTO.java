@@ -9,10 +9,6 @@ import lombok.Data;
 @Schema(description = "DTO cập nhật thông tin khách hàng")
 public class UpdateCustomerDTO {
 
-    @Schema(description = "ID khách hàng", example = "123", required = true)
-    @NotNull(message = "ID không được để trống")
-    private Long id;
-
     @Schema(description = "Họ tên khách hàng", example = "Nguyễn Văn A", required = true)
     @NotBlank(message = "Họ tên không được để trống")
     private String fullName;

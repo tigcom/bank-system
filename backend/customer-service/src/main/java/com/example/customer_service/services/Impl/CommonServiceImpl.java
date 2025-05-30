@@ -22,7 +22,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public CustomerDTO getCurrentCustomer(String userId) {
         try {
-            Customer customer = customerRepository.findByUserId(userId);
+            Customer customer = customerRepository.findCustomerByUserId(userId);
             if (customer == null) {
                 throw new AppException(ErrorCode.CUSTOMER_NOTEXISTED);
             }
@@ -34,6 +34,7 @@ public class CommonServiceImpl implements CommonService {
                     .email(customer.getEmail())
                     .fullName(customer.getFullName())
                     .status(customer.getStatus())
+                    .dateOfBirth(customer.getDateOfBirth())
                     .build();
         } catch (Exception e) {
             log.error("Error while getting current customer for userId {}: {}", userId, e.getMessage());
@@ -41,7 +42,20 @@ public class CommonServiceImpl implements CommonService {
         }
     }
 
-
+    @Override
+    public CustomerDTO getCustomerByCifCode(String cifCode) {
+        Customer customer = customerRepository.findByCifCode(cifCode).orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOTEXISTED));
+        return CustomerDTO.builder()
+                .customerId(customer.getCustomerId())
+                .userId(customer.getUserId())
+                .cifCode(customer.getCifCode())
+                .username(customer.getUsername())
+                .email(customer.getEmail())
+                .fullName(customer.getFullName())
+                .status(customer.getStatus())
+                .dateOfBirth(customer.getDateOfBirth())
+                .build();
+    }
 
 
     @Override

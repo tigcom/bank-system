@@ -19,6 +19,12 @@ public enum ErrorCode {
     EMAIL_EXISTED(1002, "account.email.existed"),
     UNCATERROR_ERROR(1002, "uncategorized.error"),
     CUSTOMER_NOTACTIVE(1002, "customer.notactive"),
+    CREDIT_REQUEST_NOTEXISTED(1002, "credit.request.notexisted"),
+    INCOME_INVALID(1002, "credit.income.invalid"),
+    AGE_INVALID(1002, "credit.age.invalid"),
+    CREDIT_REQUEST_STATUS_INVALID(1002, "credit.request.status.invalid"),
+    BALANCE_NOT_ENOUGH(1003, "account.balance.notenough"),
+    SAVING_REQUEST_NOTEXISTED(1003, "saving.request.notexisted"),
     UNAUTHORIZATED(401,"error.unauthorizated");
 
 
