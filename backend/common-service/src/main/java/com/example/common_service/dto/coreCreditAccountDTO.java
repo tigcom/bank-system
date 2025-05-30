@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 @Builder
 public class coreCreditAccountDTO implements  Serializable {
     private String cifCode;
-    private BigDecimal creditLimit;
-    private BigDecimal interestRate;
     private final AccountType accountType = AccountType.CREDIT;
+    private String cartTypeId;
     private String accountNumber;
+    private BigDecimal monthlyIncome;
 }

@@ -1,6 +1,5 @@
 package com.example.account_service.dto.request;
 
-import com.example.account_service.service.BaseAccountCreateDTO;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import jakarta.validation.constraints.DecimalMin;
@@ -17,7 +16,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreditCreateDTO  implements BaseAccountCreateDTO  {
+public class CreditCreateDTO   {
     private final com.example.common_service.constant.AccountType accountType = com.example.common_service.constant.AccountType.CREDIT;
 
     @NotBlank(message = "CIF code is required")

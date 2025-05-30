@@ -95,28 +95,6 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: "myroot"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
     restart: always
-  init-vault:
-    image: hashicorp/vault
-    depends_on:
-      - vault-server
-    command: >
-      sh -c "
-      sleep 15;
-      export VAULT_ADDR=http://vault-server:8200;
-      export VAULT_TOKEN=myroot;
-      vault secrets enable -path=secret kv-v2 || true;
-      vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=970452999999999;
-      "
-
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    restart: unless-stopped
-
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeperRegistry
@@ -128,6 +106,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.0
     environment:
@@ -136,7 +115,7 @@ services:
       - KC_DB=mysql
       - KC_DB_URL=jdbc:mysql://host.docker.internal:3306/keycloak?useSSL=false&serverTimezone=UTC
       - KC_DB_USERNAME=root
-      - KC_DB_PASSWORD=22572
+      - KC_DB_PASSWORD=123456
       - KC_HOSTNAME=localhost
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_STRICT=false
@@ -147,7 +126,6 @@ services:
       - start-dev
 volumes:
   vault-data:
-  redis-data:
   #networks:
   #  temporal-network:
   #    driver: bridge

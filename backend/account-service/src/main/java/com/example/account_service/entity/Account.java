@@ -8,14 +8,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.io.Serializable;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="accounts")
 @Builder
-public class Account {
+public class Account  extends  Auditable implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
