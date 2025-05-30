@@ -7,6 +7,7 @@ import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
+import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.transaction_service.dto.TransactionDTO;
@@ -31,6 +32,8 @@ import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -57,6 +60,9 @@ public class TransactionServiceImpl implements TransactionService{
 
     @DubboReference
     private final CustomerQueryService customerQueryService;
+
+    @DubboReference
+    private final CommonService commonService;
 
     private final RedisTemplate<String,String> redisTemplate;
 
@@ -277,6 +283,14 @@ public class TransactionServiceImpl implements TransactionService{
         }
 //        Validate thông tin giao dịch
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        log.info("CurrentCustomer: {}",currentCustomer);
+        if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
+                fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
+            throw new AppException(ErrorCode.INVALID_ACCOUNT);
+        }
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -366,8 +380,26 @@ public class TransactionServiceImpl implements TransactionService{
 
 //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        log.info("CurrentCustomer: {}",currentCustomer);
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
+
+        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
+                TransactionType.PAY_BILL).contains(transaction.getType())) {
+            if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
+                    fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
+                throw new AppException(ErrorCode.INVALID_ACCOUNT);
+            }
+        }else if (EnumSet.of(TransactionType.DEPOSIT,
+                TransactionType.DISBURSEMENT).contains(transaction.getType())) {
+            if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
+                    toAccount.getAccountNumber(),currentCustomer.getCifCode())){
+                throw new AppException(ErrorCode.INVALID_ACCOUNT);
+            }
+        }
 
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);

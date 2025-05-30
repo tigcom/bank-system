@@ -31,5 +31,11 @@ public class AccountTransactionDubboServiceImpl implements AccountQueryService {
         }else return null;
     }
 
+    @Override
+    public boolean existsAccountByAccountNumberAndCifCode(String accountNumber, String cifCode) {
+        System.out.println(accountRepository.existsAccountByAccountNumberAndCifCode(accountNumber,cifCode));
+        return accountRepository.existsAccountByAccountNumberAndCifCode(accountNumber,cifCode);
+    }
+
 
 }
