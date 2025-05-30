@@ -7,5 +7,7 @@ public enum TransactionType {
     INTERNAL_TRANSFER,  // Giao dịch chuyển tiền nội bộ (giữa các tài khoản của cùng một người dùng)
     PAY_BILL,           // Thanh toán khoản vay
     DISBURSEMENT,       //Giải ngân khoản vay
+    CREATE_ACCOUNT_SAVING,
+    EXTERNAL_TRANSFER,
     CORE_BANKING        // Giao dịch phát sinh từ hệ thống ngân hàng lõi (core banking system)
 }

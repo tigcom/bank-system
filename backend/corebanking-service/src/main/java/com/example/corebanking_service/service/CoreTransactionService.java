@@ -1,7 +1,7 @@
 package com.example.corebanking_service.service;
 
-//import com.example.corebanking_service.dto.request.TransactionRequest;
-//import com.example.corebanking_service.dto.TransactionDTO;
+import com.example.common_service.dto.CommonTransactionDTO;
+import com.example.corebanking_service.dto.request.TransactionRequest;
 
 import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.corebanking_service.dto.request.TransactionRequest;

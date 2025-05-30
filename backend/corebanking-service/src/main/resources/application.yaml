@@ -1,13 +1,19 @@
 server:
   port: 8083
-
+  servlet:
+    context-path: /corebanking
 spring:
   application:
     name: corebanking-service
   datasource:
-    url: jdbc:mysql://localhost:3306/coredb
+    url: jdbc:mysql://localhost:3307/coredb
     username: root
+<<<<<<< HEAD
     password: 22572
+=======
+    password: 0986341885dai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+>>>>>>> daile-dev
   jpa:
     hibernate:
       ddl-auto: update

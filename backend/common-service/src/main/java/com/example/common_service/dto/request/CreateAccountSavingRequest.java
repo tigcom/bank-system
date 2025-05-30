@@ -1,13 +1,14 @@
 package com.example.common_service.dto.request;
+
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-public class CommonDisburseRequest implements Serializable {
+public class CreateAccountSavingRequest implements Serializable {
 
-    private String toAccountNumber;
+    private String fromAccountNumber;
 
     private BigDecimal amount;
 

@@ -1,12 +1,18 @@
 package com.example.corebanking_service.Controller;
 
 
+<<<<<<< HEAD
 //import com.example.corebanking_service.dto.TransactionDTO;
 //import com.example.corebanking_service.dto.request.TransactionRequest;
 import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.corebanking_service.dto.request.TransactionRequest;
 import com.example.corebanking_service.dto.resonse.ApiResponse;
 //import com.example.corebanking_service.dto.response.ApiResponse;
+=======
+import com.example.common_service.dto.CommonTransactionDTO;
+import com.example.corebanking_service.dto.request.TransactionRequest;
+import com.example.corebanking_service.dto.response.ApiResponse;
+>>>>>>> daile-dev
 import com.example.corebanking_service.service.CoreTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -36,4 +42,8 @@ public class CoreTransactionController {
                 .build();
 
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> daile-dev
