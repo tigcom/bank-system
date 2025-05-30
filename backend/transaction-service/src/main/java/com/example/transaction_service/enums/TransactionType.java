@@ -8,5 +8,6 @@ public enum TransactionType {
     PAY_BILL,           // Thanh toán khoản vay
     DISBURSEMENT,       //Giải ngân khoản vay
     CREATE_ACCOUNT_SAVING,
+    EXTERNAL_TRANSFER,
     CORE_BANKING        // Giao dịch phát sinh từ hệ thống ngân hàng lõi (core banking system)
 }

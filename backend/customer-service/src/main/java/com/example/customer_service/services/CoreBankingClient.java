@@ -15,7 +15,7 @@ public class CoreBankingClient {
 
     public CoreResponse syncCustomer(CoreCustomerDTO dto) {
         ResponseEntity<CoreResponse> response = restTemplate.postForEntity(
-                "http://localhost:8888/api/core/customers/sync",
+                "http://localhost:8083/corebanking/api/core/customers/sync",
                 dto,
                 CoreResponse.class
         );

@@ -35,7 +35,7 @@ public class ExternalTransferRequest {
     @Pattern(regexp = "VND|USD|EUR", message = "Currency must be VND, USD, or EUR")
     private String currency;
 
-    @Schema(description = "Số tài khoản nhận tiền", example = "100000002", required = true)
+    @Schema(description = "Mã ngân hàng nhận tiền", example = "970452", required = true)
     @NotBlank(message = "{destinationBankCode.notblank}")
     private String destinationBankCode;
     

@@ -13,9 +13,7 @@ import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.ApiResponse;
 import com.example.transaction_service.entity.Transaction;
-import com.example.transaction_service.enums.CurrencyType;
-import com.example.transaction_service.enums.TransactionStatus;
-import com.example.transaction_service.enums.TransactionType;
+import com.example.transaction_service.enums.*;
 import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
 import com.example.transaction_service.mapper.TransactionMapper;
@@ -257,6 +255,73 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Transactional
+    public TransactionDTO transferToExternalBank(ExternalTransferRequest externalTransferRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(externalTransferRequest.getFromAccountNumber());
+        transaction.setToAccountNumber(externalTransferRequest.getToAccountNumber());
+        transaction.setAmount(externalTransferRequest.getAmount());
+        transaction.setDescription(externalTransferRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(externalTransferRequest.getCurrency()));
+        transaction.setType(TransactionType.EXTERNAL_TRANSFER);
+        transaction.setBankType(BankType.EXTERNAL);
+        String bankCode = externalTransferRequest.getDestinationBankCode();
+        if(bankCode.equals(BankCode.KIENLONGBANK.getCode()))
+            throw new AppException(ErrorCode.INVALID_BANK_CODE);
+        transaction.setDestinationBankCode(bankCode);
+        try {
+            String bankName = BankCode.fromCode(bankCode).getBankName();
+            transaction.setDestinationBankName(bankName);
+        } catch (AppException e) {
+            throw new AppException(ErrorCode.BANK_CODE_VALID);
+        }
+//        Validate thông tin giao dịch
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
+        if (fromAccount==null) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+        if (!fromAccount.getAccountType().equals("PAYMENT")) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
+        }
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        if (fromCustomer==null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
+        }
+        if(!fromCustomer.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
+        }
+        BigDecimal balance;
+            try {
+//                kiểm tra số dư
+                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                        new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        responseType,
+                        transaction.getFromAccountNumber()
+                );
+                balance = response.getBody().getResult();
+            }
+            catch (Exception e) {
+                throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
+            }
+
+            if (balance.compareTo(transaction.getAmount()) < 0) {
+                throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
+            }
+
+        initTransaction(transaction);
+//        Gửi OTP
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
     public void resendOtp(ResendOtpRequest resendOtpRequest) {
         Transaction txn = transactionRepository.findByReferenceCode(resendOtpRequest.getReferenceCode());
         if(txn == null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
@@ -271,7 +336,7 @@ public class TransactionServiceImpl implements TransactionService{
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
-                .recipient(fromCustomer.getEmail())
+                .recipient("levandai2692003@gmail.com")
                 .recipientName(fromCustomer.getFullName())
                 .build();
         streamBridge.send("mail-out-0", mailMessage);
@@ -298,12 +363,6 @@ public class TransactionServiceImpl implements TransactionService{
         if(transaction==null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
         return transactionMapper.toDTO(transaction);
     }
-
-    @Override
-    public TransactionDTO updateTransactionsStatus(String transactionId, TransactionStatus status) {
-        return null;
-    }
-
 
 //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
@@ -414,7 +473,7 @@ public class TransactionServiceImpl implements TransactionService{
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
-                .recipient(fromCustomer.getEmail())
+                .recipient("levandai2692003@gmail.com")
                 .recipientName(fromCustomer.getFullName())
                 .build();
         System.out.println("OTP:"+otp);
