@@ -8,11 +8,9 @@ import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.CoreTermDTO;
 import com.example.common_service.services.CommonServiceCore;
-import com.example.corebanking_service.entity.CoreAccount;
-import com.example.corebanking_service.entity.CoreCreditAccount;
-import com.example.corebanking_service.entity.CoreCreditCardType;
-import com.example.corebanking_service.entity.CoreSavingsAccount;
+import com.example.corebanking_service.entity.*;
 import com.example.corebanking_service.exception.AppException;
 import com.example.corebanking_service.exception.ErrorCode;
 import com.example.corebanking_service.repository.*;
@@ -123,6 +121,16 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<CoreTermDTO> getAllCoreTerm() {
+            List<CoreTerm> list = coreTermRepo.getAllCoreTermActive();
+
+        return list.stream()
+                .map(this:: mapToCoreTermDTO)
+                .collect(Collectors.toList());
+    }
+
     public AccountPaymentResponse mapToDto(CoreAccount request) {
         AccountPaymentResponse response = AccountPaymentResponse.builder()
                 .accountNumber(request.getAccountNumber())
@@ -131,6 +139,16 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .balance(request.getBalance())
                 .status(request.getStatus())
                 .cifCode(request.getCoreCustomer().getCifCode())
+                .build();
+        return response;
+
+    }
+    public  CoreTermDTO mapToCoreTermDTO(CoreTerm request) {
+        CoreTermDTO response = CoreTermDTO.builder()
+                .termId(request.getTermId())
+                .termValueMonths(request.getTermValueMonths())
+                .interestRate(request.getInterestRate())
+                .isActive(request.getIsActive())
                 .build();
         return response;
 

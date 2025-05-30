@@ -6,6 +6,7 @@ import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.CoreTermDTO;
 import com.example.corebanking_service.repository.CoreAccountRepo;
 import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,10 @@ public class CoreAccountController {
     public List<AccountPaymentResponse> getAllPaymentAccountByCifCode(@PathVariable String id) {
         List<AccountPaymentResponse> list = coreAccountService.getAllPaymentAccountsByCif(id);
         return list;
+    }
+    @GetMapping("/get-all-term-isactive")
+    public List<CoreTermDTO> getAllTermIsactive() {
+        return coreAccountService.getAllCoreTerm();
     }
 }
 

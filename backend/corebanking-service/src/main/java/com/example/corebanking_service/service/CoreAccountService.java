@@ -6,6 +6,7 @@ import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.CoreTermDTO;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface CoreAccountService {
     List<AccountSummaryDTO> getAllAccountsByCif(String id);
 
     List<AccountPaymentResponse> getAllPaymentAccountsByCif(String id);
+
+    List<CoreTermDTO> getAllCoreTerm();
 }

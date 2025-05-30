@@ -307,7 +307,11 @@ public class TransactionServiceImpl implements TransactionService{
 
 //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
+        log.info("from account number : "+transaction.getFromAccountNumber());
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
+        log.info("transaction fromAccount: {}",fromAccount);
+
+        log.info("to account number : "+transaction.getToAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
 
         if (fromAccount==null) {
@@ -433,6 +437,7 @@ public class TransactionServiceImpl implements TransactionService{
                     .build();
             String url = URL_CORE_BANK+"/perform-transaction";
 
+            log.info("request DTO: "+request);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(request, headers);

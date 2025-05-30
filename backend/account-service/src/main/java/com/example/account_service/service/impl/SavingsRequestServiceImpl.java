@@ -19,9 +19,12 @@ import com.example.account_service.service.SavingRequestService;
 import com.example.account_service.utils.AccountNumberUtils;
 import com.example.common_service.constant.*;
 import com.example.common_service.dto.*;
+import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.response.ApiResponse;
+import com.example.common_service.dto.response.CoreTermDTO;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
+import com.example.common_service.services.transactions.CommonTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -55,6 +58,9 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
     @DubboReference(timeout = 5000)
     private final CommonServiceCore commonServiceCore;
+
+    @DubboReference(timeout = 5000)
+    private final CommonTransactionService commonTransactionService;
 
     private final CreditRequestRepository creditRequestRepository;
 
@@ -149,6 +155,9 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         SavingsRequest savingsRequest = savingsRequestRepository.findById(confirmRequestDTO.getSavingRequestID()).orElseThrow(
                 ()->  new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED)
         );
+        if (!savingsRequest.getStatus().equals(SavingsRequestStatus.PENDING)) {
+            throw new AppException(ErrorCode.UNCATERROR_ERROR);
+        }
         if (storedOtp == null) {
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
@@ -172,7 +181,16 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
         /// chuyen thanh cong thi save account
 
-
+         CommonTransactionDTO commonTransactionDTO = commonTransactionService.createAccountSaving(CreateAccountSavingRequest.builder()
+                         .fromAccountNumber(savingsRequest.getAccountNumberSource())
+                         .amount(savingsRequest.getInitialDeposit())
+                         .currency("VND")
+                         .description("Gửi tiền tiết kiệm")
+                        .build());
+         /// check trang thai giao dịch
+        if(!commonTransactionDTO.getStatus().equals("COMPLETED")){
+            throw new AppException(ErrorCode.UNCATERROR_ERROR);
+        }
 
         Account account = Account.builder()
                 .accountType(AccountType.SAVING)
@@ -204,14 +222,28 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .term(savingsRequest.getTerm())
                 .initialDeposit(savingsRequest.getInitialDeposit())
                 .status(SavingsRequestStatus.APPROVED)
-                .accountNumberSource(account.getAccountNumber())
+                .accountNumberSource(savingsRequest.getAccountNumberSource())
+                .interestRate(savingsRequest.getInterestRate())
                 .build();
+
+    }
+
+    @Override
+    public List<CoreTermDTO> getAllTerm() {
+        String url = "http://localhost:8083/corebanking/get-all-term-isactive";
+        ResponseEntity<List<CoreTermDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<CoreTermDTO>>() {}
+        );
+        return response.getBody();
     }
 
     public String createOTP(String savingsRequestId) {
         String keyOTP = "OTP:"+savingsRequestId;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(120));
+        redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(3600));
         return otp;
     }
     public String generateAccountNumber(Account dto) {

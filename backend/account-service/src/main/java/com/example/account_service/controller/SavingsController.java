@@ -10,13 +10,13 @@ import com.example.account_service.service.AccountService;
 import com.example.account_service.service.CreditRequestService;
 import com.example.account_service.service.SavingRequestService;
 import com.example.account_service.utils.MessageUtils;
+import com.example.common_service.dto.response.CoreTermDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Credit Request", description = "APIs for creating and managing credit requests")
 @RestController
@@ -55,5 +55,15 @@ public class SavingsController {
                 .message(messageUtils.getMessage("account.saving-request.confirmed"))
                 .data(savingsRequestResponse)
                 .build();
+    }
+    @GetMapping("/get-all-term")
+    public ApiResponseWrapper<List<CoreTermDTO>> getAllTermIsActive() {
+        List<CoreTermDTO> list = savingRequestService.getAllTerm();
+        return ApiResponseWrapper.<List<CoreTermDTO>>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(messageUtils.getMessage("core-term.get-all.success"))
+                .data(list)
+                .build();
+
     }
 }
