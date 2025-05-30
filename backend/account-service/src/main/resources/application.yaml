@@ -37,6 +37,12 @@ spring:
         host: localhost
         port: 6379
 
+logging:
+  level:
+    root: INFO
+    com.example.account_service.filter.CustomRequestLoggingFilter: DEBUG
+  file:
+    name: logs/spring.log
 
 dubbo:
   application:
