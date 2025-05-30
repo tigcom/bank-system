@@ -59,7 +59,7 @@ public class TransactionServiceImpl implements TransactionService{
 
     private final RedisTemplate<String,String> redisTemplate;
 
-    private String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
+    private String URL_CORE_BANK = "http://localhost:8083/ api/core-bank";
 
     @Value("${masterAccount}")
     private String masterAccount;
