@@ -143,3 +143,99 @@
     "referenceCode":"TXN-12345678-202505291528146517846b",
     "otpCode":"948763"
 }]
+2025-05-30 09:53:51 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:16:24 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:17:27 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:21:12 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:24:28 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:25:06 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:28:34 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:32:26 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:32:58 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:33:20 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"db91b061-5a43-42dd-b5ce-948f85a9e3ac", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:33:26 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"db91b061-5a43-42dd-b5ce-948f85a9e3ac", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"], payload={
+    "fromAccountNumber":"12345678",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:33:47 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"ad78da58-1f92-4c8c-96f4-f9370cf1b249", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:33:47 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"ad78da58-1f92-4c8c-96f4-f9370cf1b249", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"], payload={
+    "fromAccountNumber":"12345678",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:34:11 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"48a09457-511f-40ed-90b8-73f3d1dd532e", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"157", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:34:12 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"48a09457-511f-40ed-90b8-73f3d1dd532e", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"157", Content-Type:"application/json;charset=UTF-8"], payload={
+    "fromAccountNumber":"1234567",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:34:28 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"7b922a9d-e3ba-49e7-960a-c4a7ade26ea6", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:34:28 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"7b922a9d-e3ba-49e7-960a-c4a7ade26ea6", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"], payload={
+    "fromAccountNumber":"12345678",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:36:42 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:37:31 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"e094f925-0317-4cac-8ef8-df1ec50c561e", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:37:36 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"e094f925-0317-4cac-8ef8-df1ec50c561e", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"], payload={
+    "fromAccountNumber":"12345678",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:38:20 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"2590b16d-c428-4097-b4fc-b963ef1e0b70", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:38:21 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"2590b16d-c428-4097-b4fc-b963ef1e0b70", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"], payload={
+    "toAccountNumber":"87654321",
+    "amount": 10000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:38:29 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"2a4822d6-50f7-4d3b-b2f8-ad332c875911", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:38:29 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"2a4822d6-50f7-4d3b-b2f8-ad332c875911", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"], payload={
+    "toAccountNumber":"87654321",
+    "amount": 10000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:44:47 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:45:10 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"375b2b2d-ba6c-4f4a-bdcb-d022b3674c2d", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:45:11 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"375b2b2d-ba6c-4f4a-bdcb-d022b3674c2d", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"], payload={
+    "toAccountNumber":"87654321",
+    "amount": 10000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:46:34 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:50:04 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"b1566f7f-be3e-468c-8869-f5f1081d65cb", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:50:07 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"b1566f7f-be3e-468c-8869-f5f1081d65cb", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"126", Content-Type:"application/json;charset=UTF-8"], payload={
+    "toAccountNumber":"87654321",
+    "amount": 10000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:52:18 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 10:57:08 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"b48843da-21ff-4132-98ba-eecafb89484c", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:57:11 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"b48843da-21ff-4132-98ba-eecafb89484c", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"158", Content-Type:"application/json;charset=UTF-8"], payload={
+    "fromAccountNumber":"12345678",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}]
+2025-05-30 10:57:54 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Before request [POST /api/transactions/confirm-transaction, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"238e6ba2-5852-44d4-ac93-08411a6c0851", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"88", Content-Type:"application/json;charset=UTF-8"]]
+2025-05-30 10:57:56 DEBUG o.s.w.f.CommonsRequestLoggingFilter - REQUEST DATA: POST /api/transactions/confirm-transaction, client=0:0:0:0:0:0:0:1, headers=[accept-language:"vi", user-agent:"PostmanRuntime/7.44.0", accept:"*/*", cache-control:"no-cache", postman-token:"238e6ba2-5852-44d4-ac93-08411a6c0851", host:"localhost:8088", accept-encoding:"gzip, deflate, br", connection:"keep-alive", content-length:"88", Content-Type:"application/json;charset=UTF-8"], payload={
+    "referenceCode":"TXN-12345678-20250530105709df62b2e4",
+    "otpCode":"329214"
+}]
+2025-05-30 11:02:45 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use
+2025-05-30 13:06:47 DEBUG o.s.w.f.CommonsRequestLoggingFilter - Filter 'loggingFilter' configured for use

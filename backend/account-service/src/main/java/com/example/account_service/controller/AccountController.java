@@ -15,6 +15,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +28,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class AccountController {
-
     private final AccountService accountService;
     private final MessageUtils messageUtils;
     @Operation(
@@ -36,12 +41,12 @@ public class AccountController {
     })
     @PostMapping("/createPayment")
     public ApiResponseWrapper<AccountCreateReponse> createPayment() {
-                AccountCreateReponse accountCreateReponse= accountService.createPayment();
-                return ApiResponseWrapper.<AccountCreateReponse>builder()
-                        .status(HttpStatus.CREATED.value())
-                        .message(messageUtils.getMessage("account.payment.createSuccess"))
-                        .data(accountCreateReponse)
-                        .build();
+        AccountCreateReponse accountCreateReponse= accountService.createPayment();
+        return ApiResponseWrapper.<AccountCreateReponse>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(messageUtils.getMessage("account.payment.createSuccess"))
+                .data(accountCreateReponse)
+                .build();
     }
     @Operation(
             summary = "Create Saving Account",
@@ -91,4 +96,11 @@ public class AccountController {
         return response;
     }
 
+    @PostMapping("/testAuth")
+    public ResponseEntity<String> testAuth(@AuthenticationPrincipal Jwt jwt) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
+        System.out.println(token);
+        return ResponseEntity.ok("Test auth with service, user: " + token);
+    }
 }

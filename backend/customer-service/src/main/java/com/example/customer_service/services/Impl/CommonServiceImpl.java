@@ -22,7 +22,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public CustomerDTO getCurrentCustomer(String userId) {
         try {
-            Customer customer = customerRepository.findByUserId(userId);
+            Customer customer = customerRepository.findCustomerByUserId(userId);
             if (customer == null) {
                 throw new AppException(ErrorCode.CUSTOMER_NOTEXISTED);
             }

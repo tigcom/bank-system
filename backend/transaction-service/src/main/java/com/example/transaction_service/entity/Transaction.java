@@ -75,9 +75,10 @@ public class Transaction {
         }
         if (this.destinationBankCode == null) {
             this.destinationBankCode = BankCode.KIENLONGBANK.getCode();
-        }
-        if (this.destinationBankName == null) {
             this.destinationBankName = BankCode.KIENLONGBANK.getBankName();
+        } else {
+            BankCode bank = BankCode.fromCode(this.destinationBankCode);
+            this.destinationBankName = bank.getBankName();
         }
     }
 }
