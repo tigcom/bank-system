@@ -7,12 +7,34 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+<<<<<<< HEAD
         <module name="api-gateway" />
         <module name="transaction-service" />
         <module name="account-service" />
+=======
+        <module name="Notification-service" />
+        <module name="common-service" />
+>>>>>>> 1f2038cf66e1b167a1e1e2aaddf30cb59c6ef706
         <module name="customer-service" />
-        <module name="loan-service" />
         <module name="corebanking-service" />
+        <module name="loan-service" />
+<<<<<<< HEAD
+        <module name="corebanking-service" />
+=======
+        <module name="api-gateway" />
+        <module name="transaction-service" />
+      </profile>
+      <profile name="Annotation profile for account-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="account-service" />
+>>>>>>> 1f2038cf66e1b167a1e1e2aaddf30cb59c6ef706
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -22,8 +44,14 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+<<<<<<< HEAD
       <module name="account-service" options="" />
       <module name="api-gateway" options="" />
+=======
+      <module name="Notification-service" options="-parameters" />
+      <module name="account-service" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
+>>>>>>> 1f2038cf66e1b167a1e1e2aaddf30cb59c6ef706
       <module name="common-service" options="-parameters" />
       <module name="corebanking-service" options="" />
       <module name="customer-service" options="" />

@@ -5,6 +5,12 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
+    FROM_ACCOUNT_NOT_PAYMENT(400,"Tài khoản gửi không phải tài khoản thanh toán" ),
+    TO_ACCOUNT_NOT_PAYMENT(400,"Tài khoản nhận không phải tài khoản thanh toán" ),
+    FROM_ACCOUNT_NOT_ACTIVE(400,"Tài khoản gửi không hoạt động" ),
+    TO_ACCOUNT_NOT_ACTIVE(400,"Tài khoản nhận không hoạt động" ),
+    FROM_CUSTOMER_NOT_ACTIVE(400,"Người gửi bị cấm hoặc không khả dụng" ),
+    TO_CUSTOMER_NOT_ACTIVE(400,"Người nhận không khả dụng hoặc bị cấm" ),
     TRANSACTION_NOT_EXIST(400,"Giao dịch không tồn tại" ),
     SAME_ACCOUNT_TRANSFER(400,"Số tài khoản nguồn và tài khoản đích không được trùng" ),
     FROM_ACCOUNT_NOT_EXIST(400,"Tài khoản nguồn không tồn tại" ),
@@ -13,6 +19,13 @@ public enum ErrorCode {
     CORE_BANKING_UNAVAILABLE(400,"Có lỗi khi kiểm tra số dư" ),
     INSUFFICIENT_FUNDS(400,"Số dư không đủ" ),
     INVALID_AMOUNT(400,"Số tiền giao dịch không hợp lệ"),
+    OTP_EXPIRED(400,"Mã OTP đã hết hạn" ),
+    INVALID_OTP(400,"Mã OTP không đúng" ),
+    OTP_FAILED_TOO_MANY_TIMES(400,"Nhập sai OTP quá 3 lần" ),
+    INVALID_TRANSACTION_STATUS(400,"Trạng thái giao dịch không hợp lệ " ),
+    CUSTOMER_NOT_EXIST(400,"Khách hàng không tồn tại" ),
+    TIME_OUT(400,"Quá thời gian cho phép của giao dịch" ),
+    TRANSACTION_FAILED(400,"Giao dịch thất bại" ),
     BANK_CODE_VALID(400,"Mã ngân hàng không hợp lệ" );
 
     private final int code;
