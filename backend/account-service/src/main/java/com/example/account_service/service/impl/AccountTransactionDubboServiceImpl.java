@@ -15,11 +15,12 @@ public class AccountTransactionDubboServiceImpl implements AccountQueryService {
     private final AccountRepository accountRepository;
     @Override
     public AccountDTO getAccountByAccountNumber(String accountNumber) {
+        System.out.println(accountNumber);
         Account account = accountRepository.findByAccountNumber(accountNumber);
-        System.out.println("=====================");
-        System.out.println(account.getAccountNumber());
-        System.out.println(account.getStatus());
-        System.out.println("=====================");
+//        System.out.println("=====================");
+//        System.out.println(account.getAccountNumber());
+//        System.out.println(account.getStatus());
+//        System.out.println("=====================");
         if(account!=null){
             AccountDTO accountDTO = AccountDTO.builder()
                     .accountNumber(account.getAccountNumber())

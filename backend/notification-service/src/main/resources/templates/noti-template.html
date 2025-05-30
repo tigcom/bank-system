@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>Xác nhận OTP - Ngân hàng Galaxy</title>
+    <title>Thông báo - Ngân hàng Galaxy</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -52,16 +52,16 @@
             color: #00ffe7;
         }
 
-        .otp-code {
-            font-size: 36px;
-            font-weight: bold;
+        .notification-content {
+            font-size: 18px;
             margin: 25px 0;
-            color: #ff4081;
+            color: #ffffff;
             background: rgba(255, 255, 255, 0.1);
-            padding: 15px 20px;
+            padding: 20px 25px;
             border-radius: 8px;
             display: inline-block;
-            letter-spacing: 8px;
+            text-align: left;
+            line-height: 1.6;
         }
 
         p {
@@ -92,14 +92,12 @@
 
 <div class="container">
     <h2>Xin chào <span th:text="${name}"></span>,</h2>
-    <p>Bạn vừa yêu cầu một mã xác thực OTP để thực hiện giao dịch.</p>
-    <p>Mã OTP của bạn là:</p>
-    <div class="otp-code" th:text="${content}"></div>
-    <p>⚠️ Vui lòng không chia sẻ mã này với bất kỳ ai.</p>
-    <p>Mã sẽ hết hạn sau <strong>2 phút</strong>. Nếu bạn không yêu cầu OTP này, vui lòng liên hệ bộ phận hỗ trợ ngay.</p>
+    <p>Bạn có một thông báo mới từ Ngân hàng ABC:</p>
+    <div class="notification-content" th:text="${content}"></div>
+    <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với bộ phận chăm sóc khách hàng để được hỗ trợ.</p>
 
     <div class="footer">
-        © 2025 Ngân hàng Galaxy. Thiết kế bởi CTV JAVA TEAM PRO.
+        © 2025 Ngân hàng ABC. Thiết kế bởi CTV JAVA TEAM PRO.
     </div>
 </div>
 

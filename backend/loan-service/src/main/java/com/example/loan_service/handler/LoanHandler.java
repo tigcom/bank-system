@@ -2,12 +2,17 @@ package com.example.loan_service.handler;
 
 
 import com.example.common_service.dto.AccountDTO;
+import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.constant.CustomerStatus;
+import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.request.CommonDepositRequest;
+import com.example.common_service.dto.request.CommonDisburseRequest;
 import com.example.common_service.models.KycStatus;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.customer.CustomerService;
+import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.mapper.RepaymentMapper;
@@ -17,6 +22,7 @@ import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.checkerframework.checker.units.qual.C;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -28,7 +34,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class LoanHandler {
-
+    private final StreamBridge streamBridge;
     private final LoanService loanService;
     private final RepaymentService repaymentService;
     @DubboReference
@@ -37,7 +43,7 @@ public class LoanHandler {
     @DubboReference
     private final AccountQueryService accountQueryService;
     @DubboReference
-    private final CustomerService customerService;
+    private final CommonTransactionService commonTransactionService;
     public Loan createLoan(Loan loan) throws  Exception {
 //        CustomerResponseDTO customer = CustomerResponseDTO.builder()
 //                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
@@ -68,14 +74,29 @@ public class LoanHandler {
     }
 
     public Loan approveLoan(Long loanId) {
-        Loan loan =  new Loan();
-        try {
+        Loan loan =  loanService.getLoanById(loanId).orElse(null);
+        CommonDisburseRequest commonDisburseRequest = new CommonDisburseRequest();
+        commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
+        commonDisburseRequest.setAmount(loan.getAmount());
+        commonDisburseRequest.setCurrency("VND");
+        CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
+        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
+            throw new IllegalArgumentException(transaction.getFailedReason());
+        }else {
+            try {
+                loan = loanService.approveLoan(loanId);
+                repaymentService.generateRepaymentSchedule(loan);
+                CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+                MailMessageDTO mailMessage = new MailMessageDTO();
+                mailMessage.setSubject("KÍCH HOẠT KHOẢN VAY");
+                mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
+                mailMessage.setBody("Khoản vay của bạn đã được duyệt thành công và giải ngân đến tài khoản: "+loan.getAccountNumber());
+                mailMessage.setRecipientName(customer.getFullName());
+                streamBridge.send("mail-out-0", mailMessage);
 
-
-            loan = loanService.approveLoan(loanId);
-            repaymentService.generateRepaymentSchedule(loan);
-        }catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return loan;
     }

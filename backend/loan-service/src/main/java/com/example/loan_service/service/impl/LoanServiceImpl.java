@@ -32,16 +32,9 @@ public class LoanServiceImpl implements LoanService {
     public Loan updateLoan(Loan loan) {
         return loanRepository.save(loan);
     }
-    private final StreamBridge streamBridge;
 
     @Override
     public List<Loan> findAllLoan() {
-        MailMessageDTO mailMessage = new MailMessageDTO();
-        mailMessage.setSubject("Test notifi");
-        mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-        mailMessage.setBody("Loan Service gui mail");
-        mailMessage.setRecipientName("khang đẹp trai");
-        streamBridge.send("mail-out-0", mailMessage);
         return loanRepository.findAll();
     }
 

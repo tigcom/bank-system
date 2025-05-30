@@ -58,6 +58,9 @@ public class LoanController {
             response.setData(loanHandler.approveLoan(loanId));
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Successfully approved Loan");
+        } catch (IllegalArgumentException e) {
+            response.setMessage(e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             response.setData(null);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());

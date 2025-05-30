@@ -6,6 +6,6 @@ import org.springframework.messaging.Message;
 public interface NotificationService {
     void sendNotification(Message<byte[]> message);
 
-    @KafkaListener(topics = "send-mail", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    void sendDTO(Message<byte[]> messagee);
+
+    void sendOtp(Message<byte[]> messagee);
 }

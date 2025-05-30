@@ -27,6 +27,7 @@ spring:
 dubbo:
   application:
     name: account-service
+    qos-port: 22291
   protocol:
     name: dubbo
     port: 20882

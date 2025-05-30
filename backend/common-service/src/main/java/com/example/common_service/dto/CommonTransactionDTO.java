@@ -3,12 +3,13 @@ package com.example.common_service.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class CommonTransactionDTO {
+public class CommonTransactionDTO implements Serializable {
     private String fromAccountNumber;
 
     private String toAccountNumber;
