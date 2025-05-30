@@ -16,19 +16,17 @@
         <module name="account-service" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Notification-service" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="account-service" options="" />
-      <module name="api-gateway" options="" />
-      <module name="common-service" options="" />
-      <module name="corebanking-service" options="" />
-      <module name="customer-service" options="" />
-      <module name="loan-service" options="" />
-      <module name="transaction-service" options="" />
+      <module name="Notification-service" options="-parameters" />
+      <module name="account-service" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
+      <module name="common-service" options="-parameters" />
+      <module name="corebanking-service" options="-parameters" />
+      <module name="customer-service" options="-parameters" />
+      <module name="loan-service" options="-parameters" />
+      <module name="transaction-service" options="-parameters" />
     </option>
   </component>
 </project>

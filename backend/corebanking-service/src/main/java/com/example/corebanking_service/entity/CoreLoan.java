@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -15,23 +16,19 @@ import java.time.LocalDate;
 public class CoreLoan {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long loanId;
 
     @Column(name = "loan_amount")
-    private Long loanAmount;
+    private BigDecimal loanAmount;
 
     @Column(name = "interest_rate")
-    private Double interestRate;
+    private BigDecimal interestRate;
 
     @Column(name = "term_months")
     private Integer termMonths;
 
     @Column(name = "start_date")
     private LocalDate startDate;
-
-    @Column(name = "due_date")
-    private LocalDate dueDate;
 
     @Column(name = "status", length = 20)
     private String status;

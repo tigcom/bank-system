@@ -1,8 +1,10 @@
-package com.example.corebanking_service.controller;
+package com.example.corebanking_service.Controller;
 
 
 //import com.example.corebanking_service.dto.TransactionDTO;
 //import com.example.corebanking_service.dto.request.TransactionRequest;
+import com.example.common_service.dto.CommonTransactionDTO;
+import com.example.corebanking_service.dto.request.TransactionRequest;
 import com.example.corebanking_service.dto.resonse.ApiResponse;
 //import com.example.corebanking_service.dto.response.ApiResponse;
 import com.example.corebanking_service.service.CoreTransactionService;
@@ -18,20 +20,20 @@ public class CoreTransactionController {
     private final CoreTransactionService coreTransactionService;
 
     @GetMapping("/get-balance/{accountNumber}")
-    public ApiResponse<BigDecimal> getBalance(@PathVariable String accountNumber){
+    public ApiResponse<BigDecimal> getBalance(@PathVariable("accountNumber") String accountNumber){
         return ApiResponse.<BigDecimal>builder()
                 .code(200)
                 .message("Số dư trong tài khoản")
                 .result(coreTransactionService.getBalance(accountNumber))
                 .build();
     }
-//    @PostMapping("/perform-transaction")
-//    public ApiResponse<TransactionDTO> performTransfer(@RequestBody TransactionRequest request){
-//        return ApiResponse.<TransactionDTO>builder()
-//                .code(200)
-//                .message("Thực hiện chuyển tiền")
-//                .result(coreTransactionService.performTransfer(request))
-//                .build();
+    @PostMapping("/perform-transaction")
+    public ApiResponse<CommonTransactionDTO> performTransfer(@RequestBody TransactionRequest request){
+        return ApiResponse.<CommonTransactionDTO>builder()
+                .code(200)
+                .message("Thực hiện chuyển tiền")
+                .result(coreTransactionService.performTransfer(request))
+                .build();
 
-//    }
+    }
 }

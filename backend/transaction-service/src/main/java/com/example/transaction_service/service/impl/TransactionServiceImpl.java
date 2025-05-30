@@ -79,13 +79,13 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setType(TransactionType.TRANSFER);
 
 //          Validate Transaction
-            validateTransaction(transaction);
+        validateTransaction(transaction);
 //          Khởi tạo transaction
-            initTransaction(transaction);
+        initTransaction(transaction);
 //          Gửi OTP
-            sendOTP(transaction.getReferenceCode());
-            transactionRepository.save(transaction);
-            return transactionMapper.toDTO(transaction);
+        sendOTP(transaction.getReferenceCode());
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
     @Override
@@ -269,7 +269,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
 
-//    Kiểm tra thông tin Transaction
+    //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
@@ -327,17 +327,17 @@ public class TransactionServiceImpl implements TransactionService{
             BigDecimal balance;
             try {
 //                kiểm tra số dư
-               String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
-               ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
                         new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-               ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         null,
                         responseType,
                         transaction.getFromAccountNumber()
                 );
-               balance = response.getBody().getResult();
+                balance = response.getBody().getResult();
             }
             catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);

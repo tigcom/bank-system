@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 @Data
 public class LoanRequestDTO {
-
+    private Long loanId;
     @NotNull(message = "customerId không được null")
     private Long customerId;
 
