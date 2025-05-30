@@ -3,37 +3,32 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for account-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-        </processorPath>
-        <module name="account-service" />
-      </profile>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="transaction-service" />
         <module name="common-service" />
         <module name="customer-service" />
         <module name="corebanking-service" />
+        <module name="loan-service" />
+        <module name="api-gateway" />
+        <module name="transaction-service" />
+        <module name="account-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Notification-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="account-service" options="-parameters" />
-      <module name="api-gateway" options="-parameters" />
-      <module name="common-service" options="-parameters" />
-      <module name="corebanking-service" options="-parameters" />
-      <module name="customer-service" options="-parameters" />
-      <module name="loan-service" options="-parameters" />
-      <module name="transaction-service" options="-parameters" />
+      <module name="account-service" options="" />
+      <module name="api-gateway" options="" />
+      <module name="common-service" options="" />
+      <module name="corebanking-service" options="" />
+      <module name="customer-service" options="" />
+      <module name="loan-service" options="" />
+      <module name="transaction-service" options="" />
     </option>
   </component>
 </project>
