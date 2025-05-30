@@ -1,15 +1,20 @@
 package com.example.corebanking_service.service.impl;
 
 import com.example.common_service.constant.AccountStatus;
+import com.example.common_service.constant.AccountType;
+import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
+import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.coreSavingAccountDTO;
 import com.example.common_service.services.CommonServiceCore;
 import com.example.corebanking_service.entity.CoreAccount;
+import com.example.corebanking_service.entity.CoreCreditAccount;
+import com.example.corebanking_service.entity.CoreCreditCardType;
 import com.example.corebanking_service.entity.CoreSavingsAccount;
-import com.example.corebanking_service.repository.CoreAccountRepo;
-import com.example.corebanking_service.repository.CoreAccountSavingRepo;
-import com.example.corebanking_service.repository.CoreCustomerRepo;
-import com.example.corebanking_service.repository.CoreTermRepo;
+import com.example.corebanking_service.exception.AppException;
+import com.example.corebanking_service.exception.ErrorCode;
+import com.example.corebanking_service.repository.*;
+import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -25,6 +30,8 @@ public class CommonServiceCoreImpl implements CommonServiceCore {
     private final CoreAccountRepo coreAccountRepo;
     private final CoreAccountSavingRepo coreAccountSavingRepo;
     private final CoreTermRepo coreTermRepo;
+    private final CoreCreditCartTypeRepo coreCreditCartTypeRepo;
+    private final CoreAccountCreditRepo coreAccountCreditRepo;
     @Override
     public void createCoreAccountPayment(CorePaymentAccountDTO dto) {
             CoreAccount coreAccount = CoreAccount.builder()
@@ -52,5 +59,49 @@ public class CommonServiceCoreImpl implements CommonServiceCore {
                 .coreTerm(coreTermRepo.getCoreTermsByTermValueMonths(dto.getTerm()))
                 .build();
         coreAccountSavingRepo.save(coreSavingsAccount);
+    }
+
+    @Override
+    public CartTypeDTO getCartTypebyID(String id) {
+        CoreCreditCardType coreCreditCardType = coreCreditCartTypeRepo.findById(id).orElseThrow(()->
+                new AppException(ErrorCode.CARTCREDIT_TYPE_NOTEXISTED));
+        return CartTypeDTO.builder()
+                .annualFee(coreCreditCardType.getAnnualFee())
+                .defaultCreditLimit(coreCreditCardType.getDefaultCreditLimit())
+                .interestRate(coreCreditCardType.getInterestRate())
+                .minimumIncome(coreCreditCardType.getMinimumIncome())
+                .typeName(coreCreditCardType.getTypeName())
+                .build();
+    }
+
+    @Override
+    public void createCoreAccountCredit(coreCreditAccountDTO dto) {
+        CoreCreditCardType coreCreditCardType = coreCreditCartTypeRepo.findById(dto.getCartTypeId()).orElseThrow(()->
+                new AppException(ErrorCode.CARTCREDIT_TYPE_NOTEXISTED));
+
+        BigDecimal defaultLimit = coreCreditCardType.getDefaultCreditLimit();
+        BigDecimal monthlyIncome = dto.getMonthlyIncome();
+
+        BigDecimal creditLimit;
+
+        if (monthlyIncome.compareTo(BigDecimal.valueOf(10000000)) < 0) {
+            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.6)); // 60% hạn mức mặc định
+        } else if (monthlyIncome.compareTo(BigDecimal.valueOf(20000000)) < 0) {
+            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.8)); // 80%
+        } else {
+            creditLimit = defaultLimit; // 100%
+        }
+        CoreCreditAccount coreCreditAccount = CoreCreditAccount.builder()
+                .accountNumber(dto.getAccountNumber())
+                .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
+                .balance(BigDecimal.ZERO)
+                .status(AccountStatus.ACTIVE)
+                .openedDate(LocalDate.now())
+                .coreCreditCardType(coreCreditCardType)
+                .creditLimit(creditLimit)
+                .currentDebt(BigDecimal.ZERO)
+                .accountType(AccountType.CREDIT)
+                .build();
+        coreAccountCreditRepo.save(coreCreditAccount);
     }
 }

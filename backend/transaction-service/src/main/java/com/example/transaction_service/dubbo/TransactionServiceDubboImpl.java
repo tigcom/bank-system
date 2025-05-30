@@ -1,16 +1,10 @@
 package com.example.transaction_service.dubbo;
 
 import com.example.common_service.dto.CommonTransactionDTO;
-import com.example.common_service.dto.request.CommonConfirmTransactionRequest;
-import com.example.common_service.dto.request.CommonDepositRequest;
-import com.example.common_service.dto.request.CommonDisburseRequest;
-import com.example.common_service.dto.request.PayRepaymentRequest;
+import com.example.common_service.dto.request.*;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.transaction_service.dto.TransactionDTO;
-import com.example.transaction_service.dto.request.ConfirmTransactionRequest;
-import com.example.transaction_service.dto.request.DepositRequest;
-import com.example.transaction_service.dto.request.DisburseRequest;
-import com.example.transaction_service.dto.request.PaymentRequest;
+import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -58,6 +52,12 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
     }
 
     @Override
+    public CommonTransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest) {
+        TransactionDTO transactionDTO = transactionService.createAccountSaving(accountSavingRequest);
+        return toCommonTransactionDTO(transactionDTO);
+    }
+
+    @Override
     public CommonTransactionDTO confirmTransaction(CommonConfirmTransactionRequest commonConfirmTransaction) {
         ConfirmTransactionRequest request = ConfirmTransactionRequest.builder()
                 .referenceCode(commonConfirmTransaction.getReferenceCode())
@@ -65,6 +65,15 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
                 .build();
         TransactionDTO transactionDTO = transactionService.confirmTransaction(request);
         return toCommonTransactionDTO(transactionDTO);
+    }
+
+    @Override
+    public void reSendOtp(CommonResendOtpRequest resendOtpRequest) {
+        ResendOtpRequest request = ResendOtpRequest.builder()
+                .accountNumberRecipient(resendOtpRequest.getAccountNumberRecipient())
+                .referenceCode(resendOtpRequest.getReferenceCode())
+                .build();
+        transactionService.resendOtp(request);
     }
 
     private CommonTransactionDTO toCommonTransactionDTO(TransactionDTO transactionDTO){

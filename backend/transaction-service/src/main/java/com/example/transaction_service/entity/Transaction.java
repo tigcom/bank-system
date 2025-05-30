@@ -1,9 +1,6 @@
 package com.example.transaction_service.entity;
 
-import com.example.transaction_service.enums.BankType;
-import com.example.transaction_service.enums.CurrencyType;
-import com.example.transaction_service.enums.TransactionStatus;
-import com.example.transaction_service.enums.TransactionType;
+import com.example.transaction_service.enums.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -60,6 +57,7 @@ public class Transaction {
     private BankType bankType;
 
     private String destinationBankCode;
+    private String destinationBankName;
 
     @Column(length = 500)
     private String failedReason;
@@ -74,6 +72,13 @@ public class Transaction {
         }
         if (this.bankType == null) {
             this.bankType = BankType.INTERNAL;
+        }
+        if (this.destinationBankCode == null) {
+            this.destinationBankCode = BankCode.KIENLONGBANK.getCode();
+            this.destinationBankName = BankCode.KIENLONGBANK.getBankName();
+        } else {
+            BankCode bank = BankCode.fromCode(this.destinationBankCode);
+            this.destinationBankName = bank.getBankName();
         }
     }
 }

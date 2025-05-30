@@ -1,7 +1,5 @@
 server:
   port: 8082
-  servlet:
-    context-path: /account
 
 spring:
   application:
@@ -10,11 +8,12 @@ spring:
     url: jdbc:mysql://localhost:3307/accountdb
     username: root
     password: 0986341885dai
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/myrealm
+          issuer-uri: http://localhost:8081/realms/myrealm
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,9 +22,19 @@ spring:
     basename:
       - i18n/messages
     encoding: UTF-8
-
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${DOCKER_HOST:localhost}:9094
+      bindings:
+        mail-out-0:
+          destination: send-mail-html
+          content-type: application/json
 dubbo:
   application:
+    qos-enable: true
+    qos-port: 22225
     name: account-service
   protocol:
     name: dubbo
@@ -35,3 +44,8 @@ dubbo:
   scan:
     base-packages: com.example.account_service.service
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

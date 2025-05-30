@@ -4,6 +4,8 @@ package com.example.transaction_service.service.impl;
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
@@ -11,9 +13,7 @@ import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.ApiResponse;
 import com.example.transaction_service.entity.Transaction;
-import com.example.transaction_service.enums.CurrencyType;
-import com.example.transaction_service.enums.TransactionStatus;
-import com.example.transaction_service.enums.TransactionType;
+import com.example.transaction_service.enums.*;
 import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
 import com.example.transaction_service.mapper.TransactionMapper;
@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
@@ -59,6 +60,8 @@ public class TransactionServiceImpl implements TransactionService{
 
     private final RedisTemplate<String,String> redisTemplate;
 
+    private final StreamBridge streamBridge;
+
     private String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
 
     @Value("${masterAccount}")
@@ -78,14 +81,14 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(transferRequest.getCurrency()));
         transaction.setType(TransactionType.TRANSFER);
 
-//          Validate Transaction
-            validateTransaction(transaction);
-//          Khởi tạo transaction
-            initTransaction(transaction);
-//          Gửi OTP
-            sendOTP(transaction.getReferenceCode());
-            transactionRepository.save(transaction);
-            return transactionMapper.toDTO(transaction);
+//      Validate Transaction
+        validateTransaction(transaction);
+//      Khởi tạo transaction
+        initTransaction(transaction);
+//      Gửi OTP
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
     @Override
@@ -104,7 +107,7 @@ public class TransactionServiceImpl implements TransactionService{
 
         initTransaction(transaction);
 //       Gửi OTP
-        sendOTP(transaction.getReferenceCode());
+        sendOTP(transaction.getReferenceCode(),transaction.getToAccountNumber());
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }
@@ -125,7 +128,7 @@ public class TransactionServiceImpl implements TransactionService{
 //      khởi tạo transaction
         initTransaction(transaction);
 //        Gửi OTP
-        sendOTP(transaction.getReferenceCode());
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
 
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
@@ -156,7 +159,7 @@ public class TransactionServiceImpl implements TransactionService{
         transactionRepository.save(transaction);
 
 //        Gửi OTP
-        sendOTP(transaction.getReferenceCode());
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
 
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
@@ -177,8 +180,29 @@ public class TransactionServiceImpl implements TransactionService{
         validateTransaction(transaction);
 
         initTransaction(transaction);
-//       Gửi OTP
-        sendOTP(transaction.getReferenceCode());
+//      Thực thi giao dịch
+        processTransaction(transaction);
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public TransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(accountSavingRequest.getFromAccountNumber());
+        transaction.setAmount(accountSavingRequest.getAmount());
+        transaction.setDescription(accountSavingRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(accountSavingRequest.getCurrency()));
+        transaction.setType(TransactionType.CREATE_ACCOUNT_SAVING);
+
+        transaction.setToAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }
@@ -231,15 +255,91 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    public void resendOtp(String referenceCode) {
-        Transaction txn = transactionRepository.findByReferenceCode(referenceCode);
+    @Transactional
+    public TransactionDTO transferToExternalBank(ExternalTransferRequest externalTransferRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(externalTransferRequest.getFromAccountNumber());
+        transaction.setToAccountNumber(externalTransferRequest.getToAccountNumber());
+        transaction.setAmount(externalTransferRequest.getAmount());
+        transaction.setDescription(externalTransferRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(externalTransferRequest.getCurrency()));
+        transaction.setType(TransactionType.EXTERNAL_TRANSFER);
+        transaction.setBankType(BankType.EXTERNAL);
+        String bankCode = externalTransferRequest.getDestinationBankCode();
+        if(bankCode.equals(BankCode.KIENLONGBANK.getCode()))
+            throw new AppException(ErrorCode.INVALID_BANK_CODE);
+        transaction.setDestinationBankCode(bankCode);
+        try {
+            String bankName = BankCode.fromCode(bankCode).getBankName();
+            transaction.setDestinationBankName(bankName);
+        } catch (AppException e) {
+            throw new AppException(ErrorCode.BANK_CODE_VALID);
+        }
+//        Validate thông tin giao dịch
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
+        if (fromAccount==null) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+        if (!fromAccount.getAccountType().equals("PAYMENT")) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
+        }
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        if (fromCustomer==null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
+        }
+        if(!fromCustomer.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
+        }
+        BigDecimal balance;
+            try {
+//                kiểm tra số dư
+                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                        new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        null,
+                        responseType,
+                        transaction.getFromAccountNumber()
+                );
+                balance = response.getBody().getResult();
+            }
+            catch (Exception e) {
+                throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
+            }
+
+            if (balance.compareTo(transaction.getAmount()) < 0) {
+                throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
+            }
+
+        initTransaction(transaction);
+//        Gửi OTP
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public void resendOtp(ResendOtpRequest resendOtpRequest) {
+        Transaction txn = transactionRepository.findByReferenceCode(resendOtpRequest.getReferenceCode());
         if(txn == null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
         if (txn.getStatus() != TransactionStatus.PENDING) {
             throw new AppException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
-        String keyOTP = "OTP:" + referenceCode;
+        String keyOTP = "OTP:" + resendOtpRequest.getReferenceCode();
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
         redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(60));
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(resendOtpRequest.getAccountNumberRecipient());
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        MailMessageDTO mailMessage = MailMessageDTO.builder()
+                .subject("Xác nhận OTP ")
+                .body(otp)
+                .recipient("levandai2692003@gmail.com")
+                .recipientName(fromCustomer.getFullName())
+                .build();
+        streamBridge.send("mail-out-0", mailMessage);
         System.out.println(otp);
     }
 
@@ -264,12 +364,6 @@ public class TransactionServiceImpl implements TransactionService{
         return transactionMapper.toDTO(transaction);
     }
 
-    @Override
-    public TransactionDTO updateTransactionsStatus(String transactionId, TransactionStatus status) {
-        return null;
-    }
-
-
 //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
@@ -282,12 +376,16 @@ public class TransactionServiceImpl implements TransactionService{
         if (toAccount==null) {
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
         }
-        if (!fromAccount.getAccountType().equals("PAYMENT")) {
-            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
-        }
+        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
+                TransactionType.DISBURSEMENT,
+                TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
+            if (!fromAccount.getAccountType().equals("PAYMENT")) {
+                throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
+            }
 
-        if (!toAccount.getAccountType().equals("PAYMENT")) {
-            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
+            if (!toAccount.getAccountType().equals("PAYMENT")) {
+                throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
+            }
         }
 
         if(!fromAccount.getStatus().equals("ACTIVE")){
@@ -366,11 +464,20 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setStatus(TransactionStatus.PENDING);
     }
 
-    private void sendOTP(String referenceCode){
+    private void sendOTP(String referenceCode,String accountNumberRecipient){
         String keyOTP = "OTP:"+referenceCode;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
         redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(60));
-        System.out.println(otp);
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(accountNumberRecipient);
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        MailMessageDTO mailMessage = MailMessageDTO.builder()
+                .subject("Xác nhận OTP ")
+                .body(otp)
+                .recipient("levandai2692003@gmail.com")
+                .recipientName(fromCustomer.getFullName())
+                .build();
+        System.out.println("OTP:"+otp);
+        streamBridge.send("mail-out-0", mailMessage);
     }
     private void processTransaction(Transaction transaction) {
         try {

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class coreSavingAccountDTO implements Serializable {
     private String cifCode;
     private Integer term;
-    private Long initialDeposit;
+    private BigDecimal initialDeposit;
     private final AccountType accountType = AccountType.SAVING;
     private String accountNumber;
 }

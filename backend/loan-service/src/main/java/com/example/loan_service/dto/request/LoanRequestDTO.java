@@ -13,8 +13,8 @@ public class LoanRequestDTO {
     @NotNull(message = "customerId không được null")
     private Long customerId;
 
-    @NotBlank(message = "accountId không được để trống")
-    private String accountId;
+    @NotBlank(message = "accountNumber không được để trống")
+    private String accountNumber;
 
     @NotNull(message = "amount không được null")
     @DecimalMin(value = "1000.00", message = "amount phải >= 1000.00")

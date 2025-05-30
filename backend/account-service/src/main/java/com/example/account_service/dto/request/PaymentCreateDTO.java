@@ -1,6 +1,5 @@
 package com.example.account_service.dto.request;
 
-import com.example.account_service.service.BaseAccountCreateDTO;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Builder
-public class PaymentCreateDTO  implements BaseAccountCreateDTO {
+public class PaymentCreateDTO  {
 
     private final com.example.common_service.constant.AccountType accountType = com.example.common_service.constant.AccountType.PAYMENT;
 

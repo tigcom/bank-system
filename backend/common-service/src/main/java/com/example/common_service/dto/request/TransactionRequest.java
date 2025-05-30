@@ -1,6 +1,6 @@
 package com.example.common_service.dto.request;
 
-import jakarta.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
