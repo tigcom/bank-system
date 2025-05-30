@@ -1,15 +1,20 @@
 package com.example.customer_service.dtos;
 
 import com.example.customer_service.models.Gender;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.joda.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.joda.ser.LocalDateSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Schema(description = "Thông tin đăng ký khách hàng")
-public class RegisterCustomerDTO {
+public class RegisterCustomerDTO implements Serializable {
 
     @Schema(description = "Tên đăng nhập", example = "nguyenvana123", required = true)
     @NotBlank(message = "Tên đăng nhập không được để trống")

@@ -1,6 +1,7 @@
 package com.example.customer_service.services.Impl;
 
 import com.example.common_service.constant.CustomerStatus;
+import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.customer.CoreCustomerDTO;
 import com.example.common_service.dto.customer.CoreResponse;
 import com.example.common_service.services.customer.CoreCustomerService;
@@ -14,6 +15,7 @@ import com.example.customer_service.responses.*;
 import com.example.customer_service.services.CoreBankingClient;
 import com.example.customer_service.services.CustomerService;
 import com.example.customer_service.services.KycService;
+import com.example.customer_service.services.OtpCacheService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +30,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,6 +56,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CoreBankingClient coreBankingClient;
 
+    private final StreamBridge streamBridge;
+
+    private final OtpCacheService otpCacheService;
+
     @Value("${idp.url}")
     private String keycloakUrl;
 
@@ -66,30 +73,54 @@ public class CustomerServiceImpl implements CustomerService {
     private String clientSecret;
 
     @Override
+    public void sentOtpRegister(RegisterCustomerDTO request) {
+        validateDuplicate(request);
+        String otp = String.format("%06d", new Random().nextInt(1000000));
+        otpCacheService.saveOtp(request.getEmail(), otp, request);
+
+        try {
+            MailMessageDTO mailMessage = new MailMessageDTO();
+            mailMessage.setSubject("Mã xác thực đăng ký");
+            mailMessage.setRecipient(request.getEmail());
+            mailMessage.setRecipientName(request.getFullName());
+            mailMessage.setBody(String.format(
+                    otp
+            ));
+            boolean sent = streamBridge.send("mail-register-out-0", mailMessage);
+            if (!sent) {
+                log.error("Không thể gửi tin nhắn tới Kafka cho email: {}", request.getEmail());
+                otpCacheService.clearOtp(request.getEmail());
+                throw new RuntimeException("Không thể gửi tin nhắn tới Kafka");
+            }
+            log.info("Đã gửi OTP tới email: {}", request.getEmail());
+        } catch (Exception e) {
+            log.error("Gửi email OTP thất bại cho email: {}", request.getEmail(), e);
+            otpCacheService.clearOtp(request.getEmail());
+            throw new RuntimeException("Không thể gửi email OTP: " + e.getMessage());
+        }
+    }
+
+    @Override
     @Transactional
-    public Response register(RegisterCustomerDTO request) {
-        // Kiểm tra trùng lặp
-        if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Tên đăng nhập đã tồn tại");
-        }
-        if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email đã tồn tại");
-        }
-        if (customerRepository.findByIdentityNumber(request.getIdentityNumber()).isPresent()) {
-            throw new IllegalArgumentException("Số CMND/CCCD đã tồn tại");
-        }
-        if (customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
+    public Response confirmRegister(String email, String otp) {
+        if (!otpCacheService.isValidOtp(email, otp)) {
+            throw new IllegalArgumentException("Mã OTP không hợp lệ hoặc đã hết hạn");
         }
 
+        RegisterCustomerDTO request = otpCacheService.getRegisterData(email);
+        Response response = register(request);
+        otpCacheService.clearOtp(email);
+        return response;
+    }
+
+//    @Override
+//    @Transactional
+    public Response register(RegisterCustomerDTO request) {
+        // Kiểm tra trùng lặp
+        validateDuplicate(request);
+
         // Tạo người dùng trong Keycloak
-        String userId;
-        try {
-            userId = createKeycloakUser(request);
-        } catch (Exception e) {
-            log.error("Tạo người dùng Keycloak thất bại: {}", e.getMessage(), e);
-            throw e;
-        }
+        String userId = createKeycloakUser(request);
 
         // Tạo khách hàng
         Customer customer = Customer.builder()
@@ -122,7 +153,6 @@ public class CustomerServiceImpl implements CustomerService {
                     .build();
 
             log.info("Đang gọi đồng bộ core banking với CIF: {}", savedCustomer.getCifCode());
-            // Gọi qua RestTemplate
             CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
             if (!coreResponse.isSuccess()) {
                 log.error("Đồng bộ core banking thất bại: {}", coreResponse.getMessage());
@@ -147,6 +177,21 @@ public class CustomerServiceImpl implements CustomerService {
             log.error("Đăng ký thất bại, đang xóa người dùng Keycloak ID: {}", userId, e);
             deleteKeycloakUser(userId);
             throw new RuntimeException("Đăng ký thất bại: " + e.getMessage(), e);
+        }
+    }
+
+    private void validateDuplicate(RegisterCustomerDTO request) {
+        if (customerRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Tên đăng nhập đã tồn tại");
+        }
+        if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email đã tồn tại");
+        }
+        if (customerRepository.findByIdentityNumber(request.getIdentityNumber()).isPresent()) {
+            throw new IllegalArgumentException("Số CMND/CCCD đã tồn tại");
+        }
+        if (customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
     }
 
@@ -306,12 +351,35 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Response forgotPassword(String email) {
+    public void sentOtpForgotPassword(String email) {
+        // Kiểm tra email tồn tại
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại"));
 
-        Optional<Customer> customerOpt = customerRepository.findByEmail(email);
-        if (customerOpt.isEmpty() || customerOpt.get().getStatus() != CustomerStatus.ACTIVE) {
+        // Gửi email
+        try {
+            MailMessageDTO mailMessage = new MailMessageDTO();
+            mailMessage.setSubject("Mã xác thực khôi phục mật khẩu");
+            mailMessage.setRecipient(email);
+            mailMessage.setRecipientName(customer.getFullName());
+            mailMessage.setBody(null);
+            streamBridge.send("mail-forgotPassword-out-0", mailMessage);
+            log.info("Đã gửi yêu cầu khôi phục mật khẩu tới email: {}", email);
+        } catch (Exception e) {
+            log.error("Gửi yêu cầu khôi phục mật khẩu thất bại cho email: {}", email, e);
+            otpCacheService.clearOtp(email);
+            throw new RuntimeException("Không thể gửi yêu cầu qua email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Response forgotPassword(String email) {
+        Optional<Customer> optionalCustomer = customerRepository.findByEmail(email);
+        if (optionalCustomer.isEmpty() || optionalCustomer.get().getStatus() != CustomerStatus.ACTIVE) {
             throw new EntityNotFoundException("Tài khoản không tồn tại hoặc không hoạt động");
         }
+
+        Customer customer = optionalCustomer.get();
 
         try (Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(keycloakUrl)
@@ -321,22 +389,35 @@ public class CustomerServiceImpl implements CustomerService {
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
                 .build()) {
 
+            // Tìm user trong Keycloak theo email
             List<UserRepresentation> users = keycloak.realm(realm).users().searchByEmail(email, true);
             if (users.isEmpty()) {
-                throw new IllegalArgumentException("Không tìm thấy email");
+                throw new IllegalArgumentException("Không tìm thấy người dùng trong Keycloak với email: " + email);
             }
 
             String userId = users.get(0).getId();
-            keycloak.realm(realm).users().get(userId).executeActionsEmail(
-                    Collections.singletonList("UPDATE_PASSWORD"),
-                    3600
-            );
+
+            // Thực hiện gửi email chứa liên kết reset mật khẩu
+            keycloak.realm(realm)
+                    .users()
+                    .get(userId)
+                    .executeActionsEmail(
+                            clientId,
+                            null,
+                            3600,
+                            List.of("UPDATE_PASSWORD")
+                    );
+
+
+            log.info("Đã gửi liên kết khôi phục mật khẩu tới email: {}", email);
             return new Response(true, "Đã gửi liên kết đặt lại mật khẩu qua email");
+
         } catch (Exception e) {
-            log.error("Lỗi khi gửi email đặt lại mật khẩu");
-            throw new IllegalArgumentException("Lỗi khi gửi email đặt lại mật khẩu: " + e.getMessage());
+            log.error("Lỗi khi gửi email đặt lại mật khẩu cho email: {}", email, e);
+            throw new IllegalArgumentException("Không thể gửi email đặt lại mật khẩu: " + e.getMessage());
         }
     }
+
 
     @Override
     public CustomerListResponse getCustomerList() {

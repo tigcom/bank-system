@@ -4,7 +4,7 @@ import com.example.customer_service.dtos.*;
 import com.example.customer_service.responses.*;
 
 public interface CustomerService {
-    Response register(RegisterCustomerDTO request) throws Exception;
+//    Response register(RegisterCustomerDTO request) throws Exception;
 
     //    LoginResponse login(LoginCustomerDTO request) throws Exception;
 
@@ -23,4 +23,10 @@ public interface CustomerService {
     Response updateCustomerStatus(UpdateStatusRequest request);
 
     KycResponse verifyKyc(KycRequest request);
+
+    void sentOtpRegister(RegisterCustomerDTO request);
+
+    Response confirmRegister(String email, String otp);
+
+    void sentOtpForgotPassword(String email);
 }

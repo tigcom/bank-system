@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,67 +35,102 @@ public class CustomerController {
     @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Đăng ký thành công"),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
+            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
-//    @PostMapping("/register")
-//    public ResponseEntity<ApiResponseWrapper<Response>> register(@Valid @RequestBody RegisterCustomerDTO request) {
-//        try {
-//            Response response = customerService.register(request);
-//            log.info("Register request for username: {}", request.getUsername());
-//            return ResponseEntity.status(response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST)
-//                    .body(new ApiResponseWrapper<>(
-//                            response.isSuccess() ? HttpStatus.CREATED.value() : HttpStatus.BAD_REQUEST.value(),
-//                            response.getMessage(),
-//                            response));
-//        } catch (Exception e) {
-//            log.error("Registration failed for username: {} - {}", request.getUsername(), e.getMessage());
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseWrapper<>(
-//                    HttpStatus.BAD_REQUEST.value(),
-//                    "Registration failed: " + e.getMessage(),
-//                    null));
-//        }
-//    }
     @PostMapping("/register")
     public ResponseEntity<ApiResponseWrapper<Response>> register(@Valid @RequestBody RegisterCustomerDTO request) {
         try {
-            Response response = customerService.register(request);
-            log.info("Register request for username: {}", request.getUsername());
-            return ResponseEntity.status(response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST)
+            customerService.sentOtpRegister(request); // Gửi OTP trước
+            log.info("Yêu cầu OTP đăng ký thành công cho email: {}", request.getEmail());
+            return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponseWrapper<>(
-                            response.isSuccess() ? HttpStatus.CREATED.value() : HttpStatus.BAD_REQUEST.value(),
+                            HttpStatus.OK.value(),
+                            "OTP đã được gửi tới email của bạn",
+                            null));
+        } catch (IllegalArgumentException e) {
+            log.error("Yêu cầu OTP đăng ký thất bại cho email: {} - {}", request.getEmail(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            null));
+        } catch (Exception e) {
+            log.error("Yêu cầu OTP đăng ký thất bại cho email: {} - {}", request.getEmail(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "Yêu cầu OTP thất bại: " + e.getMessage(),
+                            null));
+        }
+    }
+
+    @Operation(summary = "Xác nhận OTP đăng ký", description = "Xác nhận OTP để hoàn tất đăng ký")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Đăng ký thành công"),
+            @ApiResponse(responseCode = "400", description = "OTP không hợp lệ"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    @PostMapping("/confirm-register")
+    public ResponseEntity<ApiResponseWrapper<Response>> confirmRegister(
+            @RequestParam String email,
+            @RequestParam String otp) {
+        try {
+            Response response = customerService.confirmRegister(email, otp);
+            log.info("Xác nhận OTP thành công cho email: {}", email);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.CREATED.value(),
                             response.getMessage(),
                             response));
         } catch (IllegalArgumentException e) {
-            // Bắt lỗi do Keycloak trả về
-            log.error("Registration failed for username: {} - {}", request.getUsername(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseWrapper<>(
-                    HttpStatus.BAD_REQUEST.value(),
-                    e.getMessage(),
-                    null));
-        } catch (Exception e) {
-            log.error("Registration failed for username: {} - {}", request.getUsername(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponseWrapper<>(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    "Registration failed: " + e.getMessage(),
-                    null));
+            log.error("Xác nhận OTP thất bại cho email: {} - {}", email, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            null));
         }
     }
 
 
-    @Operation(summary = "Quên mật khẩu", description = "Gửi yêu cầu lấy lại mật khẩu qua email")
+    @Operation(
+            summary = "Yêu cầu khôi phục mật khẩu",
+            description = "Gửi email chứa liên kết để khôi phục mật khẩu"
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Yêu cầu lấy lại mật khẩu thành công"),
-            @ApiResponse(responseCode = "404", description = "Email không tồn tại")
+            @ApiResponse(responseCode = "200", description = "Liên kết khôi phục mật khẩu đã được gửi"),
+            @ApiResponse(responseCode = "400", description = "Email không tồn tại hoặc không hợp lệ"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@Valid @RequestBody ForgotPasswordDTO request) {
-        log.info("Forgot password request for email: {}", request.getEmail());
-        Response response = customerService.forgotPassword(request.getEmail());
-        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.NOT_FOUND)
-                .body(new ApiResponseWrapper<>(
-                        response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.NOT_FOUND.value(),
-                        response.getMessage(),
-                        response));
+    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@Valid @RequestParam String email) {
+        try {
+            Response response = customerService.forgotPassword(email);
+            log.info("Yêu cầu khôi phục mật khẩu thành công cho email: {}", email);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.OK.value(),
+                            response.getMessage(),
+                            response
+                    ));
+        } catch (IllegalArgumentException | EntityNotFoundException e) {
+            log.error("Yêu cầu khôi phục mật khẩu thất bại cho email: {} - {}", email, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            null
+                    ));
+        } catch (Exception e) {
+            log.error("Lỗi không xác định khi xử lý quên mật khẩu cho email: {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "Lỗi máy chủ khi xử lý yêu cầu",
+                            null
+                    ));
+        }
     }
 
 

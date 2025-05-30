@@ -26,6 +26,7 @@ public class SecurityConfig {
                                 "/api/customers/register",
                                 "/api/core/customers/sync",
                                 "/api/customers/forgot-password",
+                                "/api/customers/confirm-register",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
