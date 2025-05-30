@@ -2,11 +2,12 @@ package com.example.customer_service.services;
 
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.responses.*;
+import org.springframework.http.ResponseEntity;
 
 public interface CustomerService {
 //    Response register(RegisterCustomerDTO request) throws Exception;
 
-    //    LoginResponse login(LoginCustomerDTO request) throws Exception;
+    Response login(LoginCustomerDTO request) throws Exception;
 
     Response forgotPassword(String email);
 
@@ -28,5 +29,7 @@ public interface CustomerService {
 
     Response confirmRegister(String email, String otp);
 
-    void sentOtpForgotPassword(String email);
+    void sentEmailForgotPassword(String email);
+
+    Response resetPassword(String token, ResetPasswordDTO request);
 }

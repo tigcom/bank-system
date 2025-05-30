@@ -14,6 +14,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Customer findCustomerByUserId(String userId);
 
+    Optional<Customer> findByResetToken(String resetToken);
+
     Optional<Customer> findByCifCode(String cifCode);
 
     Optional<Customer> findByIdentityNumber(String identityNumber);

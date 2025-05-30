@@ -38,9 +38,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +73,44 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Value("${idp.client-secret}")
     private String clientSecret;
+
+    @Override
+    public Response login(LoginCustomerDTO request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "password");
+        body.add("client_id", "customer-service");
+        body.add("client_secret", "vF8VYOn3m3g63csOanjpBqG9AxQNUEQX");
+        body.add("username", request.getUsername());
+        body.add("password", request.getPassword());
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> keycloakResponse = restTemplate.exchange(
+                    "http://localhost:8081/realms/myrealm/protocol/openid-connect/token",
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
+
+            Map<String, Object> keycloakToken = keycloakResponse.getBody();
+
+            // Trả về chỉ access_token
+            String accessToken = (String) keycloakToken.get("access_token");
+
+            return new Response(true, accessToken);
+
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                return new Response(false, "Username or password is incorrect");
+            } else {
+                return new Response(false, "Login failed: " + e.getMessage());
+            }
+        }
+    }
 
     @Override
     public void sentOtpRegister(RegisterCustomerDTO request) {
@@ -351,26 +391,66 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void sentOtpForgotPassword(String email) {
-        // Kiểm tra email tồn tại
+    public void sentEmailForgotPassword(String email) {
         Customer customer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại"));
+
+        String resetToken = UUID.randomUUID().toString();
+        LocalDateTime expiry = LocalDateTime.now().plusMinutes(15);
+
+        // Lưu token vào DB
+        customer.setResetToken(resetToken);
+        customer.setResetTokenExpiry(expiry);
+        customerRepository.save(customer);
+
+        String resetLink = String.format("https://localhost:4200/reset-password?token=%s", resetToken);
 
         // Gửi email
         try {
             MailMessageDTO mailMessage = new MailMessageDTO();
-            mailMessage.setSubject("Mã xác thực khôi phục mật khẩu");
+            mailMessage.setSubject("Khôi phục mật khẩu");
             mailMessage.setRecipient(email);
             mailMessage.setRecipientName(customer.getFullName());
-            mailMessage.setBody(null);
+            mailMessage.setBody("Vui lòng nhấn vào liên kết sau để đặt lại mật khẩu: " + resetLink);
+
             streamBridge.send("mail-forgotPassword-out-0", mailMessage);
-            log.info("Đã gửi yêu cầu khôi phục mật khẩu tới email: {}", email);
+            log.info("Đã gửi email reset password tới {}", email);
         } catch (Exception e) {
-            log.error("Gửi yêu cầu khôi phục mật khẩu thất bại cho email: {}", email, e);
-            otpCacheService.clearOtp(email);
-            throw new RuntimeException("Không thể gửi yêu cầu qua email: " + e.getMessage());
+            log.error("Gửi email thất bại", e);
+            throw new RuntimeException("Không thể gửi email: " + e.getMessage());
         }
     }
+
+    @Override
+    public Response resetPassword(String token, ResetPasswordDTO request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
+        }
+
+        if (request.getNewPassword().length() < 8) {
+            throw new IllegalArgumentException("Mật khẩu phải ít nhất 8 ký tự");
+        }
+
+        Customer customer = customerRepository.findByResetToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ"));
+
+        if (customer.getResetTokenExpiry() == null || customer.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token đã hết hạn");
+        }
+
+        // Gọi tới Keycloak để đổi mật khẩu
+        updateKeycloakPassword(customer.getUserId(), request.getNewPassword());
+
+        // Xóa token sau khi reset thành công
+        customer.setResetToken(null);
+        customer.setResetTokenExpiry(null);
+        customerRepository.save(customer);
+
+        log.info("Người dùng {} đã đặt lại mật khẩu thành công", customer.getUserId());
+        return new Response(true, "Đặt lại mật khẩu thành công");
+    }
+
+
 
     @Override
     public Response forgotPassword(String email) {

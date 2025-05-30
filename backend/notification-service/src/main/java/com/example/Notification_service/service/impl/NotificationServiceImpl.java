@@ -83,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             System.out.println(mailMessage.getBody());
 
-            String htmlContent = templateEngine.process("otp-register-forgot-password-template", context);
+            String htmlContent = templateEngine.process("otp-register-template", context);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
@@ -105,28 +105,33 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
-            log.info("Đã gửi email OTP khôi phục mật khẩu tới: {}", mailMessage.getRecipient());
+            log.info("Nhận yêu cầu gửi email khôi phục mật khẩu cho: {}", mailMessage.getRecipient());
 
+            // Tạo context cho Thymeleaf template
             Context context = new Context();
             context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
-            context.setVariable("request", "khôi phục mật khẩu");
-            context.setVariable("otp", mailMessage.getBody());
-            context.setVariable("ttl", 5);
+            context.setVariable("resetLink", mailMessage.getBody());
 
-            String htmlContent = templateEngine.process("otp-register-forgot-password-template", context);
+            // Xử lý template email HTML
+            String htmlContent = templateEngine.process("reset-password-template", context);
 
+            // Tạo email
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             helper.setFrom("nguyenhoainam29.08.01@gmail.com");
             helper.setTo(mailMessage.getRecipient());
             helper.setSubject(mailMessage.getSubject());
-            helper.setText(htmlContent, true);
+            helper.setText(htmlContent, true); // true => là HTML
+
+            // Gửi email
             mailSender.send(mimeMessage);
-            log.info("Đã gửi email OTP khôi phục mật khẩu tới: {}", mailMessage.getRecipient());
+            log.info("Đã gửi email khôi phục mật khẩu tới: {}", mailMessage.getRecipient());
+
         } catch (Exception e) {
-            log.error("Lỗi khi gửi email OTP khôi phục mật khẩu: {}", e.getMessage(), e);
-            throw new RuntimeException("Không thể gửi email OTP khôi phục mật khẩu: " + e.getMessage(), e);
+            log.error("Lỗi khi gửi email khôi phục mật khẩu: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email khôi phục mật khẩu: " + e.getMessage(), e);
         }
     }
+
 }
 

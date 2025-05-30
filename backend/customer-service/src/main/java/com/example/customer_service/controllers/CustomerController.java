@@ -13,14 +13,18 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -31,6 +35,27 @@ import java.util.Objects;
 public class CustomerController {
 
     private final CustomerService customerService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginCustomerDTO request) throws Exception {
+        try {
+            Response response = customerService.login(request);
+            log.info("Đăng nhập thành công cho username: {}", request.getUsername());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.OK.value(),
+                            response.getMessage(),
+                            request.getUsername()));
+        } catch (IllegalArgumentException e) {
+            log.error("Đăng nhập thất bại cho username: {} - {}", request.getUsername(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseWrapper<>(
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            null));
+        }
+    }
+
 
     @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
     @ApiResponses({
@@ -54,13 +79,6 @@ public class CustomerController {
                     .body(new ApiResponseWrapper<>(
                             HttpStatus.BAD_REQUEST.value(),
                             e.getMessage(),
-                            null));
-        } catch (Exception e) {
-            log.error("Yêu cầu OTP đăng ký thất bại cho email: {} - {}", request.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "Yêu cầu OTP thất bại: " + e.getMessage(),
                             null));
         }
     }
@@ -93,45 +111,76 @@ public class CustomerController {
         }
     }
 
-
-    @Operation(
-            summary = "Yêu cầu khôi phục mật khẩu",
-            description = "Gửi email chứa liên kết để khôi phục mật khẩu"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Liên kết khôi phục mật khẩu đã được gửi"),
-            @ApiResponse(responseCode = "400", description = "Email không tồn tại hoặc không hợp lệ"),
-            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
-    })
-    @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@Valid @RequestParam String email) {
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponseWrapper<Response>> resetPassword(@Valid @RequestParam String token , @RequestBody ResetPasswordDTO request) {
         try {
-            Response response = customerService.forgotPassword(email);
-            log.info("Yêu cầu khôi phục mật khẩu thành công cho email: {}", email);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.OK.value(),
-                            response.getMessage(),
-                            response
-                    ));
-        } catch (IllegalArgumentException | EntityNotFoundException e) {
-            log.error("Yêu cầu khôi phục mật khẩu thất bại cho email: {} - {}", email, e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.BAD_REQUEST.value(),
-                            e.getMessage(),
-                            null
-                    ));
-        } catch (Exception e) {
-            log.error("Lỗi không xác định khi xử lý quên mật khẩu cho email: {}", email, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "Lỗi máy chủ khi xử lý yêu cầu",
-                            null
-                    ));
+            Response response = customerService.resetPassword(token, request);
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    response.getMessage(),
+                    response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponseWrapper<>(
+                    HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(),
+                    null));
         }
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
+        try {
+            customerService.sentEmailForgotPassword(request.getEmail());
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    "Email khôi phục mật khẩu đã được gửi",
+                    new Response(true, "Vui lòng kiểm tra email của bạn")));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseWrapper<>(
+                    HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(),
+                    null));
+        }
+    }
+
+//    @Operation(
+//            summary = "Yêu cầu khôi phục mật khẩu",
+//            description = "Gửi email chứa liên kết để khôi phục mật khẩu"
+//    )
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Liên kết khôi phục mật khẩu đã được gửi"),
+//            @ApiResponse(responseCode = "400", description = "Email không tồn tại hoặc không hợp lệ"),
+//            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+//    })
+//    @PostMapping("/forgot-password")
+//    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
+//        try {
+//            Response response = customerService.forgotPassword(email);
+//            log.info("Yêu cầu khôi phục mật khẩu thành công cho email: {}", email);
+//            return ResponseEntity.status(HttpStatus.OK)
+//                    .body(new ApiResponseWrapper<>(
+//                            HttpStatus.OK.value(),
+//                            response.getMessage(),
+//                            response
+//                    ));
+//        } catch (IllegalArgumentException | EntityNotFoundException e) {
+//            log.error("Yêu cầu khôi phục mật khẩu thất bại cho email: {} - {}", email, e.getMessage());
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new ApiResponseWrapper<>(
+//                            HttpStatus.BAD_REQUEST.value(),
+//                            e.getMessage(),
+//                            null
+//                    ));
+//        } catch (Exception e) {
+//            log.error("Lỗi không xác định khi xử lý quên mật khẩu cho email: {}", email, e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(new ApiResponseWrapper<>(
+//                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+//                            "Lỗi máy chủ khi xử lý yêu cầu",
+//                            null
+//                    ));
+//        }
+//    }
 
 
     @Operation(summary = "Lấy danh sách khách hàng", description = "Truy vấn tất cả khách hàng")
