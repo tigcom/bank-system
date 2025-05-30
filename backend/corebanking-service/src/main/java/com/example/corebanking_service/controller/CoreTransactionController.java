@@ -1,10 +1,9 @@
 package com.example.corebanking_service.controller;
 
 
-//import com.example.corebanking_service.dto.TransactionDTO;
-//import com.example.corebanking_service.dto.request.TransactionRequest;
-import com.example.corebanking_service.dto.resonse.ApiResponse;
-//import com.example.corebanking_service.dto.response.ApiResponse;
+import com.example.common_service.dto.CommonTransactionDTO;
+import com.example.corebanking_service.dto.request.TransactionRequest;
+import com.example.corebanking_service.dto.response.ApiResponse;
 import com.example.corebanking_service.service.CoreTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +24,13 @@ public class CoreTransactionController {
                 .result(coreTransactionService.getBalance(accountNumber))
                 .build();
     }
-//    @PostMapping("/perform-transaction")
-//    public ApiResponse<TransactionDTO> performTransfer(@RequestBody TransactionRequest request){
-//        return ApiResponse.<TransactionDTO>builder()
-//                .code(200)
-//                .message("Thực hiện chuyển tiền")
-//                .result(coreTransactionService.performTransfer(request))
-//                .build();
+    @PostMapping("/perform-transaction")
+    public ApiResponse<CommonTransactionDTO> performTransfer(@RequestBody TransactionRequest request){
+        return ApiResponse.<CommonTransactionDTO>builder()
+                .code(200)
+                .message("Thực hiện chuyển tiền")
+                .result(coreTransactionService.performTransfer(request))
+                .build();
 
-//    }
+    }
 }
