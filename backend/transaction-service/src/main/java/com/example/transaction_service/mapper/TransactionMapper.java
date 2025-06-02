@@ -9,6 +9,10 @@ import org.mapstruct.Mapping;
 public interface TransactionMapper {
 
     @Mapping(target = "failedReason", source = "failedReason")
+    @Mapping(target = "createdAt", source = "createdAt")
+    @Mapping(target = "updatedAt", source = "updatedAt")
+    @Mapping(target = "createdBy", source = "createdBy")
+    @Mapping(target = "updatedBy", source = "updatedBy")
     TransactionDTO toDTO(Transaction transaction);
 
     Transaction toEntity(TransactionDTO transactionDTO);

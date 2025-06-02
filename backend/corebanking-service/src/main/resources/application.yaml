@@ -10,6 +10,9 @@ spring:
     username: root
     password: 0986341885dai
     driver-class-name: com.mysql.cj.jdbc.Driver
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
   jpa:
     hibernate:
       ddl-auto: update
@@ -31,3 +34,4 @@ dubbo:
     address: zookeeper://localhost:2181
   scan:
     base-packages: com.example.corebanking_service.service
+

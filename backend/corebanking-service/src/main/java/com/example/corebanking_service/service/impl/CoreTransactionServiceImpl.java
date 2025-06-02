@@ -31,8 +31,17 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
     public CommonTransactionDTO performTransfer(TransactionRequest request) {
         CoreAccount fromAccount = accountRepo.findByAccountNumber(request.getFromAccountNumber());
         CoreAccount toAccount = accountRepo.findByAccountNumber(request.getToAccountNumber());
-        if (fromAccount == null || toAccount == null) {
-            throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);
+        if (fromAccount == null ) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+        if (toAccount == null) {
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
+        }
+        if(!fromAccount.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_ACTIVE);
+        }
+        if(!toAccount.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
         }
         if(fromAccount.getBalance().compareTo(request.getAmount())<0){
             log.warn("Tài khoản {} không đủ tiền. Số dư: {}, Số tiền yêu cầu: {}",
@@ -68,6 +77,9 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
         CoreAccount account = accountRepo.findByAccountNumber(accountNumber);
         if (account == null) {
             throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);
+        }
+        if (!account.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVE);
         }
         return account.getBalance();
     }

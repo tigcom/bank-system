@@ -68,7 +68,7 @@ public class TransactionServiceImpl implements TransactionService{
 
     private final StreamBridge streamBridge;
 
-    private String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
+    private final String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
 
     @Value("${masterAccount}")
     private String masterAccount;
@@ -387,6 +387,13 @@ public class TransactionServiceImpl implements TransactionService{
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
 
+        if (fromAccount==null) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+
+        if (toAccount==null) {
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
+        }
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
                 TransactionType.PAY_BILL).contains(transaction.getType())) {
             if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
@@ -401,21 +408,17 @@ public class TransactionServiceImpl implements TransactionService{
             }
         }
 
-        if (fromAccount==null) {
-            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
-        }
 
-        if (toAccount==null) {
-            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
-        }
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
                 TransactionType.DISBURSEMENT,
                 TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
-            if (!fromAccount.getAccountType().equals("PAYMENT")) {
+
+            Set<String> allowedTypes = Set.of("PAYMENT", "MASTER");
+            if (!allowedTypes.contains(fromAccount.getAccountType())) {
                 throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
             }
 
-            if (!toAccount.getAccountType().equals("PAYMENT")) {
+            if (!allowedTypes.contains(toAccount.getAccountType())) {
                 throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
             }
         }
