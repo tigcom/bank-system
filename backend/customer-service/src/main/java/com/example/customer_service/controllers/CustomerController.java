@@ -1,8 +1,13 @@
 package com.example.customer_service.controllers;
 
+import com.example.common_service.dto.AccountDTO;
+import com.example.common_service.services.account.AccountQueryService;
 import com.example.customer_service.dtos.*;
+import com.example.customer_service.models.Customer;
+import com.example.customer_service.repositories.CustomerRepository;
 import com.example.customer_service.responses.*;
 import com.example.customer_service.services.CustomerService;
+import com.example.customer_service.ultils.MessageKeys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,9 +18,15 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -31,31 +42,33 @@ import java.util.Objects;
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
 @Tag(name = "Customer Controller", description = "Quản lý người dùng: đăng ký, đăng nhập, và KYC")
-@Slf4j
 public class CustomerController {
+
+    private static final Logger log = LoggerFactory.getLogger("ACCESS_LOG");
 
     private final CustomerService customerService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginCustomerDTO request) throws Exception {
-        try {
-            Response response = customerService.login(request);
-            log.info("Đăng nhập thành công cho username: {}", request.getUsername());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.OK.value(),
-                            response.getMessage(),
-                            request.getUsername()));
-        } catch (IllegalArgumentException e) {
-            log.error("Đăng nhập thất bại cho username: {} - {}", request.getUsername(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.BAD_REQUEST.value(),
-                            e.getMessage(),
-                            null));
-        }
-    }
+    private final MessageSource messageSource;
 
+    @DubboReference
+    private AccountQueryService accountQueryService;
+
+    private final CustomerRepository customerRepository;
+
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@Valid @RequestBody LoginCustomerDTO request) throws Exception {
+//        try {
+//            ApiResponseWrapper<?> response = customerService.login(request);
+//            log.info("Đăng nhập thành công cho username: {}", request.getUsername());
+//            return ResponseEntity.ok(response);
+//
+//        } catch (IllegalArgumentException e) {
+//            log.error("Đăng nhập thất bại cho username: {} - {}", request.getUsername(), e.getMessage());
+//            return ResponseEntity
+//                    .badRequest()
+//                    .body(ApiResponseWrapper.error(e.getMessage()));
+//        }
+//    }
 
     @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
     @ApiResponses({
@@ -64,22 +77,20 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
     @PostMapping("/register")
-    public ResponseEntity<ApiResponseWrapper<Response>> register(@Valid @RequestBody RegisterCustomerDTO request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterCustomerDTO request) {
         try {
             customerService.sentOtpRegister(request); // Gửi OTP trước
             log.info("Yêu cầu OTP đăng ký thành công cho email: {}", request.getEmail());
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponseWrapper<>(
                             HttpStatus.OK.value(),
-                            "OTP đã được gửi tới email của bạn",
+                            getMessage(MessageKeys.OTP_SENT),
                             null));
         } catch (IllegalArgumentException e) {
             log.error("Yêu cầu OTP đăng ký thất bại cho email: {} - {}", request.getEmail(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.BAD_REQUEST.value(),
-                            e.getMessage(),
-                            null));
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
 
@@ -90,61 +101,51 @@ public class CustomerController {
             @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
     @PostMapping("/confirm-register")
-    public ResponseEntity<ApiResponseWrapper<Response>> confirmRegister(
+    public ResponseEntity<?> confirmRegister(
             @RequestParam String email,
             @RequestParam String otp) {
         try {
-            Response response = customerService.confirmRegister(email, otp);
+            ApiResponseWrapper<?> response = customerService.confirmRegister(email, otp);
             log.info("Xác nhận OTP thành công cho email: {}", email);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.CREATED.value(),
-                            response.getMessage(),
-                            response));
+                    .body(response);
         } catch (IllegalArgumentException e) {
             log.error("Xác nhận OTP thất bại cho email: {} - {}", email, e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.BAD_REQUEST.value(),
-                            e.getMessage(),
-                            null));
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<ApiResponseWrapper<Response>> resetPassword(@Valid @RequestParam String token , @RequestBody ResetPasswordDTO request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestParam String token , @RequestBody ResetPasswordDTO request) {
         try {
-            Response response = customerService.resetPassword(token, request);
-            return ResponseEntity.ok(new ApiResponseWrapper<>(
-                    HttpStatus.OK.value(),
-                    response.getMessage(),
-                    response));
+            ApiResponseWrapper<?> response = customerService.resetPassword(token, request);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponseWrapper<>(
-                    HttpStatus.BAD_REQUEST.value(),
-                    e.getMessage(),
-                    null));
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
+    public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
         try {
             customerService.sentEmailForgotPassword(request.getEmail());
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
-                    "Email khôi phục mật khẩu đã được gửi",
-                    new Response(true, "Vui lòng kiểm tra email của bạn")));
+                    getMessage(MessageKeys.FORGOT_PASSWORD_LINK_SENT),
+                    new Response(true, getMessage(MessageKeys.FORGOT_PASSWORD_NOTIFICATION))));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseWrapper<>(
-                    HttpStatus.BAD_REQUEST.value(),
-                    e.getMessage(),
-                    null));
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
 
 //    @Operation(
-//            summary = "Yêu cầu khôi phục mật khẩu",
+//            summary = "Yêu cầu khôi phục mật khẩu với keycloak",
 //            description = "Gửi email chứa liên kết để khôi phục mật khẩu"
 //    )
 //    @ApiResponses({
@@ -186,16 +187,21 @@ public class CustomerController {
     @Operation(summary = "Lấy danh sách khách hàng", description = "Truy vấn tất cả khách hàng")
     @ApiResponse(responseCode = "200", description = "Lấy danh sách khách hàng thành công",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerListResponse.class)))
-    @PreAuthorize("hasRole('CUSTOMER')")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
-    public ResponseEntity<ApiResponseWrapper<CustomerListResponse>> getCustomerList() {
-        log.info("Fetching customer list");
-        CustomerListResponse response = customerService.getCustomerList();
-        return ResponseEntity.ok(new ApiResponseWrapper<>(
-                HttpStatus.OK.value(),
-                "Customers retrieved successfully",
-                response));
+    public ResponseEntity<?> getCustomerList() {
+        try {
+            log.info("Fetching customer list");
+            CustomerListResponse response = customerService.getCustomerList();
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
+                    response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
     }
 
     @Operation(summary = "Lấy thông tin chi tiết khách hàng", description = "Truy vấn khách hàng theo cifCode")
@@ -206,17 +212,22 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/detail")
-    public ResponseEntity<ApiResponseWrapper<CustomerResponse>> getCustomerDetail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userID = authentication.getName();
-        log.info("Fetching customer detail for userId: {}", userID);
+    public ResponseEntity<?> getCustomerDetail() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userID = authentication.getName();
+            log.info("Fetching customer detail for userId: {}", userID);
 
-        CustomerResponse customer = customerService.getCustomerDetail();
-        return ResponseEntity.status(customer != null ? HttpStatus.OK : HttpStatus.NOT_FOUND)
-                .body(new ApiResponseWrapper<>(
-                        customer != null ? HttpStatus.OK.value() : HttpStatus.NOT_FOUND.value(),
-                        customer != null ? "Customer retrieved successfully" : "Customer not found",
-                        customer));
+            CustomerResponse customer = customerService.getCustomerDetail();
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
+                    customer));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
     }
 
     @Operation(summary = "Cập nhật mật khẩu khách hàng", description = "Cập nhật mật khẩu hiện tại")
@@ -227,17 +238,19 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/update-password")
-    public ResponseEntity<ApiResponseWrapper<Response>> updatePassword(
+    public ResponseEntity<?> updatePassword(
             @Valid @RequestBody ChangePasswordDTO request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userID = authentication.getName();
-        log.info("Update password request for customerId: {}", userID);
-        Response response = customerService.updateCustomerPassword(request);
-        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-                .body(new ApiResponseWrapper<>(
-                        response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
-                        response.getMessage(),
-                        response));
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userID = authentication.getName();
+            log.info("Update password request for customerId: {}", userID);
+            ApiResponseWrapper<?> response = customerService.updateCustomerPassword(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
     }
 
     @Operation(summary = "Cập nhật thông tin khách hàng", description = "Cập nhật thông tin cá nhân khách hàng")
@@ -248,14 +261,16 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/update")
-    public ResponseEntity<ApiResponseWrapper<Response>> updateCustomer(@Valid @RequestBody UpdateCustomerDTO request) {
-        log.info("Update customer request for name: {}", request.getFullName());
-        Response response = customerService.updateCustomer(request);
-        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-                .body(new ApiResponseWrapper<>(
-                        response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
-                        response.getMessage(),
-                        response));
+    public ResponseEntity<?> updateCustomer(@Valid @RequestBody UpdateCustomerDTO request) {
+        try {
+            log.info("Update customer request for name: {}", request.getFullName());
+            ApiResponseWrapper<?> response = customerService.updateCustomer(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
     }
 
     @Operation(summary = "Cập nhật trạng thái khách hàng", description = "Cập nhật trạng thái active, suspended,...")
@@ -266,14 +281,16 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/status")
-    public ResponseEntity<ApiResponseWrapper<Response>> updateCustomerStatus(@Valid @RequestBody UpdateStatusRequest request) {
-        log.info("Update status request for customerId: {}", request.getId());
-        Response response = customerService.updateCustomerStatus(request);
-        return ResponseEntity.status(response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-                .body(new ApiResponseWrapper<>(
-                        response.isSuccess() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
-                        response.getMessage(),
-                        response));
+    public ResponseEntity<?> updateCustomerStatus(@Valid @RequestBody UpdateStatusRequest request) {
+        try {
+            log.info("Update status request for customerId: {}", request.getId());
+            ApiResponseWrapper<?> response = customerService.updateCustomerStatus(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
     }
 
     @Operation(summary = "Xác minh KYC", description = "Xác minh thông tin khách hàng KYC")
@@ -284,13 +301,32 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/kyc/verify")
-    public ResponseEntity<ApiResponseWrapper<KycResponse>> verifyKyc(@Valid @RequestBody KycRequest request) {
-        log.info("KYC verification request for customerId: {}", request.getCustomerId());
-        KycResponse response = customerService.verifyKyc(request);
-        return ResponseEntity.status(response.isVerified() ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
-                .body(new ApiResponseWrapper<>(
-                        response.isVerified() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
-                        response.getMessage(),
-                        response));
+    public ResponseEntity<?> verifyKyc(@Valid @RequestBody KycRequest request) {
+        try {
+            log.info("KYC verification request for customerId: {}", request.getCustomerId());
+            KycResponse response = customerService.verifyKyc(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
+    }
+
+//    @GetMapping("/accounts")
+//    public ResponseEntity<List<AccountDTO>> getCustomerAccounts() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String userID = authentication.getName();
+//        Customer customer = customerRepository.findCustomerByUserId(userID);
+//        System.out.println(userID);
+//        System.out.println(customer);
+//        List<AccountDTO> accounts = accountQueryService.getAccountsByCifCode(customer.getCifCode());
+//        System.out.println(accounts);
+//        return ResponseEntity.ok(accounts);
+//    }
+
+
+    private String getMessage(String key, Object... args) {
+        return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.customer_service.dtos;
 
+import com.example.customer_service.ultils.MessageKeys;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -15,19 +16,19 @@ public class KycRequest {
     private Long customerId;
 
     @Schema(description = "Số CMND/CCCD", example = "012345678", required = true)
-    @NotBlank(message = "Số CMND/CCCD không được để trống")
-    @Pattern(regexp = "\\d{9}|\\d{12}", message = "Số CMND/CCCD phải có 9 hoặc 12 chữ số")
+    @NotBlank(message = "{" + MessageKeys.NOT_BLANK_IDENTITY_NUMBER + "}")
+    @Pattern(regexp = "\\d{9}|\\d{12}", message = "{" + MessageKeys.IDENTITY_NUMBER_PATTERN + "}")
     private String identityNumber;
 
     @Schema(description = "Họ tên khách hàng", example = "Nguyễn Văn A", required = true)
-    @NotBlank(message = "Họ tên không được để trống")
+    @NotBlank(message = "{" + MessageKeys.NOT_BLANK_FULL_NAME + "}")
     private String fullName;
 
     @Schema(description = "Ngày sinh", example = "1990-01-01", required = true)
-    @NotNull(message = "Ngày sinh không được để trống")
+    @NotNull(message = "{" + MessageKeys.NOT_NULL_DOB + "}")
     private LocalDate dateOfBirth;
 
     @Schema(description = "Giới tính", example = "male", required = true)
-    @NotBlank(message = "Giới tính không được để trống")
+    @NotNull(message = "{" + MessageKeys.INVALID_GENDER + "}")
     private String gender;
 }

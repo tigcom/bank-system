@@ -15,16 +15,21 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
   vault-server:
-    image: hashicorp/vault
+    image: hashicorp/vault:latest
     container_name: Vault
     ports:
       - "8200:8200"
     volumes:
-      - vault-data:/vault/data
+      - ./init-vault.sh:/init-vault.sh
+    cap_add:
+      - IPC_LOCK
+    command: >
+      sh -c "vault server -dev -dev-listen-address=0.0.0.0:8200 &
+             sleep 2 && /init-vault.sh &&
+             tail -f /dev/null"
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "myroot"
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
-    restart: always
+      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
 
   zookeeper:
     image: zookeeper:latest

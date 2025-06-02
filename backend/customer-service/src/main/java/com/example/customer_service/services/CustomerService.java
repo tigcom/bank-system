@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 public interface CustomerService {
 //    Response register(RegisterCustomerDTO request) throws Exception;
 
-    Response login(LoginCustomerDTO request) throws Exception;
+//    ApiResponseWrapper<?> login(LoginCustomerDTO request) throws Exception;
 
     Response forgotPassword(String email);
 
@@ -17,19 +17,19 @@ public interface CustomerService {
 
     CustomerResponse getCustomerDetailByCifCode(String cifCode);
 
-    Response updateCustomerPassword(ChangePasswordDTO request);
+    ApiResponseWrapper<?> updateCustomerPassword(ChangePasswordDTO request);
 
-    Response updateCustomer(UpdateCustomerDTO request);
+    ApiResponseWrapper<?> updateCustomer(UpdateCustomerDTO request);
 
-    Response updateCustomerStatus(UpdateStatusRequest request);
+    ApiResponseWrapper<?> updateCustomerStatus(UpdateStatusRequest request);
 
     KycResponse verifyKyc(KycRequest request);
 
     void sentOtpRegister(RegisterCustomerDTO request);
 
-    Response confirmRegister(String email, String otp);
+    ApiResponseWrapper<?> confirmRegister(String email, String otp);
 
     void sentEmailForgotPassword(String email);
 
-    Response resetPassword(String token, ResetPasswordDTO request);
+    ApiResponseWrapper<?> resetPassword(String token, ResetPasswordDTO request);
 }

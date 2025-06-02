@@ -9,12 +9,14 @@ import com.example.customer_service.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-@Slf4j
 @DubboService(interfaceClass = CommonService.class)
 @RequiredArgsConstructor
+@Slf4j
 public class CommonServiceImpl implements CommonService {
 
     private final CustomerRepository customerRepository;
