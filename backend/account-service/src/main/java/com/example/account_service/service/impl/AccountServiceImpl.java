@@ -1,12 +1,10 @@
 package com.example.account_service.service.impl;
 
-import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
-import com.example.account_service.mapper.AccountMapper;
 import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
@@ -14,7 +12,7 @@ import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.CustomerDTO;
-import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.CoreSavingAccountDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.ApiResponse;
@@ -125,7 +123,7 @@ public class AccountServiceImpl implements AccountService {
                     .status(AccountStatus.ACTIVE)
                     .build();
             account.setAccountNumber(generateAccountNumber(account));
-            coreSavingAccountDTO coreSavingAccountDTO = com.example.common_service.dto.coreSavingAccountDTO.builder()
+            CoreSavingAccountDTO coreSavingAccountDTO = CoreSavingAccountDTO.builder()
                     .cifCode(account.getCifCode())
                     .term(savingCreateDTO.getTerm())
                     .initialDeposit(savingCreateDTO.getInitialDeposit())

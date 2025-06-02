@@ -1,4 +1,4 @@
-package com.example.account_service.config;
+package com.example.transaction_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -37,16 +37,14 @@ spring:
         host: localhost
         port: 6379
 
-logging:
-  level:
-    root: INFO
-    com.example.account_service.filter.CustomRequestLoggingFilter: DEBUG
-  file:
-    name: logs/spring.log
+# Core Banking Service Configuration
+core-banking:
+  base-url: http://localhost:8083/corebanking
 
 dubbo:
   application:
     name: account-service
+    qos-enable: false
   protocol:
     name: dubbo
     port: 20882

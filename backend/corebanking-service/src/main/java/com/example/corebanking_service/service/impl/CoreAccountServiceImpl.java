@@ -5,7 +5,7 @@ import com.example.common_service.constant.AccountType;
 import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
-import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.CoreSavingAccountDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CoreTermDTO;
@@ -17,7 +17,6 @@ import com.example.corebanking_service.repository.*;
 import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -50,7 +49,7 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
     }
 
     @Override
-    public void createCoreAccountSaving(coreSavingAccountDTO dto) {
+    public void createCoreAccountSaving(CoreSavingAccountDTO dto) {
         CoreSavingsAccount coreSavingsAccount=CoreSavingsAccount.builder()
                 .accountNumber(dto.getAccountNumber())
                 .accountType(dto.getAccountType())

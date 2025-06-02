@@ -31,7 +31,7 @@ public class SavingsController {
         SavingsRequestResponse reponse = savingRequestService.CreateSavingRequest(savingRequestCreateDTO);
         return ApiResponseWrapper.<SavingsRequestResponse>builder()
                 .status(HttpStatus.CREATED.value())
-                .message(messageUtils.getMessage("account.credit-request.created"))
+                .message(messageUtils.getMessage("account.saving-request-created"))
                 .data(reponse)
                 .build();
     }

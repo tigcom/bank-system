@@ -5,7 +5,7 @@ import com.example.common_service.constant.AccountType;
 import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
-import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.CoreSavingAccountDTO;
 import com.example.common_service.services.CommonServiceCore;
 import com.example.corebanking_service.entity.CoreAccount;
 import com.example.corebanking_service.entity.CoreCreditAccount;
@@ -14,7 +14,6 @@ import com.example.corebanking_service.entity.CoreSavingsAccount;
 import com.example.corebanking_service.exception.AppException;
 import com.example.corebanking_service.exception.ErrorCode;
 import com.example.corebanking_service.repository.*;
-import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -47,7 +46,7 @@ public class CommonServiceCoreImpl implements CommonServiceCore {
     }
 
     @Override
-    public void createCoreAccountSaving(coreSavingAccountDTO dto) {
+    public void createCoreAccountSaving(CoreSavingAccountDTO dto) {
         CoreSavingsAccount coreSavingsAccount=CoreSavingsAccount.builder()
                 .accountNumber(dto.getAccountNumber())
                 .accountType(dto.getAccountType())

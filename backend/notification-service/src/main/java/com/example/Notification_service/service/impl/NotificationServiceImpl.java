@@ -2,6 +2,7 @@ package com.example.Notification_service.service.impl;
 
 import com.example.Notification_service.service.NotificationService;
 import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.CreditNotificationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,9 @@ import org.thymeleaf.context.Context;
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
-    private  final JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    
     @Override
     @KafkaListener(topics = "send-mail-raw", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
     public void sendNotification(Message<byte[]> messagee) {
@@ -36,6 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
             System.out.println("Lỗi khi xử lý message: " + e.getMessage());
         }
     }
+    
     @Override
     @KafkaListener(topics = "send-mail-html", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
     public void sendDTO(Message<byte[]> messagee) {
@@ -60,6 +63,44 @@ public class NotificationServiceImpl implements NotificationService {
 
         } catch (Exception e) {
             System.out.println("Lỗi khi xử lý message: " + e.getMessage());
+        }
+    }
+
+    @KafkaListener(topics = "send-credit-notification", groupId = "credit-notification-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendCreditNotification(Message<byte[]> message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            CreditNotificationDTO notification = objectMapper.readValue(message.getPayload(), CreditNotificationDTO.class);
+
+            Context context = new Context();
+            context.setVariable("customerName", notification.getCustomerName());
+            context.setVariable("cardType", notification.getCardType());
+            
+            String templateName;
+            if ("approval".equals(notification.getTemplateType())) {
+                context.setVariable("accountNumber", notification.getAccountNumber());
+                templateName = "credit-approval-template";
+            } else {
+                context.setVariable("rejectionReason", notification.getRejectionReason());
+                templateName = "credit-rejection-template";
+            }
+
+            String htmlContent = templateEngine.process(templateName, context);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
+            helper.setTo(notification.getCustomerEmail());
+            helper.setSubject(notification.getSubject());
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            
+            System.out.println("Đã gửi email thông báo credit request cho: " + notification.getCustomerEmail());
+
+        } catch (Exception e) {
+            System.out.println("Lỗi khi gửi email credit notification: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

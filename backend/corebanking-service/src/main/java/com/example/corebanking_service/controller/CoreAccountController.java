@@ -3,7 +3,7 @@ package com.example.corebanking_service.controller;
 import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
-import com.example.common_service.dto.coreSavingAccountDTO;
+import com.example.common_service.dto.CoreSavingAccountDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CoreTermDTO;
@@ -26,7 +26,7 @@ public class CoreAccountController {
         coreAccountService.createCoreAccountPayment(corePaymentAccountDTO);
     }
     @PostMapping("/create-savings-account")
-    public void createSavingsAccount(@RequestBody coreSavingAccountDTO coreSavingAccountDTO) {
+    public void createSavingsAccount(@RequestBody CoreSavingAccountDTO coreSavingAccountDTO) {
         coreAccountService.createCoreAccountSaving(coreSavingAccountDTO);
     }
     @GetMapping("/get-cart-type/{id}")
