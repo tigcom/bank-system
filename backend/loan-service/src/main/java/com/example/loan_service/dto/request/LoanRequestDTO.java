@@ -1,12 +1,19 @@
 package com.example.loan_service.dto.request;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.*;
+import lombok.NoArgsConstructor;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Data
 public class LoanRequestDTO {
     private Long loanId;
@@ -24,10 +31,14 @@ public class LoanRequestDTO {
     @DecimalMin(value = "0.0", message = "interestRate phải >= 0.0")
     private BigDecimal interestRate;
 
+    private LocalDate startDate;
+
     @NotNull(message = "termMonths không được null")
     @Min(value = 1, message = "termMonths phải >= 1")
     @Max(value = 360, message = "termMonths phải <= 360")
     private Integer termMonths;
+
+    private String status;
 
     @DecimalMin(value = "0.0", message = "declaredIncome phải >= 0.0")
     private BigDecimal declaredIncome;

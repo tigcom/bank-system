@@ -6,8 +6,10 @@ import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.request.CommonConfirmTransactionRequest;
 import com.example.common_service.dto.request.CommonDepositRequest;
 import com.example.common_service.dto.request.CommonDisburseRequest;
+import com.example.common_service.dto.request.PayRepaymentRequest;
 import com.example.common_service.models.KycStatus;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
@@ -15,8 +17,10 @@ import com.example.common_service.services.customer.CustomerService;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
+import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
+import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
@@ -36,23 +40,16 @@ import java.util.Optional;
 public class LoanHandler {
     private final StreamBridge streamBridge;
     private final LoanService loanService;
+    private final LoanMapper loanMapper;
+    private final CoreBankingClient coreBankingClient;
     private final RepaymentService repaymentService;
     @DubboReference
     private final CustomerQueryService customerQueryService;
-
     @DubboReference
     private final AccountQueryService accountQueryService;
     @DubboReference
     private final CommonTransactionService commonTransactionService;
     public Loan createLoan(Loan loan) throws  Exception {
-//        CustomerResponseDTO customer = CustomerResponseDTO.builder()
-//                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
-//                .dateOfBirth(LocalDate.of(2003, 5, 10))
-//                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.VERIFIED)
-//                .phoneNumber("1234567890").build();
-//        AccountDTO account = AccountDTO.builder()
-//                .accountNumber("123").cifCode("213122").accountType("PAYMENT")
-//                .balance(BigDecimal.valueOf(1231232.00)).status("ACTIVE").build();
         CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
         System.out.println(customer.getDateOfBirth());
         AccountDTO account = accountQueryService.getAccountByAccountNumber(loan.getAccountNumber());
@@ -65,6 +62,7 @@ public class LoanHandler {
         }else if (loan.getDeclaredIncome().compareTo(BigDecimal.valueOf(8000000.00)) <0){
             throw new IllegalArgumentException("Declared is not enough");
         }else{
+            coreBankingClient.syncLoan(loanMapper.toRequestDTO(loan));
             return loanService.createLoan(loan);
         }
     }
@@ -83,9 +81,11 @@ public class LoanHandler {
         if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
             throw new IllegalArgumentException(transaction.getFailedReason());
         }else {
+            System.out.println(transaction);
             try {
                 loan = loanService.approveLoan(loanId);
                 repaymentService.generateRepaymentSchedule(loan);
+                coreBankingClient.syncLoan(loanMapper.toRequestDTO(loan));
                 CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
                 MailMessageDTO mailMessage = new MailMessageDTO();
                 mailMessage.setSubject("KÍCH HOẠT KHOẢN VAY");
@@ -113,6 +113,7 @@ public class LoanHandler {
         Loan loan =  new Loan();
         try {
             loan = loanService.closedLoan(loanId);
+            coreBankingClient.syncLoan(loanMapper.toRequestDTO(loan));
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,6 +124,7 @@ public class LoanHandler {
         Loan loan =  new Loan();
         try {
             loan = loanService.rejectedLoan(loanId);
+            coreBankingClient.syncLoan(loanMapper.toRequestDTO(loan));
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,15 +135,37 @@ public class LoanHandler {
     }
     public void deleteLoan(Long loanId) {
         loanService.deleteLoan(loanId);
+        coreBankingClient.deleteLoan(loanId);
     }
 
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
         return repaymentService.getRepaymentsByLoanId(loanId);
     }
 
-    public Repayment makeRepayment(Long repaymentId, java.math.BigDecimal amount) {
-
-
+    public Boolean makeRepayment(Long repaymentId, java.math.BigDecimal amount) {
+        PayRepaymentRequest pay = new PayRepaymentRequest();
+        pay.setAmount(amount);
+        pay.setCurrency("VND");
+        pay.setDescription("Get transaction, sent otp");
+        Repayment repayment = repaymentService.getRepaymentById(repaymentId).orElse(null);
+        System.out.println("ssssssssssssssssssssssssssssssssssssssss");
+        pay.setFromAccountNumber(repayment.getLoan().getAccountNumber());
+        System.out.println("ssssssssssssssssssssssssssssssssssssssss");
+        CommonTransactionDTO transaction = commonTransactionService.loanPayment(pay);
+        System.out.println(transaction);
+        if (!transaction.getStatus().equalsIgnoreCase("PENDING")) {
+            throw new IllegalArgumentException(transaction.getFailedReason());
+        }
+        return true;
+    }
+    public Repayment confirmRepayment(Long repaymentId, java.math.BigDecimal amount,String otpCode,String referenceCode) {
+        CommonConfirmTransactionRequest confirm = new CommonConfirmTransactionRequest();
+        confirm.setOtpCode(otpCode);
+        confirm.setReferenceCode(referenceCode);
+        CommonTransactionDTO transaction = commonTransactionService.confirmTransaction(confirm);
+        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
+            throw new IllegalArgumentException(transaction.getFailedReason());
+        }
         return repaymentService.makeRepayment(repaymentId, amount);
     }
 

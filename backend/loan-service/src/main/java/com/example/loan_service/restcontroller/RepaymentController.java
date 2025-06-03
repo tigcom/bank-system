@@ -88,14 +88,37 @@ public class RepaymentController {
                                                                        @RequestParam BigDecimal amount) {
         ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
         try {
-            Repayment repayment = loanHandler.makeRepayment(repaymentId, amount);
-            response.setData(repayment);
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Repayment made successfully");
+            if(loanHandler.makeRepayment(repaymentId, amount)){
+                response.setStatus(HttpStatus.OK.value());
+                response.setMessage("Otp sended successfully");
+            }
+        }catch (IllegalArgumentException e) {
+            response.setMessage(e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
             response.setData(null);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setMessage("Failed to make repayment: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @PostMapping("/{repaymentId}/confirm")
+    public ResponseEntity<ApiResponseWrapper<Repayment>> confirmRepayment(@PathVariable Long repaymentId,
+                                                                       @RequestParam BigDecimal amount,@RequestParam String otpCode,@RequestParam String referenceCode) {
+        ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
+        try {
+            Repayment repayment = loanHandler.confirmRepayment(repaymentId, amount, otpCode, referenceCode);
+            response.setData(repayment);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Confirm repayment successfully");
+        }catch (IllegalArgumentException e) {
+            response.setMessage(e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to confirm repayment: " + e.getMessage());
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }

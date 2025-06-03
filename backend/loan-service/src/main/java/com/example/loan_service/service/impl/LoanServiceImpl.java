@@ -5,6 +5,7 @@ import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.models.LoanStatus;
 import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.repository.LoanRepository;
+import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class LoanServiceImpl implements LoanService {
     public Loan createLoan(Loan loan) {
         loan.setStatus(LoanStatus.PENDING);
         loan.setCreatedAt(LocalDateTime.now());
+
         return loanRepository.save(loan);
     }
 

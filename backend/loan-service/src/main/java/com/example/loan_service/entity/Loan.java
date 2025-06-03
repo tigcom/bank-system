@@ -4,6 +4,8 @@ package com.example.loan_service.entity;
 import com.example.loan_service.models.LoanStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,11 +13,13 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
-@Entity
-@Table(name = "loan")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "loan")
+
 public class Loan {
 
     @Id

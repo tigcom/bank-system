@@ -2,8 +2,10 @@ package com.example.loan_service.service.impl;
 
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
+import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.repository.RepaymentRepository;
+import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,7 +26,8 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     private final RepaymentRepository repaymentRepository;
     private final LoanService loanService;
-
+    private final LoanMapper loanMapper;
+    private final CoreBankingClient bankingClient;
     @Override
     public List<Repayment> getRepaymentNotPaid(Long loanId) {
         return repaymentRepository.findUnpaidByLoanIdOrderByDueDate(loanId);
@@ -106,6 +109,7 @@ public class RepaymentServiceImpl implements RepaymentService {
             repayment.setStatus(RepaymentStatus.PAID);
             if(checkLastMonthRepayment(repayment)) {
                 loanService.closedLoan(repayment.getLoan().getLoanId());
+                bankingClient.syncLoan(loanMapper.toRequestDTO(repayment.getLoan()));
             }
         } else if (newPaidAmount.compareTo(BigDecimal.ZERO) > 0) {
             repayment.setStatus(RepaymentStatus.PARTIAL);
