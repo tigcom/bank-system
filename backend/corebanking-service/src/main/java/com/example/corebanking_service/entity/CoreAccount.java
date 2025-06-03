@@ -68,7 +68,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "core_accounts")
+@Table(name = "core_accounts",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"bank_code", "account_number"}))
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.JOINED)
 public class CoreAccount {
@@ -102,4 +103,5 @@ public class CoreAccount {
 
     @OneToMany(mappedBy = "toAccount")
     private List<CoreTransaction> incomingTransactions;
+
 }

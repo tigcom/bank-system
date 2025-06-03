@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -38,4 +39,5 @@ public class Account  extends  Auditable implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private AccountStatus status;
+
 }
