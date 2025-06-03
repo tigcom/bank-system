@@ -2,7 +2,7 @@ package com.example.corebanking_service.controller;
 
 import com.example.common_service.dto.customer.CoreCustomerDTO;
 import com.example.common_service.dto.customer.CoreResponse;
-import com.example.common_service.services.customer.CoreCustomerService;
+import com.example.corebanking_service.service.CoreCustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

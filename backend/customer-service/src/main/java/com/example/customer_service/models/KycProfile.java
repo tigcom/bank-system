@@ -1,5 +1,7 @@
 package com.example.customer_service.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +29,8 @@ public class KycProfile {
     private KycStatus status = KycStatus.PENDING;
 
     @OneToOne
-    @JoinColumn(name = "customer_id", nullable = false, unique = true)
+    @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
     private Customer customer;
 
     @Column(name = "identity_number", nullable = false, length = 50)

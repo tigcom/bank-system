@@ -2,6 +2,7 @@ package com.example.customer_service.controllers;
 
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.services.account.AccountQueryService;
+import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.models.Customer;
 import com.example.customer_service.repositories.CustomerRepository;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.rpc.RpcContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -28,6 +30,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -51,24 +54,9 @@ public class CustomerController {
     private final MessageSource messageSource;
 
     @DubboReference
-    private AccountQueryService accountQueryService;
+    private CustomerCommonService customerCommonService;
 
     private final CustomerRepository customerRepository;
-
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@Valid @RequestBody LoginCustomerDTO request) throws Exception {
-//        try {
-//            ApiResponseWrapper<?> response = customerService.login(request);
-//            log.info("Đăng nhập thành công cho username: {}", request.getUsername());
-//            return ResponseEntity.ok(response);
-//
-//        } catch (IllegalArgumentException e) {
-//            log.error("Đăng nhập thất bại cho username: {} - {}", request.getUsername(), e.getMessage());
-//            return ResponseEntity
-//                    .badRequest()
-//                    .body(ApiResponseWrapper.error(e.getMessage()));
-//        }
-//    }
 
     @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
     @ApiResponses({
@@ -143,46 +131,6 @@ public class CustomerController {
                     .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
-
-//    @Operation(
-//            summary = "Yêu cầu khôi phục mật khẩu với keycloak",
-//            description = "Gửi email chứa liên kết để khôi phục mật khẩu"
-//    )
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Liên kết khôi phục mật khẩu đã được gửi"),
-//            @ApiResponse(responseCode = "400", description = "Email không tồn tại hoặc không hợp lệ"),
-//            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
-//    })
-//    @PostMapping("/forgot-password")
-//    public ResponseEntity<ApiResponseWrapper<Response>> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
-//        try {
-//            Response response = customerService.forgotPassword(email);
-//            log.info("Yêu cầu khôi phục mật khẩu thành công cho email: {}", email);
-//            return ResponseEntity.status(HttpStatus.OK)
-//                    .body(new ApiResponseWrapper<>(
-//                            HttpStatus.OK.value(),
-//                            response.getMessage(),
-//                            response
-//                    ));
-//        } catch (IllegalArgumentException | EntityNotFoundException e) {
-//            log.error("Yêu cầu khôi phục mật khẩu thất bại cho email: {} - {}", email, e.getMessage());
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body(new ApiResponseWrapper<>(
-//                            HttpStatus.BAD_REQUEST.value(),
-//                            e.getMessage(),
-//                            null
-//                    ));
-//        } catch (Exception e) {
-//            log.error("Lỗi không xác định khi xử lý quên mật khẩu cho email: {}", email, e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(new ApiResponseWrapper<>(
-//                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                            "Lỗi máy chủ khi xử lý yêu cầu",
-//                            null
-//                    ));
-//        }
-//    }
-
 
     @Operation(summary = "Lấy danh sách khách hàng", description = "Truy vấn tất cả khách hàng")
     @ApiResponse(responseCode = "200", description = "Lấy danh sách khách hàng thành công",
@@ -313,17 +261,26 @@ public class CustomerController {
         }
     }
 
-//    @GetMapping("/accounts")
-//    public ResponseEntity<List<AccountDTO>> getCustomerAccounts() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String userID = authentication.getName();
-//        Customer customer = customerRepository.findCustomerByUserId(userID);
-//        System.out.println(userID);
-//        System.out.println(customer);
-//        List<AccountDTO> accounts = accountQueryService.getAccountsByCifCode(customer.getCifCode());
-//        System.out.println(accounts);
-//        return ResponseEntity.ok(accounts);
-//    }
+    @GetMapping("/accounts")
+    public ResponseEntity<?> getCustomerAccounts() {
+        try {
+            log.info("Start get list account");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userID = authentication.getName();
+            Customer customer = customerRepository.findCustomerByUserId(userID);
+            log.info("Get list account for username: {}", customer.getUsername());
+
+            SecurityContextHolder.clearContext();
+
+            List<AccountDTO> accounts = customerCommonService.getAccountsByCifCode(customer.getCifCode());
+            log.info("Get list account successfully");
+            return ResponseEntity.ok(accounts);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
+    }
 
 
     private String getMessage(String key, Object... args) {

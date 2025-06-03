@@ -47,7 +47,6 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                     .openedDate(LocalDate.now())
                     .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
                     .build();
-            log.info("createCoreAccountPayment:{}", coreAccount);
             coreAccountRepo.save(coreAccount);
     }
 

@@ -20,6 +20,7 @@ import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
+import com.example.common_service.services.customer.CustomerCommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;

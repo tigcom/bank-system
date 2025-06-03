@@ -2,3 +2,6 @@
 /shelf/
 /workspace.xml
 .idea/
+logs/
+*.log
+**/logs/
