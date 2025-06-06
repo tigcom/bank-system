@@ -23,7 +23,7 @@ public interface CustomerService {
 
     ApiResponseWrapper<?> updateCustomerStatus(UpdateStatusRequest request);
 
-    KycResponse verifyKyc(KycRequest request);
+    KycResponse verifyKyc(String userId, KycRequest request);
 
     void sentOtpRegister(RegisterCustomerDTO request);
 
@@ -31,5 +31,5 @@ public interface CustomerService {
 
     void sentEmailForgotPassword(String email);
 
-    ApiResponseWrapper<?> resetPassword(String token, ResetPasswordDTO request);
+    ApiResponseWrapper<?> resetPassword(ResetPasswordDTO request);
 }

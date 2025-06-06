@@ -39,6 +39,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -373,6 +376,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void sentEmailForgotPassword(String email) {
+        log.info("request email: {}", email);
         Customer customer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException(getMessage(MessageKeys.EMAIL_NOT_FOUND)));
 
@@ -383,14 +387,14 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setResetTokenExpiry(expiry);
         customerRepository.save(customer);
 
-        String resetLink = String.format("https://localhost:4200/reset-password?token=%s", resetToken);
+        String resetLink = String.format("http://localhost:4200/reset-password?token=%s", resetToken);
 
         try {
             MailMessageDTO mailMessage = new MailMessageDTO();
             mailMessage.setSubject("Khôi phục mật khẩu");
             mailMessage.setRecipient(email);
             mailMessage.setRecipientName(customer.getFullName());
-            mailMessage.setBody("Vui lòng nhấn vào liên kết sau để đặt lại mật khẩu: " + resetLink);
+            mailMessage.setBody(resetLink);
 
             streamBridge.send("mail-forgotPassword-out-0", mailMessage);
             log.info("Sent password reset email to {}", email);
@@ -401,12 +405,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ApiResponseWrapper<?> resetPassword(String token, ResetPasswordDTO request) {
+    public ApiResponseWrapper<?> resetPassword(ResetPasswordDTO request) {
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_CONFIRM_PASSWORD));
         }
 
-        Customer customer = customerRepository.findByResetToken(token)
+        Customer customer = customerRepository.findByResetToken(request.getToken())
                 .orElseThrow(() -> new EntityNotFoundException(getMessage(MessageKeys.INVALID_TOKEN)));
 
         if (customer.getResetTokenExpiry() == null || customer.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
@@ -527,13 +531,46 @@ public class CustomerServiceImpl implements CustomerService {
             throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
         }
 
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_CONFIRM_PASSWORD));
-        }
-
         Customer customer = customerOpt.get();
         if (customer.getStatus() != CustomerStatus.ACTIVE) {
             throw new BusinessException(getMessage(MessageKeys.ACCOUNT_NOT_ACTIVE));
+        }
+
+        // Kiểm tra mật khẩu hiện tại qua Keycloak
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("grant_type", "password");
+            body.add("client_id", clientId);
+            body.add("client_secret", clientSecret);
+            body.add("username", customer.getUsername());
+            body.add("password", request.getCurrentPassword());
+
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> keycloakResponse = restTemplate.exchange(
+                    keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token",
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
+
+            if (keycloakResponse.getStatusCode() != HttpStatus.OK) {
+                throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_CURRENT_PASSWORD));
+            }
+        } catch (HttpClientErrorException e) {
+            log.error("Failed to verify current password for user {}: {}", currentUserId, e.getMessage());
+            throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_CURRENT_PASSWORD));
+        } catch (Exception e) {
+            log.error("Error verifying current password for user {}: {}", currentUserId, e.getMessage());
+            throw new BusinessException(getMessage(MessageKeys.PASSWORD_VERIFICATION_FAILED));
+        }
+
+        // Kiểm tra mật khẩu mới và xác nhận mật khẩu
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_CONFIRM_PASSWORD));
         }
 
         updateKeycloakPassword(currentUserId, request.getNewPassword());
@@ -610,17 +647,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public KycResponse verifyKyc(KycRequest request) {
+    public KycResponse verifyKyc(String userId, KycRequest request) {
         try {
             if (!isValidKycRequest(request)) {
                 throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_KYC_DATA));
             }
 
-            Optional<Customer> customerOpt = customerRepository.findById(request.getCustomerId());
-            if (customerOpt.isEmpty()) {
+            Customer customer = customerRepository.findCustomerByUserId(userId);
+
+            if (customer == null) {
                 throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
             }
-            Customer customer = customerOpt.get();
 
             Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
             if (kycProfileOpt.isPresent() && KycStatus.VERIFIED.equals(kycProfileOpt.get().getStatus())) {
@@ -629,7 +666,7 @@ public class CustomerServiceImpl implements CustomerService {
 
             String errorMessage = validateCustomerData(customer, request);
             if (errorMessage != null) {
-                throw new IllegalArgumentException(errorMessage);
+                throw new BusinessException(errorMessage);
             }
 
             KycResponse kycResponse = kycService.verifyIdentity(
@@ -655,25 +692,26 @@ public class CustomerServiceImpl implements CustomerService {
 
                 log.info("Syncing KYC status for CIF: {}", customer.getCifCode());
                 CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
+
                 if (!coreResponse.isSuccess()) {
                     log.error("Failed to sync KYC status for CIF: {}. Error: {}", customer.getCifCode(), coreResponse.getMessage());
                     throw new BusinessException(getMessage(MessageKeys.KYC_SYNC_FAILED, coreResponse.getMessage()));
                 }
 
                 customerRepository.save(customer);
+
                 log.info("Successfully synced KYC status for CIF: {}", customer.getCifCode());
             }
 
             return kycResponse;
         } catch (Exception e) {
-            log.error("KYC verification failed for customerId: {}. Error: {}", request.getCustomerId(), e.getMessage(), e);
+            log.error("KYC verification failed for customerId: {}. Error: {}", userId, e.getMessage(), e);
             throw new BusinessException(getMessage(MessageKeys.KYC_VERIFICATION_FAILED, e.getMessage()));
         }
     }
 
     private boolean isValidKycRequest(KycRequest request) {
-        return request.getCustomerId() != null &&
-                request.getIdentityNumber() != null &&
+        return request.getIdentityNumber() != null &&
                 request.getFullName() != null &&
                 request.getDateOfBirth() != null &&
                 request.getGender() != null;

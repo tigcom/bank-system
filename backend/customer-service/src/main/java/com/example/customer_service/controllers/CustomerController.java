@@ -5,7 +5,10 @@ import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.models.Customer;
+import com.example.customer_service.models.KycProfile;
+import com.example.customer_service.models.KycStatus;
 import com.example.customer_service.repositories.CustomerRepository;
+import com.example.customer_service.repositories.KycProfileRepository;
 import com.example.customer_service.responses.*;
 import com.example.customer_service.services.CustomerService;
 import com.example.customer_service.ultils.MessageKeys;
@@ -36,10 +39,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -57,6 +57,7 @@ public class CustomerController {
     private CustomerCommonService customerCommonService;
 
     private final CustomerRepository customerRepository;
+    private final KycProfileRepository kycProfileRepository;
 
     @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
     @ApiResponses({
@@ -106,9 +107,9 @@ public class CustomerController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestParam String token , @RequestBody ResetPasswordDTO request) {
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
         try {
-            ApiResponseWrapper<?> response = customerService.resetPassword(token, request);
+            ApiResponseWrapper<?> response = customerService.resetPassword(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity
@@ -241,6 +242,47 @@ public class CustomerController {
         }
     }
 
+    @Operation(summary = "Kiểm tra trạng thái KYC", description = "Trả về trạng thái xác minh KYC của người dùng")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lấy trạng thái KYC thành công",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = KycResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Không thể lấy trạng thái KYC")
+    })
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/status")
+    public ResponseEntity<?> checkKycStatus() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+
+            log.info("Kiểm tra trạng thái KYC cho userId: {}", userId);
+            Customer customer = customerRepository.findCustomerByUserId(userId);
+
+            if (customer == null) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(ApiResponseWrapper.error("Không tìm thấy người dùng"));
+            }
+
+            Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
+            boolean isKycVerified = kycProfileOpt.isPresent() && KycStatus.VERIFIED.equals(kycProfileOpt.get().getStatus());
+
+            System.out.println(isKycVerified);
+
+            KycResponse response = new KycResponse(
+                    isKycVerified,
+                    isKycVerified ? "Tài khoản đã được xác minh KYC" : "Tài khoản chưa được xác minh KYC",
+                    null
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Kiểm tra trạng thái KYC thất bại, Lỗi: {}", e.getMessage());
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
+    }
+
     @Operation(summary = "Xác minh KYC", description = "Xác minh thông tin khách hàng KYC")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Xác minh thành công",
@@ -251,8 +293,11 @@ public class CustomerController {
     @PostMapping("/kyc/verify")
     public ResponseEntity<?> verifyKyc(@Valid @RequestBody KycRequest request) {
         try {
-            log.info("KYC verification request for customerId: {}", request.getCustomerId());
-            KycResponse response = customerService.verifyKyc(request);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+
+            log.info("KYC verification request for userId: {}", userId);
+            KycResponse response = customerService.verifyKyc(userId, request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity

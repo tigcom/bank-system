@@ -1,6 +1,7 @@
 package com.example.customer_service.dtos;
 
 import com.example.customer_service.ultils.MessageKeys;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -9,11 +10,12 @@ import java.time.LocalDate;
 
 @Data
 @Schema(description = "DTO yêu cầu KYC cho khách hàng")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class KycRequest {
 
-    @Schema(description = "ID khách hàng", example = "123", required = true)
-    @NotNull(message = "CustomerId không được để trống")
-    private Long customerId;
+//    @Schema(description = "ID khách hàng", example = "123", required = true)
+//    @NotNull(message = "CustomerId không được để trống")
+//    private Long customerId;
 
     @Schema(description = "Số CMND/CCCD", example = "012345678", required = true)
     @NotBlank(message = "{" + MessageKeys.NOT_BLANK_IDENTITY_NUMBER + "}")

@@ -14,6 +14,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ResetPasswordDTO implements Serializable {
 
+    @NotBlank
+    private String token;
+
     @NotBlank(message = "{" + MessageKeys.NOT_BLANK_PASSWORD + "}")
     @Pattern(
             regexp = "^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$",

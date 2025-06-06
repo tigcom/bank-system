@@ -10,6 +10,9 @@ public class MessageKeys {
     public static final String WRONG_PASSWORD = "user.login.wrong_password";
     public static final String INVALID_PHONE_PASSWORD = "user.login.invalid_phone_password";
 
+    public static final String INVALID_CURRENT_PASSWORD = "password.current.invalid";
+    public static final String PASSWORD_VERIFICATION_FAILED = "password.verification.failed";
+
     // Register-related messages
     public static final String REGISTER_FAILED = "user.register.register_failed";
     public static final String KAFKA_FAILED = "user.register.kafka_failed";

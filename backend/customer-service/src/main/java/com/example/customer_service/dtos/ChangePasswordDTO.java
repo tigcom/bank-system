@@ -10,6 +10,10 @@ import lombok.Data;
 @Schema(description = "DTO thay đổi mật khẩu khách hàng")
 public class ChangePasswordDTO {
 
+    @Schema(description = "Mật khẩu cũ", example = "NewPass456!", required = true)
+    @NotBlank(message = "{" + MessageKeys.NOT_BLANK_PASSWORD + "}")
+    private String currentPassword;
+
     @Schema(description = "Mật khẩu mới, ít nhất 8 ký tự, 1 chữ hoa, 1 ký tự đặc biệt", example = "NewPass456!", required = true)
     @NotBlank(message = "{" + MessageKeys.NOT_BLANK_PASSWORD + "}")
     @Pattern(

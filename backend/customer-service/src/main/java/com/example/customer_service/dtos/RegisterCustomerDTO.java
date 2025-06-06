@@ -2,6 +2,7 @@ package com.example.customer_service.dtos;
 
 import com.example.customer_service.models.Gender;
 import com.example.customer_service.ultils.MessageKeys;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 
 @Data
 @Schema(description = "Thông tin đăng ký khách hàng")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterCustomerDTO implements Serializable {
 
     @Schema(description = "Tên đăng nhập", example = "nguyenvana123", required = true)
