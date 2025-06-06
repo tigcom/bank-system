@@ -1,9 +1,11 @@
 package com.example.account_service.controller;
 
 import com.example.account_service.dto.request.PaymentCreateDTO;
+import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.ApiResponseWrapper;
+import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
@@ -30,6 +32,50 @@ import java.util.List;
 public class AccountController {
     private final AccountService accountService;
     private final MessageUtils messageUtils;
+    
+    @Operation(
+            summary = "Create Payment Account Request",
+            description = "Creates a payment account request. If customer has no existing payment accounts, creates directly. Otherwise requires OTP verification."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Payment account request created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/create-payment-request/{cifCode}")
+    public ApiResponseWrapper<PaymentRequestResponse> createPaymentRequest(@PathVariable String cifCode) {
+        PaymentRequestResponse response = accountService.createPaymentRequest(cifCode);
+        String message = response.getStatus() == PaymentRequestResponse.PaymentRequestStatus.APPROVED ? 
+                "Tài khoản thanh toán đã được tạo thành công" : 
+                "OTP đã được gửi đến email của bạn. Vui lòng xác thực để hoàn tất tạo tài khoản.";
+        
+        return ApiResponseWrapper.<PaymentRequestResponse>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(message)
+                .data(response)
+                .build();
+    }
+    
+    @PostMapping("/confirm-otp-payment")
+    public ApiResponseWrapper<AccountCreateReponse> confirmOtpAndCreatePayment(@Valid @RequestBody PaymentConfirmOtpDTO paymentConfirmOtpDTO) {
+        AccountCreateReponse response = accountService.confirmOtpAndCreatePayment(paymentConfirmOtpDTO);
+        return ApiResponseWrapper.<AccountCreateReponse>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Xác thực OTP thành công! Tài khoản thanh toán đã được tạo.")
+                .data(response)
+                .build();
+    }
+    
+    @PostMapping("/resend-payment-otp/{tempRequestKey}")
+    public ApiResponseWrapper<String> resendPaymentOtp(@PathVariable String tempRequestKey) {
+        accountService.resendPaymentOtp(tempRequestKey);
+        return ApiResponseWrapper.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("OTP đã được gửi lại thành công.")
+                .data("OTP resent to user email.")
+                .build();
+    }
+    
     @Operation(
             summary = "Create Payment Account",
             description = "Creates a new payment account based on the provided details."
@@ -48,33 +94,6 @@ public class AccountController {
                 .data(accountCreateReponse)
                 .build();
     }
-    @Operation(
-            summary = "Create Saving Account",
-            description = "Creates a new saving account with the provided customer and saving account details."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Saving account created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid request data"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @PostMapping("/createSaving")
-    public ApiResponseWrapper<AccountCreateReponse> createSaving(@Valid @RequestBody SavingCreateDTO savingCreateDTO) {
-        AccountCreateReponse accountCreateReponse= accountService.createSaving(savingCreateDTO);
-        return ApiResponseWrapper.<AccountCreateReponse>builder()
-                .status(HttpStatus.CREATED.value())
-                .message(messageUtils.getMessage("account.saving.createSuccess"))
-                .data(accountCreateReponse)
-                .build();
-    }
-    @Operation(
-            summary = "Get All Accounts",
-            description = "Retrieve all accounts associated with the currently authenticated customer."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of accounts"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
     @GetMapping("/getALlAccount")
     public ApiResponseWrapper<List<AccountSummaryDTO>> getALlAccountByCurrentCustomer() {
         List<AccountSummaryDTO> accountResponses = accountService.getAllAccountsbyCifCode();

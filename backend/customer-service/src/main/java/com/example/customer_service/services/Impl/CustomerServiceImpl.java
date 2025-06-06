@@ -599,6 +599,8 @@ public class CustomerServiceImpl implements CustomerService {
         response.setStatus(customer.getStatus());
         Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
         response.setKycStatus(kycProfileOpt.map(KycProfile::getStatus).orElse(null));
+        response.setIdentityNumber(customer.getIdentityNumber());
+        response.setDateOfBirth(customer.getDateOfBirth());
         return response;
     }
 }

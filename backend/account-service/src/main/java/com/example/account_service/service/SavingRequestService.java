@@ -14,9 +14,9 @@ public interface SavingRequestService {
 
     SavingsRequestResponse CreateSavingRequest(SavingRequestCreateDTO savingRequestCreateDTO);
 
-    void sendOTP(String id);
+    void resendOTP(String tempRequestKey);
 
-    SavingsRequestResponse confirmOTPandSave(ConfirmRequestDTO confirmRequestDTO);
+    SavingsRequestResponse confirmOTPAndCreateSavingAccount(ConfirmRequestDTO confirmRequestDTO);
 
     List<CoreTermDTO> getAllTerm();
 }

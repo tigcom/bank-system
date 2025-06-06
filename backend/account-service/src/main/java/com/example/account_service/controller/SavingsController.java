@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Credit Request", description = "APIs for creating and managing credit requests")
+@Tag(name = "Savings Request", description = "APIs for creating and managing savings accounts")
 @RestController
 @RequiredArgsConstructor
 public class SavingsController {
@@ -26,44 +26,44 @@ public class SavingsController {
     private final CreditRequestService creditRequestService;
     private final MessageUtils messageUtils;
     private final SavingRequestService savingRequestService;
+    
     @PostMapping("/create-savings-request")
-    public ApiResponseWrapper<SavingsRequestResponse> createCreditRequest(@RequestBody SavingRequestCreateDTO savingRequestCreateDTO) {
-        SavingsRequestResponse reponse = savingRequestService.CreateSavingRequest(savingRequestCreateDTO);
+    public ApiResponseWrapper<SavingsRequestResponse> createSavingsRequest(@RequestBody SavingRequestCreateDTO savingRequestCreateDTO) {
+        SavingsRequestResponse response = savingRequestService.CreateSavingRequest(savingRequestCreateDTO);
         return ApiResponseWrapper.<SavingsRequestResponse>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(messageUtils.getMessage("account.saving-request-created"))
-                .data(reponse)
+                .data(response)
                 .build();
     }
-    @PostMapping("/Send-otp-to-email/{id}")
-    public ApiResponseWrapper<String> SendOTP(@PathVariable String id) {
-         savingRequestService.sendOTP(id);
+    
+    @PostMapping("/resend-otp/{tempRequestKey}")
+    public ApiResponseWrapper<String> resendOTP(@PathVariable String tempRequestKey) {
+        savingRequestService.resendOTP(tempRequestKey);
         return ApiResponseWrapper.<String>builder()
                 .status(HttpStatus.OK.value())
-                .message("OTP đã được gửi thành công.")
-                .data("OTP sent to user contact.")
+                .message("OTP đã được gửi lại thành công.")
+                .data("OTP resent to user email.")
                 .build();
-
     }
-    /// api confirm otp va save account saving
-    @PostMapping("/confirm-otp")
-    public ApiResponseWrapper<SavingsRequestResponse> confirmRequest(@RequestBody ConfirmRequestDTO confirmRequestDTO)
-    {
-        SavingsRequestResponse savingsRequestResponse = savingRequestService.confirmOTPandSave(confirmRequestDTO);
+    
+        @PostMapping("/confirm-otp-and-create-account")
+    public ApiResponseWrapper<SavingsRequestResponse> confirmOTPAndCreateAccount(@RequestBody ConfirmRequestDTO confirmRequestDTO) {
+        SavingsRequestResponse savingsRequestResponse = savingRequestService.confirmOTPAndCreateSavingAccount(confirmRequestDTO);
         return ApiResponseWrapper.<SavingsRequestResponse>builder()
                 .status(HttpStatus.CREATED.value())
-                .message(messageUtils.getMessage("account.saving-request.confirmed"))
+                .message(messageUtils.getMessage("account.saving.createSuccess"))
                 .data(savingsRequestResponse)
                 .build();
     }
+    
     @GetMapping("/get-all-term")
     public ApiResponseWrapper<List<CoreTermDTO>> getAllTermIsActive() {
         List<CoreTermDTO> list = savingRequestService.getAllTerm();
         return ApiResponseWrapper.<List<CoreTermDTO>>builder()
-                .status(HttpStatus.CREATED.value())
+                .status(HttpStatus.OK.value())
                 .message(messageUtils.getMessage("core-term.get-all.success"))
                 .data(list)
                 .build();
-
     }
 }

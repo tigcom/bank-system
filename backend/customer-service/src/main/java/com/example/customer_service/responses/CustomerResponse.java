@@ -4,10 +4,12 @@ import com.example.common_service.constant.CustomerStatus;
 import com.example.customer_service.models.KycStatus;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-public class CustomerResponse {
+public class CustomerResponse  implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String cifCode;
     private String fullName;
     private String address;
@@ -16,5 +18,6 @@ public class CustomerResponse {
     private String phoneNumber;
     private CustomerStatus status;
     private KycStatus kycStatus;
+    private String identityNumber;
 
 }

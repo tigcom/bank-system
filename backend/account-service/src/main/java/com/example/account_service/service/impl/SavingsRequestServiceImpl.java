@@ -67,6 +67,8 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
     @Override
     public SavingsRequestResponse CreateSavingRequest(SavingRequestCreateDTO savingRequestCreateDTO) {
+        log.info("Starting createSavingRequest with input: {}", savingRequestCreateDTO);
+        
         // Validate input
         validateSavingRequestInput(savingRequestCreateDTO);
         
@@ -76,11 +78,174 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         // Get and validate customer
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
         
-        // Create and save savings request
-        SavingsRequest savingsRequest = createSavingsRequest(savingRequestCreateDTO, currentCustomer);
-        savingsRequestRepository.save(savingsRequest);
+        // Tạo temporary key để lưu thông tin request trước khi verify OTP
+        String tempRequestKey = "TEMP_SAVING_REQUEST:" + currentCustomer.getCifCode() + ":" + System.currentTimeMillis();
+        
+        // Lưu thông tin request vào Redis (expire sau 1 giờ)
+        SavingRequestCreateDTO tempRequest = SavingRequestCreateDTO.builder()
+                .accountNumberSource(savingRequestCreateDTO.getAccountNumberSource())
+                .initialDeposit(savingRequestCreateDTO.getInitialDeposit())
+                .term(savingRequestCreateDTO.getTerm())
+                .build();
+        
+        redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
+        
+        // Tạo và gửi OTP
+        String otp = generateAndStoreOTP(tempRequestKey);
+        sendOTPEmail(currentCustomer, otp);
+        
+        log.info("OTP sent for saving request creation. Temp key: {}", tempRequestKey);
+        
+        // Trả về response với temp key để client có thể confirm OTP
+        return SavingsRequestResponse.builder()
+                .id(tempRequestKey) // Sử dụng temp key làm ID tạm thời
+                .cifCode(currentCustomer.getCifCode())
+                .accountNumberSource(savingRequestCreateDTO.getAccountNumberSource())
+                .initialDeposit(savingRequestCreateDTO.getInitialDeposit())
+                .term(savingRequestCreateDTO.getTerm())
+                .status(SavingsRequestStatus.PENDING) // Trạng thái pending OTP
+                .build();
+    }
 
-        return buildSavingsRequestResponse(savingsRequest);
+    @Override
+    public void resendOTP(String tempRequestKey) {
+        log.info("Resending OTP for temp request key: {}", tempRequestKey);
+        
+        // Kiểm tra temp request có tồn tại không
+        Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
+        if (tempRequest == null) {
+            throw new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED);
+        }
+        
+        // Lấy thông tin customer từ temp key
+        String cifCode = extractCifFromTempKey(tempRequestKey);
+        log.info("Resending OTP for saving request. CIF code: {}", cifCode);
+        CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+        
+        if (customerDTO == null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+        }
+
+        String otp = generateAndStoreOTP(tempRequestKey);
+        sendOTPEmail(customerDTO, otp);
+        
+        log.info("OTP resent successfully for temp request: {}", tempRequestKey);
+    }
+
+    @Override
+    public SavingsRequestResponse confirmOTPAndCreateSavingAccount(ConfirmRequestDTO confirmRequestDTO) {
+        log.info("Confirming OTP and creating saving account: {}", confirmRequestDTO.getSavingRequestID());
+        
+        // Validate OTP
+        SavingRequestCreateDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO);
+        
+        // Lấy thông tin customer
+        String cifCode = extractCifFromTempKey(confirmRequestDTO.getSavingRequestID());
+        log.info("Creating saving account for CIF Code: {}", cifCode);
+        CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+        
+        // Tạo Saving Account trực tiếp (không cần tạo SavingsRequest entity)
+        Account account = processSavingAccountCreation(tempRequest, cifCode);
+        
+        // Cleanup temp data
+        redisTemplate.delete(confirmRequestDTO.getSavingRequestID());
+        redisTemplate.delete("OTP:SAVING:" + confirmRequestDTO.getSavingRequestID());
+        
+        log.info("Saving account created successfully: {}", account.getAccountNumber());
+        
+        // Trả về response với thông tin account đã tạo
+        return SavingsRequestResponse.builder()
+                .id(account.getId())
+                .cifCode(cifCode)
+                .accountNumberSource(tempRequest.getAccountNumberSource())
+                .initialDeposit(tempRequest.getInitialDeposit())
+                .term(tempRequest.getTerm())
+                .status(SavingsRequestStatus.APPROVED) // Đã tạo thành công
+                .build();
+    }
+
+    /**
+     * Extracts CIF code from temporary key
+     */
+    private String extractCifFromTempKey(String tempKey) {
+        // Format: TEMP_SAVING_REQUEST:{cifCode}:{timestamp}
+        String[] parts = tempKey.split(":");
+        if (parts.length >= 3) {
+            return parts[1];
+        }
+        throw new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED);
+    }
+
+    /**
+     * Validates OTP and returns the savings request if valid
+     */
+    private SavingRequestCreateDTO validateOTPAndGetTempRequest(ConfirmRequestDTO confirmRequestDTO) {
+        String keyOTP = "OTP:SAVING:" + confirmRequestDTO.getSavingRequestID();
+        String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
+        log.info("Validating OTP for temp request: {}", confirmRequestDTO.getSavingRequestID());
+        
+        if (storedOtp == null) {
+            throw new AppException(ErrorCode.OTP_EXPIRED);
+        }
+        
+        if (!storedOtp.equals(confirmRequestDTO.getOtpCode())) {
+            handleOTPFailure(confirmRequestDTO.getSavingRequestID());
+            throw new AppException(ErrorCode.INVALID_OTP);
+        }
+        
+        // Lấy temp request
+        SavingRequestCreateDTO tempRequest = (SavingRequestCreateDTO) redisTemplate.opsForValue().get(confirmRequestDTO.getSavingRequestID());
+        if (tempRequest == null) {
+            throw new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED);
+        }
+        
+        log.info("OTP validated successfully for temp request: {}", confirmRequestDTO.getSavingRequestID());
+        return tempRequest;
+    }
+
+    /**
+     * Handles OTP failure logic including failure counting
+     */
+    private void handleOTPFailure(String tempRequestKey) {
+        String keyFailCount = "OTP_FAIL_COUNT:SAVING:" + tempRequestKey;
+        String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
+        int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
+
+        failCount++;
+        redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount), Duration.ofMinutes(5));
+        
+        if (failCount >= 3) {
+            // Xóa temp request
+            redisTemplate.delete(tempRequestKey);
+            redisTemplate.delete("OTP:SAVING:" + tempRequestKey);
+            log.error("Saving request creation failed due to OTP entered incorrectly more than 3 times");
+            throw new AppException(ErrorCode.OTP_WRONG_MANY);
+        }
+    }
+
+    /**
+     * Generates OTP and stores in Redis
+     */
+    private String generateAndStoreOTP(String key) {
+        String keyOTP = "OTP:SAVING:" + key;
+        String otp = String.valueOf(100000 + new Random().nextInt(900000));
+        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(10)); // OTP có hiệu lực 10 phút
+        log.info("OTP generated and stored for key: {}", key);
+        return otp;
+    }
+
+    /**
+     * Sends OTP email to customer
+     */
+    private void sendOTPEmail(CustomerDTO customer, String otp) {
+        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
+                .recipientName(customer.getFullName())
+                .recipient(customer.getEmail())
+                .body(otp)
+                .subject("Xác thực OTP - Tạo tài khoản tiết kiệm")
+                .build();
+        streamBridge.send("mail-out-0", mailMessageDTO);
+        log.info("OTP email sent to: {}", customer.getEmail());
     }
 
     /**
@@ -163,146 +328,17 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     }
 
     /**
-     * Creates a SavingsRequest entity from DTO and customer data
-     */
-    private SavingsRequest createSavingsRequest(SavingRequestCreateDTO dto, CustomerDTO customer) {
-        return SavingsRequest.builder()
-                .cifCode(customer.getCifCode())
-                .initialDeposit(dto.getInitialDeposit())
-                .term(dto.getTerm())
-                .accountNumberSource(dto.getAccountNumberSource())
-                .status(SavingsRequestStatus.PENDING)
-                .interestRate(dto.getInterestRate())
-                .build();
-    }
-
-    /**
-     * Builds response DTO from SavingsRequest entity
-     */
-    private SavingsRequestResponse buildSavingsRequestResponse(SavingsRequest savingsRequest) {
-        return SavingsRequestResponse.builder()
-                .id(savingsRequest.getId())
-                .accountNumberSource(savingsRequest.getAccountNumberSource())
-                .initialDeposit(savingsRequest.getInitialDeposit())
-                .term(savingsRequest.getTerm())
-                .status(savingsRequest.getStatus())
-                .cifCode(savingsRequest.getCifCode())
-                .interestRate(savingsRequest.getInterestRate())
-                .build();
-    }
-
-    @Override
-    public void sendOTP(String savingsRequestId) {
-        SavingsRequest savingsRequest = getSavingsRequestById(savingsRequestId);
-        log.info("Saving request: {}", savingsRequest);
-        
-        CustomerDTO customerDTO = commonService.getCustomerByCifCode(savingsRequest.getCifCode());
-        if (customerDTO == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
-        }
-
-        String otp = createOTP(savingsRequestId);
-        log.info("OTP created: {}", otp);
-        
-        sendOTPEmail(customerDTO, otp);
-    }
-
-    @Override
-    public SavingsRequestResponse confirmOTPandSave(ConfirmRequestDTO confirmRequestDTO) {
-        // Validate OTP
-        SavingsRequest savingsRequest = validateOTPAndGetRequest(confirmRequestDTO);
-        
-        // Process saving account creation
-        Account account = processSavingAccountCreation(savingsRequest);
-        
-        // Update request status
-        savingsRequest.setStatus(SavingsRequestStatus.APPROVED);
-        savingsRequestRepository.save(savingsRequest);
-
-        return buildSavingsRequestResponse(savingsRequest);
-    }
-
-    /**
-     * Gets savings request by ID with validation
-     */
-    private SavingsRequest getSavingsRequestById(String savingsRequestId) {
-        return savingsRequestRepository.findById(savingsRequestId)
-                .orElseThrow(() -> new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED));
-    }
-
-    /**
-     * Sends OTP email to customer
-     */
-    private void sendOTPEmail(CustomerDTO customer, String otp) {
-        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
-                .recipientName(customer.getFullName())
-                .recipient(customer.getEmail())
-                .body(otp)
-                .subject("Xác thực OTP")
-                .build();
-        streamBridge.send("mail-out-0", mailMessageDTO);
-    }
-
-    /**
-     * Validates OTP and returns the savings request if valid
-     */
-    private SavingsRequest validateOTPAndGetRequest(ConfirmRequestDTO confirmRequestDTO) {
-        String keyOTP = "OTP:" + confirmRequestDTO.getSavingRequestID();
-        String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
-        log.info("OTP on redis: {}", storedOtp);
-        
-        SavingsRequest savingsRequest = getSavingsRequestById(confirmRequestDTO.getSavingRequestID());
-        
-        if (!savingsRequest.getStatus().equals(SavingsRequestStatus.PENDING)) {
-            throw new AppException(ErrorCode.SAVING_REQUEST_INVALID_STATUS);
-        }
-        
-        if (storedOtp == null) {
-            throw new AppException(ErrorCode.OTP_EXPIRED);
-        }
-        
-        if (!storedOtp.equals(confirmRequestDTO.getOtpCode())) {
-            handleOTPFailure(confirmRequestDTO.getSavingRequestID(), savingsRequest);
-            throw new AppException(ErrorCode.INVALID_OTP);
-        }
-        
-        // Clean up OTP from Redis after successful validation
-        redisTemplate.delete(keyOTP);
-        
-        return savingsRequest;
-    }
-
-    /**
-     * Handles OTP failure logic including failure counting
-     */
-    private void handleOTPFailure(String savingRequestID, SavingsRequest savingsRequest) {
-        String keyFailCount = "OTP_FAIL_COUNT:" + savingRequestID;
-        String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
-        int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
-
-        failCount++;
-        redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount), Duration.ofSeconds(120));
-        
-        if (failCount > 3) {
-            savingsRequest.setStatus(SavingsRequestStatus.REJECTED);
-            savingsRequestRepository.save(savingsRequest);
-            log.error("Transaction failed due to OTP entered incorrectly more than 3 times");
-            throw new AppException(ErrorCode.OTP_WRONG_MANY);
-        }
-    }
-
-    /**
      * Processes the complete saving account creation workflow
      */
-    private Account processSavingAccountCreation(SavingsRequest savingsRequest) {
+    private Account processSavingAccountCreation(SavingRequestCreateDTO tempRequest, String cifCode) {
         // Transfer money from source account to master account
-        CommonTransactionDTO transactionDTO = transferToMasterAccount(savingsRequest);
+        CommonTransactionDTO transactionDTO = transferToMasterAccount(tempRequest);
         
         // Create account in local database
-        Account account = createLocalSavingAccount(savingsRequest);
+        Account account = createLocalSavingAccount(tempRequest, cifCode);
         
         // Create account in core banking system
-        createCoreBankingAccount(account, savingsRequest);
+        createCoreBankingAccount(account, tempRequest);
         
         accountRepository.save(account);
         log.info("Saving account created successfully: {}", account.getAccountNumber());
@@ -313,11 +349,11 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     /**
      * Transfers money from source account to master account
      */
-    private CommonTransactionDTO transferToMasterAccount(SavingsRequest savingsRequest) {
+    private CommonTransactionDTO transferToMasterAccount(SavingRequestCreateDTO tempRequest) {
         CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
                 CreateAccountSavingRequest.builder()
-                        .fromAccountNumber(savingsRequest.getAccountNumberSource())
-                        .amount(savingsRequest.getInitialDeposit())
+                        .fromAccountNumber(tempRequest.getAccountNumberSource())
+                        .amount(tempRequest.getInitialDeposit())
                         .currency("VND")
                         .description("Gửi tiền tiết kiệm")
                         .build()
@@ -334,10 +370,10 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     /**
      * Creates a local saving account entity
      */
-    private Account createLocalSavingAccount(SavingsRequest savingsRequest) {
+    private Account createLocalSavingAccount(SavingRequestCreateDTO tempRequest, String cifCode) {
         Account account = Account.builder()
                 .accountType(AccountType.SAVING)
-                .cifCode(savingsRequest.getCifCode())
+                .cifCode(cifCode)
                 .status(AccountStatus.ACTIVE)
                 .build();
         account.setAccountNumber(generateAccountNumber(account));
@@ -347,11 +383,11 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     /**
      * Creates saving account in core banking system
      */
-    private void createCoreBankingAccount(Account account, SavingsRequest savingsRequest) {
+    private void createCoreBankingAccount(Account account, SavingRequestCreateDTO tempRequest) {
         CoreSavingAccountDTO coreSavingAccountDTO = CoreSavingAccountDTO.builder()
                 .cifCode(account.getCifCode())
-                .term(savingsRequest.getTerm())
-                .initialDeposit(savingsRequest.getInitialDeposit())
+                .term(tempRequest.getTerm())
+                .initialDeposit(tempRequest.getInitialDeposit())
                 .accountNumber(account.getAccountNumber())
                 .build();
                 
@@ -381,16 +417,6 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             log.error("Failed to get terms from core banking", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);
         }
-    }
-
-    /**
-     * Creates OTP and stores in Redis
-     */
-    public String createOTP(String savingsRequestId) {
-        String keyOTP = "OTP:" + savingsRequestId;
-        String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofSeconds(3600));
-        return otp;
     }
 
     /**
