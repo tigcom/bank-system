@@ -221,6 +221,16 @@ public class CustomerServiceImpl implements CustomerService {
         if (customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
             throw new IllegalArgumentException(getMessage(MessageKeys.PHONE_EXISTS));
         }
+        LocalDate dateOfBirth = request.getDateOfBirth();
+        if (dateOfBirth != null) {
+            LocalDate today = LocalDate.now();
+            LocalDate sixteenYearsAgo = today.minusYears(16);
+            if (dateOfBirth.isAfter(sixteenYearsAgo)) {
+                throw new IllegalArgumentException(getMessage(MessageKeys.AGE_UNDER_16));
+            }
+        } else {
+            throw new IllegalArgumentException(getMessage(MessageKeys.NOT_NULL_DOB));
+        }
     }
 
     private UserRepresentation buildUserRepresentation(RegisterCustomerDTO request) {
@@ -340,6 +350,15 @@ public class CustomerServiceImpl implements CustomerService {
 
         if (request.getFullName() != null) customer.setFullName(request.getFullName());
         if (request.getAddress() != null) customer.setAddress(request.getAddress());
+        if (request.getGender() != null) customer.setGender(request.getGender());
+        if (request.getDateOfBirth() != null) customer.setDateOfBirth(request.getDateOfBirth());
+        if (request.getEmail() != null) {
+            if (customerRepository.findByEmail(request.getEmail()).isPresent() &&
+                    !customer.getEmail().equals(request.getEmail())) {
+                return new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), getMessage(MessageKeys.EMAIL_EXISTS), null);
+            }
+            customer.setEmail(request.getEmail());
+        }
         if (request.getPhoneNumber() != null) {
             if (customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent() &&
                     !customer.getPhoneNumber().equals(request.getPhoneNumber())) {
@@ -411,7 +430,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         Customer customer = customerRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new EntityNotFoundException(getMessage(MessageKeys.INVALID_TOKEN)));
+                .orElseThrow(() -> new EntityNotFoundException(getMessage(MessageKeys.EXPIRED_TOKEN)));
 
         if (customer.getResetTokenExpiry() == null || customer.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
             throw new BusinessException(getMessage(MessageKeys.EXPIRED_TOKEN));
@@ -488,11 +507,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponse getCustomerDetail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserId = authentication.getName();
-
-        Optional<Customer> customerOpt = customerRepository.findByUserId(currentUserId);
+    public CustomerResponse getCustomerDetail(String userId) {
+        Optional<Customer> customerOpt = customerRepository.findByUserId(userId);
         if (customerOpt.isEmpty()) {
             throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
         }
@@ -649,6 +665,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public KycResponse verifyKyc(String userId, KycRequest request) {
         try {
+            System.out.println(request);
             if (!isValidKycRequest(request)) {
                 throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_KYC_DATA));
             }
@@ -666,7 +683,7 @@ public class CustomerServiceImpl implements CustomerService {
 
             String errorMessage = validateCustomerData(customer, request);
             if (errorMessage != null) {
-                throw new BusinessException(errorMessage);
+                throw new IllegalArgumentException(errorMessage);
             }
 
             KycResponse kycResponse = kycService.verifyIdentity(
@@ -753,8 +770,11 @@ public class CustomerServiceImpl implements CustomerService {
         response.setFullName(customer.getFullName());
         response.setAddress(customer.getAddress());
         response.setEmail(customer.getEmail());
+        response.setIdentityNumber(customer.getIdentityNumber());
         response.setPhoneNumber(customer.getPhoneNumber());
+        response.setDateOfBirth(customer.getDateOfBirth());
         response.setStatus(customer.getStatus());
+        response.setGender(customer.getGender());
         Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
         response.setKycStatus(kycProfileOpt.map(KycProfile::getStatus).orElse(null));
         return response;

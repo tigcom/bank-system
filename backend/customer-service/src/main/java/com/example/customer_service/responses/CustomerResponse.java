@@ -1,6 +1,7 @@
 package com.example.customer_service.responses;
 
 import com.example.common_service.constant.CustomerStatus;
+import com.example.customer_service.models.Gender;
 import com.example.customer_service.models.KycStatus;
 import lombok.Data;
 
@@ -12,9 +13,11 @@ public class CustomerResponse {
     private String fullName;
     private String address;
     private String email;
+    private String identityNumber;
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private CustomerStatus status;
     private KycStatus kycStatus;
+    private Gender gender;
 
 }

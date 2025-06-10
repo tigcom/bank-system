@@ -2,6 +2,7 @@ package com.example.customer_service.dtos;
 
 import com.example.customer_service.models.Gender;
 import com.example.customer_service.ultils.MessageKeys;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -52,9 +53,10 @@ public class RegisterCustomerDTO implements Serializable {
     )
     private String password;
 
-    @Schema(description = "Ngày sinh", example = "1990-01-01", required = true)
+    @Schema(description = "Ngày sinh", example = "08/06/2008", required = true)
     @NotNull(message = "{" + MessageKeys.NOT_NULL_DOB + "}")
     @Past(message = "{" + MessageKeys.DOB_MUST_BE_PAST + "}")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
     @Schema(description = "Giới tính", example = "male", required = true)

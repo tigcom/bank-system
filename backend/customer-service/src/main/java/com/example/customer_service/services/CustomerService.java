@@ -13,7 +13,7 @@ public interface CustomerService {
 
     CustomerListResponse getCustomerList();
 
-    CustomerResponse getCustomerDetail();
+    CustomerResponse getCustomerDetail(String userId);
 
     CustomerResponse getCustomerDetailByCifCode(String cifCode);
 

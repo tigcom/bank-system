@@ -21,6 +21,7 @@ public class MessageKeys {
     public static final String PHONE_EXISTS = "user.register.phone_exists";
     public static final String EMAIL_EXISTS = "user.register.email_exists";
     public static final String IDENTITY_NUMBER_EXISTS = "user.register.identity_number_exists";
+    public static final String AGE_UNDER_16 = "age.under_16";
     public static final String ROLE_NOT_FOUND = "user.register.role_not_found";
     public static final String CANNOT_REGISTER_ADMIN = "user.register.cannot_register_admin";
 

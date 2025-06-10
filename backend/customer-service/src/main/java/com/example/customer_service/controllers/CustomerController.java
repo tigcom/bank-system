@@ -167,7 +167,7 @@ public class CustomerController {
             String userID = authentication.getName();
             log.info("Fetching customer detail for userId: {}", userID);
 
-            CustomerResponse customer = customerService.getCustomerDetail();
+            CustomerResponse customer = customerService.getCustomerDetail(userID);
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),

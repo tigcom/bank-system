@@ -6,12 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Schema(description = "DTO yêu cầu KYC cho khách hàng")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KycRequest {
+public class KycRequest implements Serializable {
 
 //    @Schema(description = "ID khách hàng", example = "123", required = true)
 //    @NotNull(message = "CustomerId không được để trống")
