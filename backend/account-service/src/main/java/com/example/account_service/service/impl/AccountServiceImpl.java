@@ -20,6 +20,7 @@ import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
+import com.example.common_service.services.customer.CustomerQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -47,6 +48,9 @@ public class AccountServiceImpl implements AccountService {
 
     @DubboReference(timeout = 5000)
     private final CommonServiceCore commonServiceCore;
+
+    @DubboReference(timeout = 5000)
+    private final CustomerQueryService customerQueryService;
 
     private final RestTemplate restTemplate;
 
@@ -195,6 +199,13 @@ public class AccountServiceImpl implements AccountService {
 
         // Trả về danh sách
         return response.getBody();
+    }
+
+    @Override
+    public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber);
+        if(account==null) throw  new AppException(ErrorCode.USER_NOTEXISTED);
+        return customerQueryService.getCustomerByCifCode(account.getCifCode());
     }
 
 

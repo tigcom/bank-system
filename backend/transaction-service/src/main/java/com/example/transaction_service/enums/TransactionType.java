@@ -1,13 +1,22 @@
 package com.example.transaction_service.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum TransactionType {
-    TRANSFER,           // Giao dịch chuyển tiền giữa tài khoản (có thể là giữa hai người dùng)
-    DEPOSIT,            // Giao dịch nạp tiền vào tài khoản (ví dụ: nạp tiền mặt, chuyển khoản vào)
-    WITHDRAW,           // Giao dịch rút tiền từ tài khoản (ví dụ: rút tiền mặt, ATM)
-    INTERNAL_TRANSFER,  // Giao dịch chuyển tiền nội bộ (giữa các tài khoản của cùng một người dùng)
-    PAY_BILL,           // Thanh toán khoản vay
-    DISBURSEMENT,       //Giải ngân khoản vay
-    CREATE_ACCOUNT_SAVING,
-    EXTERNAL_TRANSFER,
-    CORE_BANKING        // Giao dịch phát sinh từ hệ thống ngân hàng lõi (core banking system)
+    TRANSFER("Chuyển tiền"),
+    DEPOSIT("Nạp tiền"),
+    WITHDRAW("Rút tiền"),
+    INTERNAL_TRANSFER("Chuyển tiền nội bộ"),
+    PAY_BILL("Thanh toán hóa đơn / khoản vay"),
+    DISBURSEMENT("Giải ngân khoản vay"),
+    CREATE_ACCOUNT_SAVING("Mở tài khoản tiết kiệm"),
+    WITHDRAW_ACCOUNT_SAVING("Rút tiền từ tài khoản tiết kiệm"),
+    EXTERNAL_TRANSFER("Chuyển tiền liên ngân hàng"),
+    CORE_BANKING("Giao dịch Core Banking");
+
+    private final String displayName;
+    TransactionType(String displayName) {
+        this.displayName = displayName;
+    }
 }

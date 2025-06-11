@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public interface AccountRepository extends JpaRepository<Account, String> {
     Account findByAccountNumber(String accountNumber);
     boolean existsAccountByAccountNumberAndCifCode(String accountNumber, String cifCode);
+
 }

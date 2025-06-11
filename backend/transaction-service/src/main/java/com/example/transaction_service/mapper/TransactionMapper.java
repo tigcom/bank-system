@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface TransactionMapper {
 
     @Mapping(target = "failedReason", source = "failedReason")
+    @Mapping(target = "bankType", source = "bankType")
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "updatedAt", source = "updatedAt")
     @Mapping(target = "createdBy", source = "createdBy")

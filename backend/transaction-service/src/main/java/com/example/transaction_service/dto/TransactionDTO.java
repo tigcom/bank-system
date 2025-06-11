@@ -62,6 +62,7 @@ public class TransactionDTO {
     @Schema(description = "Lý do thất bại (nếu có)", example = "Tài khoản không đủ số dư")
     private String failedReason;
 
+    private String bankType;
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

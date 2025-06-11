@@ -4,6 +4,8 @@ package com.example.transaction_service.controller;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.ApiResponse;
+import com.example.transaction_service.dto.response.FilterMetadataResponse;
+import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
 import com.example.transaction_service.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.hc.core5.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -356,4 +360,30 @@ public class TransactionController {
                 .result(transactionService.getTransactionByTransactionCode(referenceCode))
                 .build();
     }
+    @GetMapping("/get-latest-transaction/{fromAccountNumber}")
+    public ApiResponse<List<InforTransactionLatestResponse>> getListToAccountNumberLatest(@PathVariable String fromAccountNumber ){
+        return ApiResponse.<List<InforTransactionLatestResponse>>builder()
+                .code(200)
+                .message("Danh sách các số tài khoản đã giao dịch mới nhất")
+                .result(transactionService.getListToAccountNumberLatest(fromAccountNumber))
+                .build();
+    }
+    @GetMapping("/getTransactionsAndFilter")
+    public ApiResponse getTransactionsAndFilter(TransactionFilterRequest request){
+        return ApiResponse.builder()
+                .code(200)
+                .message("Danh sách transaction")
+                .result(transactionService.filterTransaction(request))
+                .build();
+    }
+    @GetMapping("/getFilterMetadata")
+    public ApiResponse<FilterMetadataResponse> getOptionData(){
+        return ApiResponse.<FilterMetadataResponse>builder()
+                .code(200)
+                .message("Danh sách enums")
+                .result(transactionService.getFilterMetadata())
+                .build();
+    }
+
+
 }

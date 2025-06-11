@@ -1,12 +1,11 @@
 package com.example.account_service.controller;
 
-import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.ApiResponseWrapper;
-import com.example.account_service.entity.Account;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -103,4 +102,14 @@ public class AccountController {
         System.out.println(token);
         return ResponseEntity.ok("Test auth with service, user: " + token);
     }
+
+    @GetMapping("/get-customer/{accountNumber}")
+    public ApiResponseWrapper<CustomerDTO> getCustomerByAccountNumber(@PathVariable String accountNumber){
+        return ApiResponseWrapper.<CustomerDTO>builder()
+                .message("Thông tin khách hàng")
+                .status(HttpStatus.OK.value())
+                .data(accountService.getCustomerByAccountNumber(accountNumber))
+                .build();
+    }
+
 }

@@ -23,7 +23,7 @@ public enum ErrorCode {
     CARTCREDIT_TYPE_NOTEXISTED(1002, "credit.carttype.notexisted"),
     UNAUTHORIZATED(401,"error.unauthorizated"),
 
-    ACCOUNT_NOT_EXIST(400,"account.not.exist"),
+    ACCOUNT_NOT_EXIST(400,"account.not.existed"),
     ACCOUNT_NOT_ACTIVE(400,"account.not.active"),
     FROM_ACCOUNT_NOT_EXIST(400,"fromAccount.not.existed" ),
     TO_ACCOUNT_NOT_EXIST(400,"toAccount.not.existed" ),

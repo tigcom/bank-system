@@ -6,6 +6,7 @@ import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
@@ -13,10 +14,14 @@ import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.ApiResponse;
+import com.example.transaction_service.dto.response.FilterMetadataResponse;
+import com.example.transaction_service.dto.response.FilterOptionDTO;
+import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.*;
 import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
+import com.example.transaction_service.filter.TransactionSpecification;
 import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
@@ -30,6 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
@@ -261,6 +270,27 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    public TransactionDTO withdrawAccountSaving(WithdrawAccountSavingRequest depositAccountSavingRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(depositAccountSavingRequest.getToAccountNumber());
+        transaction.setAmount(depositAccountSavingRequest.getAmount());
+        transaction.setDescription(depositAccountSavingRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(depositAccountSavingRequest.getCurrency()));
+        transaction.setType(TransactionType.WITHDRAW_ACCOUNT_SAVING);
+
+        transaction.setFromAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
     @Transactional
     public TransactionDTO transferToExternalBank(ExternalTransferRequest externalTransferRequest) {
         Transaction transaction = new Transaction();
@@ -378,7 +408,65 @@ public class TransactionServiceImpl implements TransactionService{
         return transactionMapper.toDTO(transaction);
     }
 
-//    Kiểm tra thông tin Transaction
+    @Override
+    public List<InforTransactionLatestResponse> getListToAccountNumberLatest(String fromAccountNumber) {
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(fromAccountNumber);
+        if (fromAccount==null) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+        List<String> accountNumberList = transactionRepository.getListToAccountNumberLatest(fromAccountNumber);
+        List<InforTransactionLatestResponse> listRs = accountNumberList.stream()
+                .map(accountNumber -> InforTransactionLatestResponse.builder()
+                        .accountNumber(accountNumber)
+                        .customerName(accountQueryService.getCustomerByAccountNumber(accountNumber).getFullName())
+                        .build())
+                .collect(Collectors.toList());
+
+        return listRs;
+    }
+
+    @Override
+    public Page<Transaction> filterTransaction(TransactionFilterRequest request) {
+        Sort sort = Sort.by("timestamp").descending();
+        if(request.getSortBy()!=null && !request.getSortBy().isEmpty()){
+            Sort.Direction direction = "asc".equalsIgnoreCase(request.getSortDirection()) ? Sort.Direction.ASC
+                    : Sort.Direction.DESC;
+            sort = Sort.by(direction,request.getSortBy());
+        }
+        Pageable pageable = PageRequest.of(request.getPage()-1 , request.getSize(),sort);
+
+        return transactionRepository.findAll(TransactionSpecification.filter(request),pageable);
+    }
+
+    @Override
+    public FilterMetadataResponse getFilterMetadata() {
+        List<FilterOptionDTO> types = Arrays.stream(TransactionType.values())
+                .map(type->  FilterOptionDTO.builder()
+                        .label(type.getDisplayName())
+                        .value(type.name())
+                        .build())
+                .collect(Collectors.toList());
+        List<FilterOptionDTO> statuses = Arrays.stream(TransactionStatus.values())
+                .map(s->  FilterOptionDTO.builder()
+                        .label(s.getDisplayName())
+                        .value(s.name())
+                        .build())
+                .collect(Collectors.toList());
+        List<FilterOptionDTO> currencies = Arrays.stream(CurrencyType.values())
+                .map(currencyType->  FilterOptionDTO.builder()
+                        .label(currencyType.getDisplayName())
+                        .value(currencyType.name())
+                        .build())
+                .collect(Collectors.toList());
+        return FilterMetadataResponse.builder()
+                .transactionTypes(types)
+                .statuses(statuses)
+                .currencies(currencies)
+                .build();
+    }
+
+
+    //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
