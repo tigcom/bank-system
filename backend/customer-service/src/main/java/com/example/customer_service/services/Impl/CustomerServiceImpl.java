@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -625,7 +626,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BusinessException(getMessage(MessageKeys.ADMIN_ONLY));
         }
 
-        Optional<Customer> customerOpt = customerRepository.findById(request.getId());
+        Optional<Customer> customerOpt = customerRepository.findByCifCode(request.getCifCode());
         if (customerOpt.isEmpty()) {
             throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
         }
@@ -642,8 +643,22 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         if (!customer.getStatus().equals(newStatus)) {
+
             customer.setStatus(newStatus);
             customerRepository.save(customer);
+
+            KycResponse kycResponse = kycService.verifyIdentity(
+                    customer.getIdentityNumber(),
+                    customer.getFullName()
+            );
+            kycService.saveKycInfo(
+                    customer.getCustomerId(),
+                    kycResponse,
+                    customer.getIdentityNumber(),
+                    customer.getFullName(),
+                    customer.getDateOfBirth(),
+                    customer.getGender().toString()
+            );
 
             CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
                     .cifCode(customer.getCifCode())
@@ -698,7 +713,7 @@ public class CustomerServiceImpl implements CustomerService {
                         request.getIdentityNumber(),
                         request.getFullName(),
                         request.getDateOfBirth(),
-                        request.getGender()
+                        request.getGender().toString()
                 );
                 customer.setStatus(CustomerStatus.ACTIVE);
 
@@ -745,7 +760,7 @@ public class CustomerServiceImpl implements CustomerService {
             return getMessage(MessageKeys.KYC_MISMATCH_DOB);
         }
         try {
-            Gender requestGender = Gender.valueOf(request.getGender());
+            Gender requestGender = Gender.valueOf(request.getGender().toString());
             if (!customer.getGender().equals(requestGender)) {
                 return getMessage(MessageKeys.KYC_MISMATCH_GENDER);
             }

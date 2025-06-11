@@ -153,13 +153,13 @@ public class CustomerController {
         }
     }
 
-    @Operation(summary = "Lấy thông tin chi tiết khách hàng", description = "Truy vấn khách hàng theo cifCode")
+    @Operation(summary = "Lấy thông tin chi tiết khách hàng", description = "Truy vấn khách hàng khi đăng nhập")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lấy thông tin khách hàng thành công",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerResponse.class))),
             @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
     })
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     @GetMapping("/detail")
     public ResponseEntity<?> getCustomerDetail() {
         try {
@@ -168,6 +168,29 @@ public class CustomerController {
             log.info("Fetching customer detail for userId: {}", userID);
 
             CustomerResponse customer = customerService.getCustomerDetail(userID);
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
+                    customer));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Lấy thông tin chi tiết khách hàng", description = "Truy vấn khách hàng theo cifCode")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lấy thông tin khách hàng thành công",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Không tìm thấy khách hàng")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/detail/{cifCode}")
+    public ResponseEntity<?> getCustomerDetailByCifCode(@PathVariable String cifCode) {
+        try {
+            log.info("Admin fetching customer detail for cifCode: {}", cifCode);
+            CustomerResponse customer = customerService.getCustomerDetailByCifCode(cifCode);
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
@@ -232,7 +255,7 @@ public class CustomerController {
     @PutMapping("/status")
     public ResponseEntity<?> updateCustomerStatus(@Valid @RequestBody UpdateStatusRequest request) {
         try {
-            log.info("Update status request for customerId: {}", request.getId());
+            log.info("Update status request for customerId: {}", request.getCifCode());
             ApiResponseWrapper<?> response = customerService.updateCustomerStatus(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {

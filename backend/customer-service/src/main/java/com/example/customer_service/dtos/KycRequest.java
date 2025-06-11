@@ -1,5 +1,6 @@
 package com.example.customer_service.dtos;
 
+import com.example.customer_service.models.Gender;
 import com.example.customer_service.ultils.MessageKeys;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,5 +34,5 @@ public class KycRequest implements Serializable {
 
     @Schema(description = "Giới tính", example = "male", required = true)
     @NotNull(message = "{" + MessageKeys.INVALID_GENDER + "}")
-    private String gender;
+    private Gender gender;
 }
