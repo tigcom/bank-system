@@ -20,11 +20,13 @@ import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.ApiResponse;
+import com.example.common_service.dto.response.SavingAccountResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -56,7 +58,8 @@ public class AccountServiceImpl implements AccountService {
     private final RestTemplate restTemplate;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final StreamBridge streamBridge;
-
+    @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
+    private String coreBankingBaseUrl;
     @Override
     public AccountCreateReponse createPayment() {
 
@@ -86,7 +89,7 @@ public class AccountServiceImpl implements AccountService {
 //            commonServiceCore.createCoreAccountPayment(corePaymentAccountDTO);
 
             //// dung restTemplate call API save account tren CoreBanking
-            String url = "http://localhost:8083/corebanking/create-payment-account";
+            String url = coreBankingBaseUrl+ "/create-payment-account";
             restTemplate.postForObject(url ,corePaymentAccountDTO,Void.class);
 
             accountRepository.save(account);
@@ -112,7 +115,7 @@ public class AccountServiceImpl implements AccountService {
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
 
         // Tạo URL gọi tới corebanking
-        String url = "http://localhost:8083/corebanking/get-all-account-by-cifcode/" + currentCustomer.getCifCode();
+        String url = coreBankingBaseUrl +"/get-all-account-by-cifcode/" + currentCustomer.getCifCode();
 
         // Gửi request GET và nhận về danh sách AccountSummaryDTO
         ResponseEntity<List<AccountSummaryDTO>> response = restTemplate.exchange(
@@ -136,7 +139,7 @@ public class AccountServiceImpl implements AccountService {
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
 
         // Tạo URL gọi tới corebanking
-        String url = "http://localhost:8083/corebanking/get-all-paymentaccount-by-cifcode/" + currentCustomer.getCifCode();
+        String url = coreBankingBaseUrl +"/get-all-paymentaccount-by-cifcode/" + currentCustomer.getCifCode();
 
         // Gửi request GET và nhận về danh sách AccountSummaryDTO
         ResponseEntity<List<AccountPaymentResponse>> response = restTemplate.exchange(
@@ -144,6 +147,42 @@ public class AccountServiceImpl implements AccountService {
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<AccountPaymentResponse>>() {}
+        );
+
+        // Trả về danh sách
+        return response.getBody();
+    }
+
+    @Override
+    public AccountPaymentResponse getAccountPaymentbyID(String id) {
+        String url = coreBankingBaseUrl +"/get-account-by-id/" + id;
+        ResponseEntity<AccountPaymentResponse> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<AccountPaymentResponse>() {}
+        );
+        return response.getBody();
+    }
+
+    @Override
+    public List<SavingAccountResponse> getAllSavingAccountbyCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
+
+        // Lấy thông tin khách hàng hiện tại
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+
+        // Tạo URL gọi tới corebanking
+        String url = coreBankingBaseUrl +"/get-all-saving-account/" + currentCustomer.getCifCode();
+
+        // Gửi request GET và nhận về danh sách AccountSummaryDTO
+        ResponseEntity<List<SavingAccountResponse>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<SavingAccountResponse>>() {}
         );
 
         // Trả về danh sách

@@ -3,6 +3,7 @@ package com.example.account_service.service.impl;
 import com.example.account_service.dto.request.ConfirmRequestDTO;
 import com.example.account_service.dto.request.SavingRequestCreateDTO;
 import com.example.account_service.dto.response.SavingsRequestResponse;
+import com.example.account_service.dto.response.withdrawSavingResponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.entity.SavingsRequest;
 import com.example.account_service.exception.AppException;
@@ -15,6 +16,10 @@ import com.example.account_service.utils.AccountNumberUtils;
 import com.example.common_service.constant.*;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.SavingUpdateRequest;
+import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
+import com.example.common_service.dto.response.AccountPaymentResponse;
+import com.example.common_service.dto.response.AccountSavingUpdateResponse;
 import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.dto.response.CoreTermDTO;
 import com.example.common_service.services.CommonService;
@@ -27,8 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -91,8 +95,14 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
         
         // Tạo và gửi OTP
-        String otp = generateAndStoreOTP(tempRequestKey);
-        sendOTPEmail(currentCustomer, otp);
+        String otp = generateAndStoreOTP(tempRequestKey, "SAVING");
+        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
+                .recipientName(currentCustomer.getFullName())
+                .recipient(currentCustomer.getEmail())
+                .body(otp)
+                .subject("Xác thực OTP - Tạo tài khoản tiết kiệm")
+                .build();
+        sendOTPEmail(currentCustomer, otp,mailMessageDTO);
         
         log.info("OTP sent for saving request creation. Temp key: {}", tempRequestKey);
         
@@ -126,8 +136,20 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
 
-        String otp = generateAndStoreOTP(tempRequestKey);
-        sendOTPEmail(customerDTO, otp);
+        // Xác định loại request từ temp key
+        String requestType = tempRequestKey.contains("SAVING_REQUEST") ? "SAVING" : "WITHDRAW";
+        String otp = generateAndStoreOTP(tempRequestKey, requestType);
+        String emailSubject = requestType.equals("SAVING") ? 
+            "Xác thực OTP - Tạo tài khoản tiết kiệm" : 
+            "Xác thực OTP - Yêu cầu rút tiền tiết kiệm";
+            
+        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
+                .recipientName(customerDTO.getFullName())
+                .recipient(customerDTO.getEmail())
+                .body(otp)
+                .subject(emailSubject)
+                .build();
+        sendOTPEmail(customerDTO, otp,mailMessageDTO);
         
         log.info("OTP resent successfully for temp request: {}", tempRequestKey);
     }
@@ -137,7 +159,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         log.info("Confirming OTP and creating saving account: {}", confirmRequestDTO.getSavingRequestID());
         
         // Validate OTP
-        SavingRequestCreateDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO);
+        SavingRequestCreateDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO, "SAVING");
         
         // Lấy thông tin customer
         String cifCode = extractCifFromTempKey(confirmRequestDTO.getSavingRequestID());
@@ -148,8 +170,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         Account account = processSavingAccountCreation(tempRequest, cifCode);
         
         // Cleanup temp data
-        redisTemplate.delete(confirmRequestDTO.getSavingRequestID());
-        redisTemplate.delete("OTP:SAVING:" + confirmRequestDTO.getSavingRequestID());
+        cleanupTempData(confirmRequestDTO.getSavingRequestID(), "SAVING");
         
         log.info("Saving account created successfully: {}", account.getAccountNumber());
         
@@ -164,11 +185,202 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .build();
     }
 
+    @Override
+    public withdrawSavingResponse createWithDrawRequest(WithdrawSavingDTO request) {
+        log.info("Starting create withdraw from Saving with input: {}", request);
+
+        // Validate input
+        validatewithdrawSavingRequest(request);
+        // Get and validate customer
+        CustomerDTO currentCustomer = getCurrentValidatedCustomer();
+        // Tạo temporary key để lưu thông tin request trước khi verify OTP
+        String tempRequestKey = "TEMP_WITHDRAW_REQUEST:" + currentCustomer.getCifCode() + ":" + System.currentTimeMillis();
+
+        // Lưu thông tin request vào Redis (expire sau 1 giờ)
+        WithdrawSavingDTO tempRequest = WithdrawSavingDTO.builder()
+                .withdrawAmount(request.getWithdrawAmount())
+                .amountOriginal(request.getAmountOriginal())
+                .withdrawType(request.getWithdrawType())
+                .destinationAccountNumber(request.getDestinationAccountNumber())
+                .savingsAccountNumber(request.getSavingsAccountNumber())
+                .build();
+
+        redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
+
+        // Tạo và gửi OTP
+        String otp = generateAndStoreOTP(tempRequestKey, "WITHDRAW");
+        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
+                .recipientName(currentCustomer.getFullName())
+                .recipient(currentCustomer.getEmail())
+                .body(otp)
+                .subject("Xác thực OTP - Yêu cầu rút tiền tiết kiệm")
+                .build();
+        sendOTPEmail(currentCustomer, otp, mailMessageDTO);
+
+        log.info("OTP sent for withdraw request creation. Temp key: {}", tempRequestKey);
+        // Trả về response với temp key để client có thể confirm OTP
+        return withdrawSavingResponse.builder()
+                .id(tempRequestKey)
+                .amountOriginal(request.getAmountOriginal())
+                .withdrawAmount(request.getWithdrawAmount())
+                .withdrawType(tempRequest.getWithdrawType())
+                .destinationAccountNumber(tempRequest.getDestinationAccountNumber())
+                .savingsAccountNumber(tempRequest.getSavingsAccountNumber())
+                .build();
+    }
+
+    /**
+     * Confirms OTP and processes withdraw from saving account
+     */
+    @Override
+    public withdrawSavingResponse confirmOTPAndProcessWithdraw(ConfirmRequestDTO confirmRequestDTO) {
+        log.info("Confirming OTP and processing withdraw: {}", confirmRequestDTO.getSavingRequestID());
+        
+        // Validate OTP
+        WithdrawSavingDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO, "WITHDRAW");
+        
+        // Lấy thông tin customer
+        String cifCode = extractCifFromTempKey(confirmRequestDTO.getSavingRequestID());
+        log.info("Processing withdraw for CIF Code: {}", cifCode);
+        CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+        
+        // Process withdraw transaction
+        processWithdrawTransaction(tempRequest);
+        
+        // Cleanup temp data
+        cleanupTempData(confirmRequestDTO.getSavingRequestID(), "WITHDRAW");
+        
+        log.info("Withdraw from saving account processed successfully");
+        
+        // Trả về response với thông tin đã xử lý
+        return withdrawSavingResponse.builder()
+                .id("COMPLETED")
+                .amountOriginal(tempRequest.getAmountOriginal())
+                .withdrawAmount(tempRequest.getWithdrawAmount())
+                .withdrawType(tempRequest.getWithdrawType())
+                .destinationAccountNumber(tempRequest.getDestinationAccountNumber())
+                .savingsAccountNumber(tempRequest.getSavingsAccountNumber())
+                .build();
+    }
+
+    /**
+     * Processes withdraw transaction from saving to destination account
+     */
+    private void processWithdrawTransaction(WithdrawSavingDTO request) {
+        // Implementation for withdraw transaction
+        // This would involve calling core banking service to process the withdrawal
+        log.info("Processing withdraw transaction: {} from {} to {}", 
+                request.getWithdrawAmount(), request.getSavingsAccountNumber(), request.getDestinationAccountNumber());
+        
+        // TODO: Implement actual withdraw logic by calling core banking service
+        // For now, we'll just log the operation
+        String url = coreBankingBaseUrl +"/get-account-by-id/" + request.getSavingsAccountNumber();
+        ResponseEntity<AccountPaymentResponse> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<AccountPaymentResponse>() {}
+        );
+        AccountPaymentResponse thisSaving = response.getBody();
+
+        if (request.getWithdrawType().equals("full"))
+        {
+            log.info("Withdraw all monney from saving", request.getWithdrawType());
+            //DTO chuyen tien
+            processTransaction(request);
+
+            //chuyen tien  thanh cong se update account local , va core banking sang closed
+
+            //update account saving local
+            Account account = accountRepository.findByAccountNumber(request.getSavingsAccountNumber());
+            if (account == null) {
+                throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+            }
+            account.setStatus(AccountStatus.CLOSED);
+            accountRepository.save(account);
+
+            SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
+                    .balance(BigDecimal.ZERO)
+                    .status(AccountStatus.CLOSED)
+                    .build();
+            log.info("Saving update: {}", savingUpdateRequest);
+                 String urlUpdate = coreBankingBaseUrl +"/update-balance-account-saving/" + request.getSavingsAccountNumber();
+//            restTemplate.put(urlUpdate, savingUpdateRequest);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
+            ResponseEntity<AccountSavingUpdateResponse> newresponse = restTemplate.exchange(
+                    urlUpdate,
+                    HttpMethod.PUT,
+                    entity,
+                    new ParameterizedTypeReference<AccountSavingUpdateResponse>() {}
+            );
+        }
+        else
+        {
+            log.info("Withdraw a part of  monney from saving" + request.getWithdrawType());
+            // chuyen tien
+           processTransaction(request);
+            // neu chuyen tien thanh cong thi update
+            //update account core
+            BigDecimal newBalance = thisSaving.getBalance().subtract(request.getAmountOriginal());
+            SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
+                    .balance(newBalance)
+                    .status(AccountStatus.ACTIVE)
+                    .build();
+            log.info("Saving update: {}", savingUpdateRequest);
+            String urlUpdate = coreBankingBaseUrl +"/update-balance-account-saving/" + request.getSavingsAccountNumber();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
+            ResponseEntity<AccountSavingUpdateResponse> newresponse = restTemplate.exchange(
+                    urlUpdate,
+                    HttpMethod.PUT,
+                    entity,
+                    new ParameterizedTypeReference<AccountSavingUpdateResponse>() {}
+            );
+            //get account saving
+
+        }
+
+    }
+
+    private void processTransaction(WithdrawSavingDTO request) {
+        WithdrawAccountSavingRequest withdrawAccountSavingRequest = WithdrawAccountSavingRequest.builder()
+                .toAccountNumber(request.getDestinationAccountNumber())
+                .amount(request.getWithdrawAmount())
+                .currency("VND")
+                .description("Rút tiền tiết kiệm")
+                .build();
+        
+        // Backup current security context before calling Dubbo service
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
+            SecurityContextHolder.clearContext();
+            CommonTransactionDTO transactionDTO = commonTransactionService.withdrawAccountSaving(withdrawAccountSavingRequest);
+            if (transactionDTO == null)
+            {
+                throw new AppException(ErrorCode.TRANSACTION_FAILED);
+            }
+            if (!transactionDTO.getStatus().equals("COMPLETED"))
+            {
+                throw new AppException(ErrorCode.TRANSACTION_FAILED);
+            }
+        } finally {
+            // Restore security context
+            if (currentAuth != null) {
+                SecurityContextHolder.getContext().setAuthentication(currentAuth);
+            }
+        }
+    }
+
     /**
      * Extracts CIF code from temporary key
      */
     private String extractCifFromTempKey(String tempKey) {
-        // Format: TEMP_SAVING_REQUEST:{cifCode}:{timestamp}
+        // Format: TEMP_SAVING_REQUEST:{cifCode}:{timestamp} or TEMP_WITHDRAW_REQUEST:{cifCode}:{timestamp}
         String[] parts = tempKey.split(":");
         if (parts.length >= 3) {
             return parts[1];
@@ -177,24 +389,25 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     }
 
     /**
-     * Validates OTP and returns the savings request if valid
+     * Generic method to validate OTP and return temp request
      */
-    private SavingRequestCreateDTO validateOTPAndGetTempRequest(ConfirmRequestDTO confirmRequestDTO) {
-        String keyOTP = "OTP:SAVING:" + confirmRequestDTO.getSavingRequestID();
+    @SuppressWarnings("unchecked")
+    private <T> T validateOTPAndGetTempRequest(ConfirmRequestDTO confirmRequestDTO, String requestType) {
+        String keyOTP = "OTP:" + requestType + ":" + confirmRequestDTO.getSavingRequestID();
         String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
-        log.info("Validating OTP for temp request: {}", confirmRequestDTO.getSavingRequestID());
+        log.info("Validating OTP for temp request: {} with type: {}", confirmRequestDTO.getSavingRequestID(), requestType);
         
         if (storedOtp == null) {
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
         
         if (!storedOtp.equals(confirmRequestDTO.getOtpCode())) {
-            handleOTPFailure(confirmRequestDTO.getSavingRequestID());
+            handleOTPFailure(confirmRequestDTO.getSavingRequestID(), requestType);
             throw new AppException(ErrorCode.INVALID_OTP);
         }
         
         // Lấy temp request
-        SavingRequestCreateDTO tempRequest = (SavingRequestCreateDTO) redisTemplate.opsForValue().get(confirmRequestDTO.getSavingRequestID());
+        T tempRequest = (T) redisTemplate.opsForValue().get(confirmRequestDTO.getSavingRequestID());
         if (tempRequest == null) {
             throw new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED);
         }
@@ -204,10 +417,10 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     }
 
     /**
-     * Handles OTP failure logic including failure counting
+     * Generic method to handle OTP failure logic including failure counting
      */
-    private void handleOTPFailure(String tempRequestKey) {
-        String keyFailCount = "OTP_FAIL_COUNT:SAVING:" + tempRequestKey;
+    private void handleOTPFailure(String tempRequestKey, String requestType) {
+        String keyFailCount = "OTP_FAIL_COUNT:" + requestType + ":" + tempRequestKey;
         String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
         int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
 
@@ -216,36 +429,31 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         
         if (failCount >= 3) {
             // Xóa temp request
-            redisTemplate.delete(tempRequestKey);
-            redisTemplate.delete("OTP:SAVING:" + tempRequestKey);
-            log.error("Saving request creation failed due to OTP entered incorrectly more than 3 times");
+            cleanupTempData(tempRequestKey, requestType);
+            log.error("{} request failed due to OTP entered incorrectly more than 3 times", requestType);
             throw new AppException(ErrorCode.OTP_WRONG_MANY);
         }
     }
 
     /**
-     * Generates OTP and stores in Redis
+     * Generic method to generate OTP and store in Redis
      */
-    private String generateAndStoreOTP(String key) {
-        String keyOTP = "OTP:SAVING:" + key;
+    private String generateAndStoreOTP(String key, String requestType) {
+        String keyOTP = "OTP:" + requestType + ":" + key;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
         redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(10)); // OTP có hiệu lực 10 phút
-        log.info("OTP generated and stored for key: {}", key);
+        log.info("OTP generated and stored for key: {} with type: {}", key, requestType);
         return otp;
     }
 
     /**
-     * Sends OTP email to customer
+     * Generic method to cleanup temporary data
      */
-    private void sendOTPEmail(CustomerDTO customer, String otp) {
-        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
-                .recipientName(customer.getFullName())
-                .recipient(customer.getEmail())
-                .body(otp)
-                .subject("Xác thực OTP - Tạo tài khoản tiết kiệm")
-                .build();
-        streamBridge.send("mail-out-0", mailMessageDTO);
-        log.info("OTP email sent to: {}", customer.getEmail());
+    private void cleanupTempData(String tempRequestKey, String requestType) {
+        redisTemplate.delete(tempRequestKey);
+        redisTemplate.delete("OTP:" + requestType + ":" + tempRequestKey);
+        redisTemplate.delete("OTP_FAIL_COUNT:" + requestType + ":" + tempRequestKey);
+        log.info("Cleanup completed for temp request: {} with type: {}", tempRequestKey, requestType);
     }
 
     /**
@@ -311,7 +519,20 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         String userId = authentication.getName();
         log.info("Authenticated userId: {}", userId);
 
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        // Backup current security context before calling Dubbo service
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        CustomerDTO currentCustomer;
+        try {
+            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
+            SecurityContextHolder.clearContext();
+            currentCustomer = commonService.getCurrentCustomer(userId);
+        } finally {
+            // Restore security context
+            if (currentAuth != null) {
+                SecurityContextHolder.getContext().setAuthentication(currentAuth);
+            }
+        }
+        
         log.info("Current Customer retrieved: {}", currentCustomer);
 
         if (currentCustomer == null) {
@@ -350,21 +571,32 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      * Transfers money from source account to master account
      */
     private CommonTransactionDTO transferToMasterAccount(SavingRequestCreateDTO tempRequest) {
-        CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
-                CreateAccountSavingRequest.builder()
-                        .fromAccountNumber(tempRequest.getAccountNumberSource())
-                        .amount(tempRequest.getInitialDeposit())
-                        .currency("VND")
-                        .description("Gửi tiền tiết kiệm")
-                        .build()
-        );
-        
-        if (!"COMPLETED".equals(transactionDTO.getStatus())) {
-            log.error("Transaction failed with status: {}", transactionDTO.getStatus());
-            throw new AppException(ErrorCode.TRANSACTION_FAILED);
+        // Backup current security context before calling Dubbo service
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
+            SecurityContextHolder.clearContext();
+            CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
+                    CreateAccountSavingRequest.builder()
+                            .fromAccountNumber(tempRequest.getAccountNumberSource())
+                            .amount(tempRequest.getInitialDeposit())
+                            .currency("VND")
+                            .description("Gửi tiền tiết kiệm")
+                            .build()
+            );
+            
+            if (!"COMPLETED".equals(transactionDTO.getStatus())) {
+                log.error("Transaction failed with status: {}", transactionDTO.getStatus());
+                throw new AppException(ErrorCode.TRANSACTION_FAILED);
+            }
+            
+            return transactionDTO;
+        } finally {
+            // Restore security context
+            if (currentAuth != null) {
+                SecurityContextHolder.getContext().setAuthentication(currentAuth);
+            }
         }
-        
-        return transactionDTO;
     }
 
     /**
@@ -375,6 +607,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .accountType(AccountType.SAVING)
                 .cifCode(cifCode)
                 .status(AccountStatus.ACTIVE)
+                .srcAccountNumber(tempRequest.getAccountNumberSource())
                 .build();
         account.setAccountNumber(generateAccountNumber(account));
         return account;
@@ -389,6 +622,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .term(tempRequest.getTerm())
                 .initialDeposit(tempRequest.getInitialDeposit())
                 .accountNumber(account.getAccountNumber())
+                .srcAccountNumber(tempRequest.getAccountNumberSource())
                 .build();
                 
         log.info("Creating core banking account: {}", coreSavingAccountDTO);
@@ -419,6 +653,19 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         }
     }
 
+    private void validatewithdrawSavingRequest(WithdrawSavingDTO request) {
+        Account accountSRC = accountRepository.findByAccountNumber(request.getDestinationAccountNumber());
+        Account accountSaving = accountRepository.findByAccountNumber(request.getSavingsAccountNumber());
+
+        if (accountSRC == null && accountSaving == null) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
+        if(!accountSRC.getStatus().equals(AccountStatus.ACTIVE) && !accountSaving.getStatus().equals(AccountStatus.ACTIVE) ) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVE);
+        }
+        validateAccountBalance(request.getSavingsAccountNumber(), request.getAmountOriginal());
+    }
+
     /**
      * Generates account number based on account type and CIF
      */
@@ -440,6 +687,14 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         }
         String randomPart = String.format("%03d", new Random().nextInt(1000));
         return cif + typeCode + randomPart;
+    }
+
+    /**
+     * Sends OTP email to customer
+     */
+    private void sendOTPEmail(CustomerDTO customer, String otp,MailMessageDTO mailMessageDTO) {
+        streamBridge.send("mail-out-0", mailMessageDTO);
+        log.info("OTP email sent to: {}", customer.getEmail());
     }
 }
 

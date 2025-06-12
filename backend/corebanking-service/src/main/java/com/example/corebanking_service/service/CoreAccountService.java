@@ -4,9 +4,8 @@ import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.CoreSavingAccountDTO;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSummaryDTO;
-import com.example.common_service.dto.response.CoreTermDTO;
+import com.example.common_service.dto.request.SavingUpdateRequest;
+import com.example.common_service.dto.response.*;
 
 import java.util.List;
 
@@ -23,4 +22,10 @@ public interface CoreAccountService {
     List<AccountPaymentResponse> getAllPaymentAccountsByCif(String id);
 
     List<CoreTermDTO> getAllCoreTerm();
+
+    AccountPaymentResponse getAccountPayment(String id);
+
+    List<SavingAccountResponse> getSavingAccount(String cifCode);
+
+    AccountSavingUpdateResponse updateBalanceSaving(String accountNumber, SavingUpdateRequest request);
 }

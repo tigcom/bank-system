@@ -3,12 +3,11 @@ package com.example.corebanking_service.entity;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.SavingAccountResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -16,9 +15,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@NamedNativeQuery(
-        name = "AccountSummaryQueryResult", // Tên duy nhất cho truy vấn native
-        query = """
+@NamedNativeQueries({
+        @NamedNativeQuery(
+                name = "AccountSummaryQueryResult",
+                query = """
         SELECT
             ca.account_number AS accountNumber,
             ca.cif_code AS cifCode,
@@ -40,15 +40,36 @@ import java.util.List;
         LEFT JOIN core_creditcard_type ct ON c.cart_type_id = ct.cart_type_id
         WHERE ca.cif_code = :cifCode
         """,
-        resultSetMapping = "AccountSummaryDTOMapping" // Tên của SqlResultSetMapping
-)
+                resultSetMapping = "AccountSummaryDTOMapping"
+        ),
+        @NamedNativeQuery(
+                name = "SavingAccountQueryResult",
+                query = """
+        SELECT
+            ca.status,
+            ca.account_number AS accountNumber,
+            ca.cif_code AS cifCode,
+            ca.account_type AS accountType,
+            ca.balance AS balance,
+            s.initial_deposit AS initialDeposit,
+            t.term_value_months AS termValueMonths,
+            t.interest_rate AS interestRate,
+            ca.opened_date AS openedDate
+        FROM core_accounts ca
+        LEFT JOIN savings_account s ON ca.account_number = s.account_number
+        LEFT JOIN core_term_config t ON s.term_id = t.term_id
+        LEFT JOIN credit_account c ON ca.account_number = c.account_number
+        LEFT JOIN core_creditcard_type ct ON c.cart_type_id = ct.cart_type_id
+        WHERE ca.cif_code = :cifCode AND ca.account_type = 'SAVING' AND ca.status='ACTIVE'
+        """,
+                resultSetMapping = "SavingAccountResponseMapping"
+        )
+})
 @SqlResultSetMapping(
-        name = "AccountSummaryDTOMapping", // Tên của mapping (phải khớp với resultSetMapping trong @NamedNativeQuery)
+        name = "AccountSummaryDTOMapping",
         classes = @ConstructorResult(
-                targetClass = AccountSummaryDTO.class, // DTO class mà bạn muốn ánh xạ tới
+                targetClass = AccountSummaryDTO.class,
                 columns = {
-                        // Thứ tự của các @ColumnResult PHẢI KHỚP với thứ tự các cột trong câu lệnh SELECT của @NamedNativeQuery
-                        // Và kiểu dữ liệu ở đây cũng phải khớp với kiểu của tham số trong constructor của AccountSummaryDTO
                         @ColumnResult(name = "accountNumber", type = String.class),
                         @ColumnResult(name = "cifCode", type = String.class),
                         @ColumnResult(name = "accountType", type = String.class),
@@ -62,6 +83,23 @@ import java.util.List;
                         @ColumnResult(name = "annualFee", type = BigDecimal.class),
                         @ColumnResult(name = "cardTypeName", type = String.class),
                         @ColumnResult(name = "cardImageUrl", type = String.class)
+                }
+        )
+)
+@SqlResultSetMapping(
+        name = "SavingAccountResponseMapping",
+        classes = @ConstructorResult(
+                targetClass = SavingAccountResponse.class,
+                columns = {
+                        @ColumnResult(name = "status", type = String.class),
+                        @ColumnResult(name = "accountNumber", type = String.class),
+                        @ColumnResult(name = "cifCode", type = String.class),
+                        @ColumnResult(name = "accountType", type = String.class),
+                        @ColumnResult(name = "balance", type = BigDecimal.class),
+                        @ColumnResult(name = "initialDeposit", type = BigDecimal.class),
+                        @ColumnResult(name = "termValueMonths", type = Integer.class),
+                        @ColumnResult(name = "interestRate", type = BigDecimal.class),
+                        @ColumnResult(name = "openedDate", type = LocalDate.class)
                 }
         )
 )
@@ -103,5 +141,4 @@ public class CoreAccount {
 
     @OneToMany(mappedBy = "toAccount")
     private List<CoreTransaction> incomingTransactions;
-
 }

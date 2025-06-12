@@ -4,14 +4,14 @@ import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.CoreSavingAccountDTO;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSummaryDTO;
-import com.example.common_service.dto.response.CoreTermDTO;
+import com.example.common_service.dto.request.SavingUpdateRequest;
+import com.example.common_service.dto.response.*;
 import com.example.corebanking_service.repository.CoreAccountRepo;
 import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -51,5 +51,20 @@ public class CoreAccountController {
     public List<CoreTermDTO> getAllTermIsactive() {
         return coreAccountService.getAllCoreTerm();
     }
+
+    @GetMapping("/get-account-by-id/{id}")
+    public AccountPaymentResponse getAccountByAccountNumber(@PathVariable String id) {
+        return  coreAccountService.getAccountPayment(id);
+    }
+    @GetMapping("/get-all-saving-account/{cifCode}")
+    public List<SavingAccountResponse> getAllSavingAccountByCifCode(@PathVariable String cifCode) {
+        return coreAccountService.getSavingAccount(cifCode);
+    }
+    @PutMapping("/update-balance-account-saving/{accountNumber}")
+    public AccountSavingUpdateResponse updateBalance(@PathVariable String accountNumber, @RequestBody SavingUpdateRequest request)
+    {
+        return coreAccountService.updateBalanceSaving(accountNumber,request);
+    }
+
 }
 

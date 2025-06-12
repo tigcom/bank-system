@@ -27,4 +27,5 @@ public class AccountCreateReponse {
     private String cifCode;
     @Schema(description = "Trạng thái tài khoản", example = "ACTIVE")
     private AccountStatus status;
+    private String srcAccountNumber;
 }

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 public interface AccountRepository extends JpaRepository<Account, String> {
     Account findByAccountNumber(String accountNumber);
+
+    Account getAccountByAccountNumber(String accountNumber);
 }

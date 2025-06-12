@@ -19,6 +19,8 @@ public class CoreSavingsAccount  extends CoreAccount{
     @Column(name = "initial_deposit", nullable = false)
     private BigDecimal initialDeposit;
 
+    @Column(name="src_account-number")
+    private String srcAccountNumber;
     @ManyToOne
     @JoinColumn(name = "term_id", nullable = false)
     private CoreTerm coreTerm;

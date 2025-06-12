@@ -6,9 +6,8 @@ import com.example.common_service.dto.CartTypeDTO;
 import com.example.common_service.dto.CorePaymentAccountDTO;
 import com.example.common_service.dto.coreCreditAccountDTO;
 import com.example.common_service.dto.CoreSavingAccountDTO;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSummaryDTO;
-import com.example.common_service.dto.response.CoreTermDTO;
+import com.example.common_service.dto.request.SavingUpdateRequest;
+import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonServiceCore;
 import com.example.corebanking_service.entity.*;
 import com.example.corebanking_service.exception.AppException;
@@ -28,6 +27,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountService {
+
+
     private final CoreCustomerRepo coreCustomerRepo;
     private final CoreAccountRepo coreAccountRepo;
     private final CoreAccountSavingRepo coreAccountSavingRepo;
@@ -59,6 +60,7 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
                 .initialDeposit(dto.getInitialDeposit())
                 .coreTerm(coreTermRepo.getCoreTermsByTermValueMonths(dto.getTerm()))
+                .srcAccountNumber(dto.getSrcAccountNumber())
                 .build();
         coreAccountSavingRepo.save(coreSavingsAccount);
     }
@@ -130,6 +132,27 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public AccountPaymentResponse getAccountPayment(String id) {
+        CoreAccount account=  coreAccountRepo.findByAccountNumber(id);
+        return AccountPaymentResponse.builder()
+                .accountNumber(account.getAccountNumber())
+                .accountType(account.getAccountType())
+                .accountType(account.getAccountType())
+                .balance(account.getBalance())
+                .status(account.getStatus())
+                .cifCode(account.getCoreCustomer().getCifCode())
+                .openedDate(account.getOpenedDate())
+                .build();
+    }
+
+    @Override
+    public List<SavingAccountResponse> getSavingAccount(String cifCode) {
+        return coreAccountRepo.getAccountSavings(cifCode);
+
+    }
+
+//    public SavingAccountResponse maptoSavingRes(CoreSavingsAccount )
     public AccountPaymentResponse mapToDto(CoreAccount request) {
         AccountPaymentResponse response = AccountPaymentResponse.builder()
                 .accountNumber(request.getAccountNumber())
@@ -151,5 +174,25 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .build();
         return response;
 
+    }
+    @Override
+    public AccountSavingUpdateResponse updateBalanceSaving(String accountNumber, SavingUpdateRequest request) {
+        log.info("Calling updateBalanceSaving with accountNumber: " + accountNumber);
+        log.info("request: " + request);
+        CoreAccount account = coreAccountRepo.findByAccountNumber(accountNumber);
+        if (account == null) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);
+        }
+        account.setBalance(request.getBalance());
+        account.setStatus(request.getStatus());
+        coreAccountRepo.save(account);
+        return  AccountSavingUpdateResponse.builder()
+                .accountNumber(accountNumber)
+                .accountType(account.getAccountType())
+                .accountType(account.getAccountType())
+                .balance(account.getBalance())
+                .status(account.getStatus())
+                .openedDate(account.getOpenedDate())
+                .build();
     }
 }

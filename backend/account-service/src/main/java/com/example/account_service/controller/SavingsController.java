@@ -6,12 +6,15 @@ import com.example.account_service.dto.request.SavingRequestCreateDTO;
 import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.dto.response.SavingsRequestResponse;
+import com.example.account_service.dto.response.withdrawSavingResponse;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.service.CreditRequestService;
 import com.example.account_service.service.SavingRequestService;
 import com.example.account_service.utils.MessageUtils;
+import com.example.common_service.dto.WithdrawSavingDTO;
 import com.example.common_service.dto.response.CoreTermDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +29,7 @@ public class SavingsController {
     private final CreditRequestService creditRequestService;
     private final MessageUtils messageUtils;
     private final SavingRequestService savingRequestService;
-    
+
     @PostMapping("/create-savings-request")
     public ApiResponseWrapper<SavingsRequestResponse> createSavingsRequest(@RequestBody SavingRequestCreateDTO savingRequestCreateDTO) {
         SavingsRequestResponse response = savingRequestService.CreateSavingRequest(savingRequestCreateDTO);
@@ -36,7 +39,7 @@ public class SavingsController {
                 .data(response)
                 .build();
     }
-    
+
     @PostMapping("/resend-otp/{tempRequestKey}")
     public ApiResponseWrapper<String> resendOTP(@PathVariable String tempRequestKey) {
         savingRequestService.resendOTP(tempRequestKey);
@@ -46,7 +49,7 @@ public class SavingsController {
                 .data("OTP resent to user email.")
                 .build();
     }
-    
+
         @PostMapping("/confirm-otp-and-create-account")
     public ApiResponseWrapper<SavingsRequestResponse> confirmOTPAndCreateAccount(@RequestBody ConfirmRequestDTO confirmRequestDTO) {
         SavingsRequestResponse savingsRequestResponse = savingRequestService.confirmOTPAndCreateSavingAccount(confirmRequestDTO);
@@ -56,7 +59,7 @@ public class SavingsController {
                 .data(savingsRequestResponse)
                 .build();
     }
-    
+
     @GetMapping("/get-all-term")
     public ApiResponseWrapper<List<CoreTermDTO>> getAllTermIsActive() {
         List<CoreTermDTO> list = savingRequestService.getAllTerm();
@@ -64,6 +67,26 @@ public class SavingsController {
                 .status(HttpStatus.OK.value())
                 .message(messageUtils.getMessage("core-term.get-all.success"))
                 .data(list)
+                .build();
+    }
+    @PostMapping("/create-request-withdraw-fromSaving")
+    public ApiResponseWrapper<withdrawSavingResponse> createWithdrawSaving(@Valid @RequestBody WithdrawSavingDTO request)
+    {
+        withdrawSavingResponse response =  savingRequestService.createWithDrawRequest(request);
+        return ApiResponseWrapper.<withdrawSavingResponse>builder()
+                .status(HttpStatus.OK.value())
+                .message(messageUtils.getMessage("Create-withdraw-success"))
+                .data(response)
+                .build();
+    }
+    
+    @PostMapping("/confirm-otp-withdraw-saving")
+    public ApiResponseWrapper<withdrawSavingResponse> confirmOTPAndWithdrawSaving(@Valid @RequestBody ConfirmRequestDTO confirmRequestDTO) {
+        withdrawSavingResponse response = savingRequestService.confirmOTPAndProcessWithdraw(confirmRequestDTO);
+        return ApiResponseWrapper.<withdrawSavingResponse>builder()
+                .status(HttpStatus.OK.value())
+                .message(messageUtils.getMessage("withdraw-saving.confirm-success"))
+                .data(response)
                 .build();
     }
 }

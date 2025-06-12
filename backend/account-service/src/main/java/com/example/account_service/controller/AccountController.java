@@ -6,11 +6,13 @@ import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.dto.response.PaymentRequestResponse;
+import com.example.account_service.dto.response.SavingsRequestResponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.SavingAccountResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -114,7 +116,27 @@ public class AccountController {
         );
         return response;
     }
+    @GetMapping("/getAllSavingAccount")
+    public ApiResponseWrapper<List<SavingAccountResponse>>  getAllSavingAccountByCurrentCustomer() {
+        List<SavingAccountResponse> list  = accountService.getAllSavingAccountbyCifCode();
+        ApiResponseWrapper<List<SavingAccountResponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                list
+        );
+        return response;
+    }
 
+    @GetMapping("/getAccountPaymentByID/{id}")
+     public ApiResponseWrapper<AccountPaymentResponse> getAccountPaymentByID(@PathVariable String id) {
+        AccountPaymentResponse accountPaymentResponse = accountService.getAccountPaymentbyID(id);
+        ApiResponseWrapper<AccountPaymentResponse> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.getAccount-payment.success"),
+                accountPaymentResponse
+        );
+        return response;
+    }
     @PostMapping("/testAuth")
     public ResponseEntity<String> testAuth(@AuthenticationPrincipal Jwt jwt) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

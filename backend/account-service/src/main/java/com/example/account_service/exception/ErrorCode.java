@@ -39,7 +39,10 @@ public enum ErrorCode {
     CUSTOMER_NOT_FOUND(1031, "customer.not.found"),
     ACCOUNT_NOT_FOUND(1032, "account.not.found"),
     CORE_BANKING_SERVICE_ERROR(1033, "core.banking.service.error"),
+    ACCOUNT_NOT_ACTIVE(1033, "account.not.active"),
     TRANSACTION_FAILED(1034, "transaction.failed");
+
+
 
     private final int code;
     private final String message;

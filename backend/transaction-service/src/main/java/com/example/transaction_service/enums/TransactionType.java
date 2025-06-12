@@ -9,5 +9,7 @@ public enum TransactionType {
     DISBURSEMENT,       //Giải ngân khoản vay
     CREATE_ACCOUNT_SAVING,
     EXTERNAL_TRANSFER,
-    CORE_BANKING        // Giao dịch phát sinh từ hệ thống ngân hàng lõi (core banking system)
+    CORE_BANKING     ,   // Giao dịch phát sinh từ hệ thống ngân hàng lõi (core banking system)
+    WITHDRAW_ACCOUNT_SAVING
+    ;
 }

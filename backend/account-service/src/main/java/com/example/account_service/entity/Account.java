@@ -40,4 +40,7 @@ public class Account  extends  Auditable implements Serializable {
     @Column(name = "status", length = 20)
     private AccountStatus status;
 
+    @Column(name="src_account_number")
+    private String srcAccountNumber;
+
 }

@@ -15,6 +15,7 @@ public interface CommonTransactionService {
     CommonTransactionDTO confirmTransaction(CommonConfirmTransactionRequest confirmTransactionRequest);
 
     void reSendOtp(CommonResendOtpRequest resendOtpRequest);
+    CommonTransactionDTO withdrawAccountSaving(WithdrawAccountSavingRequest request);
 
 
 }

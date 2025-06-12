@@ -15,4 +15,5 @@ public class CoreSavingAccountDTO implements Serializable {
     private BigDecimal initialDeposit;
     private final AccountType accountType = AccountType.SAVING;
     private String accountNumber;
+    private String srcAccountNumber;
 }

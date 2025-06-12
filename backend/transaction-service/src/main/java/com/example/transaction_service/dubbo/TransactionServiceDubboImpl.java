@@ -76,6 +76,12 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
         transactionService.resendOtp(request);
     }
 
+    @Override
+    public CommonTransactionDTO withdrawAccountSaving(WithdrawAccountSavingRequest request) {
+        TransactionDTO transactionDTO = transactionService.withdrawAccountSaving(request);
+        return toCommonTransactionDTO(transactionDTO);
+    }
+
     private CommonTransactionDTO toCommonTransactionDTO(TransactionDTO transactionDTO){
         CommonTransactionDTO commonTransactionDTO = CommonTransactionDTO.builder()
                 .amount(transactionDTO.getAmount())

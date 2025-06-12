@@ -7,6 +7,7 @@ import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
+import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.transaction_service.dto.TransactionDTO;
@@ -29,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -350,12 +353,13 @@ public class TransactionServiceImpl implements TransactionService{
         return transactionMapper.toDTO(transaction);
     }
 
-    @Override
-    public List<TransactionDTO> getAccountTransactions(String accountNumber) {
-        List<Transaction> transactionList = transactionRepository.getAccountTransactions(accountNumber);
-        return transactionList.stream()
-                .map(transaction -> transactionMapper.toDTO(transaction)).collect(Collectors.toList());
-    }
+
+//    @Override
+//    public List<TransactionDTO> getAccountTransactions(String accountNumber) {
+//        List<Transaction> transactionList = transactionRepository.getAccountTransactions(accountNumber);
+//        return transactionList.stream()
+//                .map(transaction -> transactionMapper.toDTO(transaction)).collect(Collectors.toList());
+//    }
 
     @Override
     public TransactionDTO getTransactionByTransactionCode(String referenceCode) {
@@ -364,7 +368,34 @@ public class TransactionServiceImpl implements TransactionService{
         return transactionMapper.toDTO(transaction);
     }
 
-//    Kiểm tra thông tin Transaction
+    @Override
+    public Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable) {
+        return transactionRepository.findByAccountNumber(accountNumber, pageable)
+                .map(transactionMapper::toDTO);
+    }
+
+    @Override
+    public TransactionDTO withdrawAccountSaving(WithdrawAccountSavingRequest depositAccountSavingRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(depositAccountSavingRequest.getToAccountNumber());
+        transaction.setAmount(depositAccountSavingRequest.getAmount());
+        transaction.setDescription(depositAccountSavingRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(depositAccountSavingRequest.getCurrency()));
+        transaction.setType(TransactionType.WITHDRAW_ACCOUNT_SAVING);
+
+        transaction.setFromAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
         log.info("from account number : "+transaction.getFromAccountNumber());
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
@@ -387,7 +418,7 @@ public class TransactionServiceImpl implements TransactionService{
                 throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
             }
 
-            if (!toAccount.getAccountType().equals("PAYMENT")) {
+            if (!toAccount.getAccountType().equals("MASTER")) {
                 throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
             }
         }

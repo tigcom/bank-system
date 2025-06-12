@@ -42,6 +42,10 @@ core-banking:
   base-url: http://localhost:8083/corebanking
 
 dubbo:
+  provider:
+    filter: -contextHolderAuthenticationResolverFilter
+  consumer:
+    filter: -contextHolderAuthenticationResolverFilter
   application:
     name: account-service
     qos-enable: false
