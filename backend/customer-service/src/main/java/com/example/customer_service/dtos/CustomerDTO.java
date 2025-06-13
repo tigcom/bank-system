@@ -1,6 +1,7 @@
 package com.example.customer_service.dtos;
 
-import com.example.customer_service.models.CustomerStatus;
+
+import com.example.common_service.constant.CustomerStatus;
 import lombok.Data;
 
 @Data

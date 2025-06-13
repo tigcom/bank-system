@@ -25,7 +25,7 @@ public class CoreTransaction {
     @Column(name = "amount")
     private BigDecimal amount;
 
-    @Column(name = "transaction_type", length = 20)
+    @Column(name = "transaction_type", length = 50)
     private String transactionType;
 
     @Column(name = "status", length = 20)

@@ -1,6 +1,6 @@
 package com.example.customer_service.dtos;
 
-import com.example.customer_service.models.CustomerStatus;
+import com.example.common_service.constant.CustomerStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
