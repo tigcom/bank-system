@@ -11,6 +11,7 @@ import com.example.customer_service.repositories.CustomerRepository;
 import com.example.customer_service.repositories.KycProfileRepository;
 import com.example.customer_service.responses.*;
 import com.example.customer_service.services.CustomerService;
+import com.example.customer_service.services.KycService;
 import com.example.customer_service.ultils.MessageKeys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,6 +51,8 @@ public class CustomerController {
     private static final Logger log = LoggerFactory.getLogger("ACCESS_LOG");
 
     private final CustomerService customerService;
+
+    private final KycService kycService;
 
     private final MessageSource messageSource;
 
@@ -138,10 +141,14 @@ public class CustomerController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerListResponse.class)))
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
-    public ResponseEntity<?> getCustomerList() {
+    public ResponseEntity<?> getCustomerList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String keyword
+    ) {
         try {
-            log.info("Fetching customer list");
-            CustomerListResponse response = customerService.getCustomerList();
+            log.info("Fetching customer list - page: {}, size: {}, search: {}", page, size, keyword);
+            CustomerListResponse response = customerService.getCustomerList(page, size, keyword);
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
@@ -152,6 +159,7 @@ public class CustomerController {
                     .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
+
 
     @Operation(summary = "Lấy thông tin chi tiết khách hàng", description = "Truy vấn khách hàng khi đăng nhập")
     @ApiResponses({
@@ -231,7 +239,7 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Response.class))),
             @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
     })
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     @PutMapping("/update")
     public ResponseEntity<?> updateCustomer(@Valid @RequestBody UpdateCustomerDTO request) {
         try {
@@ -279,25 +287,13 @@ public class CustomerController {
             String userId = authentication.getName();
 
             log.info("Kiểm tra trạng thái KYC cho userId: {}", userId);
-            Customer customer = customerRepository.findCustomerByUserId(userId);
+            KycResponse response = kycService.getKycStatus(userId);
 
-            if (customer == null) {
-                return ResponseEntity
-                        .badRequest()
-                        .body(ApiResponseWrapper.error("Không tìm thấy người dùng"));
-            }
-
-            Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
-            boolean isKycVerified = kycProfileOpt.isPresent() && KycStatus.VERIFIED.equals(kycProfileOpt.get().getStatus());
-
-            System.out.println(isKycVerified);
-
-            KycResponse response = new KycResponse(
-                    isKycVerified,
-                    isKycVerified ? "Tài khoản đã được xác minh KYC" : "Tài khoản chưa được xác minh KYC",
-                    null
-            );
             return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
         } catch (Exception e) {
             log.error("Kiểm tra trạng thái KYC thất bại, Lỗi: {}", e.getMessage());
             return ResponseEntity

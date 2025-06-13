@@ -34,6 +34,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -490,7 +494,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerListResponse getCustomerList() {
+    public CustomerListResponse getCustomerList(int page, int size, String keyword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
@@ -498,14 +502,29 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BusinessException(getMessage(MessageKeys.ADMIN_ONLY));
         }
 
-        List<CustomerResponse> customers = customerRepository.findAll()
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Customer> customerPage;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            customerPage = customerRepository.searchCustomers(keyword.trim(), pageable);
+        } else {
+            customerPage = customerRepository.findAll(pageable);
+        }
+
+        List<CustomerResponse> customerResponses = customerPage.getContent()
                 .stream()
                 .map(this::toCustomerResponse)
                 .collect(Collectors.toList());
+
         CustomerListResponse response = new CustomerListResponse();
-        response.setCustomers(customers);
+        response.setCustomers(customerResponses);
+        response.setTotalElements(customerPage.getTotalElements());
+        response.setTotalPages(customerPage.getTotalPages());
+        response.setCurrentPage(customerPage.getNumber());
+
         return response;
     }
+
 
     @Override
     public CustomerResponse getCustomerDetail(String userId) {
@@ -642,15 +661,31 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BusinessException(getMessage(MessageKeys.CLOSED_ACCOUNT_STATUS));
         }
 
-        if (!customer.getStatus().equals(newStatus)) {
+        if (customer.getStatus().equals(newStatus)) {
+            log.info("No status change needed for CIF: {}", customer.getCifCode());
+            return new ApiResponseWrapper<>(HttpStatus.OK.value(), getMessage(MessageKeys.SUCCESS_UPDATE), customer.getStatus());
+        }
 
-            customer.setStatus(newStatus);
-            customerRepository.save(customer);
+        // Cập nhật trạng thái
+        customer.setStatus(newStatus);
+        customerRepository.save(customer);
+        log.info("Updated customer status for CIF: {} from {} to {}", customer.getCifCode(), customer.getStatus(), newStatus);
 
-            KycResponse kycResponse = kycService.verifyIdentity(
-                    customer.getIdentityNumber(),
-                    customer.getFullName()
-            );
+        // Cập nhật KYC tương ứng với status
+        KycStatus kycStatusToUpdate = switch (newStatus) {
+            case ACTIVE -> KycStatus.VERIFIED;
+            case SUSPENDED -> KycStatus.PENDING;
+            case CLOSED -> KycStatus.REJECTED;
+            default -> null;
+        };
+
+        if (kycStatusToUpdate != null) {
+            KycResponse kycResponse = new KycResponse();
+            kycResponse.setVerified(kycStatusToUpdate == KycStatus.VERIFIED);
+            kycResponse.setStatus(kycStatusToUpdate);
+            kycResponse.setMessage("Updated due to status change: " + newStatus);
+            kycResponse.setDetails("{\"auto_update\": true}");
+
             kycService.saveKycInfo(
                     customer.getCustomerId(),
                     kycResponse,
@@ -660,19 +695,21 @@ public class CustomerServiceImpl implements CustomerService {
                     customer.getGender().toString()
             );
 
-            CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
-                    .cifCode(customer.getCifCode())
-                    .status(customer.getStatus().toString())
-                    .build();
-
-            log.info("Syncing customer status for CIF: {}", customer.getCifCode());
-            CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
-            if (!coreResponse.isSuccess()) {
-                log.error("Failed to sync customer status for CIF: {}. Error: {}", customer.getCifCode(), coreResponse.getMessage());
-                throw new BusinessException(getMessage(MessageKeys.STATUS_SYNC_FAILED, coreResponse.getMessage()));
-            }
-            log.info("Successfully synced customer status for CIF: {}", customer.getCifCode());
+            log.info("KYC status updated to {} for CIF: {}", kycStatusToUpdate, customer.getCifCode());
         }
+
+        CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
+                .cifCode(customer.getCifCode())
+                .status(customer.getStatus().toString())
+                .build();
+
+        log.info("Syncing customer status for CIF: {}", customer.getCifCode());
+        CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
+        if (!coreResponse.isSuccess()) {
+            log.error("Failed to sync customer status for CIF: {}. Error: {}", customer.getCifCode(), coreResponse.getMessage());
+            throw new BusinessException(getMessage(MessageKeys.STATUS_SYNC_FAILED, coreResponse.getMessage()));
+        }
+        log.info("Successfully synced customer status for CIF: {}", customer.getCifCode());
 
         return new ApiResponseWrapper<>(HttpStatus.OK.value(), getMessage(MessageKeys.SUCCESS_UPDATE), customer.getStatus());
     }

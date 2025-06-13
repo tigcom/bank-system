@@ -8,6 +8,8 @@ public interface KycService {
 
     KycResponse verifyIdentity(String identityNumber, String fullName);
 
+    KycResponse getKycStatus(String userId);
+
     void saveKycInfo(Long customerId, KycResponse kycResponse, String identityNumber, String fullName,
                      LocalDate dateOfBirth, String gender);
 }

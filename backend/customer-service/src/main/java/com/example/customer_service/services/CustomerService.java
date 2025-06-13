@@ -11,7 +11,7 @@ public interface CustomerService {
 
     Response forgotPassword(String email);
 
-    CustomerListResponse getCustomerList();
+    CustomerListResponse getCustomerList(int page, int size, String keyword);
 
     CustomerResponse getCustomerDetail(String userId);
 
