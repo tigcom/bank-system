@@ -13,15 +13,13 @@ import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
-import com.example.transaction_service.dto.response.ApiResponse;
-import com.example.transaction_service.dto.response.FilterMetadataResponse;
-import com.example.transaction_service.dto.response.FilterOptionDTO;
-import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
+import com.example.transaction_service.dto.response.*;
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.*;
 import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
 import com.example.transaction_service.filter.TransactionSpecification;
+import com.example.transaction_service.gateways.ProviderGateway;
 import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
@@ -33,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.plaf.synth.SynthTabbedPaneUI;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -73,11 +74,13 @@ public class TransactionServiceImpl implements TransactionService{
     @DubboReference
     private final CommonService commonService;
 
+    private final Map<String, ProviderGateway> providerGateways; // Spring sẽ tự inject tất cả các Bean ProviderGateway vào Map này với key là tên bean
     private final RedisTemplate<String,String> redisTemplate;
 
     private final StreamBridge streamBridge;
 
-    private final String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
+    @Value("${core-banking.api.url}")
+    private String URL_CORE_BANK;
 
     @Value("${masterAccount}")
     private String masterAccount;
@@ -87,6 +90,7 @@ public class TransactionServiceImpl implements TransactionService{
     private RestTemplate restTemplate;
     @Override
     @Transactional
+    @CacheEvict(value = "latestRecipients", key = "#transferRequest.fromAccountNumber")
     public TransactionDTO transfer(TransferRequest transferRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(transferRequest.getFromAccountNumber());
@@ -151,13 +155,13 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     @Transactional
-    public TransactionDTO payBill(PaymentRequest repaymentRequest) {
+    public TransactionDTO payBillLoan(LoanPaymentRequest repaymentRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(repaymentRequest.getFromAccountNumber());
         transaction.setAmount(repaymentRequest.getAmount());
         transaction.setDescription(repaymentRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(repaymentRequest.getCurrency()));
-        transaction.setType(TransactionType.PAY_BILL);
+        transaction.setType(TransactionType.LOAN_PAYMENT);
 
         transaction.setToAccountNumber(masterAccount);
 
@@ -169,6 +173,51 @@ public class TransactionServiceImpl implements TransactionService{
             log.error("Dubbo provider not available or registry issue: " + rpcEx.getMessage());
             throw rpcEx;
         }
+//      khởi tạo transaction
+        initTransaction(transaction);
+        transactionRepository.save(transaction);
+
+//        Gửi OTP
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public BillDetailsResponse checkBill(BillCheckRequest request) {
+        ProviderGateway gateway = providerGateways.get(request.getBillType());
+        if (gateway == null) {
+            throw new AppException(ErrorCode.UNSUPPORTED_OPERATION);
+        }
+        BillDetailsResponse response = gateway.checkBill(request.getCustomerCode());
+
+        return response;
+    }
+
+    @Override
+    public TransactionDTO payBill(BillPaymentRequest request) {
+        BillDetailsResponse response = checkBill(BillCheckRequest.builder()
+                .billType(request.getBillType())
+                .customerCode(request.getCustomerCode())
+                .build());
+        if(response==null) throw new AppException(ErrorCode.BILL_NOT_FOUND);
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(request.getFromAccountNumber());
+        transaction.setAmount(response.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(request.getCurrency()));
+        transaction.setBillType(request.getBillType());
+        transaction.setBillCustomerCode(request.getCustomerCode());
+        transaction.setBillProviderCode(response.getProvider());
+        transaction.setBillId(response.getBillId());
+        transaction.setType(TransactionType.PAY_BILL);
+
+        transaction.setToAccountNumber(masterAccount);
+
+        //      Validate
+        validateTransaction(transaction);
+
 //      khởi tạo transaction
         initTransaction(transaction);
         transactionRepository.save(transaction);
@@ -402,6 +451,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Cacheable(value = "TransactionDetail", key = "#referenceCode")
     public TransactionDTO getTransactionByTransactionCode(String referenceCode) {
         Transaction transaction = transactionRepository.findByReferenceCode(referenceCode);
         if(transaction==null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
@@ -409,6 +459,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Cacheable(value = "latestRecipients", key = "#fromAccountNumber")
     public List<InforTransactionLatestResponse> getListToAccountNumberLatest(String fromAccountNumber) {
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(fromAccountNumber);
         if (fromAccount==null) {
@@ -439,6 +490,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Cacheable("filterMetadata")
     public FilterMetadataResponse getFilterMetadata() {
         List<FilterOptionDTO> types = Arrays.stream(TransactionType.values())
                 .map(type->  FilterOptionDTO.builder()
@@ -475,6 +527,7 @@ public class TransactionServiceImpl implements TransactionService{
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
 
+
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -482,6 +535,24 @@ public class TransactionServiceImpl implements TransactionService{
         if (toAccount==null) {
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
         }
+
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
+        if (fromCustomer==null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
+        }
+
+        if (toCustomer==null) {
+            throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
+        }
+
+        if(!fromCustomer.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
+        }
+        if(!toCustomer.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.TO_CUSTOMER_NOT_ACTIVE);
+        }
+
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
                 TransactionType.PAY_BILL).contains(transaction.getType())) {
             if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
@@ -517,22 +588,7 @@ public class TransactionServiceImpl implements TransactionService{
         if(!toAccount.getStatus().equals("ACTIVE")){
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
         }
-        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
-        CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
-        if (fromCustomer==null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
-        }
 
-        if (toCustomer==null) {
-            throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
-        }
-
-        if(!fromCustomer.getStatus().name().equals("ACTIVE")){
-            throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
-        }
-        if(!toCustomer.getStatus().name().equals("ACTIVE")){
-            throw new AppException(ErrorCode.TO_CUSTOMER_NOT_ACTIVE);
-        }
 
         if (transaction.getFromAccountNumber().equals(transaction.getToAccountNumber())) {
             throw new AppException(ErrorCode.SAME_ACCOUNT_TRANSFER);
@@ -612,6 +668,7 @@ public class TransactionServiceImpl implements TransactionService{
                     .status(transaction.getStatus().name())
                     .timestamp(transaction.getTimestamp())
                     .type(transaction.getType().name())
+                    .referenceCode(transaction.getReferenceCode())
                     .build();
             String url = URL_CORE_BANK+"/perform-transaction";
 
@@ -632,12 +689,26 @@ public class TransactionServiceImpl implements TransactionService{
             ApiResponse<CommonTransactionDTO> apiResponse = responseEntity.getBody();
             if(apiResponse.getCode()==200){
                 transaction.setStatus(TransactionStatus.COMPLETED);
+                if(transaction.getType()==TransactionType.PAY_BILL){
+                    System.out.println(transaction.getType());
+                    ProviderGateway gateway = providerGateways.get(transaction.getBillType());
+                    ProviderPaymentRequest providerPaymentRequest = ProviderPaymentRequest.builder()
+                            .customerCode(transaction.getBillCustomerCode())
+                            .billId(transaction.getBillId())
+                            .paymentTimestamp(transaction.getTimestamp())
+                            .bankTransactionReference(transaction.getReferenceCode())
+                            .amount(transaction.getAmount())
+                            .build();
+                    ProviderPaymentResponse response = gateway.payBill(providerPaymentRequest);
+                    transaction.setProviderTransactionId(response.getProviderTransactionId());
+
+                }
+
             }else {
                 transaction.setStatus(TransactionStatus.FAILED);
                 transaction.setFailedReason(apiResponse.getMessage());
             }
         } catch (HttpClientErrorException e) {
-            // Lấy body lỗi trả về dạng JSON
             String errorBody = e.getResponseBodyAsString();
 
             String failedReason = "Lỗi không xác định";
@@ -664,9 +735,44 @@ public class TransactionServiceImpl implements TransactionService{
 
         } catch (Exception ex) {
             transaction.setStatus(TransactionStatus.FAILED);
-            transaction.setFailedReason("Lỗi hệ thống");
+            transaction.setFailedReason(ex.getMessage());
+            if(transaction.getType()==TransactionType.PAY_BILL){
+                TransactionRequest reverseRequest = TransactionRequest.builder()
+                        .fromAccountNumber(transaction.getFromAccountNumber())
+                        .toAccountNumber(transaction.getToAccountNumber())
+                        .amount(transaction.getAmount())
+                        .type(TransactionType.REFUND.name())
+                        .timestamp(LocalDateTime.now())
+                        .description("Hoàn trả tiền thanh toán hóa đơn")
+                        .referenceCode(transaction.getReferenceCode())
+                        .build();
+                String url = URL_CORE_BANK+"/reverse-transaction";
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(reverseRequest, headers);
+//          Định nghĩa kiểu dữ liệu trả về
+                ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>> responseType =
+                        new ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>>() {};
+
+//          Gửi POST request
+                ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        httpEntity,
+                        responseType
+                );
+                ApiResponse<CommonTransactionDTO> refundResponse = responseEntity.getBody();
+                if (refundResponse == null || refundResponse.getCode() != 200) {
+                    log.error("Hoàn tiền thất bại cho giao dịch {} - response lỗi: {}", transaction.getReferenceCode(), refundResponse);
+                } else {
+                    log.info("Đã hoàn tiền thành công cho giao dịch {}", transaction.getReferenceCode());
+                }
+            }
             log.error("Unexpected error:", ex);
         }
 
     }
+
+
 }

@@ -8,6 +8,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface TransactionMapper {
 
+    @Mapping(target = "billProviderCode", source = "billProviderCode")
+    @Mapping(target = "providerTransactionId", source = "providerTransactionId")
+    @Mapping(target = "billType", source = "billType")
+    @Mapping(target = "billCustomerCode", source = "billCustomerCode")
+    @Mapping(target = "billId", source = "billId")
     @Mapping(target = "failedReason", source = "failedReason")
     @Mapping(target = "bankType", source = "bankType")
     @Mapping(target = "createdAt", source = "createdAt")

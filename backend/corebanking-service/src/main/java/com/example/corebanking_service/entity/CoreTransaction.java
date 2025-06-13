@@ -34,6 +34,11 @@ public class CoreTransaction {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
+    @Column(name = "reference_code")
+    private String referenceCode;
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "from_account")
     private CoreAccount fromAccount;

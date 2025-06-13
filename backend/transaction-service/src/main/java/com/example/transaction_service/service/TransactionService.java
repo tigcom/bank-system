@@ -4,6 +4,7 @@ import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
+import com.example.transaction_service.dto.response.BillDetailsResponse;
 import com.example.transaction_service.dto.response.FilterMetadataResponse;
 import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
 import com.example.transaction_service.entity.Transaction;
@@ -15,7 +16,10 @@ public interface TransactionService {
     TransactionDTO transfer(TransferRequest transferRequest);
     TransactionDTO deposit(DepositRequest depositRequest);
     TransactionDTO withdraw(WithdrawRequest withdrawRequest);
-    TransactionDTO payBill(PaymentRequest repaymentRequest);
+    TransactionDTO payBillLoan(LoanPaymentRequest repaymentRequest);
+    BillDetailsResponse checkBill(BillCheckRequest request);
+
+    TransactionDTO payBill(BillPaymentRequest request);
     TransactionDTO disburse(DisburseRequest disburseRequest);
     TransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest);
     TransactionDTO confirmTransaction(ConfirmTransactionRequest confirmTransactionRequest);

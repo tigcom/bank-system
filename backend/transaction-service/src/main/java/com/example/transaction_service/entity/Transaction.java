@@ -68,6 +68,20 @@ public class Transaction {
     @Column(length = 500)
     private String failedReason;
 
+    @Column
+    private String billProviderCode;
+
+    @Column
+    private String billType;
+    @Column
+    private String billId;
+
+    @Column
+    private String billCustomerCode;
+
+    @Column
+    private String providerTransactionId;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

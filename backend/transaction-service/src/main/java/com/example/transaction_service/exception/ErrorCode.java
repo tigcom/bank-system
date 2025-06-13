@@ -28,6 +28,11 @@ public enum ErrorCode {
     CUSTOMER_NOT_EXIST(400,"Khách hàng không tồn tại" ),
     TIME_OUT(400,"Quá thời gian cho phép của giao dịch" ),
     TRANSACTION_FAILED(400,"Giao dịch thất bại" ),
+    UNSUPPORTED_OPERATION(400,"Loại bill chưa được hỗ tro" ),
+    BILL_NOT_FOUND(400,"Không tìm thấy hóa đơn" ),
+    PROVIDER_SERVER_ERROR(500,"Lỗi từ server" ),
+    PROVIDER_PAYMENT_FAILED(400,"Thanh toán thất bại" ),
+    BILL_PAID(400,"Hóa đơn đã được thanh toán" ),
     BANK_CODE_VALID(400,"Mã ngân hàng không hợp lệ" );
 
     private final int code;

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 @DubboService
@@ -59,6 +60,8 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
                 .status("COMPLETED")
                 .fromAccount(fromAccount)
                 .toAccount(toAccount)
+                .referenceCode(request.getReferenceCode())
+                .description(request.getDescription())
                 .build();
         transactionRepo.save(transaction);
         CommonTransactionDTO transactionDTO = CommonTransactionDTO.builder()
@@ -68,6 +71,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
                 .status(transaction.getStatus())
                 .fromAccountNumber(transaction.getFromAccount().getAccountNumber())
                 .toAccountNumber(transaction.getToAccount().getAccountNumber())
+                .referenceCode(transaction.getReferenceCode())
                 .build();
         return transactionDTO;
     }
@@ -82,6 +86,38 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
             throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVE);
         }
         return account.getBalance();
+    }
+
+    @Override
+    @Transactional
+    public void reverseTransaction(TransactionRequest request) {
+        CoreAccount fromAccount = accountRepo.findByAccountNumber(request.getFromAccountNumber());
+        CoreAccount toAccount = accountRepo.findByAccountNumber(request.getToAccountNumber());
+        if (fromAccount == null ) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+        if (toAccount == null) {
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
+        }
+        if(!fromAccount.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_ACTIVE);
+        }
+        if(!toAccount.getStatus().name().equals("ACTIVE")){
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
+        }
+        debit(toAccount,request.getAmount());
+        credit(fromAccount,request.getAmount());
+        CoreTransaction reverseTransaction = CoreTransaction.builder()
+                .fromAccount(fromAccount)
+                .toAccount(toAccount)
+                .amount(request.getAmount())
+                .transactionType(request.getType())
+                .timestamp(LocalDateTime.now())
+                .status("COMPLETED")
+                .referenceCode(request.getReferenceCode())
+                .description(request.getDescription())
+                .build();
+        transactionRepo.save(reverseTransaction);
     }
 
     //    Trừ tiền tài khoản nguồn

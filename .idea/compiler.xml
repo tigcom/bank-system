@@ -10,6 +10,7 @@
         <module name="Notification-service" />
         <module name="common-service" />
         <module name="customer-service" />
+        <module name="mock-provider-server" />
         <module name="corebanking-service" />
         <module name="loan-service" />
         <module name="api-gateway" />
@@ -37,6 +38,7 @@
       <module name="corebanking-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
+      <module name="mock-provider-server" options="-parameters" />
       <module name="transaction-service" options="-parameters" />
     </option>
   </component>

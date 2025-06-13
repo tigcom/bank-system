@@ -105,7 +105,9 @@ services:
       export VAULT_ADDR=http://vault-server:8200;
       export VAULT_TOKEN=myroot;
       vault secrets enable -path=secret kv-v2 || true;
-      vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=970452999999999;
+      vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=970452999999999
+      provider.api.electricity.url=http://localhost:8089/mock-api/electricity provider.api.telephone.url=http://localhost:8089/mock-api/telephone
+      core-banking.api.url=http://localhost:8083/corebanking/api/core-bank;
       "
 
   redis:

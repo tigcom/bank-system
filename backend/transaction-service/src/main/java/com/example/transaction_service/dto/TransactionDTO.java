@@ -1,6 +1,7 @@
 package com.example.transaction_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -63,6 +64,15 @@ public class TransactionDTO {
     private String failedReason;
 
     private String bankType;
+
+    private String billProviderCode;
+
+    private String billType;
+
+    private String billId;
+
+    private String billCustomerCode;
+    private String providerTransactionId;
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

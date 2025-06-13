@@ -8,4 +8,6 @@ import java.math.BigDecimal;
 public interface CoreTransactionService {
     CommonTransactionDTO performTransfer(TransactionRequest request);
     BigDecimal getBalance(String accountNumber);
+
+    void reverseTransaction(TransactionRequest request);
 }

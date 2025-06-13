@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/backend/transaction-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/common-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/notification-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/mock-provider-server/pom.xml" />
       </list>
     </option>
   </component>

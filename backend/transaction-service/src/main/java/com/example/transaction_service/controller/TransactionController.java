@@ -4,8 +4,10 @@ package com.example.transaction_service.controller;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.ApiResponse;
+import com.example.transaction_service.dto.response.BillDetailsResponse;
 import com.example.transaction_service.dto.response.FilterMetadataResponse;
 import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
+import com.example.transaction_service.service.ReconciliationService;
 import com.example.transaction_service.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,8 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.hc.core5.http.HttpStatus;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.List;
 @Tag(name = "Giao dịch", description = "Các API xử lý giao dịch tài khoản như chuyển tiền, nạp tiền, rút tiền, thanh toán hóa đơn...")
 public class TransactionController {
     private final TransactionService transactionService;
+    private final ReconciliationService reconciliationService;
 
     @Operation(summary = "Chuyển khoản", description = "Chuyển tiền từ tài khoản nguồn đến tài khoản đích.")
     @ApiResponses(value = {
@@ -169,7 +170,7 @@ public class TransactionController {
                     "description": "Thanh toán hóa đơn ",
                     "timestamp": "2025-05-29T10:44:43.419631",
                     "status": "COMPLETED",
-                    "type": "PAY_BILL",
+                    "type": "LOAN_PAYMENT",
                     "currency": "VND",
                     "referenceCode": "TXN-970452999999999-20250529104443f6e662cf",
                     "failedReason": ""
@@ -180,12 +181,12 @@ public class TransactionController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc OTP sai")
     })
-    @PostMapping("/pay-bill")
-    public ApiResponse<TransactionDTO> payBill(@RequestBody @Valid PaymentRequest request) {
+    @PostMapping("/loan-payment")
+    public ApiResponse<TransactionDTO> loanPayment(@RequestBody @Valid LoanPaymentRequest request) {
         return ApiResponse.<TransactionDTO>builder()
                 .code(200)
                 .message("Thanh toán hóa đơn")
-                .result(transactionService.payBill(request))
+                .result(transactionService.payBillLoan(request))
                 .build();
     }
 
@@ -360,6 +361,44 @@ public class TransactionController {
                 .result(transactionService.getTransactionByTransactionCode(referenceCode))
                 .build();
     }
+//    Thanh toán hóa đơn
+    @PostMapping("/payments/bills/check")
+    @Operation(summary = "Kiểm tra thông tin hóa đơn", description = "Lấy thông tin chi tiết của một hóa đơn từ nhà cung cấp dựa trên mã khách hàng.")
+    public ApiResponse<BillDetailsResponse> checkBill(@RequestBody BillCheckRequest request) {
+    BillDetailsResponse billDetail = transactionService.checkBill(request);
+
+    if(billDetail==null) {
+        return ApiResponse.<BillDetailsResponse>builder()
+                .code(400)
+                .message("Không tìm thấy hóa đơn")
+                .result(null)
+                .build();
+    }
+    return ApiResponse.<BillDetailsResponse>builder()
+            .code(200)
+            .message("Thông tin hóa đơn")
+            .result(billDetail)
+            .build();
+    }
+    @PostMapping("/payments/bills/pay")
+    @Operation(summary = "Thực hiện thanh toán hóa đơn", description = "Xác nhận và thanh toán cho một hóa đơn đã được kiểm tra.")
+    public ApiResponse<TransactionDTO> payBill(@RequestBody BillPaymentRequest request) {
+        return ApiResponse.<TransactionDTO>builder()
+                .code(200)
+                .message("Thanh toán hóa đơn")
+                .result(transactionService.payBill(request))
+                .build();
+    }
+
+    @GetMapping("getDailyPaymentTransaction")
+    public ApiResponse<Void> getDailyPaymentTransaction() {
+        reconciliationService.getDailyPaymentTransaction();
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message("Thực hien doi soat")
+                .build();
+    }
+
     @GetMapping("/get-latest-transaction/{fromAccountNumber}")
     public ApiResponse<List<InforTransactionLatestResponse>> getListToAccountNumberLatest(@PathVariable String fromAccountNumber ){
         return ApiResponse.<List<InforTransactionLatestResponse>>builder()

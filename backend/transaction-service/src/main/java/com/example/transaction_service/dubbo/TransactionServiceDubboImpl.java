@@ -17,13 +17,13 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
 
     @Override
     public CommonTransactionDTO loanPayment(PayRepaymentRequest paymentRequest) {
-        PaymentRequest request = PaymentRequest.builder()
+        LoanPaymentRequest request = LoanPaymentRequest.builder()
                 .fromAccountNumber(paymentRequest.getFromAccountNumber())
                 .amount(paymentRequest.getAmount())
                 .currency(paymentRequest.getCurrency())
                 .description(paymentRequest.getDescription())
                 .build();
-        TransactionDTO transactionDTO = transactionService.payBill(request);
+        TransactionDTO transactionDTO = transactionService.payBillLoan(request);
         return toCommonTransactionDTO(transactionDTO);
     }
 

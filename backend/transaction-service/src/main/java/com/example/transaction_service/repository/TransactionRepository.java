@@ -38,7 +38,13 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
     nativeQuery = true)
     List<String> getListToAccountNumberLatest(String fromAccountNumber);
 
-
+    @Query(value = "SELECT * FROM tbl_transaction t\n" +
+            "WHERE t.type = 'PAY_BILL' \n" +
+            "    AND t.status = 'COMPLETED'\n" +
+            "    AND t.timestamp >= :startOfDay AND t.timestamp < :endOfDay",
+    nativeQuery = true)
+    List<Transaction> getDailyPaymentTransaction(@Param("startOfDay") LocalDateTime startOfDay,
+                                                 @Param("endOfDay") LocalDateTime endOfDay);
 
     
 }
