@@ -3,4 +3,4 @@
 /workspace.xml
 .idea/
 # Ignore all .log files
-*.log
+*.logs

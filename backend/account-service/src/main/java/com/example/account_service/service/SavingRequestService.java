@@ -23,7 +23,7 @@ public interface SavingRequestService {
 
     List<CoreTermDTO> getAllTerm();
 
-    withdrawSavingResponse createWithDrawRequest(@Valid WithdrawSavingDTO request);
+    withdrawSavingResponse createWithDrawRequest( WithdrawSavingDTO request);
 
     withdrawSavingResponse confirmOTPAndProcessWithdraw(ConfirmRequestDTO confirmRequestDTO);
 }
