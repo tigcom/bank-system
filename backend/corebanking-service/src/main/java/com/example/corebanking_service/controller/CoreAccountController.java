@@ -8,9 +8,6 @@ import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 
@@ -18,49 +15,13 @@ public class CoreAccountController {
     private final CoreAccountService coreAccountService;
     private final CoreAccountRepo coreAccountRepo;
 
-    @PostMapping("/create-payment-account")
-    public void createPaymentAccount(@RequestBody CorePaymentAccountDTO corePaymentAccountDTO) {
-        coreAccountService.createCoreAccountPayment(corePaymentAccountDTO);
+    @PostMapping("/save-account")
+    public void createAccount(@RequestBody CoreAccountRequest accountRequest) {
+        coreAccountService.createCoreAccount(accountRequest);
     }
-    @PostMapping("/create-savings-account")
-    public void createSavingsAccount(@RequestBody CoreSavingAccountDTO coreSavingAccountDTO) {
-        coreAccountService.createCoreAccountSaving(coreSavingAccountDTO);
-    }
-    @PostMapping("/create-credit-account")
-    public void createCreditAccount(@RequestBody coreCreditAccountDTO coreCreditAccountDTO) {
-        coreAccountService.createCoreAccountCredit(coreCreditAccountDTO);
-    }
-    @GetMapping("/get-cart-type/{id}")
-    public CartTypeDTO  getCardInfoByID(@PathVariable String id) {
-         return  coreAccountService.getCartTypebyID(id);
-    }
-
-    @GetMapping("get-all-credit-card")
-    public List<CreditCardDTO> getallCreditCard() {
-        return coreAccountService.getAllCreditCard();
-    }
-    @GetMapping("/get-all-account-by-cifcode/{id}")
-    public List<AccountSummaryDTO> getAllAccountByCifCode(@PathVariable String id) {
-        List<AccountSummaryDTO> list = coreAccountService.getAllAccountsByCif(id);
-        return list;
-    }
-    @GetMapping("/get-all-paymentaccount-by-cifcode/{id}")
-    public List<AccountPaymentResponse> getAllPaymentAccountByCifCode(@PathVariable String id) {
-        List<AccountPaymentResponse> list = coreAccountService.getAllPaymentAccountsByCif(id);
-        return list;
-    }
-    @GetMapping("/get-all-term-isactive")
-    public List<CoreTermDTO> getAllTermIsactive() {
-        return coreAccountService.getAllCoreTerm();
-    }
-
-    @GetMapping("/get-account-by-id/{id}")
-    public AccountPaymentResponse getAccountByAccountNumber(@PathVariable String id) {
-        return  coreAccountService.getAccountPayment(id);
-    }
-    @GetMapping("/get-all-saving-account/{cifCode}")
-    public List<SavingAccountResponse> getAllSavingAccountByCifCode(@PathVariable String cifCode) {
-        return coreAccountService.getSavingAccount(cifCode);
+    @GetMapping("/get-balance-by-accountNumber/{accountNumber}")
+    public BalanceResponse getBalanceByAccountNumber(@PathVariable String accountNumber) {
+        return coreAccountService.getBalanceByAccountNumber(accountNumber);
     }
     @PutMapping("/update-balance-account-saving/{accountNumber}")
     public AccountSavingUpdateResponse updateBalance(@PathVariable String accountNumber, @RequestBody SavingUpdateRequest request)
