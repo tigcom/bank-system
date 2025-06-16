@@ -19,6 +19,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component("TELEPHONE")
 @Slf4j
@@ -33,10 +35,12 @@ public class TelephoneGatewayImpl implements ProviderGateway {
     }
 
     @Override
-    public BillDetailsResponse checkBill(String customerCode) {
+    public BillDetailsResponse checkBill(String customerCode, String provider) {
         // Giả sử endpoint của nhà cung cấp điện thoại là /query
         String fullUrl = this.apiUrl + "/query";
-        var requestBody = Collections.singletonMap("customerCode", customerCode);
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("customerCode", customerCode);
+        requestBody.put("provider", provider);
         HttpEntity<Object> entity = new HttpEntity<>(requestBody);
 
         try {

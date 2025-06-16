@@ -20,6 +20,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component("ELECTRICITY")
 @Slf4j
@@ -34,10 +36,12 @@ public class ElectricityGatewayImpl implements ProviderGateway {
     }
 
     @Override
-    public BillDetailsResponse checkBill(String customerCode) {
+    public BillDetailsResponse checkBill(String customerCode,String provider) {
         // Đây là code gateway hoàn chỉnh hơn
         String fullUrl = this.apiUrl + "/check"; // Giả sử endpoint là /check
-        var requestBody = Collections.singletonMap("customerCode", customerCode);
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("customerCode", customerCode);
+        requestBody.put("provider", provider);
         HttpEntity<Object> entity = new HttpEntity<>(requestBody);
         try {
             // Gửi request tới nhà cung cấp

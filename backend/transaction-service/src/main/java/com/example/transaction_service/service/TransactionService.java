@@ -7,10 +7,12 @@ import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.BillDetailsResponse;
 import com.example.transaction_service.dto.response.FilterMetadataResponse;
 import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
+import com.example.transaction_service.dto.response.ProviderDTO;
 import com.example.transaction_service.entity.Transaction;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TransactionService {
     TransactionDTO transfer(TransferRequest transferRequest);
@@ -20,6 +22,7 @@ public interface TransactionService {
     BillDetailsResponse checkBill(BillCheckRequest request);
 
     TransactionDTO payBill(BillPaymentRequest request);
+    Map<String, List<ProviderDTO>> getGroupedProviders();
     TransactionDTO disburse(DisburseRequest disburseRequest);
     TransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest);
     TransactionDTO confirmTransaction(ConfirmTransactionRequest confirmTransactionRequest);

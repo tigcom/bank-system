@@ -3,10 +3,7 @@ package com.example.transaction_service.controller;
 
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
-import com.example.transaction_service.dto.response.ApiResponse;
-import com.example.transaction_service.dto.response.BillDetailsResponse;
-import com.example.transaction_service.dto.response.FilterMetadataResponse;
-import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
+import com.example.transaction_service.dto.response.*;
 import com.example.transaction_service.service.ReconciliationService;
 import com.example.transaction_service.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,9 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/transactions")
@@ -421,6 +420,23 @@ public class TransactionController {
                 .code(200)
                 .message("Danh sách enums")
                 .result(transactionService.getFilterMetadata())
+                .build();
+    }
+    @GetMapping("/paybill/providers")
+    public ApiResponse<Map<String, List<ProviderDTO>>> getAvailableProviders() {
+        Map<String, List<ProviderDTO>> providers = transactionService.getGroupedProviders();
+
+        if (providers.isEmpty()) {
+            return ApiResponse.<Map<String, List<ProviderDTO>>>builder()
+                    .code(400)
+                    .message("Không có dữ liệu")
+                    .result(null)
+                    .build();
+        }
+        return ApiResponse.<Map<String, List<ProviderDTO>>>builder()
+                .code(400)
+                .message("Danh sách nhà cung cấp")
+                .result(providers)
                 .build();
     }
 

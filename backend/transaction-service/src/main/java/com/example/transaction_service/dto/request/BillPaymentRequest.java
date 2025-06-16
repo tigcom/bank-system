@@ -21,6 +21,9 @@ public class BillPaymentRequest {
     @NotBlank(message = "Mã khách hàng của hóa đơn không được để trống")
     private String customerCode;
 
+    @NotBlank(message = "Mã nhà cung cấp của hóa đơn không được để trống")
+    private String provider;
+
     private String description;
 
     @NotBlank(message = "Loại tiền tệ không được để trống")

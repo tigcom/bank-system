@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class ProviderPaymentRequest {
     private String customerCode;
+    private String provider;
     private String billId;
     private BigDecimal amount;
     private String bankTransactionReference;

@@ -11,6 +11,7 @@ import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
+import com.example.transaction_service.client.ProviderClient;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.*;
@@ -79,6 +80,7 @@ public class TransactionServiceImpl implements TransactionService{
 
     private final StreamBridge streamBridge;
 
+    private final ProviderClient providerClient;
     @Value("${core-banking.api.url}")
     private String URL_CORE_BANK;
 
@@ -190,7 +192,7 @@ public class TransactionServiceImpl implements TransactionService{
         if (gateway == null) {
             throw new AppException(ErrorCode.UNSUPPORTED_OPERATION);
         }
-        BillDetailsResponse response = gateway.checkBill(request.getCustomerCode());
+        BillDetailsResponse response = gateway.checkBill(request.getCustomerCode(),request.getProvider());
 
         return response;
     }
@@ -200,6 +202,7 @@ public class TransactionServiceImpl implements TransactionService{
         BillDetailsResponse response = checkBill(BillCheckRequest.builder()
                 .billType(request.getBillType())
                 .customerCode(request.getCustomerCode())
+                .provider(request.getProvider())
                 .build());
         if(response==null) throw new AppException(ErrorCode.BILL_NOT_FOUND);
         Transaction transaction = new Transaction();
@@ -209,7 +212,7 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setCurrency(CurrencyType.valueOf(request.getCurrency()));
         transaction.setBillType(request.getBillType());
         transaction.setBillCustomerCode(request.getCustomerCode());
-        transaction.setBillProviderCode(response.getProvider());
+        transaction.setBillProviderCode(request.getProvider());
         transaction.setBillId(response.getBillId());
         transaction.setType(TransactionType.PAY_BILL);
 
@@ -227,6 +230,15 @@ public class TransactionServiceImpl implements TransactionService{
 
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public Map<String, List<ProviderDTO>> getGroupedProviders() {
+        Map<String, List<ProviderDTO>> providers = providerClient.getProviders();
+        if (providers.isEmpty()) {
+            log.warn("Service: Không nhận được dữ liệu nhà cung cấp từ ProviderClient.");
+        }
+        return providers;
     }
 
     @Override
@@ -698,6 +710,7 @@ public class TransactionServiceImpl implements TransactionService{
                             .paymentTimestamp(transaction.getTimestamp())
                             .bankTransactionReference(transaction.getReferenceCode())
                             .amount(transaction.getAmount())
+                            .provider(transaction.getBillProviderCode())
                             .build();
                     ProviderPaymentResponse response = gateway.payBill(providerPaymentRequest);
                     transaction.setProviderTransactionId(response.getProviderTransactionId());
