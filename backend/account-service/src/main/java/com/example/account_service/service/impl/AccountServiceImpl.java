@@ -194,6 +194,7 @@ public class AccountServiceImpl implements AccountService {
                 new ParameterizedTypeReference<List<AccountPaymentResponse>>() {}
         );
 
+        SecurityContextHolder.clearContext();
         // Trả về danh sách
         return response.getBody();
     }

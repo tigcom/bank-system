@@ -1,5 +1,5 @@
+export VAULT_TOKEN="myroot"
 export VAULT_ADDR="http://host.docker.internal:8200"
-export VAULT_TOKEN='myroot'
 
 vault kv put secret/customer-service \
   db-username=root \
