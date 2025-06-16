@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class CheckBillRequest {
     private String customerCode;
+    private String provider;
 }

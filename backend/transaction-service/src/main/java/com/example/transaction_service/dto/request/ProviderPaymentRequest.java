@@ -19,4 +19,5 @@ public class ProviderPaymentRequest {
     private String bankTransactionReference;
 
     private LocalDateTime paymentTimestamp;
+    private String provider;
 }
