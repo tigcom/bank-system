@@ -17,4 +17,5 @@ public class coreCreditAccountDTO implements  Serializable {
     private String cartTypeId;
     private String accountNumber;
     private BigDecimal monthlyIncome;
+    private BigDecimal creditLimit;
 }

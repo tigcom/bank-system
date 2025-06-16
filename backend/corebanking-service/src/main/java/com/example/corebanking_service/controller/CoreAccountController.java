@@ -1,9 +1,6 @@
 package com.example.corebanking_service.controller;
 
-import com.example.common_service.dto.CartTypeDTO;
-import com.example.common_service.dto.CorePaymentAccountDTO;
-import com.example.common_service.dto.coreCreditAccountDTO;
-import com.example.common_service.dto.CoreSavingAccountDTO;
+import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.response.*;
 import com.example.corebanking_service.repository.CoreAccountRepo;
@@ -38,6 +35,10 @@ public class CoreAccountController {
          return  coreAccountService.getCartTypebyID(id);
     }
 
+    @GetMapping("get-all-credit-card")
+    public List<CreditCardDTO> getallCreditCard() {
+        return coreAccountService.getAllCreditCard();
+    }
     @GetMapping("/get-all-account-by-cifcode/{id}")
     public List<AccountSummaryDTO> getAllAccountByCifCode(@PathVariable String id) {
         List<AccountSummaryDTO> list = coreAccountService.getAllAccountsByCif(id);

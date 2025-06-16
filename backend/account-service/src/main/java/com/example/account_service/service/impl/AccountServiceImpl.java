@@ -2,8 +2,8 @@ package com.example.account_service.service.impl;
 
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
-import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
+import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.exception.AppException;
@@ -13,13 +13,9 @@ import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CustomerStatus;
-import com.example.common_service.dto.CorePaymentAccountDTO;
-import com.example.common_service.dto.CustomerDTO;
-import com.example.common_service.dto.CoreSavingAccountDTO;
-import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.*;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
-import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
@@ -30,17 +26,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -189,25 +186,61 @@ public class AccountServiceImpl implements AccountService {
         return response.getBody();
     }
 
+    @Override
+    public List<CreditCardDTO> getAllCreditCard() {
+        String url = coreBankingBaseUrl +"/get-all-credit-card";
+        ResponseEntity<List<CreditCardDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<CreditCardDTO>>() {}
+        );
+
+        return response.getBody();
+    }
+
+    @Override
+    public CicResponse checkCIC(String idNumber) {
+        String url = "http://localhost:8089/api/cic/check";
+
+        Map<String, String> request = new HashMap<>();
+        request.put("idNumber", idNumber);
+        request.put("name", "Nguyen Van A");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+
+        try {
+            ResponseEntity<CicResponse> response = restTemplate.postForEntity(url, entity, CicResponse.class);
+            log.info("Response : " + response.getBody());
+            return response.getBody();
+        } catch (RestClientException e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
+
 
     @Override
     public PaymentRequestResponse createPaymentRequest(String cifCode) {
         log.info("Starting createPaymentRequest with cifCode: {}", cifCode);
-        
+
         // Lấy thông tin customer theo cifCode
         CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
         if (customer == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
-        
+
         // Check trạng thái customer
         if (customer.getStatus() != CustomerStatus.ACTIVE) {
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-        
+
         // Kiểm tra xem customer đã có tài khoản payment nào chưa
         List<AccountPaymentResponse> existingPaymentAccounts = getPaymentAccountsByCifCode(cifCode);
-        
+
         if (existingPaymentAccounts.isEmpty()) {
             // Lần đầu tạo tài khoản payment - tạo luôn không cần OTP
             log.info("First time creating payment account for cifCode: {}. Creating directly without OTP.", cifCode);
@@ -218,55 +251,55 @@ public class AccountServiceImpl implements AccountService {
             return createPaymentRequestWithOtp(cifCode);
         }
     }
-    
+
     @Override
     public AccountCreateReponse confirmOtpAndCreatePayment(PaymentConfirmOtpDTO paymentConfirmOtpDTO) {
         log.info("Confirming OTP and creating payment account: {}", paymentConfirmOtpDTO.getPaymentRequestId());
-        
+
         // Validate OTP
         PaymentCreateDTO tempRequest = validateOTPAndGetTempRequest(paymentConfirmOtpDTO);
-        
+
         // Lấy thông tin customer
         String cifCode = extractCifFromTempKey(paymentConfirmOtpDTO.getPaymentRequestId());
         log.info("Creating payment account for CIF Code: {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-        
+
         // Tạo Payment Account
         AccountCreateReponse response = createPaymentAccountForCustomer(cifCode);
-        
+
         // Cleanup temp data
         redisTemplate.delete(paymentConfirmOtpDTO.getPaymentRequestId());
         redisTemplate.delete("OTP:PAYMENT:" + paymentConfirmOtpDTO.getPaymentRequestId());
-        
+
         log.info("Payment account created successfully: {}", response.getAccountNumber());
         return response;
     }
-    
+
     @Override
     public void resendPaymentOtp(String tempRequestKey) {
         log.info("Resending OTP for temp request key: {}", tempRequestKey);
-        
+
         // Kiểm tra temp request có tồn tại không
         Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
         if (tempRequest == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND); // Sử dụng error code có sẵn
         }
-        
+
         // Lấy thông tin customer từ temp key
         String cifCode = extractCifFromTempKey(tempRequestKey);
         log.info("Resending OTP for payment request. CIF code: {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-        
+
         if (customerDTO == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
 
         String otp = generateAndStoreOTP(tempRequestKey);
         sendOTPEmail(customerDTO, otp);
-        
+
         log.info("OTP resent successfully for temp request: {}", tempRequestKey);
     }
-    
+
     private List<AccountPaymentResponse> getPaymentAccountsByCifCode(String cifCode) {
         // Tạo URL gọi tới corebanking
         String url = "http://localhost:8083/corebanking/get-all-paymentaccount-by-cifcode/" + cifCode;
@@ -282,11 +315,11 @@ public class AccountServiceImpl implements AccountService {
         // Trả về danh sách
         return response.getBody() != null ? response.getBody() : List.of();
     }
-    
+
     private PaymentRequestResponse createPaymentAccountDirectly(String cifCode) {
         // Tạo account luôn không cần OTP
         AccountCreateReponse account = createPaymentAccountForCustomer(cifCode);
-        
+
         return PaymentRequestResponse.builder()
                 .id(account.getId())
                 .cifCode(cifCode)
@@ -294,27 +327,27 @@ public class AccountServiceImpl implements AccountService {
                 .status(PaymentRequestResponse.PaymentRequestStatus.APPROVED)
                 .build();
     }
-    
+
     private PaymentRequestResponse createPaymentRequestWithOtp(String cifCode) {
         // Tạo temporary key để lưu thông tin request trước khi verify OTP
         String tempRequestKey = "TEMP_PAYMENT_REQUEST:" + cifCode + ":" + System.currentTimeMillis();
-        
+
         // Lưu thông tin request vào Redis (expire sau 1 giờ)
         PaymentCreateDTO tempRequest = PaymentCreateDTO.builder()
                 .cifCode(cifCode)
                 .build();
-        
+
         redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
-        
+
         // Lấy thông tin customer để gửi OTP
         CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
-        
+
         // Tạo và gửi OTP
         String otp = generateAndStoreOTP(tempRequestKey);
         sendOTPEmail(customer, otp);
-        
+
         log.info("OTP sent for payment request creation. Temp key: {}", tempRequestKey);
-        
+
         // Trả về response với temp key để client có thể confirm OTP
         return PaymentRequestResponse.builder()
                 .id(tempRequestKey)
@@ -323,7 +356,7 @@ public class AccountServiceImpl implements AccountService {
                 .status(PaymentRequestResponse.PaymentRequestStatus.PENDING)
                 .build();
     }
-    
+
     private AccountCreateReponse createPaymentAccountForCustomer(String cifCode) {
         Account account = Account.builder()
                 .accountType(AccountType.PAYMENT)
@@ -338,7 +371,7 @@ public class AccountServiceImpl implements AccountService {
                 .accountNumber(account.getAccountNumber())
                 .build();
         log.info("corePaymentAccountDTO: {}", corePaymentAccountDTO);
-        
+
         // Call API save account trên CoreBanking
         String url = "http://localhost:8083/corebanking/create-payment-account";
         restTemplate.postForObject(url ,corePaymentAccountDTO,Void.class);
@@ -353,7 +386,7 @@ public class AccountServiceImpl implements AccountService {
                 .status(account.getStatus())
                 .build();
     }
-    
+
     /**
      * Extracts CIF code from temporary key
      */
@@ -375,22 +408,22 @@ public class AccountServiceImpl implements AccountService {
         String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
         log.info("storedOtp: {}", storedOtp);
         log.info("Validating OTP for temp request: {}", confirmOtpDTO.getPaymentRequestId());
-        
+
             if (storedOtp == null) {
                 throw new AppException(ErrorCode.OTP_EXPIRED); // Sử dụng error code có sẵn thay vì OTP_EXPIRED
             }
-        
+
         if (!storedOtp.equals(confirmOtpDTO.getOtpCode())) {
             handleOTPFailure(confirmOtpDTO.getPaymentRequestId());
             throw new AppException(ErrorCode.INVALID_OTP); // Sử dụng error code có sẵn thay vì INVALID_OTP
         }
-        
+
         // Lấy temp request
         PaymentCreateDTO tempRequest = (PaymentCreateDTO) redisTemplate.opsForValue().get(confirmOtpDTO.getPaymentRequestId());
         if (tempRequest == null) {
             throw new AppException(ErrorCode.UNCATERROR_ERROR);
         }
-        
+
         log.info("OTP validated successfully for temp request: {}", confirmOtpDTO.getPaymentRequestId());
         return tempRequest;
     }

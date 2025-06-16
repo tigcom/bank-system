@@ -5,6 +5,7 @@ import com.example.account_service.dto.request.CreditRequestConfirmDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
+import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.entity.CreditRequest;
@@ -23,23 +24,30 @@ import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.CommonServiceCore;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,7 +68,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private final RestTemplate restTemplate;
     private final StreamBridge streamBridge;
     private final RedisTemplate<Object, Object> redisTemplate;
-
+    private static final String[] STABLE_OCCUPATIONS = {"Engineer", "Doctor", "Teacher", "Government Employee"};
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
 
@@ -136,35 +144,114 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         String cifCode = extractCifFromTempKey(creditRequestConfirmDTO.getCreditRequestId());
         log.info("Cif Code : {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-        
-        // Tạo Credit Request trong database
+        /// Check CIC Gia Lap
+        log.info("CCCD: " +customerDTO.getIdentityNumber());
+        CicResponse cicResponse = checkCIC(customerDTO.getIdentityNumber());
+        // Tính điểm tín dụng tổng hợp
+        int finalScore = calculateCreditScore(tempRequest.getMonthlyIncome(), tempRequest.getOccupation(), cicResponse.getCreditScore());
+        //
         CreditRequest creditRequest = CreditRequest.builder()
                 .cifCode(cifCode)
                 .occupation(tempRequest.getOccupation())
                 .cartTypeId(tempRequest.getCartTypeId())
                 .monthlyIncome(tempRequest.getMonthlyIncome())
-                .status(CreditRequestStatus.PENDING) // Chờ admin review
                 .build();
-        
-        creditRequestRepository.save(creditRequest);
-        
-        // Cleanup temp data
-        redisTemplate.delete(creditRequestConfirmDTO.getCreditRequestId());
-        redisTemplate.delete("OTP:CREDIT:" + creditRequestConfirmDTO.getCreditRequestId());
-        
-        log.info("Credit request created successfully and waiting for admin review: {}", creditRequest.getId());
-        
-        // Return  Credit response with pending status (chờ admin review)
-        return CreditRequestReponse.builder()
-                .id(creditRequest.getId()) // Sử dụng temp key làm ID tạm thời
-                .cifCode(creditRequest.getCifCode())
-                .occupation(creditRequest.getOccupation())
-                .cartTypeId(creditRequest.getCartTypeId())
-                .monthlyIncome(creditRequest.getMonthlyIncome())
-                .status(CreditRequestStatus.PENDING) // Trạng thái pending OTP
-                .build();
+        if(cicResponse.getDebtGroup()>=3)
+        {
+            // cap nhat trang thai rejected va send email tu choi -->>
+            return autoRejectCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
+        }
+        if (finalScore >= 80) {
+            // cap nhat trang thai Approved va send email duyet the  -->>
+            return   autoApproveCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
+
+        }
+     else if (finalScore >= 50) {
+            // cap nhat trang thai Pending voi cac truong hop dac biet va chuyen  sang admin duyệt -->>
+            creditRequest.setStatus(CreditRequestStatus.PENDING);
+            creditRequestRepository.save(creditRequest);
+            redisTemplate.delete(creditRequestConfirmDTO.getCreditRequestId());
+            redisTemplate.delete("OTP:CREDIT:" + creditRequestConfirmDTO.getCreditRequestId());
+        return mapToDto(creditRequest);
+    } else {
+             return autoRejectCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
+    }
     }
 
+    private CreditRequestReponse autoApproveCreditRequest(CreditRequest creditRequest,  String creditRequestId) {
+        creditRequest.setStatus(CreditRequestStatus.APPROVED);
+        creditRequestRepository.save(creditRequest);
+        redisTemplate.delete(creditRequestId);
+        redisTemplate.delete("OTP:CREDIT:" + creditRequestId);
+        // tao luon credit
+        Account account = createCreditAccount(creditRequest);
+        createCoreBankingCreditAccount(account, creditRequest);
+        // Gửi email thông báo phê duyệt
+        sendApprovalNotification(creditRequest, account);
+
+        log.info("Credit request approved and account created: {}", account.getAccountNumber());
+        return mapToDto(creditRequest);
+    }
+
+    private CreditRequestReponse autoRejectCreditRequest(CreditRequest creditRequest, String creditRequestId) {
+        creditRequest.setStatus(CreditRequestStatus.REJECTED);
+        creditRequestRepository.save(creditRequest);
+        // Cleanup temp data
+        redisTemplate.delete(creditRequestId);
+        redisTemplate.delete("OTP:CREDIT:" + creditRequestId);
+        //gui email tu choi
+        sendRejectionNotification(creditRequest, "Hiện tại quý khách chưa được hỗ trợ mở thẻ tín dụng. ");
+        log.info("Credit request rejected: {}", creditRequest.getId());
+        return mapToDto(creditRequest);
+    }
+
+    private int calculateCreditScore(BigDecimal monthlyIncome, String occupation, int creditScore) {
+        int score = 0;
+        if (Arrays.asList(STABLE_OCCUPATIONS).contains(occupation)) {
+            score += 30;
+        } else if (occupation.equalsIgnoreCase("Freelancer")) {
+            score += 10;
+        } else {
+            score += 20; // Nghề khác
+        }
+
+        // Điểm dựa trên lương (30%)
+        if (monthlyIncome.compareTo(BigDecimal.valueOf(15000000)) > 0) {
+            score += 30;
+        } else if (monthlyIncome.compareTo(BigDecimal.valueOf(8000000))>0) {
+            score += 20;
+        } else {
+            score += 10;
+        }
+
+        // Điểm dựa trên CIC (40%)
+        score += (creditScore / 1000.0) * 40; // Quy đổi điểm CIC (0-1000) thành 0-40
+
+        return score;
+
+    }
+
+    private CicResponse checkCIC(String idNumber) {
+        String url = "http://localhost:8089/api/cic/check";
+
+        Map<String, String> request = new HashMap<>();
+        request.put("idNumber", idNumber);
+        request.put("name", "Nguyen Van A");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+
+        try {
+            ResponseEntity<CicResponse> response = restTemplate.postForEntity(url, entity, CicResponse.class);
+            log.info("Response from CIC : " + response.getBody());
+            return response.getBody();
+        } catch (RestClientException e) {
+            log.info(e.getMessage());
+            return null;
+        }
+    }
     @Override
     public AccountCreateReponse approveCreditRequest(String id) {
         log.info("Admin approving credit request with id: {}", id);
@@ -347,6 +434,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             log.warn("Customer status is not ACTIVE: {}", customer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
+        ///  check KYC status cua khach hang
     }
 
     /**
@@ -451,11 +539,29 @@ public class CreditRequestServiceImpl implements CreditRequestService {
      * Creates credit account in core banking system
      */
     private void createCoreBankingCreditAccount(Account account, CreditRequest creditRequest) {
+        String urlGetCard = coreBankingBaseUrl + "/get-cart-type/" + creditRequest.getCartTypeId();
+        log.info("URL : "+ urlGetCard);
+        CartTypeDTO cartTypeDTO = restTemplate.getForObject(urlGetCard, CartTypeDTO.class);
+        log.info("Validating business rules for cartType: {}", cartTypeDTO);
+        BigDecimal defaultLimit = cartTypeDTO.getDefaultCreditLimit();
+        BigDecimal monthlyIncome = creditRequest.getMonthlyIncome();
+
+        BigDecimal creditLimit;
+
+        if (monthlyIncome.compareTo(BigDecimal.valueOf(10000000)) < 0) {
+            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.6)); // 60% hạn mức mặc định
+        } else if (monthlyIncome.compareTo(BigDecimal.valueOf(20000000)) < 0) {
+            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.8)); // 80%
+        } else {
+            creditLimit = defaultLimit; // 100%
+        }
+
         coreCreditAccountDTO coreAccountDTO = coreCreditAccountDTO.builder()
                 .accountNumber(account.getAccountNumber())
                 .cifCode(account.getCifCode())
                 .cartTypeId(creditRequest.getCartTypeId())
                 .monthlyIncome(creditRequest.getMonthlyIncome())
+                .creditLimit(creditLimit)
                 .build();
 
         log.info("Creating account in core banking system: {}", coreAccountDTO);
