@@ -2,6 +2,8 @@ package com.example.common_service.dto.response;
 
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
+import com.example.common_service.constant.InterestPaymentType;
+import com.example.common_service.constant.RenewOption;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -24,4 +27,7 @@ public class SavingAccountResponse {
     private BigDecimal interestRate;
     private BigDecimal initialDeposit;
     private Integer termValueMonths;
+    private LocalDateTime maturityDate;
+    private InterestPaymentType interestPaymentType;
+    private RenewOption renewOption;
 }

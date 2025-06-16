@@ -1,14 +1,22 @@
 package com.example.account_service.service.impl;
 
-import com.example.account_service.dto.request.PaymentCreateDTO;
+
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
+import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
+import com.example.common_service.dto.response.BalanceResponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.account_service.entity.Account;
+import com.example.account_service.entity.SavingsAccount;
+import com.example.account_service.entity.CreditAccount;
+import com.example.account_service.entity.CreditCardType;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
 import com.example.account_service.repository.AccountRepository;
+import com.example.account_service.repository.SavingsAccountRepository;
+import com.example.account_service.repository.CreditAccountRepository;
+import com.example.account_service.repository.CreditCardTypeRepository;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
@@ -18,7 +26,6 @@ import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.SavingAccountResponse;
 import com.example.common_service.services.CommonService;
-import com.example.common_service.services.CommonServiceCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -34,24 +41,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final SavingsAccountRepository savingsAccountRepository;
+    private final CreditAccountRepository creditAccountRepository;
+    private final CreditCardTypeRepository creditCardTypeRepository;
 
     @DubboReference(timeout = 5000)
     private final CommonService commonService;
-
-    @DubboReference(timeout = 5000)
-    private final CommonServiceCore commonServiceCore;
-
     private final RestTemplate restTemplate;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final StreamBridge streamBridge;
@@ -110,20 +119,63 @@ public class AccountServiceImpl implements AccountService {
 
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        String cifCode = currentCustomer.getCifCode();
 
-        // Tạo URL gọi tới corebanking
-        String url = coreBankingBaseUrl +"/get-all-account-by-cifcode/" + currentCustomer.getCifCode();
+        List<AccountSummaryDTO> result = new ArrayList<>();
 
-        // Gửi request GET và nhận về danh sách AccountSummaryDTO
-        ResponseEntity<List<AccountSummaryDTO>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<AccountSummaryDTO>>() {}
-        );
+        // Lấy Payment Accounts
+        List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
+                cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
+        for (Account account : paymentAccounts) {
+            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+            result.add(AccountSummaryDTO.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(account.getCifCode())
+                    .accountType(account.getAccountType())
+                    .balance(balance)
+                    .status(account.getStatus())
+                    .openedDate(account.getCreatedDate().toLocalDate())
+                    .build());
+        }
 
-        // Trả về danh sách
-        return response.getBody();
+        // Lấy Savings Accounts
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
+        for (SavingsAccount account : savingsAccounts) {
+            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+            result.add(AccountSummaryDTO.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(account.getCifCode())
+                    .accountType(account.getAccountType())
+                    .balance(balance)
+                    .status(account.getStatus())
+                    .openedDate(account.getCreatedDate().toLocalDate())
+                    .initialDeposit(account.getInitialDeposit())
+                    .termValueMonths(account.getTerm().getTermValueMonths())
+                    .interestRate(account.getTerm().getInterestRate())
+                    .maturityDate(account.getMaturityDate())
+                    .interestPaymentType(account.getInterestPaymentType())
+                    .renewOption(account.getRenewOption())
+                    .build());
+        }
+
+        // Lấy Credit Accounts
+        List<CreditAccount> creditAccounts = creditAccountRepository.findActiveCreditAccountsByCifCode(cifCode);
+        for (CreditAccount account : creditAccounts) {
+            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+            result.add(AccountSummaryDTO.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(account.getCifCode())
+                    .accountType(account.getAccountType())
+                    .balance(balance)
+                    .status(account.getStatus())
+                    .openedDate(account.getCreatedDate().toLocalDate())
+                    .creditLimit(account.getCreditLimit())
+                    .currentDebt(account.getCurrentDebt())
+                    .creditCardType(account.getCreditCardType().getTypeName())
+                    .build());
+        }
+
+        return result;
     }
 
     @Override
@@ -134,32 +186,52 @@ public class AccountServiceImpl implements AccountService {
 
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        // check trang thai cua  Customer trươc
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+        String cifCode = currentCustomer.getCifCode();
 
-        // Tạo URL gọi tới corebanking
-        String url = coreBankingBaseUrl +"/get-all-paymentaccount-by-cifcode/" + currentCustomer.getCifCode();
+        // Lấy Payment Accounts từ local database
+        List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
+                cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
 
-        // Gửi request GET và nhận về danh sách AccountSummaryDTO
-        ResponseEntity<List<AccountPaymentResponse>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<AccountPaymentResponse>>() {}
-        );
-
-        // Trả về danh sách
-        return response.getBody();
+        // Kết hợp thông tin local với balance từ Core Banking
+        return paymentAccounts.stream()
+                .map(account -> {
+                    BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                    return AccountPaymentResponse.builder()
+                            .accountNumber(account.getAccountNumber())
+                            .cifCode(account.getCifCode())
+                            .accountType(account.getAccountType())
+                            .balance(balance)
+                            .status(account.getStatus())
+                            .openedDate(account.getCreatedDate().toLocalDate())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public AccountPaymentResponse getAccountPaymentbyID(String id) {
-        String url = coreBankingBaseUrl +"/get-account-by-id/" + id;
-        ResponseEntity<AccountPaymentResponse> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<AccountPaymentResponse>() {}
-        );
-        return response.getBody();
+        // Lấy thông tin account từ local database
+        Account account = accountRepository.findByAccountNumber(id);
+        if (account == null) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
+
+        // Lấy balance từ Core Banking
+        BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+
+        // Kết hợp thông tin
+        return AccountPaymentResponse.builder()
+                .accountNumber(account.getAccountNumber())
+                .cifCode(account.getCifCode())
+                .accountType(account.getAccountType())
+                .balance(balance)
+                .status(account.getStatus())
+                .openedDate(account.getCreatedDate().toLocalDate())
+                .build();
     }
 
     @Override
@@ -170,33 +242,54 @@ public class AccountServiceImpl implements AccountService {
 
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        String cifCode = currentCustomer.getCifCode();
 
-        // Tạo URL gọi tới corebanking
-        String url = coreBankingBaseUrl +"/get-all-saving-account/" + currentCustomer.getCifCode();
+        // Lấy Savings Accounts từ local database
+        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
 
-        // Gửi request GET và nhận về danh sách AccountSummaryDTO
-        ResponseEntity<List<SavingAccountResponse>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<SavingAccountResponse>>() {}
-        );
-
-        // Trả về danh sách
-        return response.getBody();
+        // Kết hợp thông tin local với balance từ Core Banking
+        return savingsAccounts.stream()
+                .map(account -> {
+                    BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                    return SavingAccountResponse.builder()
+                            .status(account.getStatus().name())
+                            .accountNumber(account.getAccountNumber())
+                            .cifCode(account.getCifCode())
+                            .accountType(account.getAccountType().name())
+                            .balance(balance)
+                            .initialDeposit(account.getInitialDeposit())
+                            .termValueMonths(account.getTerm().getTermValueMonths())
+                            .interestRate(account.getTerm().getInterestRate())
+                            .openedDate(account.getCreatedDate().toLocalDate())
+                            .maturityDate(account.getMaturityDate())
+                            .interestPaymentType(account.getInterestPaymentType())
+                            .renewOption(account.getRenewOption())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<CreditCardDTO> getAllCreditCard() {
-        String url = coreBankingBaseUrl +"/get-all-credit-card";
-        ResponseEntity<List<CreditCardDTO>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<CreditCardDTO>>() {}
-        );
+        // Lấy Credit Card Types từ local database
+        List<CreditCardType> creditCardTypes = creditCardTypeRepository.findAllOrderByAnnualFee();
 
-        return response.getBody();
+        // Map to DTO
+        return creditCardTypes.stream()
+                .map(this::mapToCreditCardDTO)
+                .collect(Collectors.toList());
+    }
+
+    private CreditCardDTO mapToCreditCardDTO(CreditCardType creditCardType) {
+        return CreditCardDTO.builder()
+                .cardID(creditCardType.getId())
+                .typeName(creditCardType.getTypeName())
+                .defaultCreditLimit(creditCardType.getDefaultCreditLimit())
+                .interestRate(creditCardType.getInterestRate())
+                .annualFee(creditCardType.getAnnualFee())
+                .minimumIncome(creditCardType.getMinimumIncome())
+                .imgURL(creditCardType.getImageUrl())
+                .build();
     }
 
     @Override
@@ -239,7 +332,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         // Kiểm tra xem customer đã có tài khoản payment nào chưa
-        List<AccountPaymentResponse> existingPaymentAccounts = getPaymentAccountsByCifCode(cifCode);
+        List<AccountPaymentResponse> existingPaymentAccounts = getAllPaymentAccountsbyCifCode();
 
         if (existingPaymentAccounts.isEmpty()) {
             // Lần đầu tạo tài khoản payment - tạo luôn không cần OTP
@@ -300,21 +393,6 @@ public class AccountServiceImpl implements AccountService {
         log.info("OTP resent successfully for temp request: {}", tempRequestKey);
     }
 
-    private List<AccountPaymentResponse> getPaymentAccountsByCifCode(String cifCode) {
-        // Tạo URL gọi tới corebanking
-        String url = "http://localhost:8083/corebanking/get-all-paymentaccount-by-cifcode/" + cifCode;
-
-        // Gửi request GET và nhận về danh sách AccountPaymentResponse
-        ResponseEntity<List<AccountPaymentResponse>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<AccountPaymentResponse>>() {}
-        );
-
-        // Trả về danh sách
-        return response.getBody() != null ? response.getBody() : List.of();
-    }
 
     private PaymentRequestResponse createPaymentAccountDirectly(String cifCode) {
         // Tạo account luôn không cần OTP
@@ -365,18 +443,19 @@ public class AccountServiceImpl implements AccountService {
                 .build();
         account.setAccountNumber(generateAccountNumber(account));
         log.info("Account : " + account);
-
-        CorePaymentAccountDTO corePaymentAccountDTO = CorePaymentAccountDTO.builder()
-                .cifCode(account.getCifCode())
+        accountRepository.save(account);
+        CoreAccountRequest coreAccount = CoreAccountRequest.builder()
                 .accountNumber(account.getAccountNumber())
+                .cifCode(cifCode)
+                .balance(BigDecimal.ZERO)
+                .accountType(account.getAccountType())
+                .status(AccountStatus.ACTIVE)
                 .build();
-        log.info("corePaymentAccountDTO: {}", corePaymentAccountDTO);
+        log.info("corePaymentAccountDTO: {}", coreAccount);
 
         // Call API save account trên CoreBanking
-        String url = "http://localhost:8083/corebanking/create-payment-account";
-        restTemplate.postForObject(url ,corePaymentAccountDTO,Void.class);
-
-        accountRepository.save(account);
+        String url = "http://localhost:8083/corebanking/save-account";
+        restTemplate.postForObject(url ,coreAccount,Void.class);
 
         return AccountCreateReponse.builder()
                 .accountNumber(account.getAccountNumber())
@@ -438,7 +517,7 @@ public class AccountServiceImpl implements AccountService {
 
         failCount++;
         redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount), Duration.ofMinutes(5));
-        
+
         if (failCount >= 3) {
             // Xóa temp request
             redisTemplate.delete(tempRequestKey);
@@ -485,6 +564,29 @@ public class AccountServiceImpl implements AccountService {
         }
         String randomPart = String.format("%03d", new Random().nextInt(1000));
         return cif + typeCode + randomPart;
+    }
 
+    /**
+     * Lấy balance từ Core Banking Service
+     */
+    private BigDecimal getBalanceFromCorebanking(String accountNumber) {
+        try {
+            String url = coreBankingBaseUrl + "/get-balance-by-accountNumber/"+accountNumber;
+            ResponseEntity<BalanceResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<BalanceResponse>() {}
+            );
+
+            BalanceResponse balanceResponse = response.getBody();
+            if (balanceResponse != null && balanceResponse.getBalance() != null) {
+                return balanceResponse.getBalance();
+            }
+            return BigDecimal.ZERO;
+        } catch (Exception e) {
+            log.warn("Failed to get balance from core banking for account: {}. Using zero balance.", accountNumber, e);
+            return BigDecimal.ZERO;
+        }
     }
 }
