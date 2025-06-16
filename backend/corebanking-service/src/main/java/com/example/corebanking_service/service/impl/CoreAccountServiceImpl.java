@@ -2,10 +2,7 @@ package com.example.corebanking_service.service.impl;
 
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
-import com.example.common_service.dto.CartTypeDTO;
-import com.example.common_service.dto.CorePaymentAccountDTO;
-import com.example.common_service.dto.coreCreditAccountDTO;
-import com.example.common_service.dto.CoreSavingAccountDTO;
+import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonServiceCore;
@@ -83,18 +80,18 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
         CoreCreditCardType coreCreditCardType = coreCreditCartTypeRepo.findById(dto.getCartTypeId()).orElseThrow(()->
                 new AppException(ErrorCode.CARTCREDIT_TYPE_NOTEXISTED));
 
-        BigDecimal defaultLimit = coreCreditCardType.getDefaultCreditLimit();
-        BigDecimal monthlyIncome = dto.getMonthlyIncome();
-
-        BigDecimal creditLimit;
-
-        if (monthlyIncome.compareTo(BigDecimal.valueOf(10000000)) < 0) {
-            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.6)); // 60% hạn mức mặc định
-        } else if (monthlyIncome.compareTo(BigDecimal.valueOf(20000000)) < 0) {
-            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.8)); // 80%
-        } else {
-            creditLimit = defaultLimit; // 100%
-        }
+//        BigDecimal defaultLimit = coreCreditCardType.getDefaultCreditLimit();
+//        BigDecimal monthlyIncome = dto.getMonthlyIncome();
+//
+//        BigDecimal creditLimit;
+//
+//        if (monthlyIncome.compareTo(BigDecimal.valueOf(10000000)) < 0) {
+//            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.6)); // 60% hạn mức mặc định
+//        } else if (monthlyIncome.compareTo(BigDecimal.valueOf(20000000)) < 0) {
+//            creditLimit = defaultLimit.multiply(BigDecimal.valueOf(0.8)); // 80%
+//        } else {
+//            creditLimit = defaultLimit; // 100%
+//        }
         CoreCreditAccount coreCreditAccount = CoreCreditAccount.builder()
                 .accountNumber(dto.getAccountNumber())
                 .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
@@ -102,7 +99,7 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .status(AccountStatus.ACTIVE)
                 .openedDate(LocalDate.now())
                 .coreCreditCardType(coreCreditCardType)
-                .creditLimit(creditLimit)
+                .creditLimit(dto.getCreditLimit())
                 .currentDebt(BigDecimal.ZERO)
                 .accountType(AccountType.CREDIT)
                 .build();
@@ -194,5 +191,27 @@ public class CoreAccountServiceImpl implements CommonServiceCore, CoreAccountSer
                 .status(account.getStatus())
                 .openedDate(account.getOpenedDate())
                 .build();
+    }
+
+    @Override
+    public List<CreditCardDTO> getAllCreditCard() {
+        List<CoreCreditCardType> list = coreCreditCartTypeRepo.findAll();
+
+        return list.stream()
+                .map(this:: mapToCreditCardDTO)
+                .collect(Collectors.toList());
+    }
+    public  CreditCardDTO  mapToCreditCardDTO(CoreCreditCardType request) {
+        CreditCardDTO response = CreditCardDTO.builder()
+                .cardID(request.getId())
+                .annualFee(request.getAnnualFee())
+                .defaultCreditLimit(request.getDefaultCreditLimit())
+                .typeName(request.getTypeName())
+                .interestRate(request.getInterestRate())
+                .minimumIncome(request.getMinimumIncome())
+                .imgURL(request.getImageUrl())
+                .build();
+        return response;
+
     }
 }

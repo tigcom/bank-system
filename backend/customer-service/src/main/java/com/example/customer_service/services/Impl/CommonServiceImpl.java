@@ -54,6 +54,7 @@ public class CommonServiceImpl implements CommonService {
                 .fullName(customer.getFullName())
                 .status(customer.getStatus())
                 .dateOfBirth(customer.getDateOfBirth())
+                .identityNumber(customer.getIdentityNumber())
                 .build();
     }
 
