@@ -48,7 +48,7 @@ import java.util.*;
 @Tag(name = "Customer Controller", description = "Quản lý người dùng: đăng ký, đăng nhập, và KYC")
 public class CustomerController {
 
-    private static final Logger log = LoggerFactory.getLogger("ACCESS_LOG");
+    private static final Logger log = LoggerFactory.getLogger(CustomerController.class);
 
     private final CustomerService customerService;
 
@@ -337,6 +337,7 @@ public class CustomerController {
             SecurityContextHolder.clearContext();
 
             List<AccountDTO> accounts = customerCommonService.getAccountsByCifCode(customer.getCifCode());
+            log.info("List account: {}", accounts);
             log.info("Get list account successfully");
             return ResponseEntity.ok(accounts);
         } catch (IllegalArgumentException e) {
@@ -345,7 +346,6 @@ public class CustomerController {
                     .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
-
 
     private String getMessage(String key, Object... args) {
         return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());

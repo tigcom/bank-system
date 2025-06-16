@@ -44,8 +44,11 @@
         <appender-ref ref="CUSTOMER_LOG"/>
     </logger>
 
-    <!-- Request Logging Filter Logs -->
-    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="INFO" additivity="false">
+    <!-- Tắt CommonsRequestLoggingFilter vì đã dùng CustomRequestLoggingFilter -->
+    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="OFF" additivity="false"/>
+
+    <!-- Custom Access Logger -->
+    <logger name="ACCESS_LOG" level="INFO" additivity="false">
         <appender-ref ref="ACCESS_LOG"/>
     </logger>
 
