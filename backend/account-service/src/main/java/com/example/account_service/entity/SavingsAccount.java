@@ -39,6 +39,9 @@ public class SavingsAccount extends Account {
     @Column(name = "renew_option", nullable = false)
     private RenewOption renewOption;
 
+    @Column(name="accountnumber_src")
+    private String accountNumberSrc;
+
     @Override
     public AccountType getAccountType() {
         return AccountType.SAVING;

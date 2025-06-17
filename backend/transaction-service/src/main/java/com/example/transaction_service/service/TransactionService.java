@@ -3,6 +3,7 @@ package com.example.transaction_service.service;
 
 import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
@@ -29,4 +30,6 @@ public interface TransactionService {
 
     Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable);
     TransactionDTO withdrawAccountSaving(WithdrawAccountSavingRequest depositAccountSavingRequest);
+
+    TransactionDTO payInterest(PayInterestRequest request);
 }
