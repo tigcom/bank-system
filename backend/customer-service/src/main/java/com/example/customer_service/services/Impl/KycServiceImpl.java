@@ -29,7 +29,7 @@ public class KycServiceImpl implements KycService {
     private final KycProfileRepository kycProfileRepository;
 
     @Override
-    public KycResponse verifyIdentity(String identityNumber, String fullName) {
+    public KycResponse verifyIdentity(String identityNumber, String fullName, LocalDate dateOfBirth, String gender) {
         if (identityNumber == null || fullName == null) {
             KycResponse response = new KycResponse();
             response.setVerified(false);

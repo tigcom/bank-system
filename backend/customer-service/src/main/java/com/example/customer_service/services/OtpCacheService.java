@@ -49,34 +49,6 @@ public class OtpCacheService {
         }
     }
 
-    public RegisterCustomerDTO getRegisterData(String email) {
-        try {
-            Object data = redisTemplate.opsForValue().get("register:" + email);
-            log.info("Dữ liệu từ Redis cho email {}: {}", email, data);
-
-            if (data == null) {
-                log.warn("Dữ liệu đăng ký không tồn tại hoặc đã hết hạn cho email: {}", email);
-                throw new IllegalArgumentException("Dữ liệu đăng ký không tồn tại hoặc đã hết hạn");
-            }
-
-            if (data instanceof LinkedHashMap) {
-                log.warn("Dữ liệu là LinkedHashMap, convert sang RegisterCustomerDTO");
-                return objectMapper.convertValue(data, RegisterCustomerDTO.class);
-            }
-
-            if (data instanceof RegisterCustomerDTO) {
-                return (RegisterCustomerDTO) data;
-            }
-
-            log.error("Dữ liệu không đúng định dạng: {}", data.getClass().getName());
-            throw new IllegalStateException("Dữ liệu không đúng định dạng: " + data.getClass().getName());
-        } catch (Exception e) {
-            log.error("Lỗi khi lấy dữ liệu đăng ký từ Redis cho email: {}. Chi tiết: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
-        }
-    }
-
-
     public void clearOtp(String email) {
         try {
             redisTemplate.delete("otp:" + email);
