@@ -5,14 +5,20 @@ import com.example.customer_service.ultils.MessageKeys;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-@Schema(description = "DTO yêu cầu KYC cho khách hàng")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Schema(description = "DTO yêu cầu KYC cho khách hàng")
 public class KycRequest implements Serializable {
 
 //    @Schema(description = "ID khách hàng", example = "123", required = true)

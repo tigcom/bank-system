@@ -5,11 +5,12 @@ import com.example.customer_service.responses.*;
 import org.springframework.http.ResponseEntity;
 
 public interface CustomerService {
-//    Response register(RegisterCustomerDTO request) throws Exception;
 
-//    ApiResponseWrapper<?> login(LoginCustomerDTO request) throws Exception;
+    ApiResponseWrapper<?> initiateRegister(RegisterCustomerDTO request);
 
-    Response forgotPassword(String email);
+    ApiResponseWrapper<?> processKycAndSendOtp(String email, KycRequest kycRequest);
+
+    ApiResponseWrapper<?> confirmRegister(String email, String otp);
 
     CustomerListResponse getCustomerList(int page, int size, String keyword);
 
@@ -24,10 +25,6 @@ public interface CustomerService {
     ApiResponseWrapper<?> updateCustomerStatus(UpdateStatusRequest request);
 
     KycResponse verifyKyc(String userId, KycRequest request);
-
-    void sentOtpRegister(RegisterCustomerDTO request);
-
-    ApiResponseWrapper<?> confirmRegister(String email, String otp);
 
     void sentEmailForgotPassword(String email);
 

@@ -14,6 +14,7 @@ import com.example.customer_service.services.CustomerService;
 import com.example.customer_service.services.KycService;
 import com.example.customer_service.ultils.MessageKeys;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -62,50 +63,89 @@ public class CustomerController {
     private final CustomerRepository customerRepository;
     private final KycProfileRepository kycProfileRepository;
 
-    @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
+    @PostMapping("/register/initiate")
+    @Operation(summary = "Bước 1: Khởi tạo đăng ký",
+            description = "Lưu thông tin đăng ký vào bộ nhớ đệm để xác minh KYC")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Đăng ký thành công"),
+            @ApiResponse(responseCode = "200", description = "Khởi tạo đăng ký thành công"),
             @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
             @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterCustomerDTO request) {
+    public ResponseEntity<ApiResponseWrapper<?>> khoiTaoDangKy(
+            @Valid @RequestBody RegisterCustomerDTO request) {
         try {
-            customerService.sentOtpRegister(request); // Gửi OTP trước
-            log.info("Yêu cầu OTP đăng ký thành công cho email: {}", request.getEmail());
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(new ApiResponseWrapper<>(
-                            HttpStatus.OK.value(),
-                            getMessage(MessageKeys.OTP_SENT),
-                            null));
+            log.info("Khởi tạo đăng ký cho email: {}", request.getEmail());
+            ApiResponseWrapper<?> response = customerService.initiateRegister(request);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            log.error("Yêu cầu OTP đăng ký thất bại cho email: {} - {}", request.getEmail(), e.getMessage());
-            return ResponseEntity
-                    .badRequest()
-                    .body(ApiResponseWrapper.error(e.getMessage()));
+            log.warn("Dữ liệu đăng ký không hợp lệ: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
+            );
+        } catch (Exception e) {
+            log.error("Lỗi khi khởi tạo đăng ký cho email: {}", request.getEmail(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponseWrapper<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "Đã xảy ra lỗi khi khởi tạo đăng ký", null)
+            );
         }
     }
 
-    @Operation(summary = "Xác nhận OTP đăng ký", description = "Xác nhận OTP để hoàn tất đăng ký")
+    @PostMapping("/register/kyc-and-otp")
+    @Operation(summary = "Bước 2: Xác minh KYC & gửi OTP",
+            description = "Xác minh thông tin KYC và gửi mã OTP nếu thành công")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Đăng ký thành công"),
-            @ApiResponse(responseCode = "400", description = "OTP không hợp lệ"),
+            @ApiResponse(responseCode = "200", description = "Xác minh KYC thành công, đã gửi OTP"),
+            @ApiResponse(responseCode = "400", description = "Thông tin KYC không hợp lệ"),
             @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
-    @PostMapping("/confirm-register")
-    public ResponseEntity<?> confirmRegister(
+    public ResponseEntity<ApiResponseWrapper<?>> processKycAndSendOtp(
+            @RequestParam String email,
+            @Valid @RequestBody KycRequest kycRequest) {
+        try {
+            log.info("Xác minh KYC và gửi OTP cho email: {}", email);
+            ApiResponseWrapper<?> response = customerService.processKycAndSendOtp(email, kycRequest);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            log.warn("Thông tin KYC không hợp lệ với email {}: {}", email, e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
+            );
+        } catch (Exception e) {
+            log.error("Lỗi khi xác minh KYC với email: {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponseWrapper<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "Đã xảy ra lỗi trong quá trình xác minh KYC", null)
+            );
+        }
+    }
+
+    @PostMapping("/register/confirm")
+    @Operation(summary = "Bước 3: Xác nhận đăng ký",
+            description = "Xác minh mã OTP và hoàn tất đăng ký tài khoản")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Xác nhận đăng ký thành công"),
+            @ApiResponse(responseCode = "400", description = "Mã OTP không hợp lệ hoặc đã hết hạn"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    public ResponseEntity<ApiResponseWrapper<?>> confirmRegister(
             @RequestParam String email,
             @RequestParam String otp) {
         try {
+            log.info("Xác nhận đăng ký cho email: {}", email);
             ApiResponseWrapper<?> response = customerService.confirmRegister(email, otp);
-            log.info("Xác nhận OTP thành công cho email: {}", email);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(response);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            log.error("Xác nhận OTP thất bại cho email: {} - {}", email, e.getMessage());
-            return ResponseEntity
-                    .badRequest()
-                    .body(ApiResponseWrapper.error(e.getMessage()));
+            log.warn("Mã OTP không hợp lệ với email {}: {}", email, e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
+            );
+        } catch (Exception e) {
+            log.error("Lỗi khi xác nhận đăng ký với email: {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponseWrapper<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "Đã xảy ra lỗi trong quá trình xác nhận đăng ký", null)
+            );
         }
     }
 

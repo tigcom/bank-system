@@ -16,6 +16,9 @@ import java.time.LocalDate;
 @Schema(description = "DTO cập nhật thông tin khách hàng")
 public class UpdateCustomerDTO {
 
+    @Schema(description = "ID của khách hàng cần cập nhật (chỉ admin sử dụng)", example = "123e4567-e89b-12d3-a456-426614174000")
+    private String userId;
+
     @Schema(description = "Họ tên khách hàng", example = "Nguyễn Văn A", required = true)
     @NotBlank(message = "{" + MessageKeys.NOT_BLANK_FULL_NAME + "}")
     private String fullName;

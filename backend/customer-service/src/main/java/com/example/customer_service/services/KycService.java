@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public interface KycService {
 
-    KycResponse verifyIdentity(String identityNumber, String fullName);
+    KycResponse verifyIdentity(String identityNumber, String fullName, LocalDate dateOfBirth, String gender);
 
     KycResponse getKycStatus(String userId);
 
