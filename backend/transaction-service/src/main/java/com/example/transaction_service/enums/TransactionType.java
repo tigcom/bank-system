@@ -10,6 +10,7 @@ public enum TransactionType {
     CREATE_ACCOUNT_SAVING,
     EXTERNAL_TRANSFER,
     CORE_BANKING     ,   // Giao dịch phát sinh từ hệ thống ngân hàng lõi (core banking system)
-    WITHDRAW_ACCOUNT_SAVING
+    WITHDRAW_ACCOUNT_SAVING,
+    PAY_INTEREST
     ;
 }

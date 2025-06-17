@@ -264,6 +264,7 @@ public class AccountServiceImpl implements AccountService {
                             .maturityDate(account.getMaturityDate())
                             .interestPaymentType(account.getInterestPaymentType())
                             .renewOption(account.getRenewOption())
+                            .accountNumberSrc(account.getAccountNumberSrc())
                             .build();
                 })
                 .collect(Collectors.toList());

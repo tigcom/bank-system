@@ -6,6 +6,7 @@ import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.services.account.AccountQueryService;
@@ -58,7 +59,7 @@ public class TransactionServiceImpl implements TransactionService{
     private final AccountQueryService accountQueryService;
 
 
-    @DubboReference
+    @DubboReference(timeout = 50000)
     private final CustomerQueryService customerQueryService;
 
     private final RedisTemplate<String,String> redisTemplate;
@@ -107,7 +108,7 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setFromAccountNumber(masterAccount);
 //      Validate Transaction
         validateTransaction(transaction);
-
+        log.info("validated");
         initTransaction(transaction);
 //       Gửi OTP
         sendOTP(transaction.getReferenceCode(),transaction.getToAccountNumber());
@@ -381,7 +382,30 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setAmount(depositAccountSavingRequest.getAmount());
         transaction.setDescription(depositAccountSavingRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(depositAccountSavingRequest.getCurrency()));
+        // kiem tra loại giao dich rút tiền : rut tiet kiem hoac tra lai
         transaction.setType(TransactionType.WITHDRAW_ACCOUNT_SAVING);
+
+        transaction.setFromAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public TransactionDTO payInterest(PayInterestRequest request) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(request.getToAccountNumber());
+        transaction.setAmount(request.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(request.getCurrency()));
+        // kiem tra loại giao dich rút tiền : rut tiet kiem hoac tra lai
+        transaction.setType(TransactionType.PAY_INTEREST);
 
         transaction.setFromAccountNumber(masterAccount);
 //      Validate

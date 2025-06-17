@@ -26,10 +26,7 @@ import com.example.common_service.constant.RenewOption;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSavingUpdateResponse;
-import com.example.common_service.dto.response.ApiResponse;
-import com.example.common_service.dto.response.CoreTermDTO;
+import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +94,8 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .accountNumberSource(savingRequestCreateDTO.getAccountNumberSource())
                 .initialDeposit(savingRequestCreateDTO.getInitialDeposit())
                 .term(savingRequestCreateDTO.getTerm())
+                .interestPaymentType(savingRequestCreateDTO.getInterestPaymentType())
+                .renewOption(savingRequestCreateDTO.getRenewOption())
                 .build();
 
         redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
@@ -120,6 +119,8 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .accountNumberSource(savingRequestCreateDTO.getAccountNumberSource())
                 .initialDeposit(savingRequestCreateDTO.getInitialDeposit())
                 .term(savingRequestCreateDTO.getTerm())
+                .interestPaymentType(savingRequestCreateDTO.getInterestPaymentType())
+                .renewOption(savingRequestCreateDTO.getRenewOption())
                 .status(SavingsRequestStatus.PENDING) // Trạng thái pending OTP
                 .build();
     }
@@ -182,12 +183,16 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         log.info("Saving account created successfully: {}", account.getAccountNumber());
 
         // Trả về response với thông tin account đã tạo
+        Term term = termRepository.findByTermValueMonths(tempRequest.getTerm());
         return SavingsRequestResponse.builder()
                 .id(account.getId())
                 .cifCode(cifCode)
                 .accountNumberSource(tempRequest.getAccountNumberSource())
                 .initialDeposit(tempRequest.getInitialDeposit())
                 .term(tempRequest.getTerm())
+                .interestPaymentType(tempRequest.getInterestPaymentType())
+                .renewOption(tempRequest.getRenewOption())
+                .interestRate(term.getInterestRate())
                 .status(SavingsRequestStatus.APPROVED) // Đã tạo thành công
                 .build();
     }
@@ -274,30 +279,14 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      * Processes withdraw transaction from saving to destination account
      */
     private void processWithdrawTransaction(WithdrawSavingDTO request) {
-        // Implementation for withdraw transaction
-        // This would involve calling core banking service to process the withdrawal
         log.info("Processing withdraw transaction: {} from {} to {}",
                 request.getWithdrawAmount(), request.getSavingsAccountNumber(), request.getDestinationAccountNumber());
-
-        // TODO: Implement actual withdraw logic by calling core banking service
-        // For now, we'll just log the operation
-        String url = coreBankingBaseUrl +"/get-account-by-id/" + request.getSavingsAccountNumber();
-        ResponseEntity<AccountPaymentResponse> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<AccountPaymentResponse>() {}
-        );
-        AccountPaymentResponse thisSaving = response.getBody();
 
         if (request.getWithdrawType().equals("full"))
         {
             log.info("Withdraw all monney from saving", request.getWithdrawType());
-            //DTO chuyen tien
             processTransaction(request);
-
             //chuyen tien  thanh cong se update account local , va core banking sang closed
-
             //update account saving local
             Account account = accountRepository.findByAccountNumber(request.getSavingsAccountNumber());
             if (account == null) {
@@ -305,14 +294,13 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             }
             account.setStatus(AccountStatus.CLOSED);
             accountRepository.save(account);
-
+            // tạo Request Update
             SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
                     .balance(BigDecimal.ZERO)
                     .status(AccountStatus.CLOSED)
                     .build();
             log.info("Saving update: {}", savingUpdateRequest);
                  String urlUpdate = coreBankingBaseUrl +"/update-balance-account-saving/" + request.getSavingsAccountNumber();
-//            restTemplate.put(urlUpdate, savingUpdateRequest);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
@@ -326,11 +314,12 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         else
         {
             log.info("Withdraw a part of  monney from saving" + request.getWithdrawType());
-            // chuyen tien
            processTransaction(request);
             // neu chuyen tien thanh cong thi update
+            // Get current balance của tải khoản hiên tại
+            BigDecimal currentBalance = getBalanceFromCorebanking(request.getSavingsAccountNumber());
             //update account core
-            BigDecimal newBalance = thisSaving.getBalance().subtract(request.getAmountOriginal());
+            BigDecimal newBalance = currentBalance.subtract(request.getAmountOriginal());
             SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
                     .balance(newBalance)
                     .status(AccountStatus.ACTIVE)
@@ -347,8 +336,6 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                     entity,
                     new ParameterizedTypeReference<AccountSavingUpdateResponse>() {}
             );
-            //get account saving
-
         }
 
     }
@@ -360,7 +347,6 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .currency("VND")
                 .description("Rút tiền tiết kiệm")
                 .build();
-
         // Backup current security context before calling Dubbo service
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
         try {
@@ -485,22 +471,11 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      * Validates account balance against required deposit amount
      */
     private void validateAccountBalance(String accountNumber, BigDecimal requiredAmount) {
-        String balanceUrl = String.format("%s/api/core-bank/get-balance/%s", coreBankingBaseUrl, accountNumber);
+
 
         try {
-            ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
-                    balanceUrl,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {}
-            );
 
-            if (response.getBody() == null || response.getBody().getResult() == null) {
-                log.error("Invalid response when checking balance for account: {}", accountNumber);
-                throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
-            }
-
-            BigDecimal balance = response.getBody().getResult();
+            BigDecimal balance = getBalanceFromCorebanking(accountNumber);
             log.info("Balance of source account {}: {}", accountNumber, balance);
 
             if (balance.compareTo(requiredAmount) < 0) {
@@ -516,6 +491,26 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     /**
      * Gets and validates the current authenticated customer
      */
+    private BigDecimal getBalanceFromCorebanking(String accountNumber) {
+        try {
+            String url = coreBankingBaseUrl + "/get-balance-by-accountNumber/"+accountNumber;
+            ResponseEntity<BalanceResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<BalanceResponse>() {}
+            );
+
+            BalanceResponse balanceResponse = response.getBody();
+            if (balanceResponse != null && balanceResponse.getBalance() != null) {
+                return balanceResponse.getBalance();
+            }
+            return BigDecimal.ZERO;
+        } catch (Exception e) {
+            log.warn("Failed to get balance from core banking for account: {}. Using zero balance.", accountNumber, e);
+            return BigDecimal.ZERO;
+        }
+    }
     private CustomerDTO getCurrentValidatedCustomer() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
@@ -626,8 +621,9 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .initialDeposit(tempRequest.getInitialDeposit())
                 .term(term)
                 .maturityDate(maturityDate)
-                .interestPaymentType(InterestPaymentType.AT_MATURITY)  // Default to AT_MATURITY
-                .renewOption(RenewOption.NO_RENEW)  // Default to NO_RENEW
+                .interestPaymentType(tempRequest.getInterestPaymentType())  // Default to AT_MATURITY
+                .renewOption(tempRequest.getRenewOption())  // Default to NO_RENEW
+                .accountNumberSrc(tempRequest.getAccountNumberSource())
                 .build();
         savingsAccount.setAccountNumber(generateAccountNumber(savingsAccount));
 
@@ -640,24 +636,20 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      */
     private void createCoreBankingAccount(Account account, SavingRequestCreateDTO tempRequest) {
         // Create simple account structure for Core Banking (only balance and status)
-        String url = coreBankingBaseUrl + "/api/v1/accounts/simple/create";
+        String url = coreBankingBaseUrl + "/save-account";
         try {
-            CreateSimpleAccountRequest request = CreateSimpleAccountRequest.builder()
+            CoreAccountRequest coreAccount = CoreAccountRequest.builder()
                     .accountNumber(account.getAccountNumber())
-                    .status(account.getStatus())
+                    .cifCode(account.getCifCode())
+                    .balance(tempRequest.getInitialDeposit())
+                    .accountType(account.getAccountType())
+                    .status(AccountStatus.ACTIVE)
                     .build();
+            log.info("corePaymentAccountDTO: {}", coreAccount);
+            // Call API save account trên CoreBanking
+            String saveurl = "http://localhost:8083/corebanking/save-account";
+            restTemplate.postForObject(saveurl ,coreAccount,Void.class);
 
-            log.info("Creating simple core banking account: {}", request);
-            restTemplate.postForObject(url, request, Void.class);
-
-            // Set initial balance if this is a savings account
-            if (tempRequest.getInitialDeposit() != null && tempRequest.getInitialDeposit().compareTo(BigDecimal.ZERO) > 0) {
-                String balanceUrl = coreBankingBaseUrl + "/api/v1/accounts/simple/" + account.getAccountNumber() + "/balance";
-                UpdateBalanceRequest balanceRequest = UpdateBalanceRequest.builder()
-                        .newBalance(tempRequest.getInitialDeposit())
-                        .build();
-                restTemplate.put(balanceUrl, balanceRequest);
-            }
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);

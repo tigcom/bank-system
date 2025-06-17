@@ -64,5 +64,15 @@ public class CoreAccountServiceImpl implements CoreAccountService {
                 .build();
     }
 
+    @Override
+    public void updateStatus(CoreAccountUpdateStatusRequest statusRequest) {
+        CoreAccount account = coreAccountRepo.findByAccountNumber(statusRequest.getAccountNumber());
+        if (account == null) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);
+        }
+        account.setStatus(statusRequest.getStatus());
+        coreAccountRepo.save(account);
+    }
+
 
 }

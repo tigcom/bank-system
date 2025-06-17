@@ -124,7 +124,6 @@ public class AccountController {
         );
         return response;
     }
-
     @GetMapping("/getAccountPaymentByID/{id}")
      public ApiResponseWrapper<AccountPaymentResponse> getAccountPaymentByID(@PathVariable String id) {
         AccountPaymentResponse accountPaymentResponse = accountService.getAccountPaymentbyID(id);

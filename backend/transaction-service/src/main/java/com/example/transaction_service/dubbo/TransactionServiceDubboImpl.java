@@ -82,6 +82,12 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
         return toCommonTransactionDTO(transactionDTO);
     }
 
+    @Override
+    public CommonTransactionDTO payinterestInternal(PayInterestRequest request) {
+        TransactionDTO transactionDTO = transactionService.payInterest(request);
+        return toCommonTransactionDTO(transactionDTO);
+    }
+
     private CommonTransactionDTO toCommonTransactionDTO(TransactionDTO transactionDTO){
         CommonTransactionDTO commonTransactionDTO = CommonTransactionDTO.builder()
                 .amount(transactionDTO.getAmount())
