@@ -3,13 +3,11 @@ package com.example.account_service.controller;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
-import com.example.account_service.dto.response.AccountCreateReponse;
-import com.example.account_service.dto.response.ApiResponseWrapper;
-import com.example.account_service.dto.response.PaymentRequestResponse;
-import com.example.account_service.dto.response.SavingsRequestResponse;
+import com.example.account_service.dto.response.*;
 import com.example.account_service.entity.Account;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
+import com.example.common_service.dto.CreditCardDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.SavingAccountResponse;
@@ -143,5 +141,19 @@ public class AccountController {
         String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
         System.out.println(token);
         return ResponseEntity.ok("Test auth with service, user: " + token);
+    }
+    @GetMapping("/getAllCreditCard")
+    public ApiResponseWrapper<List<CreditCardDTO>> getAllCreditCardByCurrentCustomer() {
+        List<CreditCardDTO> list = accountService.getAllCreditCard();
+        ApiResponseWrapper<List<CreditCardDTO>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.getAll-Credit-card.success"),
+                list
+        );
+        return response;
+    }
+    @GetMapping("/check-cic")
+    public ResponseEntity<CicResponse> checkCIC(@RequestParam String idNumber) {
+        return ResponseEntity.ok(accountService.checkCIC(idNumber));
     }
 }

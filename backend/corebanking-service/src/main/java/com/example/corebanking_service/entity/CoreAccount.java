@@ -125,10 +125,6 @@ public class CoreAccount {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private AccountStatus status;
-
-    @Column(name = "opened_date")
-    private LocalDate openedDate;
-
     @ManyToOne
     @JoinColumn(name = "cif_code", nullable = false)
     private CoreCustomer coreCustomer;

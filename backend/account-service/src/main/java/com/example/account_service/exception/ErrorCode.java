@@ -33,6 +33,7 @@ public enum ErrorCode {
     
     // New error codes for better validation
     INVALID_REQUEST(1027, "request.invalid"),
+    TERM_NOT_FOUND(1027, "uncategorized.error"),
     INVALID_ACCOUNT_NUMBER(1028, "account.number.invalid"),
     INVALID_AMOUNT(1029, "amount.invalid"),
     INVALID_TERM(1030, "term.invalid"),

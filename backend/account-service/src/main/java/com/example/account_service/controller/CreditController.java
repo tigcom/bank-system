@@ -1,5 +1,6 @@
 package com.example.account_service.controller;
 
+import com.example.account_service.dto.request.CreditRequestConfirmDTO;
 import com.example.account_service.dto.request.CreditRequestCreateDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
@@ -44,6 +45,15 @@ public class CreditController {
         return ApiResponseWrapper.<CreditRequestReponse>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(messageUtils.getMessage("account.credit-request.created"))
+                .data(reponse)
+                .build();
+    }
+    @PostMapping("/confirm-otp-credit")
+    public ApiResponseWrapper<CreditRequestReponse> createCreditRequest(@RequestBody CreditRequestConfirmDTO creditRequestConfirmDTO) {
+        CreditRequestReponse reponse = creditRequestService.confirmOTPAndCreateAccount(creditRequestConfirmDTO);
+        return ApiResponseWrapper.<CreditRequestReponse>builder()
+                .status(HttpStatus.CREATED.value())
+                .message(messageUtils.getMessage("OTP.validated"))
                 .data(reponse)
                 .build();
     }

@@ -50,7 +50,7 @@ public class SavingsController {
                 .build();
     }
 
-        @PostMapping("/confirm-otp-and-create-account")
+        @PostMapping("/confirm-otp-and-create-Saving-account")
     public ApiResponseWrapper<SavingsRequestResponse> confirmOTPAndCreateAccount(@RequestBody ConfirmRequestDTO confirmRequestDTO) {
         SavingsRequestResponse savingsRequestResponse = savingRequestService.confirmOTPAndCreateSavingAccount(confirmRequestDTO);
         return ApiResponseWrapper.<SavingsRequestResponse>builder()

@@ -3,11 +3,10 @@ package com.example.account_service.entity;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import jakarta.persistence.*;
-import jdk.jfr.DataAmount;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -19,9 +18,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="accounts")
-@Builder
-public class Account  extends  Auditable implements Serializable {
+@SuperBuilder
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Account extends Auditable implements Serializable {
     private static final long serialVersionUID = 1L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -39,8 +40,4 @@ public class Account  extends  Auditable implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private AccountStatus status;
-
-    @Column(name="src_account_number")
-    private String srcAccountNumber;
-
 }

@@ -1,20 +1,28 @@
 package com.example.account_service.service.impl;
 
 import com.example.account_service.dto.request.ConfirmRequestDTO;
+import com.example.account_service.dto.request.CreateSimpleAccountRequest;
 import com.example.account_service.dto.request.SavingRequestCreateDTO;
+import com.example.account_service.dto.request.UpdateBalanceRequest;
 import com.example.account_service.dto.response.SavingsRequestResponse;
 import com.example.account_service.dto.response.withdrawSavingResponse;
 import com.example.account_service.entity.Account;
+import com.example.account_service.entity.SavingsAccount;
 import com.example.account_service.entity.SavingsRequest;
+import com.example.account_service.entity.Term;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
 import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.repository.CreditRequestRepository;
+import com.example.account_service.repository.SavingsAccountRepository;
 import com.example.account_service.repository.SavingsRequestRepository;
+import com.example.account_service.repository.TermRepository;
 import com.example.account_service.service.SavingRequestService;
 import com.example.account_service.utils.AccountNumberUtils;
 import com.example.common_service.constant.*;
 import com.example.common_service.dto.*;
+import com.example.common_service.constant.InterestPaymentType;
+import com.example.common_service.constant.RenewOption;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
@@ -23,7 +31,6 @@ import com.example.common_service.dto.response.AccountSavingUpdateResponse;
 import com.example.common_service.dto.response.ApiResponse;
 import com.example.common_service.dto.response.CoreTermDTO;
 import com.example.common_service.services.CommonService;
-import com.example.common_service.services.CommonServiceCore;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +47,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -49,12 +57,11 @@ import java.util.Random;
 public class SavingsRequestServiceImpl implements SavingRequestService {
     
     private final AccountRepository accountRepository;
+    private final SavingsAccountRepository savingsAccountRepository;
+    private final TermRepository termRepository;
 
     @DubboReference(timeout = 5000)
     private final CommonService commonService;
-
-    @DubboReference(timeout = 5000)
-    private final CommonServiceCore commonServiceCore;
 
     @DubboReference(timeout = 5000)
     private final CommonTransactionService commonTransactionService;
@@ -72,28 +79,28 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     @Override
     public SavingsRequestResponse CreateSavingRequest(SavingRequestCreateDTO savingRequestCreateDTO) {
         log.info("Starting createSavingRequest with input: {}", savingRequestCreateDTO);
-        
+
         // Validate input
         validateSavingRequestInput(savingRequestCreateDTO);
-        
+
         // Check account balance
         validateAccountBalance(savingRequestCreateDTO.getAccountNumberSource(), savingRequestCreateDTO.getInitialDeposit());
-        
+
         // Get and validate customer
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
-        
+
         // Tạo temporary key để lưu thông tin request trước khi verify OTP
         String tempRequestKey = "TEMP_SAVING_REQUEST:" + currentCustomer.getCifCode() + ":" + System.currentTimeMillis();
-        
+
         // Lưu thông tin request vào Redis (expire sau 1 giờ)
         SavingRequestCreateDTO tempRequest = SavingRequestCreateDTO.builder()
                 .accountNumberSource(savingRequestCreateDTO.getAccountNumberSource())
                 .initialDeposit(savingRequestCreateDTO.getInitialDeposit())
                 .term(savingRequestCreateDTO.getTerm())
                 .build();
-        
+
         redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
-        
+
         // Tạo và gửi OTP
         String otp = generateAndStoreOTP(tempRequestKey, "SAVING");
         MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
@@ -103,9 +110,9 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .subject("Xác thực OTP - Tạo tài khoản tiết kiệm")
                 .build();
         sendOTPEmail(currentCustomer, otp,mailMessageDTO);
-        
+
         log.info("OTP sent for saving request creation. Temp key: {}", tempRequestKey);
-        
+
         // Trả về response với temp key để client có thể confirm OTP
         return SavingsRequestResponse.builder()
                 .id(tempRequestKey) // Sử dụng temp key làm ID tạm thời
@@ -120,18 +127,18 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     @Override
     public void resendOTP(String tempRequestKey) {
         log.info("Resending OTP for temp request key: {}", tempRequestKey);
-        
+
         // Kiểm tra temp request có tồn tại không
         Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
         if (tempRequest == null) {
             throw new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED);
         }
-        
+
         // Lấy thông tin customer từ temp key
         String cifCode = extractCifFromTempKey(tempRequestKey);
         log.info("Resending OTP for saving request. CIF code: {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-        
+
         if (customerDTO == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
@@ -139,10 +146,10 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         // Xác định loại request từ temp key
         String requestType = tempRequestKey.contains("SAVING_REQUEST") ? "SAVING" : "WITHDRAW";
         String otp = generateAndStoreOTP(tempRequestKey, requestType);
-        String emailSubject = requestType.equals("SAVING") ? 
-            "Xác thực OTP - Tạo tài khoản tiết kiệm" : 
+        String emailSubject = requestType.equals("SAVING") ?
+            "Xác thực OTP - Tạo tài khoản tiết kiệm" :
             "Xác thực OTP - Yêu cầu rút tiền tiết kiệm";
-            
+
         MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
                 .recipientName(customerDTO.getFullName())
                 .recipient(customerDTO.getEmail())
@@ -150,30 +157,30 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .subject(emailSubject)
                 .build();
         sendOTPEmail(customerDTO, otp,mailMessageDTO);
-        
+
         log.info("OTP resent successfully for temp request: {}", tempRequestKey);
     }
 
     @Override
     public SavingsRequestResponse confirmOTPAndCreateSavingAccount(ConfirmRequestDTO confirmRequestDTO) {
         log.info("Confirming OTP and creating saving account: {}", confirmRequestDTO.getSavingRequestID());
-        
+
         // Validate OTP
         SavingRequestCreateDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO, "SAVING");
-        
+
         // Lấy thông tin customer
         String cifCode = extractCifFromTempKey(confirmRequestDTO.getSavingRequestID());
         log.info("Creating saving account for CIF Code: {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-        
+
         // Tạo Saving Account trực tiếp (không cần tạo SavingsRequest entity)
         Account account = processSavingAccountCreation(tempRequest, cifCode);
-        
+
         // Cleanup temp data
         cleanupTempData(confirmRequestDTO.getSavingRequestID(), "SAVING");
-        
+
         log.info("Saving account created successfully: {}", account.getAccountNumber());
-        
+
         // Trả về response với thông tin account đã tạo
         return SavingsRequestResponse.builder()
                 .id(account.getId())
@@ -235,23 +242,23 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     @Override
     public withdrawSavingResponse confirmOTPAndProcessWithdraw(ConfirmRequestDTO confirmRequestDTO) {
         log.info("Confirming OTP and processing withdraw: {}", confirmRequestDTO.getSavingRequestID());
-        
+
         // Validate OTP
         WithdrawSavingDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO, "WITHDRAW");
-        
+
         // Lấy thông tin customer
         String cifCode = extractCifFromTempKey(confirmRequestDTO.getSavingRequestID());
         log.info("Processing withdraw for CIF Code: {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-        
+
         // Process withdraw transaction
         processWithdrawTransaction(tempRequest);
-        
+
         // Cleanup temp data
         cleanupTempData(confirmRequestDTO.getSavingRequestID(), "WITHDRAW");
-        
+
         log.info("Withdraw from saving account processed successfully");
-        
+
         // Trả về response với thông tin đã xử lý
         return withdrawSavingResponse.builder()
                 .id("COMPLETED")
@@ -269,9 +276,9 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     private void processWithdrawTransaction(WithdrawSavingDTO request) {
         // Implementation for withdraw transaction
         // This would involve calling core banking service to process the withdrawal
-        log.info("Processing withdraw transaction: {} from {} to {}", 
+        log.info("Processing withdraw transaction: {} from {} to {}",
                 request.getWithdrawAmount(), request.getSavingsAccountNumber(), request.getDestinationAccountNumber());
-        
+
         // TODO: Implement actual withdraw logic by calling core banking service
         // For now, we'll just log the operation
         String url = coreBankingBaseUrl +"/get-account-by-id/" + request.getSavingsAccountNumber();
@@ -353,7 +360,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .currency("VND")
                 .description("Rút tiền tiết kiệm")
                 .build();
-        
+
         // Backup current security context before calling Dubbo service
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
         try {
@@ -396,22 +403,22 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         String keyOTP = "OTP:" + requestType + ":" + confirmRequestDTO.getSavingRequestID();
         String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
         log.info("Validating OTP for temp request: {} with type: {}", confirmRequestDTO.getSavingRequestID(), requestType);
-        
+
         if (storedOtp == null) {
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
-        
+
         if (!storedOtp.equals(confirmRequestDTO.getOtpCode())) {
             handleOTPFailure(confirmRequestDTO.getSavingRequestID(), requestType);
             throw new AppException(ErrorCode.INVALID_OTP);
         }
-        
+
         // Lấy temp request
         T tempRequest = (T) redisTemplate.opsForValue().get(confirmRequestDTO.getSavingRequestID());
         if (tempRequest == null) {
             throw new AppException(ErrorCode.SAVING_REQUEST_NOTEXISTED);
         }
-        
+
         log.info("OTP validated successfully for temp request: {}", confirmRequestDTO.getSavingRequestID());
         return tempRequest;
     }
@@ -426,7 +433,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
         failCount++;
         redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount), Duration.ofMinutes(5));
-        
+
         if (failCount >= 3) {
             // Xóa temp request
             cleanupTempData(tempRequestKey, requestType);
@@ -479,7 +486,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      */
     private void validateAccountBalance(String accountNumber, BigDecimal requiredAmount) {
         String balanceUrl = String.format("%s/api/core-bank/get-balance/%s", coreBankingBaseUrl, accountNumber);
-        
+
         try {
             ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
                     balanceUrl,
@@ -487,15 +494,15 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                     null,
                     new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {}
             );
-            
+
             if (response.getBody() == null || response.getBody().getResult() == null) {
                 log.error("Invalid response when checking balance for account: {}", accountNumber);
                 throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
             }
-            
+
             BigDecimal balance = response.getBody().getResult();
             log.info("Balance of source account {}: {}", accountNumber, balance);
-            
+
             if (balance.compareTo(requiredAmount) < 0) {
                 log.warn("Insufficient balance. Required: {}, Available: {}", requiredAmount, balance);
                 throw new AppException(ErrorCode.BALANCE_NOT_ENOUGH);
@@ -532,7 +539,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 SecurityContextHolder.getContext().setAuthentication(currentAuth);
             }
         }
-        
+
         log.info("Current Customer retrieved: {}", currentCustomer);
 
         if (currentCustomer == null) {
@@ -544,7 +551,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             log.warn("Customer status is not ACTIVE: {}", currentCustomer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-        
+
         return currentCustomer;
     }
 
@@ -554,16 +561,15 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     private Account processSavingAccountCreation(SavingRequestCreateDTO tempRequest, String cifCode) {
         // Transfer money from source account to master account
         CommonTransactionDTO transactionDTO = transferToMasterAccount(tempRequest);
-        
-        // Create account in local database
+
+        // Create savings account in local database (Account is saved automatically due to inheritance)
         Account account = createLocalSavingAccount(tempRequest, cifCode);
-        
-        // Create account in core banking system
+
+        // Create simple account in core banking system for transaction management
         createCoreBankingAccount(account, tempRequest);
-        
-        accountRepository.save(account);
+
         log.info("Saving account created successfully: {}", account.getAccountNumber());
-        
+
         return account;
     }
 
@@ -584,12 +590,12 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                             .description("Gửi tiền tiết kiệm")
                             .build()
             );
-            
+
             if (!"COMPLETED".equals(transactionDTO.getStatus())) {
                 log.error("Transaction failed with status: {}", transactionDTO.getStatus());
                 throw new AppException(ErrorCode.TRANSACTION_FAILED);
             }
-            
+
             return transactionDTO;
         } finally {
             // Restore security context
@@ -603,33 +609,55 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      * Creates a local saving account entity
      */
     private Account createLocalSavingAccount(SavingRequestCreateDTO tempRequest, String cifCode) {
-        Account account = Account.builder()
+        // Get term entity from repository
+        Term term = termRepository.findByTermValueMonths(tempRequest.getTerm());
+        if (term == null) {
+            throw new AppException(ErrorCode.TERM_NOT_FOUND);
+        }
+
+        // Calculate maturity date: current time + term months
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime maturityDate = currentTime.plusMonths(term.getTermValueMonths());
+
+        SavingsAccount savingsAccount = SavingsAccount.builder()
                 .accountType(AccountType.SAVING)
                 .cifCode(cifCode)
                 .status(AccountStatus.ACTIVE)
-                .srcAccountNumber(tempRequest.getAccountNumberSource())
+                .initialDeposit(tempRequest.getInitialDeposit())
+                .term(term)
+                .maturityDate(maturityDate)
+                .interestPaymentType(InterestPaymentType.AT_MATURITY)  // Default to AT_MATURITY
+                .renewOption(RenewOption.NO_RENEW)  // Default to NO_RENEW
                 .build();
-        account.setAccountNumber(generateAccountNumber(account));
-        return account;
+        savingsAccount.setAccountNumber(generateAccountNumber(savingsAccount));
+
+        // Save savings account (Account will be saved automatically due to inheritance)
+        return savingsAccountRepository.save(savingsAccount);
     }
 
     /**
-     * Creates saving account in core banking system
+     * Creates simple account in core banking system (only for balance and transaction management)
      */
     private void createCoreBankingAccount(Account account, SavingRequestCreateDTO tempRequest) {
-        CoreSavingAccountDTO coreSavingAccountDTO = CoreSavingAccountDTO.builder()
-                .cifCode(account.getCifCode())
-                .term(tempRequest.getTerm())
-                .initialDeposit(tempRequest.getInitialDeposit())
-                .accountNumber(account.getAccountNumber())
-                .srcAccountNumber(tempRequest.getAccountNumberSource())
-                .build();
-                
-        log.info("Creating core banking account: {}", coreSavingAccountDTO);
-        
-        String url = coreBankingBaseUrl + "/create-savings-account";
+        // Create simple account structure for Core Banking (only balance and status)
+        String url = coreBankingBaseUrl + "/api/v1/accounts/simple/create";
         try {
-            restTemplate.postForObject(url, coreSavingAccountDTO, Void.class);
+            CreateSimpleAccountRequest request = CreateSimpleAccountRequest.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .status(account.getStatus())
+                    .build();
+
+            log.info("Creating simple core banking account: {}", request);
+            restTemplate.postForObject(url, request, Void.class);
+
+            // Set initial balance if this is a savings account
+            if (tempRequest.getInitialDeposit() != null && tempRequest.getInitialDeposit().compareTo(BigDecimal.ZERO) > 0) {
+                String balanceUrl = coreBankingBaseUrl + "/api/v1/accounts/simple/" + account.getAccountNumber() + "/balance";
+                UpdateBalanceRequest balanceRequest = UpdateBalanceRequest.builder()
+                        .newBalance(tempRequest.getInitialDeposit())
+                        .build();
+                restTemplate.put(balanceUrl, balanceRequest);
+            }
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);
@@ -638,19 +666,24 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
     @Override
     public List<CoreTermDTO> getAllTerm() {
-        String url = coreBankingBaseUrl + "/get-all-term-isactive";
         try {
-            ResponseEntity<List<CoreTermDTO>> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<List<CoreTermDTO>>() {}
-            );
-            return response.getBody();
+            List<Term> activeTerms = termRepository.findAllActiveTermsOrderByMonths();
+            return activeTerms.stream()
+                    .map(this::mapToCoreTermDTO)
+                    .collect(java.util.stream.Collectors.toList());
         } catch (Exception e) {
-            log.error("Failed to get terms from core banking", e);
+            log.error("Failed to get terms from local database", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);
         }
+    }
+
+    private CoreTermDTO mapToCoreTermDTO(Term term) {
+        return CoreTermDTO.builder()
+                .termId(term.getTermId())
+                .termValueMonths(term.getTermValueMonths())
+                .interestRate(term.getInterestRate())
+                .isActive(term.getIsActive())
+                .build();
     }
 
     private void validatewithdrawSavingRequest(WithdrawSavingDTO request) {
