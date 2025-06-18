@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param; // Import @Param
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @EnableJpaRepositories
