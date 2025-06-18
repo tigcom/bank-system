@@ -434,7 +434,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     private String generateAndStoreOTP(String key, String requestType) {
         String keyOTP = "OTP:" + requestType + ":" + key;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(10)); // OTP có hiệu lực 10 phút
+        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(3)); // OTP có hiệu lực 10 phút
         log.info("OTP generated and stored for key: {} with type: {}", key, requestType);
         return otp;
     }
