@@ -1,4 +1,4 @@
-package com.example.common_service.services.customer;
+package com.example.corebanking_service.service;
 
 import com.example.common_service.dto.customer.CoreCustomerDTO;
 import com.example.common_service.dto.customer.CoreResponse;
@@ -6,5 +6,3 @@ import com.example.common_service.dto.customer.CoreResponse;
 public interface CoreCustomerService {
     CoreResponse syncCoreCustomer(CoreCustomerDTO coreCustomerDTO);
 }
-
-

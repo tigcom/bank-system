@@ -12,6 +12,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -22,8 +23,9 @@ import org.thymeleaf.context.Context;
 public class NotificationServiceImpl implements NotificationService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final ObjectMapper objectMapper;
     private final ConnectionHealthService connectionHealthService;
-    
+
     @Override
     @KafkaListener(topics = "send-mail-raw", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
     public void sendNotification(Message<byte[]> messagee) {
@@ -31,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
             ObjectMapper objectMapper = new ObjectMapper();
             MailMessageDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailMessageDTO.class);
             log.info("Sending raw email to: {}", mailMessage.getRecipient());
-            
+
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
             helper.setFrom("nguyenhoainam29.08.01@gmail.com");
@@ -39,14 +41,14 @@ public class NotificationServiceImpl implements NotificationService {
             helper.setTo(mailMessage.getRecipient());
             helper.setSubject(mailMessage.getSubject());
             helper.setText(mailMessage.getBody(), true);
-            
+
             mailSender.send(message);
             log.info("Email sent successfully to: {}", mailMessage.getRecipient());
         } catch (Exception e) {
             log.error("Lỗi khi xử lý message: {}", e.getMessage(), e);
         }
     }
-    
+
     @Override
     @KafkaListener(topics = "send-mail-html", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
     public void sendDTO(Message<byte[]> messagee) {
@@ -68,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
         }
     }
-    
+
     private void sendEmailWithRetry(MailMessageDTO mailMessage, String htmlContent, int maxRetries) {
         // Check connection health before attempting to send
         if (!connectionHealthService.checkGmailConnection()) {
@@ -76,7 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
             connectionHealthService.logNetworkDiagnostics();
             throw new RuntimeException("Gmail SMTP server not reachable");
         }
-        
+
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
@@ -89,26 +91,26 @@ public class NotificationServiceImpl implements NotificationService {
                 mailSender.send(message);
                 log.info("HTML email sent successfully to: {} (attempt {})", mailMessage.getRecipient(), attempt);
                 return; // Success, exit retry loop
-                
+
             } catch (Exception e) {
                 log.warn("Email send attempt {} failed for {}: {}", attempt, mailMessage.getRecipient(), e.getMessage());
-                
+
                 // If it's a connection reset, check connectivity again
                 if (e.getMessage().contains("Connection reset")) {
                     log.warn("Connection reset detected, checking Gmail connectivity...");
                     boolean connected = connectionHealthService.checkGmailConnection();
                     log.info("Gmail connectivity check result: {}", connected);
                 }
-                
+
                 if (attempt == maxRetries) {
                     log.error("Failed to send email to {} after {} attempts", mailMessage.getRecipient(), maxRetries, e);
                     connectionHealthService.logNetworkDiagnostics();
                     throw new RuntimeException("Email sending failed after " + maxRetries + " attempts", e);
                 }
-                
+
                 // Wait before retry with exponential backoff
                 try {
-                    Thread.sleep(2000 * attempt); 
+                    Thread.sleep(2000 * attempt);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     break;
@@ -127,7 +129,7 @@ public class NotificationServiceImpl implements NotificationService {
             Context context = new Context();
             context.setVariable("customerName", notification.getCustomerName());
             context.setVariable("cardType", notification.getCardType());
-            
+
             String templateName;
             if ("approval".equals(notification.getTemplateType())) {
                 context.setVariable("accountNumber", notification.getAccountNumber());
@@ -147,12 +149,78 @@ public class NotificationServiceImpl implements NotificationService {
             helper.setText(htmlContent, true);
 
             mailSender.send(mimeMessage);
-            
+
             log.info("Đã gửi email thông báo credit request cho: {}", notification.getCustomerEmail());
 
         } catch (Exception e) {
             log.error("Lỗi khi gửi email credit notification: {}", e.getMessage(), e);
         }
     }
+
+    @Override
+    @KafkaListener(topics = "sentOtpRegister", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendOtpRegister(Message<byte[]> message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
+            log.info("Đã gửi email OTP đăng ký tới: {}", mailMessage.getRecipient());
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
+            context.setVariable("request", "đăng ký tài khoản");
+            context.setVariable("otp", mailMessage.getBody());
+            context.setVariable("ttl", 5);
+
+            System.out.println(mailMessage.getBody());
+
+            String htmlContent = templateEngine.process("otp-register-template", context);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
+            helper.setTo(mailMessage.getRecipient());
+            helper.setSubject(mailMessage.getSubject());
+            helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
+            log.info("Đã gửi email OTP đăng ký tới: {}", mailMessage.getRecipient());
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email OTP đăng ký tới: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email OTP đăng ký: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @KafkaListener(topics = "sentOtpForgotPassword", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendOtpForgotPassword(Message<byte[]> message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
+            log.info("Nhận yêu cầu gửi email khôi phục mật khẩu cho: {}", mailMessage.getRecipient());
+
+            // Tạo context cho Thymeleaf template
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
+            context.setVariable("resetLink", mailMessage.getBody());
+
+            // Xử lý template email HTML
+            String htmlContent = templateEngine.process("reset-password-template", context);
+
+            // Tạo email
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
+            helper.setTo(mailMessage.getRecipient());
+            helper.setSubject(mailMessage.getSubject());
+            helper.setText(htmlContent, true); // true => là HTML
+
+            // Gửi email
+            mailSender.send(mimeMessage);
+            log.info("Đã gửi email khôi phục mật khẩu tới: {}", mailMessage.getRecipient());
+
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi email khôi phục mật khẩu: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email khôi phục mật khẩu: " + e.getMessage(), e);
+        }
+    }
+
 }
 
