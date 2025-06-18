@@ -83,7 +83,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
         validateCustomerForCreditRequest(currentCustomer);
-
+        validateCreditRequestBusinessRules(creditRequestCreateDTO);
         // Tạo temporary key để lưu thông tin request trước khi verify OTP
         String tempRequestKey = "TEMP_CREDIT_REQUEST:" + currentCustomer.getCifCode() + ":" + System.currentTimeMillis();
 
@@ -264,16 +264,6 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         CreditRequest creditRequest = getCreditRequestById(id);
         validateCreditRequestStatus(creditRequest, CreditRequestStatus.PENDING);
 
-        // Validate business rules
-        try {
-            validateCreditRequestBusinessRules(creditRequest);
-        } catch (AppException e) {
-            // Nếu không đạt yêu cầu, tự động reject
-           // rejectCreditRequestInternal(id, "Không đáp ứng yêu cầu: " + e.getMessage());
-            // Throw exception để không tạo tài khoản
-            throw e;
-        }
-
         // Tạo tài khoản tín dụng
         Account account = createCreditAccount(creditRequest);
         createCoreBankingCreditAccount(account, creditRequest);
@@ -302,6 +292,30 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         return rejectCreditRequestInternal(id, "Không đáp ứng yêu cầu về chính sách ngân hàng");
     }
 
+    @Override
+    public void resendCreditOtp(String tempRequestKey) {
+        log.info("Resending OTP for temp request key: {}", tempRequestKey);
+        // Kiểm tra temp request có tồn tại không
+        Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
+        if (tempRequest == null) {
+            throw new AppException(ErrorCode.UNCATERROR_ERROR); // Sử dụng error code có sẵn
+        }
+
+        // Lấy thông tin customer từ temp key
+        String cifCode = extractCifFromTempKey(tempRequestKey);
+        log.info("Resending OTP for payment request. CIF code: {}", cifCode);
+        CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+
+        if (customerDTO == null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+        }
+
+        String otp = generateAndStoreOTP(tempRequestKey);
+        sendOTPEmail(customerDTO, otp);
+
+        log.info("OTP resent successfully for temp request: {}", tempRequestKey);
+    }
+
     // === Private Helper Methods ===
 
     private CreditRequestReponse rejectCreditRequestInternal(String id, String reason) {
@@ -321,8 +335,8 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private void sendApprovalNotification(CreditRequest creditRequest, Account account) {
         try {
             CustomerDTO customer = commonService.getCustomerByCifCode(creditRequest.getCifCode());
-            String urlGetCard = coreBankingBaseUrl + "/get-cart-type/" + creditRequest.getCartTypeId();
-            CartTypeDTO cartTypeDTO = restTemplate.getForObject(urlGetCard, CartTypeDTO.class);
+            CreditCardType cartTypeDTO = creditCardTypeRepository.findById(creditRequest.getCartTypeId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR));
 
             CreditNotificationDTO notification = CreditNotificationDTO.builder()
                     .customerName(customer.getFullName())
@@ -343,9 +357,8 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private void sendRejectionNotification(CreditRequest creditRequest, String reason) {
         try {
             CustomerDTO customer = commonService.getCustomerByCifCode(creditRequest.getCifCode());
-            String urlGetCard = coreBankingBaseUrl + "/get-cart-type/" + creditRequest.getCartTypeId();
-            CartTypeDTO cartTypeDTO = restTemplate.getForObject(urlGetCard, CartTypeDTO.class);
-
+            CreditCardType cartTypeDTO = creditCardTypeRepository.findById(creditRequest.getCartTypeId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR));
             CreditNotificationDTO notification = CreditNotificationDTO.builder()
                     .customerName(customer.getFullName())
                     .customerEmail(customer.getEmail())
@@ -439,7 +452,14 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             log.warn("Customer status is not ACTIVE: {}", customer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
+        int age = Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears();
+        log.info("Customer age: {} years", age);
+        if (age < 21) {
+            log.warn("Customer age is below required minimum: {}", age);
+            throw new AppException(ErrorCode.AGE_INVALID);
+        }
         ///  check KYC status cua khach hang
+
     }
 
     /**
@@ -468,7 +488,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private String generateAndStoreOTP(String key) {
         String keyOTP = "OTP:CREDIT:" + key;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(10)); // OTP có hiệu lực 10 phút
+        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(3)); // OTP có hiệu lực 10 phút
         log.info("OTP generated and stored for key: {}", key);
         return otp;
     }
@@ -490,33 +510,17 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     /**
      * Validates credit request business rules (income, age, etc.)
      */
-    private void validateCreditRequestBusinessRules(CreditRequest creditRequest) {
-        CustomerDTO customerDTO = commonService.getCustomerByCifCode(creditRequest.getCifCode());
-        log.info("Validating business rules for cifCode: {}", creditRequest.getCifCode());
-
+    private void validateCreditRequestBusinessRules(CreditRequestCreateDTO creditRequest) {
         // Get credit card type from local repository
         CreditCardType creditCardType = creditCardTypeRepository.findById(creditRequest.getCartTypeId())
                 .orElseThrow(() -> new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR));
-
         log.info("Validating business rules for credit card type: {}", creditCardType.getTypeName());
-
-        // Validate age
-        int age = Period.between(customerDTO.getDateOfBirth(), LocalDate.now()).getYears();
-        log.info("Customer age: {} years", age);
-
-        if (age < 21) {
-            log.warn("Customer age is below required minimum: {}", age);
-            throw new AppException(ErrorCode.AGE_INVALID);
-        }
-
         // Validate income
         if (creditRequest.getMonthlyIncome().compareTo(creditCardType.getMinimumIncome()) < 0) {
             log.warn("Monthly income is insufficient: {} < {}",
-                creditRequest.getMonthlyIncome(), creditCardType.getMinimumIncome());
+                    creditRequest.getMonthlyIncome(), creditCardType.getMinimumIncome());
             throw new AppException(ErrorCode.INCOME_INVALID);
         }
-
-        log.info("Business rules validation passed for credit request: {}", creditRequest.getId());
     }
 
     /**
@@ -561,22 +565,21 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         }
     }
 
-    /**
-     * Creates simple account in core banking system (only for balance and transaction management)
-     */
     private void createCoreBankingCreditAccount(Account account, CreditRequest creditRequest) {
         // Create simple account structure for Core Banking (only balance and status)
-        String url = coreBankingBaseUrl + "/api/v1/accounts/simple/create";
+        String url = coreBankingBaseUrl + "/save-account";
         try {
-            CreateSimpleAccountRequest request = CreateSimpleAccountRequest.builder()
-                .accountNumber(account.getAccountNumber())
-                    .status(account.getStatus())
-                .build();
+            CoreAccountRequest coreAccount = CoreAccountRequest.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(account.getCifCode())
+                    .balance(BigDecimal.ZERO)
+                    .accountType(account.getAccountType())
+                    .status(AccountStatus.ACTIVE)
+                    .build();
+            log.info("corePaymentAccountDTO: {}", coreAccount);
 
-            log.info("Creating simple core banking account for credit: {}", request);
-            restTemplate.postForObject(url, request, Void.class);
-
-            log.info("Credit account created successfully in core banking system: {}", account.getAccountNumber());
+            // Call API save account trên CoreBanking
+            restTemplate.postForObject(url ,coreAccount,Void.class);
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);

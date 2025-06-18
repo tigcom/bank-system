@@ -22,4 +22,6 @@ public interface CreditRequestService {
     List<CreditRequestReponse> getAllCreditRequest();
 
     CreditRequestReponse rejectCreditRequest(String id);
+
+    void resendCreditOtp(String tempRequestKey);
 }

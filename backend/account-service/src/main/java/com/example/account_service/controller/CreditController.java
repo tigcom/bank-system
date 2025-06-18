@@ -104,5 +104,14 @@ public class CreditController {
         );
         return response;
     }
+    @PostMapping("/resend-otp-credit/{tempRequestKey}")
+    public ApiResponseWrapper<String> resendPaymentOtp(@PathVariable String tempRequestKey) {
+        creditRequestService.resendCreditOtp(tempRequestKey);
+        return ApiResponseWrapper.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("OTP đã được gửi lại thành công.")
+                .data("OTP resent to user email.")
+                .build();
+    }
 
 }

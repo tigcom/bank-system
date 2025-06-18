@@ -376,7 +376,7 @@ public class AccountServiceImpl implements AccountService {
         // Kiểm tra temp request có tồn tại không
         Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
         if (tempRequest == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND); // Sử dụng error code có sẵn
+            throw new AppException(ErrorCode.UNCATERROR_ERROR); // Sử dụng error code có sẵn
         }
 
         // Lấy thông tin customer từ temp key
@@ -455,7 +455,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("corePaymentAccountDTO: {}", coreAccount);
 
         // Call API save account trên CoreBanking
-        String url = "http://localhost:8083/corebanking/save-account";
+        String url = coreBankingBaseUrl + "/save-account";
         restTemplate.postForObject(url ,coreAccount,Void.class);
 
         return AccountCreateReponse.builder()
@@ -534,7 +534,7 @@ public class AccountServiceImpl implements AccountService {
     private String generateAndStoreOTP(String key) {
         String keyOTP = "OTP:PAYMENT:" + key;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(10)); // OTP có hiệu lực 10 phút
+        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(3)); // OTP có hiệu lực 10 phút
         log.info("OTP generated and stored for key: {}", key);
         return otp;
     }
