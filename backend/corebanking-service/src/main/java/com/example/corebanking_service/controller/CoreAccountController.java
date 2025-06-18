@@ -1,5 +1,4 @@
-package com.example.corebanking_service.controller;
-
+package com.example.corebanking_service.Controller;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.response.*;

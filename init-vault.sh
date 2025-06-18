@@ -1,10 +1,13 @@
+
+# Đặt các biến môi trường cho Vault
 export VAULT_TOKEN="myroot"
 export VAULT_ADDR="http://host.docker.internal:8200"
 
+# Thêm secret vào Vault dưới path: secret/customer-service
 vault kv put secret/customer-service \
-  db-username=root \
-  db-password=123456 \
-  idp-realm=myrealm \
-  idp-client-id=customer-service \
-  idp-client-secret=vF8VYOn3m3g63csOanjpBqG9AxQNUEQX \
-  redis-password=123
+  db_username="root" \
+  db_password="123456" \
+  idp_realm="myrealm" \
+  idp_client_id="customer-service" \
+  idp_client_secret="vF8VYOn3m3g63csOanjpBqG9AxQNUEQX" \
+  redis_password="123"
