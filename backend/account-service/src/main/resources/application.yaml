@@ -7,7 +7,7 @@ spring:
   application:
     name: account-service
   datasource:
-    url: jdbc:mysql://localhost:3306/accountdb_new
+    url: jdbc:mysql://localhost:3306/accountdb
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,7 +15,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/myrealm
+          issuer-uri: http://localhost:8081/realms/myrealm
   jpa:
     properties:
       hibernate:
