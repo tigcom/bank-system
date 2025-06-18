@@ -2,6 +2,7 @@ package com.example.customer_service.services;
 
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.responses.*;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface CustomerService {

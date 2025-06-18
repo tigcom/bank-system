@@ -88,8 +88,8 @@ public class CustomerServiceImpl implements CustomerService {
         registrationCacheService.saveRegistrationData(request.getEmail(), request);
 
         return new ApiResponseWrapper<>(HttpStatus.OK.value(),
-                "REGISTER_DATA_SAVED",
-                "Thông tin đăng ký đã được lưu. Vui lòng tiến hành xác minh KYC.");
+                getMessage(MessageKeys.REGISTER_DATA_SAVED),
+                request);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class CustomerServiceImpl implements CustomerService {
         // Get registration data from Redis
         RegisterCustomerDTO registerData = registrationCacheService.getRegistrationData(email);
         if (registerData == null) {
-            throw new BusinessException("REGISTRATION_DATA_NOT_FOUND");
+            throw new BusinessException(getMessage(MessageKeys.REGISTRATION_DATA_NOT_FOUND));
         }
 
         // Validate KYC data matches registration data
@@ -165,13 +165,13 @@ public class CustomerServiceImpl implements CustomerService {
         // Get registration data
         RegisterCustomerDTO request = registrationCacheService.getRegistrationData(email);
         if (request == null) {
-            throw new BusinessException("REGISTRATION_DATA_NOT_FOUND");
+            throw new BusinessException(getMessage(MessageKeys.REGISTRATION_DATA_NOT_FOUND));
         }
 
         // Get KYC data
         KycRequest kycData = registrationCacheService.getKycData(email);
         if (kycData == null) {
-            throw new BusinessException("KYC_DATA_NOT_FOUND");
+            throw new BusinessException(getMessage(MessageKeys.KYC_DATA_NOT_FOUND));
         }
 
         // Perform final registration

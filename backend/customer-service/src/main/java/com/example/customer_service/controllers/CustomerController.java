@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,12 +83,6 @@ public class CustomerController {
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
             );
-        } catch (Exception e) {
-            log.error("Lỗi khi khởi tạo đăng ký cho email: {}", request.getEmail(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponseWrapper<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "Đã xảy ra lỗi khi khởi tạo đăng ký", null)
-            );
         }
     }
 
@@ -111,12 +106,6 @@ public class CustomerController {
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
             );
-        } catch (Exception e) {
-            log.error("Lỗi khi xác minh KYC với email: {}", email, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponseWrapper<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "Đã xảy ra lỗi trong quá trình xác minh KYC", null)
-            );
         }
     }
 
@@ -139,12 +128,6 @@ public class CustomerController {
             log.warn("Mã OTP không hợp lệ với email {}: {}", email, e.getMessage());
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
-            );
-        } catch (Exception e) {
-            log.error("Lỗi khi xác nhận đăng ký với email: {}", email, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponseWrapper<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "Đã xảy ra lỗi trong quá trình xác nhận đăng ký", null)
             );
         }
     }
