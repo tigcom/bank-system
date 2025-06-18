@@ -15,6 +15,9 @@ public class MessageKeys {
 
     // Register-related messages
     public static final String REGISTER_FAILED = "user.register.register_failed";
+    public static final String REGISTER_DATA_SAVED = "user.register.register_data_saved";
+    public static final String REGISTRATION_DATA_NOT_FOUND = "user.register.register_data_not_found";
+    public static final String KYC_DATA_NOT_FOUND = "user.register.kyc_data_not_found";
     public static final String KAFKA_FAILED = "user.register.kafka_failed";
     public static final String REGISTER_SUCCESSFULLY = "user.register.register_successfully";
     public static final String USER_EXISTS = "user.register.username_exists";

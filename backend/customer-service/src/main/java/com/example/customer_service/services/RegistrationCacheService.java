@@ -21,22 +21,22 @@ public class RegistrationCacheService {
 
     public void saveRegistrationData(String email, RegisterCustomerDTO request) {
         try {
-            log.info("Saving registration data for email: {}", email);
+            log.info("Lưu dữ liệu đăng ký cho email: {}", email);
             redisTemplate.opsForValue().set("registration:" + email, request, ttl);
-            log.info("Registration data saved successfully for email: {}", email);
+            log.info("Dữ liệu đăng ký đã được lưu thành công cho email: {}", email);
         } catch (Exception e) {
-            log.error("Error saving registration data to Redis for email: {}. Details: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
+            log.error("Lỗi khi lưu dữ liệu đăng ký vào Redis cho email: {}. Details: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Không thể kết nối với Redis: " + e.getMessage(), e);
         }
     }
 
     public RegisterCustomerDTO getRegistrationData(String email) {
         try {
             Object data = redisTemplate.opsForValue().get("registration:" + email);
-            log.info("Retrieved registration data for email: {}", email);
+            log.info("Đã lấy dữ liệu đăng ký cho email: {}", email);
 
             if (data == null) {
-                log.warn("Registration data does not exist or has expired for email: {}", email);
+                log.warn("Dữ liệu đăng ký không tồn tại hoặc đã hết hạn cho email: {}", email);
                 return null;
             }
 
@@ -48,32 +48,32 @@ public class RegistrationCacheService {
                 return (RegisterCustomerDTO) data;
             }
 
-            log.error("Invalid data format: {}", data.getClass().getName());
-            throw new IllegalStateException("Invalid data format: " + data.getClass().getName());
+            log.error("Định dạng dữ liệu không hợp lệ: {}", data.getClass().getName());
+            throw new IllegalStateException("Định dạng dữ liệu không hợp lệ: " + data.getClass().getName());
         } catch (Exception e) {
-            log.error("Error retrieving registration data from Redis for email: {}. Details: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
+            log.error("Lỗi khi lấy dữ liệu đăng ký từ Redis cho email: {}. Details: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Không thể kết nối với Redis: " + e.getMessage(), e);
         }
     }
 
     public void updateRegistrationWithKyc(String email, KycRequest kycRequest) {
         try {
-            log.info("Updating registration with KYC data for email: {}", email);
+            log.info("Cập nhật đăng ký với dữ liệu KYC cho email: {}", email);
             redisTemplate.opsForValue().set("kyc:" + email, kycRequest, ttl);
-            log.info("KYC data saved successfully for email: {}", email);
+            log.info("Dữ liệu KYC đã được lưu thành công cho email: {}", email);
         } catch (Exception e) {
-            log.error("Error saving KYC data to Redis for email: {}. Details: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
+            log.error("Lỗi khi lưu dữ liệu KYC vào Redis để gửi email: {}. Details: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Không thể kết nối với Redis: " + e.getMessage(), e);
         }
     }
 
     public KycRequest getKycData(String email) {
         try {
             Object data = redisTemplate.opsForValue().get("kyc:" + email);
-            log.info("Retrieved KYC data for email: {}", email);
+            log.info("Đã lấy dữ liệu KYC cho email: {}", email);
 
             if (data == null) {
-                log.warn("KYC data does not exist or has expired for email: {}", email);
+                log.warn("Dữ liệu KYC không tồn tại hoặc đã hết hạn cho email: {}", email);
                 return null;
             }
 
@@ -85,11 +85,11 @@ public class RegistrationCacheService {
                 return (KycRequest) data;
             }
 
-            log.error("Invalid KYC data format: {}", data.getClass().getName());
-            throw new IllegalStateException("Invalid KYC data format: " + data.getClass().getName());
+            log.error("Định dạng dữ liệu KYC không hợp lệ: {}", data.getClass().getName());
+            throw new IllegalStateException("Định dạng dữ liệu KYC không hợp lệ: " + data.getClass().getName());
         } catch (Exception e) {
-            log.error("Error retrieving KYC data from Redis for email: {}. Details: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
+            log.error("Lỗi khi truy xuất dữ liệu KYC từ Redis cho email: {}. Details: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Không thể kết nối với Redis: " + e.getMessage(), e);
         }
     }
 
@@ -97,10 +97,10 @@ public class RegistrationCacheService {
         try {
             redisTemplate.delete("registration:" + email);
             redisTemplate.delete("kyc:" + email);
-            log.info("Registration and KYC data cleared successfully for email: {}", email);
+            log.info("Đã xóa dữ liệu đăng ký và KYC thành công cho email: {}", email);
         } catch (Exception e) {
-            log.error("Error clearing registration data from Redis for email: {}. Details: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Unable to connect to Redis: " + e.getMessage(), e);
+            log.error("Lỗi khi xóa dữ liệu đăng ký từ Redis cho email: {}. Details: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Không thể kết nối với Redis: " + e.getMessage(), e);
         }
     }
 }
