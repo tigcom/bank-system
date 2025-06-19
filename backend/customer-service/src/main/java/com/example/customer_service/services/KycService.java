@@ -10,4 +10,5 @@ public interface KycService {
 
     void saveKycInfo(Long customerId, KycResponse kycResponse, String identityNumber, String fullName,
                      LocalDate dateOfBirth, String gender);
+    KycResponse getKycStatus(String userId);
 }

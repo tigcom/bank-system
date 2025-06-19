@@ -3,6 +3,7 @@ package com.example.account_service.service.impl;
 
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
+import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.common_service.dto.response.BalanceResponse;
 import com.example.account_service.dto.response.CicResponse;
@@ -314,6 +315,23 @@ public class AccountServiceImpl implements AccountService {
             log.info(e.getMessage());
             return null;
         }
+    }
+
+
+    @Override
+    public PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest) {
+        log.info("Tạo tài khoản  bắt đầu");
+        CustomerDTO customer = commonService.getCustomerByCifCode(paymentRequest.getCifCode());
+        if (customer == null) {
+            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+        }
+
+        // Check trạng thái customer
+        if (customer.getStatus() != CustomerStatus.ACTIVE) {
+            throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+
+        return createPaymentAccountDirectly(paymentRequest.getCifCode());
     }
 
 

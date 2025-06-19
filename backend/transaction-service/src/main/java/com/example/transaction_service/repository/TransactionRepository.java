@@ -26,7 +26,6 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
 
     @Query(value = "SELECT * FROM tbl_transaction " +
             "WHERE (from_account_number = :accountNumber OR to_account_number = :accountNumber) " +
-            "AND status = 'COMPLETED' " +
             "ORDER BY timestamp DESC",
             nativeQuery = true)
     Page<Transaction> findByAccountNumber(@Param("accountNumber") String accountNumber, Pageable pageable);
