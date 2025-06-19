@@ -3,6 +3,9 @@ server:
   servlet:
     context-path: /account
 
+app:
+  api:
+    key: QWErtyuiopaqwer
 spring:
   application:
     name: account-service
@@ -53,13 +56,24 @@ dubbo:
   application:
     name: account-service
     qos-enable: false
+    serialize-check-status: WARN
+    # hoặc nếu cần thiết (không khuyến nghị cho production):
+    # serialize-check-status: DISABLE
+
+    serialize:
+      allowlist: com.example.customer_service.exceptions.AppException,java.lang.RuntimeException,java.lang.Exception
+
   protocol:
     name: dubbo
     port: 20882
+    serialization: hessian2
+
   registry:
     address: zookeeper://localhost:2181
+
   scan:
     base-packages: com.example.account_service.service
+
 
 springdoc:
   api-docs:

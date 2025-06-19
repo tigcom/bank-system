@@ -315,6 +315,12 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest) {
+        log.info("Tạo tài khoản  bắt đầu");
+
+        return createPaymentAccountDirectly(paymentRequest.getCifCode());
+    }
 
     @Override
     public PaymentRequestResponse createPaymentRequest(String cifCode) {

@@ -15,6 +15,7 @@ import com.example.customer_service.ultils.MessageKeys;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -54,6 +57,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
+
+    @Value("${app.api.key}")
+    private String apiKey;
 
     private static final Logger log = LoggerFactory.getLogger("ACCESS_LOG");
 
@@ -184,6 +190,39 @@ public class CustomerServiceImpl implements CustomerService {
         return response;
     }
 
+//    private PaymentRequestResponse callCreatePaymentRequest(PaymentCreateDTO paymentCreateDTO) {
+//        String url = "http://localhost:8082/account/api/v1/create-initial-payment-account";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        headers.add("X-API-Key", apiKey);
+//        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+//
+//        try {
+//            restTemplate.postForObject(url, paymentCreateDTO, void.class);
+////            ResponseEntity<ApiResponseWrapper<PaymentRequestResponse>> response = restTemplate.exchange(
+////                    url,
+////                    HttpMethod.POST,
+////                    entity,
+////                    new ParameterizedTypeReference<>() {}
+////            );
+//
+////            if (response.getStatusCode() == HttpStatus.CREATED) {
+////                ApiResponseWrapper<PaymentRequestResponse> wrapper = response.getBody();
+////                if (wrapper != null && wrapper.getData() != null) {
+////                    return wrapper.getData();
+////                }
+////                throw new BusinessException("Dữ liệu trả về không hợp lệ");
+////            }
+//            throw new BusinessException("Lỗi khi tạo tài khoản ngân hàng" );
+//        } catch (HttpClientErrorException e) {
+//            log.error("Lỗi HTTP khi gọi API tạo tài khoản ngân hàng cho cifCode: {}. Chi tiết: {}", paymentCreateDTO.getCifCode(), e.getMessage(), e);
+//            throw new BusinessException("Lỗi HTTP khi tạo tài khoản ngân hàng: " + e.getMessage());
+//        } catch (RestClientException e) {
+//            log.error("Lỗi khi gọi API tạo tài khoản ngân hàng cho cifCode: {}. Chi tiết: {}", paymentCreateDTO.getCifCode(), e.getMessage(), e);
+//            throw new BusinessException("Lỗi xảy ra khi tạo tài khoản ngân hàng");
+//        }
+//    }
+
     @Transactional
     private ApiResponseWrapper<?> completeRegistration(RegisterCustomerDTO request, KycRequest kycData) {
         String userId = createKeycloakUser(request);
@@ -209,6 +248,22 @@ public class CustomerServiceImpl implements CustomerService {
 
         try {
             Customer savedCustomer = customerRepository.save(customer);
+
+//            PaymentCreateDTO paymentCreateDTO = PaymentCreateDTO.builder()
+//                    .cifCode(savedCustomer.getCifCode())
+//                    .build();
+//
+//            // Lấy cifCode
+//            String cifCode = savedCustomer.getCifCode();
+//
+//            // Gọi API tạo tài khoản ngân hàng
+//            PaymentRequestResponse paymentResponse = callCreatePaymentRequest(paymentCreateDTO);
+//            log.info("Kết quả tạo tài khoản ngân hàng cho cifCode {}: {}", cifCode, paymentResponse.getStatus());
+//
+//            // Kiểm tra trạng thái tạo tài khoản ngân hàng
+//            if (paymentResponse.getStatus() != PaymentRequestResponse.PaymentRequestStatus.APPROVED) {
+//                log.warn("Tạo tài khoản ngân hàng chưa được phê duyệt cho cifCode: {}", cifCode);
+//            }
 
             // Sync with core banking
             CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
