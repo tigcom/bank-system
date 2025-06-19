@@ -3,12 +3,14 @@ package com.example.customer_service.controllers;
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.responses.*;
 import com.example.customer_service.services.CustomerService;
+import com.example.customer_service.services.KycService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ import java.util.Objects;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final KycService kycService;
 
     @Operation(summary = "Đăng ký người dùng", description = "Tạo tài khoản người dùng mới")
     @ApiResponses({
@@ -207,5 +210,27 @@ public class CustomerController {
                         response.isVerified() ? HttpStatus.OK.value() : HttpStatus.BAD_REQUEST.value(),
                         response.getMessage(),
                         response));
+    }
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/status")
+    public ResponseEntity<?> checkKycStatus() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+
+            log.info("Kiểm tra trạng thái KYC cho userId: {}", userId);
+            KycResponse response = kycService.getKycStatus(userId);
+
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Kiểm tra trạng thái KYC thất bại, Lỗi: {}", e.getMessage());
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
     }
 }
