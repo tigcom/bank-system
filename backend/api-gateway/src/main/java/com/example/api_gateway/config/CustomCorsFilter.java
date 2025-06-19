@@ -17,10 +17,10 @@ public class CustomCorsFilter implements WebFilter {
         var request = exchange.getRequest();
         var response = exchange.getResponse();
 
-        response.getHeaders().add("Access-Control-Allow-Origin", "*");
+        response.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:4200");
         response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.getHeaders().add("Access-Control-Max-Age", "3600");
-        response.getHeaders().add("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");
+        response.getHeaders().add("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token, x-api-key");
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod().name())) {
             response.setStatusCode(org.springframework.http.HttpStatus.OK);
