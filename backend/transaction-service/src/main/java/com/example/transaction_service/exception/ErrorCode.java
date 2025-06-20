@@ -33,7 +33,10 @@ public enum ErrorCode {
     PROVIDER_SERVER_ERROR(500,"Lỗi từ server" ),
     PROVIDER_PAYMENT_FAILED(400,"Thanh toán thất bại" ),
     BILL_PAID(400,"Hóa đơn đã được thanh toán" ),
+    DESTINATION_ACCOUNT_NOT_EXIT(404,"Tài khoản nhận không tồn tại"),
+    NAPAS_SERVER_ERROR(500,"Lỗi khi gọi API Napas"),
     BANK_CODE_VALID(400,"Mã ngân hàng không hợp lệ" );
+
 
     private final int code;
     private final String message;

@@ -4,10 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum TransactionType {
-    TRANSFER("Chuyển tiền"),
+    TRANSFER("Chuyển tiền "),
     DEPOSIT("Nạp tiền"),
     WITHDRAW("Rút tiền"),
-    INTERNAL_TRANSFER("Chuyển tiền nội bộ"),
     LOAN_PAYMENT("Thanh toán khoản vay"),
     PAY_BILL("Thanh toán hóa đơn"),
     REFUND("Hoàn tiền"),

@@ -29,6 +29,7 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
             "    SELECT MAX(id) AS latest_id\n" +
             "    FROM tbl_transaction\n" +
             "    WHERE from_account_number = :fromAccountNumber\n" +
+            "      AND type != 'EXTERNAL_TRANSFER'\n" +
             "    GROUP BY to_account_number\n" +
             "    ORDER BY MAX(created_at) DESC\n" +
             "    LIMIT 5\n" +

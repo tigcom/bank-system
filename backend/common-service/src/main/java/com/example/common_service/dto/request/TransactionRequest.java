@@ -30,6 +30,7 @@ public class TransactionRequest implements Serializable {
 
     private String type;
     private String referenceCode;
+    private String destinationBankCode;
 
 
 }

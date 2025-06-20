@@ -64,7 +64,7 @@ public class TransactionDTO {
     private String failedReason;
 
     private String bankType;
-
+    private String destinationBankName;
     private String billProviderCode;
 
     private String billType;

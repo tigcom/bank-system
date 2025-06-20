@@ -204,7 +204,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber);
-        if(account==null) throw  new AppException(ErrorCode.USER_NOTEXISTED);
+        if(account==null) throw new AppException(ErrorCode.USER_NOTEXISTED);
         return customerQueryService.getCustomerByCifCode(account.getCifCode());
     }
 

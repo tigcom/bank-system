@@ -14,6 +14,7 @@ public interface TransactionMapper {
     @Mapping(target = "billCustomerCode", source = "billCustomerCode")
     @Mapping(target = "billId", source = "billId")
     @Mapping(target = "failedReason", source = "failedReason")
+    @Mapping(target = "destinationBankName", source = "destinationBankName")
     @Mapping(target = "bankType", source = "bankType")
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "updatedAt", source = "updatedAt")

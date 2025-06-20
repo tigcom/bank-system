@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +18,11 @@ public class ApiResponseWrapper<T> {
 
     @Schema(description = "Data returned in the response")
     private T data;
+    public static <T> ApiResponseWrapper<T> success(String message, T data) {
+        return new ApiResponseWrapper<>(HttpStatus.OK.value(), message, data);
+    }
+
+    public static <T> ApiResponseWrapper<T> error(String message) {
+        return new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), message, null);
+    }
 }

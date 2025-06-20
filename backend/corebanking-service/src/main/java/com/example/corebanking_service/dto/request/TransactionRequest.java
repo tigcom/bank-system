@@ -28,6 +28,9 @@ public class TransactionRequest {
     private String type;
 
     private String referenceCode;
+
     private String description;
+
+    private String destinationBankCode;;
 
 }
