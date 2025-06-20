@@ -65,6 +65,7 @@ public class TransactionDTO {
 
     private String bankType;
     private String destinationBankName;
+    private String destinationBankCode;
     private String billProviderCode;
 
     private String billType;

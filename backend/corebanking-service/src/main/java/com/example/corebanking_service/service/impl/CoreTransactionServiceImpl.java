@@ -42,7 +42,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
     @Override
     @Transactional
     public CommonTransactionDTO performTransfer(TransactionRequest request) {
-        CoreAccount fromAccount = accountRepo.findByAccountNumber(request.getFromAccountNumber());
+        CoreAccount fromAccount = accountRepo.findByAccountNumberWithLock(request.getFromAccountNumber());
         if (fromAccount == null ) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -109,7 +109,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
             }
 
         }else{
-            CoreAccount toAccount = accountRepo.findByAccountNumber(request.getToAccountNumber());
+            CoreAccount toAccount = accountRepo.findByAccountNumberWithLock(request.getToAccountNumber());
             if (toAccount == null) {
                 throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
             }
