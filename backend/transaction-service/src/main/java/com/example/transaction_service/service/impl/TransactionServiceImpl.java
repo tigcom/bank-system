@@ -47,6 +47,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.swing.plaf.synth.SynthTabbedPaneUI;
@@ -83,6 +84,9 @@ public class TransactionServiceImpl implements TransactionService{
     private final ProviderClient providerClient;
     @Value("${core-banking.api.url}")
     private String URL_CORE_BANK;
+
+    @Value("${mock-napas-api}")
+    private String URL_NAPAS;
 
     @Value("${masterAccount}")
     private String masterAccount;
@@ -377,7 +381,6 @@ public class TransactionServiceImpl implements TransactionService{
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        log.info("CurrentCustomer: {}",currentCustomer);
         if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
                 fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
             throw new AppException(ErrorCode.INVALID_ACCOUNT);
@@ -418,6 +421,12 @@ public class TransactionServiceImpl implements TransactionService{
                 throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
             }
 
+        NapasInquiryResponse napasInquiryResponse = inquiryDestinationAccount(NapasInquiryRequest.builder()
+                .accountNumber(transaction.getToAccountNumber())
+                .bankCode(transaction.getDestinationBankCode())
+                .build());
+            if(!napasInquiryResponse.getAccountStatus().equals("ACTIVE"))
+                throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
         initTransaction(transaction);
 //        Gửi OTP
         sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
@@ -529,6 +538,11 @@ public class TransactionServiceImpl implements TransactionService{
                 .build();
     }
 
+    @Override
+    public NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request) {
+        return inquiryDestinationAccount(request);
+    }
+
 
     //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
@@ -582,7 +596,7 @@ public class TransactionServiceImpl implements TransactionService{
 
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
                 TransactionType.DISBURSEMENT,
-                TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
+                TransactionType.CORE_BANKING).contains(transaction.getType())) {
 
             Set<String> allowedTypes = Set.of("PAYMENT", "MASTER");
             if (!allowedTypes.contains(fromAccount.getAccountType())) {
@@ -613,7 +627,7 @@ public class TransactionServiceImpl implements TransactionService{
         }
 //         Nếu là loại giao dịch cần trừ tiền trong tài khoản nguồn, thì kiểm tra số dư
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
-                TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
+                TransactionType.CORE_BANKING).contains(transaction.getType())) {
             BigDecimal balance;
             try {
 //                kiểm tra số dư
@@ -639,7 +653,27 @@ public class TransactionServiceImpl implements TransactionService{
         }
 
     }
+    private NapasInquiryResponse inquiryDestinationAccount(NapasInquiryRequest request){
+        String urlNapasInquiry = URL_NAPAS+"/inquiry";
+        HttpEntity<NapasInquiryRequest> entity = new HttpEntity<>(request);
+        try {
+            ParameterizedTypeReference<ApiResponse<NapasInquiryResponse>> responseType =
+                    new ParameterizedTypeReference<>() {};
 
+            // Dùng exchange để gọi API
+            ResponseEntity<ApiResponse<NapasInquiryResponse>> responseEntity =
+                    restTemplate.exchange(urlNapasInquiry, HttpMethod.POST, entity, responseType);
+
+            ApiResponse<NapasInquiryResponse> apiResponse = responseEntity.getBody();
+           if(apiResponse.getCode()==404){
+                throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
+            }
+            return apiResponse.getResult();
+        }  catch (RestClientException e) {
+            log.error("Lỗi server khi gọi API NAPAS {}", e.getMessage());
+            throw new AppException(ErrorCode.NAPAS_SERVER_ERROR);
+        }
+    }
     private void initTransaction(Transaction transaction) {
         transaction.setStatus(TransactionStatus.PENDING);
         transaction.setTimestamp(LocalDateTime.now());
@@ -681,6 +715,7 @@ public class TransactionServiceImpl implements TransactionService{
                     .timestamp(transaction.getTimestamp())
                     .type(transaction.getType().name())
                     .referenceCode(transaction.getReferenceCode())
+                    .destinationBankCode(transaction.getDestinationBankCode())
                     .build();
             String url = URL_CORE_BANK+"/perform-transaction";
 

@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -352,7 +353,8 @@ public class TransactionController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc OTP sai")
     })
-    @GetMapping("/{referenceCode}")
+
+    @GetMapping("/getByReferenceCode/{referenceCode}")
     public ApiResponse<TransactionDTO> getTransactionByReferenceCode(@PathVariable String referenceCode){
         return ApiResponse.<TransactionDTO>builder()
                 .code(200)
@@ -389,14 +391,24 @@ public class TransactionController {
                 .build();
     }
 
-    @GetMapping("getDailyPaymentTransaction")
-    public ApiResponse<Void> getDailyPaymentTransaction() {
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/getAllTransactions")
+    public ApiResponse getAllTransactions(TransactionFilterRequest request){
+        return ApiResponse.builder()
+                .code(200)
+                .message("Danh sách transaction")
+                .result(transactionService.filterTransaction(request))
+                .build();
+    }
+    @GetMapping("/getDailyPaymentTransaction")
+    public ApiResponse<Void> getDaily(){
         reconciliationService.getDailyPaymentTransaction();
         return ApiResponse.<Void>builder()
                 .code(200)
-                .message("Thực hien doi soat")
+                .message("Tác vụ đối soát")
                 .build();
     }
+
 
     @GetMapping("/get-latest-transaction/{fromAccountNumber}")
     public ApiResponse<List<InforTransactionLatestResponse>> getListToAccountNumberLatest(@PathVariable String fromAccountNumber ){
@@ -440,5 +452,21 @@ public class TransactionController {
                 .build();
     }
 
+    @PostMapping("/inquiry-destination-account")
+    public ApiResponse<NapasInquiryResponse> checkDestinationAccount(@RequestBody @Valid NapasInquiryRequest request) {
+        return ApiResponse.<NapasInquiryResponse>builder()
+                .code(200)
+                .message("Kiểm tra thông tin tài khoản đến")
+                .result(transactionService.checkDestinationAccount(request))
+                .build();
+    }
+    @PostMapping("/external-transfer")
+    public ApiResponse<TransactionDTO> externalTransfer(@RequestBody @Valid ExternalTransferRequest request) {
+        return ApiResponse.<TransactionDTO>builder()
+                .code(200)
+                .message("Chuyển khoản liên ngân hàng")
+                .result(transactionService.transferToExternalBank(request))
+                .build();
+    }
 
 }

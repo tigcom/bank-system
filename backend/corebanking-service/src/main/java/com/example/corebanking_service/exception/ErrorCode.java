@@ -1,5 +1,6 @@
 package com.example.corebanking_service.exception;
 
+
 public enum ErrorCode {
 
     // Account-related error codes
@@ -30,7 +31,8 @@ public enum ErrorCode {
     FROM_ACCOUNT_NOT_ACTIVE(400,"fromAccount.not.active" ),
     TO_ACCOUNT_NOT_ACTIVE(400,"toAccount.not.active" ),
     INSUFFICIENT_FUNDS(400,"insufficient.funds" ),
-    INVALID_AMOUNT(400,"invalid.amount");
+    INVALID_AMOUNT(400,"invalid.amount"),
+    NAPAS_SERVER_ERROR(500,"napas.server.error")
     ;
 
 

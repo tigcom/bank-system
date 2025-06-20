@@ -35,10 +35,10 @@ public class MockDatabase {
             Map.entry("EVN_HCM", "electricity"),
             Map.entry("EVN_DN", "electricity"),
             Map.entry("EVN_CT", "electricity"),
-            Map.entry("VIETTEL", "phone"),
-            Map.entry("MOBI", "phone"),
-            Map.entry("VINA", "phone"),
-            Map.entry("VNM", "phone")
+            Map.entry("VIETTEL", "telephone"),
+            Map.entry("MOBI", "telephone"),
+            Map.entry("VINA", "telephone"),
+            Map.entry("VNM", "telephone")
     );
 
     @PostConstruct
@@ -46,6 +46,14 @@ public class MockDatabase {
         BillDetailsResponse electricityBill1 = BillDetailsResponse.builder().billId("bill_stateful_01").customerCode("EVNHCM_001").customerName("NGUYEN THI TRANG").amount(BigDecimal.valueOf(75000)).provider("EVN_HCM").status("UNPAID").build();
         BillDetailsResponse electricityBill2 = BillDetailsResponse.builder().billId("bill_evnhn_02").customerCode("EVNHN_002").customerName("LE ANH QUAN").amount(BigDecimal.valueOf(45000)).provider("EVN_HN").status("UNPAID").build();
         BillDetailsResponse electricityBill3 = BillDetailsResponse.builder().billId("bill_evndn_03").customerCode("EVNDN_003").customerName("PHAM THI HOA").amount(BigDecimal.valueOf(20500)).provider("EVN_DN").status("PAID").build();
+        BillDetailsResponse electricityBill4 = BillDetailsResponse.builder()
+                .billId("bill_evnct_04")
+                .customerCode("EVNCT_001")
+                .customerName("TRAN MINH KHOI")
+                .amount(BigDecimal.valueOf(62000))
+                .provider("EVN_CT")
+                .status("UNPAID")
+                .build();
         BillDetailsResponse telephoneBill1 = BillDetailsResponse.builder().billId("bill_tel_stateful_02").customerCode("MOBI_001").customerName("TRAN VAN VIEN THONG").amount(BigDecimal.valueOf(35000)).provider("MOBI").status("UNPAID").build();
         BillDetailsResponse telephoneBill2 = BillDetailsResponse.builder().billId("bill_viettel_04").customerCode("VIETTEL_004").customerName("HOANG VAN HUNG").amount(BigDecimal.valueOf(18000)).provider("VIETTEL").status("UNPAID").build();
         BillDetailsResponse telephoneBill3 = BillDetailsResponse.builder().billId("bill_vina_05").customerCode("VINA_005").customerName("VO NGOC LAN").amount(BigDecimal.valueOf(99000)).provider("VINA").status("UNPAID").build();
@@ -54,6 +62,7 @@ public class MockDatabase {
         billDatabase.put(electricityBill1.getBillId(), electricityBill1);
         billDatabase.put(electricityBill2.getBillId(), electricityBill2);
         billDatabase.put(electricityBill3.getBillId(), electricityBill3);
+        billDatabase.put(electricityBill4.getBillId(), electricityBill4);
         billDatabase.put(telephoneBill1.getBillId(), telephoneBill1);
         billDatabase.put(telephoneBill2.getBillId(), telephoneBill2);
         billDatabase.put(telephoneBill3.getBillId(), telephoneBill3);

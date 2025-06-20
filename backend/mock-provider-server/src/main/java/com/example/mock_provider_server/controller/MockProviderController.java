@@ -64,7 +64,6 @@ public class MockProviderController {
     // API thanh toán hóa đơn điện thoại
     @PostMapping("/telephone/pay")
     public ApiResponse<ProviderPaymentResponse> payTelephoneBill(@RequestBody ProviderPaymentRequest request) {
-        System.out.println("Đại"+ request.getProvider()+request.getBillId());
         return performPayBill(request, TELEPHONE_PROVIDERS);
     }
 

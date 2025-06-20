@@ -4,10 +4,7 @@ import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
-import com.example.transaction_service.dto.response.BillDetailsResponse;
-import com.example.transaction_service.dto.response.FilterMetadataResponse;
-import com.example.transaction_service.dto.response.InforTransactionLatestResponse;
-import com.example.transaction_service.dto.response.ProviderDTO;
+import com.example.transaction_service.dto.response.*;
 import com.example.transaction_service.entity.Transaction;
 import org.springframework.data.domain.Page;
 
@@ -40,4 +37,6 @@ public interface TransactionService {
     Page<Transaction> filterTransaction(TransactionFilterRequest request);
 
     FilterMetadataResponse getFilterMetadata();
+
+    NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request);
 }
