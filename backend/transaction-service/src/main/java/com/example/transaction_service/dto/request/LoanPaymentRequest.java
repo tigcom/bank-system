@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Yêu cầu thanh toán hóa đơn từ tài khoản khách hàng")
-public class PaymentRequest {
+public class LoanPaymentRequest {
 
     @Schema(description = "Số tài khoản dùng để thanh toán", example = "100000001", required = true)
     @NotBlank(message = "From account number must not be blank")

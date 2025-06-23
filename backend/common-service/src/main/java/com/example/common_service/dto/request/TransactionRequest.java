@@ -29,6 +29,8 @@ public class TransactionRequest implements Serializable {
     private String status;
 
     private String type;
+    private String referenceCode;
+    private String destinationBankCode;
 
 
 }

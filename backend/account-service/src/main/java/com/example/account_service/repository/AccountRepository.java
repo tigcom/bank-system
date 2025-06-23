@@ -13,6 +13,8 @@ import java.util.List;
 public interface AccountRepository extends JpaRepository<Account, String> {
     Account findByAccountNumber(String accountNumber);
 
+    boolean existsAccountByAccountNumberAndCifCode(String accountNumber, String cifCode);
+
     Account getAccountByAccountNumber(String accountNumber);
 
     List<Account> findByCifCodeAndAccountTypeAndStatus(String cifCode, AccountType accountType, AccountStatus status);

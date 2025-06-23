@@ -4,19 +4,18 @@ package com.example.account_service.service.impl;
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
-import com.example.common_service.dto.response.BalanceResponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.account_service.entity.Account;
-import com.example.account_service.entity.SavingsAccount;
 import com.example.account_service.entity.CreditAccount;
 import com.example.account_service.entity.CreditCardType;
+import com.example.account_service.entity.SavingsAccount;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
 import com.example.account_service.repository.AccountRepository;
-import com.example.account_service.repository.SavingsAccountRepository;
 import com.example.account_service.repository.CreditAccountRepository;
 import com.example.account_service.repository.CreditCardTypeRepository;
+import com.example.account_service.repository.SavingsAccountRepository;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
@@ -24,8 +23,10 @@ import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.BalanceResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
 import com.example.common_service.services.CommonService;
+import com.example.common_service.services.customer.CustomerQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -43,12 +44,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @Service
 @Slf4j
@@ -61,6 +58,11 @@ public class AccountServiceImpl implements AccountService {
 
     @DubboReference(timeout = 5000)
     private final CommonService commonService;
+
+
+    @DubboReference(timeout = 5000)
+    private final CustomerQueryService customerQueryService;
+
     private final RestTemplate restTemplate;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final StreamBridge streamBridge;
@@ -213,6 +215,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber);
+        if(account==null) throw new AppException(ErrorCode.USER_NOTEXISTED);
+        return customerQueryService.getCustomerByCifCode(account.getCifCode());
+    }
+
+
     public AccountPaymentResponse getAccountPaymentbyID(String id) {
         // Lấy thông tin account từ local database
         Account account = accountRepository.findByAccountNumber(id);

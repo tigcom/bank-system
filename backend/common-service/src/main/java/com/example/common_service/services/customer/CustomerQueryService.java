@@ -6,4 +6,5 @@ import com.example.common_service.dto.CustomerResponseDTO;
 public interface CustomerQueryService {
     CustomerDTO getCustomerByCifCode(String cifCode);
     CustomerResponseDTO getCustomerById(Long id);
+
 }
