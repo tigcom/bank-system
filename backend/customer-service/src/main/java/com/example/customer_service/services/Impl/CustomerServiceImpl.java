@@ -15,6 +15,7 @@ import com.example.customer_service.ultils.MessageKeys;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -81,10 +84,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public ApiResponseWrapper<?> initiateRegister(RegisterCustomerDTO request) {
-        // Validate duplicate first
         validateDuplicate(request);
 
-        // Save registration data to Redis temporarily
         registrationCacheService.saveRegistrationData(request.getEmail(), request);
 
         return new ApiResponseWrapper<>(HttpStatus.OK.value(),
@@ -94,19 +95,19 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public ApiResponseWrapper<?> processKycAndSendOtp(String email, KycRequest kycRequest) {
-        // Get registration data from Redis
+        // Lấy dữ liệu đăng ký từ Redis
         RegisterCustomerDTO registerData = registrationCacheService.getRegistrationData(email);
         if (registerData == null) {
             throw new BusinessException(getMessage(MessageKeys.REGISTRATION_DATA_NOT_FOUND));
         }
 
-        // Validate KYC data matches registration data
+        // Validate dữ liệu KYC với dữ liệu đăng ký đã lưu từ trước
         String errorMessage = validateKycDataWithRegistration(registerData, kycRequest);
         if (errorMessage != null) {
             throw new IllegalArgumentException(errorMessage);
         }
 
-        // Perform KYC verification
+        // Thực hiện xác minh KYC
         KycResponse kycResponse = kycService.verifyIdentity(
                 kycRequest.getIdentityNumber(),
                 kycRequest.getFullName(),
@@ -119,9 +120,48 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BusinessException(getMessage(MessageKeys.KYC_VERIFICATION_FAILED, kycResponse.getMessage()));
         }
 
-        // Update registration data with KYC info
+        // Cập nhật dữ liệu đăng ký với thông tin KYC
         registrationCacheService.updateRegistrationWithKyc(email, kycRequest);
 
+        // Tạo và gửi OTP
+        String otp = String.format("%06d", new Random().nextInt(1000000));
+        otpCacheService.saveOtp(email, otp, registerData);
+
+        try {
+            MailMessageDTO mailMessage = new MailMessageDTO();
+            mailMessage.setSubject("Mã xác thực đăng ký");
+            mailMessage.setRecipient(email);
+            mailMessage.setRecipientName(registerData.getFullName());
+            mailMessage.setBody(String.format("Mã OTP của bạn là: %s", otp));
+
+            boolean sent = streamBridge.send("mail-register-out-0", mailMessage);
+            if (!sent) {
+                log.error("Không gửi được tin nhắn đến Kafka để nhận email: {}", email);
+                otpCacheService.clearOtp(email);
+                registrationCacheService.clearRegistrationData(email);
+                throw new BusinessException(getMessage(MessageKeys.KAFKA_FAILED));
+            }
+
+            log.info("Đã gửi OTP tới email: {} sau khi xác minh KYC", email);
+            return new ApiResponseWrapper<>(HttpStatus.OK.value(),
+                    getMessage(MessageKeys.OTP_SENT),
+                    "KYC thành công. OTP đã được gửi đến email của bạn.");
+
+        } catch (Exception e) {
+            log.error("Failed to send OTP email to: {}", email, e);
+            otpCacheService.clearOtp(email);
+            registrationCacheService.clearRegistrationData(email);
+            throw new BusinessException(getMessage(MessageKeys.OTP_SEND_FAILED));
+        }
+    }
+
+    @Override
+    public ApiResponseWrapper<?> reSendOtp(String email) {
+        // Lấy dữ liệu đăng ký từ Redis
+        RegisterCustomerDTO registerData = registrationCacheService.getRegistrationData(email);
+        if (registerData == null) {
+            throw new BusinessException(getMessage(MessageKeys.REGISTRATION_DATA_NOT_FOUND));
+        }
         // Generate and send OTP
         String otp = String.format("%06d", new Random().nextInt(1000000));
         otpCacheService.saveOtp(email, otp, registerData);
@@ -162,22 +202,22 @@ public class CustomerServiceImpl implements CustomerService {
             throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_OTP));
         }
 
-        // Get registration data
+        // Tạo và gửi OTP
         RegisterCustomerDTO request = registrationCacheService.getRegistrationData(email);
         if (request == null) {
             throw new BusinessException(getMessage(MessageKeys.REGISTRATION_DATA_NOT_FOUND));
         }
 
-        // Get KYC data
+        // Lấy dữ liệu KYC
         KycRequest kycData = registrationCacheService.getKycData(email);
         if (kycData == null) {
             throw new BusinessException(getMessage(MessageKeys.KYC_DATA_NOT_FOUND));
         }
 
-        // Perform final registration
+        // Thực hiện đăng ký
         ApiResponseWrapper<?> response = completeRegistration(request, kycData);
 
-        // Clear all cached data
+        // Xóa tất cả dữ liiệu cache
         otpCacheService.clearOtp(email);
         registrationCacheService.clearRegistrationData(email);
 
@@ -210,7 +250,7 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             Customer savedCustomer = customerRepository.save(customer);
 
-            // Sync with core banking
+            // Đồng bộ với core banking
             CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
                     .cifCode(savedCustomer.getCifCode())
                     .status(savedCustomer.getStatus().toString())
@@ -224,7 +264,7 @@ public class CustomerServiceImpl implements CustomerService {
                 throw new BusinessException(getMessage(MessageKeys.CORE_BANKING_SYNC_FAILED, coreResponse.getMessage()));
             }
 
-            // Create KYC profile with VERIFIED status
+            // Tạo hồ sơ KYC với trạng thái VERIFIED
             KycProfile kycProfile = KycProfile.builder()
                     .status(KycStatus.VERIFIED)
                     .identityNumber(kycData.getIdentityNumber())
@@ -298,9 +338,7 @@ public class CustomerServiceImpl implements CustomerService {
     private UserRepresentation buildUserRepresentation(RegisterCustomerDTO request) {
         UserRepresentation user = new UserRepresentation();
 
-        String keycloakUsername = (request.getUsername() != null && !request.getUsername().isEmpty())
-                ? request.getUsername()
-                : request.getPhoneNumber();
+        String keycloakUsername = request.getUsername();
         user.setUsername(keycloakUsername);
 
         user.setEmail(request.getEmail());
@@ -308,7 +346,7 @@ public class CustomerServiceImpl implements CustomerService {
         user.setEmailVerified(true);
 
         CredentialRepresentation passwordCred = new CredentialRepresentation();
-        passwordCred.setTemporary(false);
+        passwordCred.setTemporary(false); // Mật khẩu không tạm thời
         passwordCred.setType(CredentialRepresentation.PASSWORD);
         passwordCred.setValue(request.getPassword());
         user.setCredentials(Collections.singletonList(passwordCred));
@@ -405,7 +443,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         Customer customer = customerOpt.get();
 
-        // Kiểm tra quyền truy cập (chỉ áp dụng cho non-admin)
+        // Kiểm tra quyền truy cập (chỉ áp dụng cho customer)
         if (!isAdmin && !customer.getUserId().equals(currentUserId)) {
             log.warn("User {} attempted unauthorized access to customer {}", currentUserId, targetUserId);
             throw new BusinessException(getMessage(MessageKeys.UNAUTHORIZED_ACCESS));
@@ -696,27 +734,24 @@ public class CustomerServiceImpl implements CustomerService {
             case ACTIVE -> KycStatus.VERIFIED;
             case SUSPENDED -> KycStatus.PENDING;
             case CLOSED -> KycStatus.REJECTED;
-            default -> null;
         };
 
-        if (kycStatusToUpdate != null) {
-            KycResponse kycResponse = new KycResponse();
-            kycResponse.setVerified(kycStatusToUpdate == KycStatus.VERIFIED);
-            kycResponse.setStatus(kycStatusToUpdate);
-            kycResponse.setMessage("Updated due to status change: " + newStatus);
-            kycResponse.setDetails("{\"auto_update\": true}");
+        KycResponse kycResponse = new KycResponse();
+        kycResponse.setVerified(kycStatusToUpdate == KycStatus.VERIFIED);
+        kycResponse.setStatus(kycStatusToUpdate);
+        kycResponse.setMessage("Updated due to status change: " + newStatus);
+        kycResponse.setDetails("{\"auto_update\": true}");
 
-            kycService.saveKycInfo(
-                    customer.getCustomerId(),
-                    kycResponse,
-                    customer.getIdentityNumber(),
-                    customer.getFullName(),
-                    customer.getDateOfBirth(),
-                    customer.getGender().toString()
-            );
+        kycService.saveKycInfo(
+                customer.getCustomerId(),
+                kycResponse,
+                customer.getIdentityNumber(),
+                customer.getFullName(),
+                customer.getDateOfBirth(),
+                customer.getGender().toString()
+        );
 
-            log.info("KYC status updated to {} for CIF: {}", kycStatusToUpdate, customer.getCifCode());
-        }
+        log.info("KYC status updated to {} for CIF: {}", kycStatusToUpdate, customer.getCifCode());
 
         CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
                 .cifCode(customer.getCifCode())
@@ -852,8 +887,6 @@ public class CustomerServiceImpl implements CustomerService {
         response.setGender(customer.getGender());
         Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
         response.setKycStatus(kycProfileOpt.map(KycProfile::getStatus).orElse(null));
-        response.setIdentityNumber(customer.getIdentityNumber());
-        response.setDateOfBirth(customer.getDateOfBirth());
         return response;
     }
 

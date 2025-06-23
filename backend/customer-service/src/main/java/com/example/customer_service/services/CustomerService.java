@@ -11,6 +11,8 @@ public interface CustomerService {
 
     ApiResponseWrapper<?> processKycAndSendOtp(String email, KycRequest kycRequest);
 
+    ApiResponseWrapper<?> reSendOtp(String email);
+
     ApiResponseWrapper<?> confirmRegister(String email, String otp);
 
     CustomerListResponse getCustomerList(int page, int size, String keyword);
