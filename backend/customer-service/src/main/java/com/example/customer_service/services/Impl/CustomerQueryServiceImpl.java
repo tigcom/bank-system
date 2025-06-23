@@ -17,8 +17,10 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
 
     @Override
     public CustomerDTO getCustomerByCifCode(String cifCode) {
+
         Customer customer = customerRepository.findByCifCode(cifCode)
                 .orElse(null);
+        System.out.println("===");
         System.out.println(customer.getStatus());
         if(customer!=null){
             CustomerDTO customerDTO = CustomerDTO.builder()
@@ -39,6 +41,8 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
     public CustomerResponseDTO getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElse(null);
+        System.out.println(id);
+        System.out.println(customer.getFullName());
         if(customer!=null){
             CustomerResponseDTO customerDTO = CustomerResponseDTO.builder()
                     .id(customer.getCustomerId())

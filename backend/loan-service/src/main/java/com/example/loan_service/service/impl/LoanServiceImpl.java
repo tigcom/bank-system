@@ -84,6 +84,11 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    public List<Loan> getLoansApproveAndCustomerId(Long customerId) {
+        return loanRepository.findAllByStatusIsAndCustomerId(LoanStatus.APPROVED, customerId);
+    }
+
+    @Override
     public Loan rejectedLoan(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new EntityNotFoundException("Loan not found"));

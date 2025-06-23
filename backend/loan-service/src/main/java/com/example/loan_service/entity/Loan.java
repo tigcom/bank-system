@@ -48,4 +48,7 @@ public class Loan {
     @OneToMany(mappedBy = "loan",fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Repayment> repayments;
+    @OneToMany(mappedBy = "loan")
+    @JsonManagedReference
+    private List<LoanRejectionReason> rejectionReasons;
 }

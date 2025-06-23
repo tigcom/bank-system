@@ -3,7 +3,9 @@ package com.example.loan_service.service.impl;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.mapper.LoanMapper;
+import com.example.loan_service.models.LoanStatus;
 import com.example.loan_service.models.RepaymentStatus;
+import com.example.loan_service.repository.LoanRepository;
 import com.example.loan_service.repository.RepaymentRepository;
 import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class RepaymentServiceImpl implements RepaymentService {
 
     private final RepaymentRepository repaymentRepository;
+    private final LoanRepository loanRepository;
     private final LoanService loanService;
     private final LoanMapper loanMapper;
     private final CoreBankingClient bankingClient;
@@ -77,8 +80,8 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
-    public List<Repayment> getHistoryRepayment(Long loanId) {
-        return repaymentRepository.findPaidOrPartialByLoanId(loanId);
+    public List<Repayment> getHistoryRepayment(Long customerId) {
+        return repaymentRepository.findPaidOrPartialByLoanId(customerId);
     }
 
     @Override
@@ -104,12 +107,15 @@ public class RepaymentServiceImpl implements RepaymentService {
         repayment.setPaidAmount(newPaidAmount);
 
         BigDecimal totalDue = repayment.getPrincipal().add(repayment.getInterest());
-
+        System.out.println("---------------");
+        System.out.println(totalDue);
+        System.out.println(newPaidAmount);
+        System.out.println(newPaidAmount.compareTo(totalDue));
         if (newPaidAmount.compareTo(totalDue) >= 0) {
             repayment.setStatus(RepaymentStatus.PAID);
             if(checkLastMonthRepayment(repayment)) {
                 loanService.closedLoan(repayment.getLoan().getLoanId());
-                bankingClient.syncLoan(loanMapper.toRequestDTO(repayment.getLoan()));
+                bankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(repayment.getLoan())));
             }
         } else if (newPaidAmount.compareTo(BigDecimal.ZERO) > 0) {
             repayment.setStatus(RepaymentStatus.PARTIAL);
@@ -124,7 +130,13 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
-    public Repayment getCurrentRepayment(Long loanId) {
+    public Repayment getCurrentRepayment(Long idCustomer) {
+        Long loanId = loanRepository.findAllByStatusIsAndCustomerId(LoanStatus.APPROVED,idCustomer).get(0).getLoanId();
+        return repaymentRepository.findNextRepaymentNative(loanId);
+    }
+
+    @Override
+    public Repayment getCurrentRepaymentbyLoanId(Long loanId) {
         return repaymentRepository.findNextRepaymentNative(loanId);
     }
 

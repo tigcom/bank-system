@@ -1,5 +1,7 @@
 package com.example.loan_service.restcontroller;
 
+import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
+import com.example.loan_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.handler.LoanHandler;
@@ -11,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/loans")
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class LoanController {
     private final LoanHandler loanHandler;
 
     @PostMapping
-    public ResponseEntity<ApiResponseWrapper<Loan>> createLoan(@RequestBody Loan loan) {
+    public ResponseEntity<ApiResponseWrapper<Loan>> createLoan(@RequestBody LoanRequestDTO loan) {
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
         try {
             response.setData(loanHandler.createLoan(loan));
@@ -37,7 +38,7 @@ public class LoanController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponseWrapper<Loan>> updateLoan(@RequestBody Loan loan) {
+    public ResponseEntity<ApiResponseWrapper<Loan>> updateLoan(@RequestBody LoanRequestDTO loan) {
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
         try {
             response.setData(loanHandler.updateLoan(loan));
@@ -50,7 +51,23 @@ public class LoanController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
-
+    @GetMapping("/getCustomerId")
+    public ResponseEntity<ApiResponseWrapper<Long>> getCustomerId() {
+        ApiResponseWrapper<Long> response = new ApiResponseWrapper<>();
+        try {
+            response.setData(loanHandler.getCustomerId());
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Successfully get  Id");
+        } catch (IllegalArgumentException e) {
+            response.setMessage(e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to get Id: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
     @PostMapping("/{loanId}/approve")
     public ResponseEntity<ApiResponseWrapper<Loan>> approveLoan(@PathVariable Long loanId) {
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
@@ -85,12 +102,12 @@ public class LoanController {
     }
 
     @PostMapping("/{loanId}/reject")
-    public ResponseEntity<ApiResponseWrapper<Loan>> rejectedLoan(@PathVariable Long loanId) {
+    public ResponseEntity<ApiResponseWrapper<Loan>> rejectedLoan(@PathVariable Long loanId,@RequestBody LoanRejectionReasonRequestDTO loanRejection) {
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
         try {
-            response.setData(loanHandler.rejectedLoan(loanId));
+            response.setData(loanHandler.rejectedLoan(loanId,loanRejection));
             response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Successfully approved Loan");
+            response.setMessage("Successfully reject Loan");
         } catch (Exception e) {
             response.setData(null);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -116,11 +133,11 @@ public class LoanController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<ApiResponseWrapper<List<Loan>>> getLoansByCustomerId(@PathVariable Long customerId) {
+    @GetMapping("/customer")
+    public ResponseEntity<ApiResponseWrapper<List<Loan>>> getLoansByCustomerId() {
         ApiResponseWrapper<List<Loan>> response = new ApiResponseWrapper<>();
         try {
-            List<Loan> loans = loanHandler.getLoansByCustomerId(customerId);
+            List<Loan> loans = loanHandler.getLoansByCustomerId();
             response.setData(loans);
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Loans retrieved successfully");
@@ -146,12 +163,42 @@ public class LoanController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
-    @GetMapping("/api/loans")
-    public ResponseEntity<ApiResponseWrapper<List<Loan>>> allgetLoanById() {
+    @GetMapping("/getAllloans")
+    public ResponseEntity<ApiResponseWrapper<List<Loan>>> allgetLoan() {
         ApiResponseWrapper<List<Loan>> response = new ApiResponseWrapper<>();
         try {
             List<Loan> loan = loanHandler.findall();
             response.setData(loan);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Loan found");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.setMessage(e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+    @GetMapping("/total-borrowed")
+    public ResponseEntity<ApiResponseWrapper<BigDecimal>> getTotalBorrowed() {
+        ApiResponseWrapper<BigDecimal> response = new ApiResponseWrapper<>();
+        try {
+            BigDecimal total = loanHandler.getTotalBorrowed();
+            response.setData(total);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Loan found");
+        } catch (Exception e) {
+            response.setData(null);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.setMessage(e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+    @GetMapping("/total-outstanding")
+    public ResponseEntity<ApiResponseWrapper<BigDecimal>> getTotalOutstanding() {
+        ApiResponseWrapper<BigDecimal> response = new ApiResponseWrapper<>();
+        try {
+            BigDecimal total = loanHandler.getTotalOutstanding();
+            response.setData(total);
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Loan found");
         } catch (Exception e) {

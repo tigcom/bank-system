@@ -6,10 +6,9 @@ import com.example.corebanking_service.service.CoreLoanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.net.ssl.SSLEngineResult;
 
 @RestController
 @RequestMapping("/api/core/loans")
@@ -25,5 +24,16 @@ public class CoreLoanController {
         CoreResponse response = coreLoanService.syncCoreLoan(dto);
         log.info("Đã đồng bộ: {}", response);
         return ResponseEntity.ok(response);
+    }
+    @DeleteMapping("/sync/{id}")
+    public ResponseEntity<?> syncCoreLoan(@PathVariable("id") Long id) {
+        try {
+            System.out.println(id);
+            coreLoanService.delteLoan(id);
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
     }
 }

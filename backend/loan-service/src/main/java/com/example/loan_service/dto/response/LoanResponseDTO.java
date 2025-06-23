@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +20,7 @@ public class LoanResponseDTO {
     private BigDecimal amount;
     private BigDecimal interestRate;
     private Integer termMonths;
+    private LocalDate startDate;
     private BigDecimal declaredIncome;
     private String status;
     private LocalDateTime createdAt;

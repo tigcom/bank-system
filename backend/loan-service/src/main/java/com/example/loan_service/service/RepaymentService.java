@@ -17,6 +17,7 @@ public interface RepaymentService {
     Repayment updateRepayment(Repayment repayment);
     Repayment makeRepayment(Long repaymentId, java.math.BigDecimal amount);
     void deleteRepaymentsByLoanId(Long loanId);
-    Repayment getCurrentRepayment(Long loanId);
+    Repayment getCurrentRepayment(Long customerId);
+    Repayment getCurrentRepaymentbyLoanId(Long loanId);
     List<Repayment> getHistoryRepayment(Long loanId);
 }

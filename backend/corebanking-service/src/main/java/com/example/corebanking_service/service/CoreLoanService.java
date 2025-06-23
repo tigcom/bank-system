@@ -6,4 +6,5 @@ import com.example.corebanking_service.dto.request.LoanRequestDTO;
 
 public interface CoreLoanService {
     CoreResponse syncCoreLoan (LoanRequestDTO loan);
+    void delteLoan (Long id);
 }
