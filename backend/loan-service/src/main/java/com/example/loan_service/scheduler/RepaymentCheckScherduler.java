@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
@@ -32,8 +33,6 @@ public class RepaymentCheckScherduler {
     private final RepaymentService repaymentService;
     @DubboReference
     private final CustomerQueryService customerQueryService;
-    @DubboReference
-    private final AccountQueryService accountQueryService;
 //    @Scheduled(fixedRate = 5000)
 //    @Scheduled(cron = "0 0 1 * * *")
     public void RepaymentCheckScherduler() {
@@ -49,7 +48,7 @@ public class RepaymentCheckScherduler {
                     repaymentService.updateRepayment(repayment);
                     // tim ra khoan vay hien tai
                     Repayment currentRepayment =
-                            repaymentService.getCurrentRepayment(
+                            repaymentService.getCurrentRepaymentbyLoanId(
                                     repayment.getLoan().getLoanId());
                     // + khoan vay goc dot truoc vao hien tai
                     currentRepayment.setPrincipal(currentRepayment.getPrincipal()
@@ -61,7 +60,7 @@ public class RepaymentCheckScherduler {
                     System.out.println("Cập nhập khoản vay kỳ hiện tại sau kỳ trễ"+currentRepayment.getRepaymentId());
 
                     repaymentService.updateRepayment(currentRepayment);
-                    coreBankingClient.syncLoan(loanMapper.toRequestDTO(loan));
+                    coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
                     break;
                 }
             }
@@ -69,22 +68,25 @@ public class RepaymentCheckScherduler {
 
     }
 //        @Scheduled(fixedRate = 5000)
-//    @Scheduled(cron = "0 0 1 * * *")
+//    @Scheduled(cron = " 0 39 10 * * *")
     public void RepaymentRemindScherduler() {
         List<Loan> loanApproved = loanService.getLoansApprove();
         for (Loan loan : loanApproved) {
             System.out.println("Kiểm tra loan: "+loan.getLoanId());
-            Repayment repayment =repaymentService.getCurrentRepayment(loan.getLoanId());
-            //tim ra khoan vay dinh ky con 3 ngay nua toi han dong
-            if (repayment.getDueDate().compareTo(LocalDate.now()) >= 3 ) {
-                CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-                MailMessageDTO mailMessage = new MailMessageDTO();
-                mailMessage.setSubject("NHẮC NỢ ĐỊNH KỲ");
-                mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                mailMessage.setBody("Bạn sắp đến hạn thanh toán vay nợ định kỳ. Khoản vay: "+repayment.getPrincipal().add(repayment.getInterest())+", Đến số tài khoản: "+loan.getAccountNumber());
-                mailMessage.setRecipientName(customer.getFullName());
-                streamBridge.send("mail-out-0", mailMessage);
-                break;
+            Repayment repayment =repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId()) != null ? repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId()) : null ;
+            if (repayment != null) {
+                long days = ChronoUnit.DAYS.between(LocalDate.now(), repayment.getDueDate());
+                if (days >= 1 && days <= 3) {
+                    System.out.println("còn lại:"+days+" ngày");
+                    System.out.println("gửi mail đến repayment có id: "+repayment.getRepaymentId());
+                    CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+                    MailMessageDTO mailMessage = new MailMessageDTO();
+                    mailMessage.setSubject("NHẮC NỢ ĐỊNH KỲ");
+                    mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
+                    mailMessage.setBody("Bạn sắp đến hạn thanh toán vay nợ định kỳ. Khoản vay: "+repayment.getPrincipal().add(repayment.getInterest())+", Đến số tài khoản: "+loan.getAccountNumber());
+                    mailMessage.setRecipientName(customer.getFullName());
+                    streamBridge.send("mail-out-0", mailMessage);
+                }
             }
         }
     }

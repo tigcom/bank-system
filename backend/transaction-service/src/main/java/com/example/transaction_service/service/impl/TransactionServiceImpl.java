@@ -368,7 +368,9 @@ public class TransactionServiceImpl implements TransactionService{
     private void validateTransaction(Transaction transaction){
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
-
+        System.out.println("]]]]]]]]]]]]]");
+        System.out.println(fromAccount);
+        System.out.println(toAccount);
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -395,7 +397,9 @@ public class TransactionServiceImpl implements TransactionService{
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
         }
         CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+
         CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
+
         if (fromCustomer==null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
@@ -473,7 +477,7 @@ public class TransactionServiceImpl implements TransactionService{
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
-                .recipient("levandai2692003@gmail.com")
+                .recipient("phanhuynhphuckhang12c8@gmail.com")
                 .recipientName(fromCustomer.getFullName())
                 .build();
         System.out.println("OTP:"+otp);

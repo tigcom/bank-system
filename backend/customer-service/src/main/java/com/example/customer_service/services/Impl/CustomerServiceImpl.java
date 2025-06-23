@@ -110,7 +110,6 @@ public class CustomerServiceImpl implements CustomerService {
                         request.getPhoneNumber()
                 ))
                 .build();
-
         try {
             // Lưu khách hàng
             Customer savedCustomer = customerRepository.save(customer);

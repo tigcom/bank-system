@@ -34,4 +34,9 @@ public class CoreLoanServiceImpl implements CoreLoanService {
         }
         return new CoreResponse(true,"Succes sync");
     }
+
+    @Override
+    public void delteLoan(Long id) {
+        coreLoanRepo.deleteById(id);
+    }
 }

@@ -15,7 +15,7 @@ public interface LoanService {
     List<Loan> findAllLoan();
     List<Loan> getLoansApprove();
     List<Loan> getLoansByCustomerId(Long customerId);
-
+    List<Loan>getLoansApproveAndCustomerId(Long customerId);
     Loan rejectedLoan(Long loanId);
 
     Loan closedLoan(Long loanId);

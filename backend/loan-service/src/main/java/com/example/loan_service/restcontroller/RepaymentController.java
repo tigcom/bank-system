@@ -84,19 +84,21 @@ public class RepaymentController {
     }
 
     @PostMapping("/{repaymentId}/pay")
-    public ResponseEntity<ApiResponseWrapper<Repayment>> makeRepayment(@PathVariable Long repaymentId,
-                                                                       @RequestParam BigDecimal amount) {
-        ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
+    public ResponseEntity<ApiResponseWrapper<String>> makeRepayment(@PathVariable Long repaymentId,
+                                                                       @RequestParam BigDecimal amount, @RequestParam String accountNumber) {
+        ApiResponseWrapper<String> response = new ApiResponseWrapper<>();
+        String referenceCode= null;
         try {
-            if(loanHandler.makeRepayment(repaymentId, amount)){
+            referenceCode =loanHandler.makeRepayment(repaymentId, amount,accountNumber);
+            if(referenceCode!=null){
                 response.setStatus(HttpStatus.OK.value());
                 response.setMessage("Otp sended successfully");
+                response.setData(referenceCode);
             }
         }catch (IllegalArgumentException e) {
             response.setMessage(e.getMessage());
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         } catch (Exception e) {
-            response.setData(null);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setMessage("Failed to make repayment: " + e.getMessage());
         }
@@ -123,11 +125,11 @@ public class RepaymentController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @GetMapping("/history/{loanId}")
-    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> getRepaymentHistory(@PathVariable Long loanId) {
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> getRepaymentHistory() {
         ApiResponseWrapper<List<Repayment>> response = new ApiResponseWrapper<>();
         try {
-            List<Repayment> repayment = loanHandler.getHistory(loanId);
+            List<Repayment> repayment = loanHandler.getHistory();
             response.setData(repayment);
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Get history successfully");
@@ -139,11 +141,11 @@ public class RepaymentController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @GetMapping("/current/{loanId}")
-    public ResponseEntity<ApiResponseWrapper<Repayment>> getCurrentRepayment(@PathVariable Long loanId) {
+    @GetMapping("/current")
+    public ResponseEntity<ApiResponseWrapper<Repayment>> getCurrentRepayment() {
         ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
         try {
-            Repayment repayment = loanHandler.getCurrentRepayment(loanId);
+            Repayment repayment = loanHandler.getCurrentRepayment();
             response.setData(repayment);
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Get Current Repayment successfully");
@@ -169,4 +171,19 @@ public class RepaymentController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
+//    @GetMapping("/currents/{loanId}")
+//    public ResponseEntity<ApiResponseWrapper<List<Repayment>>> getCurrentRepayments(@PathVariable Long loanId) {
+//        ApiResponseWrapper<List<Repayment>> response = new ApiResponseWrapper<>();
+//        try {
+//            List<Repayment> repayments = loanHandler.getCurrentRepayments(loanId);
+//            response.setData(repayments);
+//            response.setStatus(HttpStatus.OK.value());
+//            response.setMessage("Get Current Repayment successfully");
+//        } catch (Exception e) {
+//            response.setData(null);
+//            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//            response.setMessage("Failed to get current Repayment : " + e.getMessage());
+//        }
+//        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+//    }
 }

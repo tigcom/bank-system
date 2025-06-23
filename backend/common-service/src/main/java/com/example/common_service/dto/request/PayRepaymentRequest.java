@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PayRepaymentRequest implements Serializable {
     private String fromAccountNumber;
 
