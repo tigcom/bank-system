@@ -1,23 +1,12 @@
 package com.example.corebanking_service.service;
 
-import com.example.common_service.dto.CartTypeDTO;
-import com.example.common_service.dto.CorePaymentAccountDTO;
-import com.example.common_service.dto.coreCreditAccountDTO;
-import com.example.common_service.dto.coreSavingAccountDTO;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSummaryDTO;
-
-import java.util.List;
+import com.example.common_service.dto.*;
+import com.example.common_service.dto.request.SavingUpdateRequest;
+import com.example.common_service.dto.response.*;
 
 public interface CoreAccountService {
-    void createCoreAccountPayment(CorePaymentAccountDTO dto);
-    void createCoreAccountSaving(coreSavingAccountDTO dto);
+    void createCoreAccount(CoreAccountRequest dto);
+    AccountSavingUpdateResponse updateBalanceSaving(String accountNumber, SavingUpdateRequest request);
 
-    CartTypeDTO getCartTypebyID(String id);
-
-    void createCoreAccountCredit(coreCreditAccountDTO coreCreditAccountDTO);
-
-    List<AccountSummaryDTO> getAllAccountsByCif(String id);
-
-    List<AccountPaymentResponse> getAllPaymentAccountsByCif(String id);
+    BalanceResponse getBalanceByAccountNumber(String accountNumber);
 }

@@ -9,6 +9,8 @@ import com.example.customer_service.responses.KycResponse;
 import com.example.customer_service.services.KycService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +24,12 @@ public class KycServiceImpl implements KycService {
 
     private final CustomerRepository customerRepository;
 
+    private final MessageSource messageSource;
+
     private final KycProfileRepository kycProfileRepository;
 
     @Override
-    public KycResponse verifyIdentity(String identityNumber, String fullName) {
+    public KycResponse verifyIdentity(String identityNumber, String fullName, LocalDate dateOfBirth, String gender) {
         if (identityNumber == null || fullName == null) {
             KycResponse response = new KycResponse();
             response.setVerified(false);
@@ -83,9 +87,11 @@ public class KycServiceImpl implements KycService {
 
         KycProfile kycProfile = kycProfileRepository.findByCustomer(customer).orElse(new KycProfile());
         kycProfile.setCustomer(customer);
-        kycProfile.setStatus(kycResponse.isVerified() ? KycStatus.VERIFIED : KycStatus.REJECTED);
-        kycProfile.setVerifiedAt(LocalDateTime.now());
-        kycProfile.setVerifiedBy("SYSTEM");
+        if (kycResponse.getStatus() != null) {
+            kycProfile.setStatus(kycResponse.getStatus());
+        } else {
+            kycProfile.setStatus(kycResponse.isVerified() ? KycStatus.VERIFIED : KycStatus.REJECTED);
+        }
 
         kycProfile.setIdentityNumber(identityNumber);
         kycProfile.setFullName(fullName);
@@ -93,5 +99,9 @@ public class KycServiceImpl implements KycService {
         kycProfile.setGender(gender);
 
         kycProfileRepository.save(kycProfile);
+    }
+
+    private String getMessage(String key, Object... args) {
+        return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
     }
 }

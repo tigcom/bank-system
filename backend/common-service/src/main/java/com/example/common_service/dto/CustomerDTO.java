@@ -21,4 +21,5 @@ public class CustomerDTO implements  Serializable {
     private String email;
     private LocalDate dateOfBirth;
     private CustomerStatus status;
+    private String identityNumber;
 }

@@ -362,24 +362,24 @@ public class TransactionController {
                 .result(transactionService.getTransactionByTransactionCode(referenceCode))
                 .build();
     }
-//    Thanh toán hóa đơn
+    //    Thanh toán hóa đơn
     @PostMapping("/payments/bills/check")
     @Operation(summary = "Kiểm tra thông tin hóa đơn", description = "Lấy thông tin chi tiết của một hóa đơn từ nhà cung cấp dựa trên mã khách hàng.")
     public ApiResponse<BillDetailsResponse> checkBill(@RequestBody BillCheckRequest request) {
-    BillDetailsResponse billDetail = transactionService.checkBill(request);
+        BillDetailsResponse billDetail = transactionService.checkBill(request);
 
-    if(billDetail==null) {
+        if(billDetail==null) {
+            return ApiResponse.<BillDetailsResponse>builder()
+                    .code(400)
+                    .message("Không tìm thấy hóa đơn")
+                    .result(null)
+                    .build();
+        }
         return ApiResponse.<BillDetailsResponse>builder()
-                .code(400)
-                .message("Không tìm thấy hóa đơn")
-                .result(null)
+                .code(200)
+                .message("Thông tin hóa đơn")
+                .result(billDetail)
                 .build();
-    }
-    return ApiResponse.<BillDetailsResponse>builder()
-            .code(200)
-            .message("Thông tin hóa đơn")
-            .result(billDetail)
-            .build();
     }
     @PostMapping("/payments/bills/pay")
     @Operation(summary = "Thực hiện thanh toán hóa đơn", description = "Xác nhận và thanh toán cho một hóa đơn đã được kiểm tra.")

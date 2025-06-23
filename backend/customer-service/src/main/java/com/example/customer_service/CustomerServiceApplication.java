@@ -3,6 +3,8 @@ package com.example.customer_service;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
 @EnableDubbo
 @SpringBootApplication
 public class CustomerServiceApplication {

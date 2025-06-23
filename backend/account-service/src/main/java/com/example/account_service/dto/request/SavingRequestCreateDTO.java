@@ -11,14 +11,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SavingRequestCreateDTO {
-
+public class SavingRequestCreateDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Schema(description = "Số tài khoản nguồn chuyển tiền", example = "1234567890", required = true)
     @NotBlank(message = "Account number source cannot be blank")
     private String accountNumberSource;
@@ -31,6 +32,4 @@ public class SavingRequestCreateDTO {
     @NotNull(message = "Term (in months) is required")
     @Min(value = 1, message = "Term must be at least 1 month")
     private Integer term; // kỳ hạn (tháng)
-
-    private BigDecimal interestRate;
 }

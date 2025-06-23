@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Phê duyệt yêu cầu thẻ tín dụng - Ngân hàng ABC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+
+        .banner {
+            background: linear-gradient(to right, #1f4037, #99f2c8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #00c9a7;
+        }
+
+        .banner-logo {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .banner-logo svg {
+            height: 50px;
+            width: 50px;
+        }
+
+        .banner-title {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            vertical-align: middle;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #1a1a2e;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        h2 {
+            color: #00ffe7;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+
+        .account-info {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .account-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .card-type {
+            font-size: 18px;
+            color: #00ffe7;
+            margin: 10px 0;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #d0d0d0;
+            margin: 15px 0;
+        }
+
+        .important-note {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #FFC107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #FFC107;
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+
+        .contact-info {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="banner">
+    <div class="banner-logo">
+        <svg viewBox="0 0 64 64" fill="#00ffe7" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="30" stroke="#00ffe7" stroke-width="4" fill="none"/>
+            <path d="M32 12 L42 32 L32 52 L22 32 Z" fill="#00ffe7"/>
+        </svg>
+    </div>
+    <div class="banner-title">Ngân hàng ABC</div>
+</div>
+
+<div class="container">
+    <div class="success-icon">✅</div>
+    
+    <h2>Chúc mừng <span th:text="${customerName}"></span>!</h2>
+    
+    <p><strong>Yêu cầu mở thẻ tín dụng của bạn đã được phê duyệt thành công!</strong></p>
+    
+    <div class="account-info">
+        <div class="card-type">Loại thẻ: <span th:text="${cardType}"></span></div>
+        <div>Số tài khoản thẻ tín dụng:</div>
+        <div class="account-number" th:text="${accountNumber}"></div>
+    </div>
+    
+    <p>Thẻ tín dụng của bạn đã được kích hoạt và sẵn sàng sử dụng. Bạn có thể:</p>
+    
+    <ul style="text-align: left; color: #d0d0d0; margin: 20px 0;">
+        <li>Thực hiện giao dịch mua sắm trực tuyến và tại cửa hàng</li>
+        <li>Rút tiền mặt tại ATM (áp dụng phí)</li>
+        <li>Thanh toán hóa đơn và dịch vụ</li>
+        <li>Tận hưởng các ưu đãi và khuyến mãi đặc biệt</li>
+    </ul>
+    
+    <div class="important-note">
+        <strong>⚠️ Lưu ý quan trọng:</strong><br>
+        • Thẻ vật lý sẽ được gửi đến địa chỉ đăng ký trong vòng 5-7 ngày làm việc<br>
+        • Mật khẩu PIN sẽ được gửi riêng qua SMS<br>
+        • Vui lòng kích hoạt thẻ ngay khi nhận được
+    </div>
+    
+    <p>Cảm ơn bạn đã tin tưởng và lựa chọn dịch vụ của <strong>Ngân hàng ABC</strong>!</p>
+    
+    <div class="contact-info">
+        <strong>Cần hỗ trợ?</strong><br>
+        📞 Hotline: 1900-1234<br>
+        📧 Email: support@abc-bank.com<br>
+        🌐 Website: www.abc-bank.com
+    </div>
+
+    <div class="footer">
+        © 2025 Ngân hàng ABC. Thiết kế bởi CTV JAVA TEAM PRO.<br>
+        Email này được gửi tự động, vui lòng không phản hồi.
+    </div>
+</div>
+
+</body>
+</html> 

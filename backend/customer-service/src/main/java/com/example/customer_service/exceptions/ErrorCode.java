@@ -4,19 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-    USER_NOT_FOUND("Không tìm thấy người dùng"),
-    USERNAME_EXISTS("Tên đăng nhập đã tồn tại"),
-    EMAIL_EXISTS("Email đã tồn tại"),
-    KEYCLOAK_ERROR("Lỗi khi gọi Keycloak API"),
-    CUSTOMER_NOTEXISTED("Customer is not existed"),
-    INVALID_CREDENTIALS("Sai tên đăng nhập hoặc mật khẩu"),
-    INVALID_REQUEST("Yêu cầu không hợp lệ"),
-    UNAUTHORIZED("Xác thực Keycloak thất bại");
 
-    private final String message;
+    CUSTOMER_NOTEXISTED("error.customer_not_existed");
 
-    ErrorCode(String message) {
-        this.message = message;
+    private final String messageKey;
+
+    ErrorCode(String messageKey) {
+        this.messageKey = messageKey;
     }
-
 }

@@ -6,7 +6,6 @@ import com.example.corebanking_service.dto.request.TransactionRequest;
 import com.example.corebanking_service.dto.response.ApiResponse;
 import com.example.corebanking_service.service.CoreTransactionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -42,4 +41,5 @@ public class CoreTransactionController {
                 .message("Giao dịch hoàn tiền")
                 .build();
     }
+
 }
