@@ -17,4 +17,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     List<Account> findByCifCodeAndAccountTypeAndStatus(String cifCode, AccountType accountType, AccountStatus status);
     
     List<Account> findByCifCodeAndStatus(String cifCode, AccountStatus status);
+
+    boolean existsAccountsByAccountNumber(String number);
 }

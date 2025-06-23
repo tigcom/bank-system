@@ -41,7 +41,9 @@ public enum ErrorCode {
     ACCOUNT_NOT_FOUND(1032, "account.not.found"),
     CORE_BANKING_SERVICE_ERROR(1033, "core.banking.service.error"),
     ACCOUNT_NOT_ACTIVE(1033, "account.not.active"),
-    TRANSACTION_FAILED(1034, "transaction.failed");
+    TRANSACTION_FAILED(1034, "transaction.failed"),
+    KYC_INVALID(1035, "kyc.invalid"),
+    ACCOUNT_NUMBER_EXISTED(1036, "account.number.existed"),;
 
 
 

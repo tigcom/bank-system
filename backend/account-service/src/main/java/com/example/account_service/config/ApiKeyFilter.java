@@ -12,6 +12,11 @@ public class ApiKeyFilter implements Filter {
 
     @Value("${app.api.key}")
     private String apiKey;
+
+    public ApiKeyFilter(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         if (servletRequest.getDispatcherType() != DispatcherType.REQUEST) {
@@ -25,8 +30,8 @@ public class ApiKeyFilter implements Filter {
         log.info("DispatcherType: " + httpRequest.getDispatcherType());
         log.info("Check api key");
         // Chỉ áp dụng filter cho /api/v1/create-initial-payment-account
-        log.info("URL: " + httpRequest.getRequestURL());
-        if (!httpRequest.getRequestURI().equals("http://localhost:8082/account/api/v1/create-initial-payment-account")) {
+        log.info("URI: " + httpRequest.getRequestURI());
+        if (!httpRequest.getRequestURI().equals("/account/api/v1/create-initial-payment-account")) {
             log.info("change filter");
             filterChain.doFilter(servletRequest, servletResponse);
             return;
@@ -35,6 +40,7 @@ public class ApiKeyFilter implements Filter {
         // Lấy X-API-Key từ header
         String receivedApiKey = httpRequest.getHeader("X-API-Key");
         log.info("receivedApiKey: " + receivedApiKey);
+        log.info("this api key is: " + apiKey);
         // Kiểm tra API Key
         if (apiKey.equals(receivedApiKey)) {
             log.info(" api key hợp lệ");

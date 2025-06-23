@@ -5,13 +5,13 @@ import com.example.Notification_service.service.ConnectionHealthService;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.CreditNotificationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Base64;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -26,10 +26,27 @@ public class NotificationServiceImpl implements NotificationService {
     
     @Override
     @KafkaListener(topics = "send-mail-raw", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendNotification(Message<byte[]> messagee) {
+    public void sendNotification(byte[] payload) {
         try {
+            String payloadStr = new String(payload);
             ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailMessageDTO.class);
+            MailMessageDTO mailMessage;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                // Strip quotes if present
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                // Fallback to direct JSON parsing
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
             log.info("Sending raw email to: {}", mailMessage.getRecipient());
             
             MimeMessage message = mailSender.createMimeMessage();
@@ -49,10 +66,33 @@ public class NotificationServiceImpl implements NotificationService {
     
     @Override
     @KafkaListener(topics = "send-mail-html", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendDTO(Message<byte[]> messagee) {
+    public void sendDTO(byte[] payload) {
         try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received: {}", payloadStr);
+            
             ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailMessageDTO.class);
+            MailMessageDTO mailMessage;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                log.info("Attempting Base64 decode...");
+                // Strip quotes if present
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                    log.info("Stripped quotes, clean Base64: {}", base64Str);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                String decodedJson = new String(decodedBytes);
+                log.info("Successfully decoded JSON: {}", decodedJson);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                // Fallback to direct JSON parsing
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
             log.info("Sending HTML email to: {}", mailMessage.getRecipient());
 
             Context context = new Context();
@@ -89,7 +129,6 @@ public class NotificationServiceImpl implements NotificationService {
                 mailSender.send(message);
                 log.info("HTML email sent successfully to: {} (attempt {})", mailMessage.getRecipient(), attempt);
                 return; // Success, exit retry loop
-                
             } catch (Exception e) {
                 log.warn("Email send attempt {} failed for {}: {}", attempt, mailMessage.getRecipient(), e.getMessage());
                 
@@ -118,10 +157,27 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @KafkaListener(topics = "send-credit-notification", groupId = "credit-notification-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendCreditNotification(Message<byte[]> message) {
+    public void sendCreditNotification(byte[] payload) {
         try {
+            String payloadStr = new String(payload);
             ObjectMapper objectMapper = new ObjectMapper();
-            CreditNotificationDTO notification = objectMapper.readValue(message.getPayload(), CreditNotificationDTO.class);
+            CreditNotificationDTO notification;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                // Strip quotes if present
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                notification = objectMapper.readValue(decodedBytes, CreditNotificationDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                // Fallback to direct JSON parsing
+                notification = objectMapper.readValue(payload, CreditNotificationDTO.class);
+            }
             log.info("Sending credit notification email to: {}", notification.getCustomerEmail());
 
             Context context = new Context();
@@ -154,5 +210,7 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("Lỗi khi gửi email credit notification: {}", e.getMessage(), e);
         }
     }
+
+
 }
 

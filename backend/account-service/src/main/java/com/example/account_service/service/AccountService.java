@@ -9,6 +9,7 @@ import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.common_service.dto.CreditCardDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.CreditAccountResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
 
 import java.util.List;
@@ -21,7 +22,6 @@ public interface AccountService {
     
     void resendPaymentOtp(String tempRequestKey);
 
-    AccountCreateReponse createPayment();
 
     List<AccountSummaryDTO> getAllAccountsbyCifCode();
 
@@ -31,8 +31,12 @@ public interface AccountService {
 
     List<SavingAccountResponse> getAllSavingAccountbyCifCode();
 
+    List<CreditAccountResponse> getAllCreditAccountbyCifCode();
+
     List<CreditCardDTO> getAllCreditCard();
 
     CicResponse checkCIC(String idNumber);
     PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest);
+
+
 }
