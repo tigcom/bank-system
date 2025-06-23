@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 "/api/customers/reset-password",
                                 "/api/customers/register/initiate",
                                 "/api/customers/register/kyc-and-otp",
+                                "/api/customers/register/send-otp",
                                 "/api/customers/register/confirm",
                                 "/account/api/v1/create-initial-payment-account",
                                 "/swagger-ui/**",

@@ -109,6 +109,29 @@ public class CustomerController {
         }
     }
 
+    @PostMapping("/register/send-otp")
+    @Operation(summary = "Gửi lại OTP",
+            description = "Gửi lại mã OTP cho người dùng")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Đã gửi lại OTP"),
+            @ApiResponse(responseCode = "400", description = "Gửi lại mã OTP không thành công"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    public ResponseEntity<ApiResponseWrapper<?>> sendOtp(
+            @RequestParam String email) {
+        try {
+            log.info("Gửi OTP cho email: {}", email);
+            ApiResponseWrapper<?> response = customerService.reSendOtp(email);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            log.warn("Gửi otp không thành công cho email {}: {}", email, e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
+            );
+        }
+    }
+
+
     @PostMapping("/register/confirm")
     @Operation(summary = "Bước 3: Xác nhận đăng ký",
             description = "Xác minh mã OTP và hoàn tất đăng ký tài khoản")
@@ -133,6 +156,14 @@ public class CustomerController {
     }
 
     @PostMapping("/reset-password")
+    @Operation(summary = "Đặt lại mật khẩu",
+            description = "Đặt lại mật khẩu cho tài khoản người dùng")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Đặt lại mật khẩu thành công",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
+            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
     public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
         try {
             ApiResponseWrapper<?> response = customerService.resetPassword(request);
@@ -145,6 +176,14 @@ public class CustomerController {
     }
 
     @PostMapping("/forgot-password")
+    @Operation(summary = "Quên mật khẩu",
+            description = "Gửi liên kết đặt lại mật khẩu qua email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Liên kết đặt lại mật khẩu đã được gửi",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
+            @ApiResponse(responseCode = "400", description = "Email không hợp lệ"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
     public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
         try {
             customerService.sentEmailForgotPassword(request.getEmail());
@@ -349,6 +388,14 @@ public class CustomerController {
     }
 
     @GetMapping("/accounts")
+    @Operation(summary = "Lấy danh sách tài khoản", description = "Truy vấn danh sách tài khoản của khách hàng")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lấy danh sách tài khoản thành công",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> getCustomerAccounts() {
         try {
             log.info("Start get list account");
