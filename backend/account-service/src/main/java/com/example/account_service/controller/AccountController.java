@@ -156,4 +156,15 @@ public class AccountController {
     public ResponseEntity<CicResponse> checkCIC(@RequestParam String idNumber) {
         return ResponseEntity.ok(accountService.checkCIC(idNumber));
     }
+
+    @PostMapping("/api/v1/create-initial-payment-account")
+    public ApiResponseWrapper<PaymentRequestResponse> createPaymentInnit(@RequestBody PaymentCreateDTO paymentRequest) {
+        PaymentRequestResponse Paymentresponse = accountService.createPaymentInit(paymentRequest);
+        ApiResponseWrapper<PaymentRequestResponse> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.payment.createSuccess"),
+                Paymentresponse
+        );
+        return response;
+    }
 }

@@ -1,9 +1,7 @@
 
-# Đặt các biến môi trường cho Vault
 export VAULT_TOKEN="myroot"
 export VAULT_ADDR="http://host.docker.internal:8200"
 
-# Thêm secret vào Vault dưới path: secret/customer-service
 vault kv put secret/customer-service \
   db_username="root" \
   db_password="123456" \
