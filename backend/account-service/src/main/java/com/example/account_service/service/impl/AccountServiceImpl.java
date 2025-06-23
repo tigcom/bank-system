@@ -24,6 +24,7 @@ import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonService;
+import com.example.common_service.services.customer.CustomerQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -59,9 +60,15 @@ public class AccountServiceImpl implements AccountService {
 
     @DubboReference(timeout = 5000)
     private CommonService commonService;
+    @DubboReference(timeout = 5000)
+    private final CustomerQueryService customerQueryService;
+
     private final RestTemplate restTemplate;
+
     private final RedisTemplate<Object, Object> redisTemplate;
+
     private final StreamBridge streamBridge;
+
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
 
@@ -315,6 +322,13 @@ public class AccountServiceImpl implements AccountService {
         }
 
         return createPaymentAccountDirectly(paymentRequest.getCifCode());
+    }
+
+    @Override
+    public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber);
+        if(account==null) throw new AppException(ErrorCode.USER_NOTEXISTED);
+        return customerQueryService.getCustomerByCifCode(account.getCifCode());
     }
 
 

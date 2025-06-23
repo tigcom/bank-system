@@ -5,6 +5,7 @@ import com.example.transaction_service.enums.TransactionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction,String> {
+public interface TransactionRepository extends JpaRepository<Transaction,String> , JpaSpecificationExecutor<Transaction> {
     Transaction findByReferenceCode(String referenceCode);
     @Query(value = "SELECT * FROM tbl_transaction " +
             "WHERE from_account_number = :accountNumber OR to_account_number = :accountNumber "
@@ -29,4 +30,27 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
             "ORDER BY timestamp DESC",
             nativeQuery = true)
     Page<Transaction> findByAccountNumber(@Param("accountNumber") String accountNumber, Pageable pageable);
+    @Query(value = "SELECT t.to_account_number\n" +
+            "FROM tbl_transaction t\n" +
+            "JOIN (\n" +
+            "    SELECT MAX(id) AS latest_id\n" +
+            "    FROM tbl_transaction\n" +
+            "    WHERE from_account_number = :fromAccountNumber\n" +
+            "      AND type != 'EXTERNAL_TRANSFER'\n" +
+            "    GROUP BY to_account_number\n" +
+            "    ORDER BY MAX(created_at) DESC\n" +
+            "    LIMIT 5\n" +
+            ") latest_tx\n" +
+            "ON t.id = latest_tx.latest_id\n" +
+            "ORDER BY t.created_at DESC;\n",
+            nativeQuery = true)
+    List<String> getListToAccountNumberLatest(String fromAccountNumber);
+
+    @Query(value = "SELECT * FROM tbl_transaction t\n" +
+            "WHERE t.type = 'PAY_BILL' \n" +
+            "    AND t.status = 'COMPLETED'\n" +
+            "    AND t.timestamp >= :startOfDay AND t.timestamp < :endOfDay",
+            nativeQuery = true)
+    List<Transaction> getDailyPaymentTransaction(@Param("startOfDay") LocalDateTime startOfDay,
+                                                 @Param("endOfDay") LocalDateTime endOfDay);
 }

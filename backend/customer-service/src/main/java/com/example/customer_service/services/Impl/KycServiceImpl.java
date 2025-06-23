@@ -9,6 +9,8 @@ import com.example.customer_service.responses.KycResponse;
 import com.example.customer_service.services.KycService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +24,12 @@ public class KycServiceImpl implements KycService {
 
     private final CustomerRepository customerRepository;
 
+    private final MessageSource messageSource;
+
     private final KycProfileRepository kycProfileRepository;
 
     @Override
-    public KycResponse verifyIdentity(String identityNumber, String fullName) {
+    public KycResponse verifyIdentity(String identityNumber, String fullName, LocalDate dateOfBirth, String gender) {
         if (identityNumber == null || fullName == null) {
             KycResponse response = new KycResponse();
             response.setVerified(false);
@@ -39,32 +43,6 @@ public class KycServiceImpl implements KycService {
         response.setMessage("Xác minh thành công");
         response.setDetails("{\"score\": 0.95, \"details\": \"Identity matched\"}");
         return response;
-    }
-
-    @Override
-    @Transactional
-    public void saveKycInfo(Long customerId, KycResponse kycResponse, String identityNumber, String fullName,
-                            LocalDate dateOfBirth, String gender) {
-        if (customerId == null || identityNumber == null || fullName == null ||
-                dateOfBirth == null || gender == null) {
-            throw new IllegalArgumentException("Dữ liệu KYC không đầy đủ");
-        }
-
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khách hàng"));
-
-        KycProfile kycProfile = kycProfileRepository.findByCustomer(customer).orElse(new KycProfile());
-        kycProfile.setCustomer(customer);
-        kycProfile.setStatus(kycResponse.isVerified() ? KycStatus.VERIFIED : KycStatus.REJECTED);
-        kycProfile.setVerifiedAt(LocalDateTime.now());
-        kycProfile.setVerifiedBy("SYSTEM");
-
-        kycProfile.setIdentityNumber(identityNumber);
-        kycProfile.setFullName(fullName);
-        kycProfile.setDateOfBirth(dateOfBirth);
-        kycProfile.setGender(gender);
-
-        kycProfileRepository.save(kycProfile);
     }
 
     @Override
@@ -92,5 +70,38 @@ public class KycServiceImpl implements KycService {
         };
 
         return new KycResponse(isVerified, message, null, status);
+    }
+
+
+    @Override
+    @Transactional
+    public void saveKycInfo(Long customerId, KycResponse kycResponse, String identityNumber, String fullName,
+                            LocalDate dateOfBirth, String gender) {
+        if (customerId == null || identityNumber == null || fullName == null ||
+                dateOfBirth == null || gender == null) {
+            throw new IllegalArgumentException("Dữ liệu KYC không đầy đủ");
+        }
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khách hàng"));
+
+        KycProfile kycProfile = kycProfileRepository.findByCustomer(customer).orElse(new KycProfile());
+        kycProfile.setCustomer(customer);
+        if (kycResponse.getStatus() != null) {
+            kycProfile.setStatus(kycResponse.getStatus());
+        } else {
+            kycProfile.setStatus(kycResponse.isVerified() ? KycStatus.VERIFIED : KycStatus.REJECTED);
+        }
+
+        kycProfile.setIdentityNumber(identityNumber);
+        kycProfile.setFullName(fullName);
+        kycProfile.setDateOfBirth(dateOfBirth);
+        kycProfile.setGender(gender);
+
+        kycProfileRepository.save(kycProfile);
+    }
+
+    private String getMessage(String key, Object... args) {
+        return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
     }
 }

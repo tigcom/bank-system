@@ -7,6 +7,7 @@ import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.common_service.dto.CreditCardDTO;
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CreditAccountResponse;
@@ -37,6 +38,7 @@ public interface AccountService {
 
     CicResponse checkCIC(String idNumber);
     PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest);
+    CustomerDTO getCustomerByAccountNumber(String accountNumber);
 
 
 }

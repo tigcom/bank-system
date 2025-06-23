@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/core-bank")
@@ -33,6 +32,14 @@ public class CoreTransactionController {
                 .result(coreTransactionService.performTransfer(request))
                 .build();
 
+    }
+    @PostMapping("/reverse-transaction")
+    public ApiResponse<Void> reverseTransaction(@RequestBody TransactionRequest request) {
+        coreTransactionService.reverseTransaction(request);
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message("Giao dịch hoàn tiền")
+                .build();
     }
 
 }
