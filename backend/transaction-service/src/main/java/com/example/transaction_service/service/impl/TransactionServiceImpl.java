@@ -6,6 +6,7 @@ import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.services.CommonService;
@@ -541,6 +542,34 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     public NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request) {
         return inquiryDestinationAccount(request);
+    }
+
+    @Override
+    public Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable) {
+        return transactionRepository.findByAccountNumber(accountNumber, pageable)
+                .map(transactionMapper::toDTO);
+    }
+
+    @Override
+    public TransactionDTO payInterest(PayInterestRequest request) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(request.getToAccountNumber());
+        transaction.setAmount(request.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(request.getCurrency()));
+        // kiem tra loại giao dich rút tiền : rut tiet kiem hoac tra lai
+        transaction.setType(TransactionType.PAY_INTEREST);
+
+        transaction.setFromAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
     }
 
 

@@ -1,12 +1,14 @@
 package com.example.transaction_service.service;
 
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.*;
 import com.example.transaction_service.entity.Transaction;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -39,4 +41,8 @@ public interface TransactionService {
     FilterMetadataResponse getFilterMetadata();
 
     NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request);
+
+    Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable);
+
+    TransactionDTO payInterest(PayInterestRequest request);
 }

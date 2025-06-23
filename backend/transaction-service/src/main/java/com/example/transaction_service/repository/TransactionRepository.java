@@ -2,6 +2,8 @@ package com.example.transaction_service.repository;
 
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.TransactionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -45,5 +47,10 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
     List<Transaction> getDailyPaymentTransaction(@Param("startOfDay") LocalDateTime startOfDay,
                                                  @Param("endOfDay") LocalDateTime endOfDay);
 
+    @Query(value = "SELECT * FROM tbl_transaction " +
+            "WHERE (from_account_number = :accountNumber OR to_account_number = :accountNumber) " +
+            "ORDER BY timestamp DESC",
+            nativeQuery = true)
+    Page<Transaction> findByAccountNumber(@Param("accountNumber") String accountNumber, Pageable pageable);
 
 }

@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -314,11 +316,15 @@ public class TransactionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ hoặc OTP sai")
     })
     @GetMapping("/account/{accountNumber}")
-    public ApiResponse<List<TransactionDTO>> getTransactionsByAccount(@PathVariable String accountNumber){
-        return ApiResponse.<List<TransactionDTO>>builder()
+    public ApiResponse<Page<TransactionDTO>> getTransactionsByAccount(
+            @PathVariable String accountNumber,
+            @RequestParam int page,
+            @RequestParam int size) {
+        org.springframework.data.domain.Pageable  pageable =  PageRequest.of(page, size);
+        return ApiResponse.<Page<TransactionDTO>>builder()
                 .code(200)
                 .message("Danh sách giao dịch của tài khoản")
-                .result(transactionService.getAccountTransactions(accountNumber))
+                .result(transactionService.getAccountTransactions(accountNumber, pageable))
                 .build();
     }
 
