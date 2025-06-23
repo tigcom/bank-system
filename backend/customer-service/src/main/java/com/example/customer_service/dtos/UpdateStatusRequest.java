@@ -9,9 +9,9 @@ import lombok.Data;
 @Schema(description = "DTO cập nhật trạng thái khách hàng")
 public class UpdateStatusRequest {
 
-    @Schema(description = "ID khách hàng", example = "123", required = true)
-    @NotNull(message = "ID không được để trống")
-    private Long id;
+    @Schema(description = "Mã khách hàng", example = "123", required = true)
+    @NotNull(message = "Mã khách hàng không được để trống")
+    private String cifCode;
 
     @Schema(description = "Trạng thái khách hàng", example = "ACTIVE", required = true)
     @NotNull(message = "Trạng thái không được để trống")

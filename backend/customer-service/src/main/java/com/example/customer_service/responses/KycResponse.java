@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "DTO phản hồi KYC")
 public class KycResponse {
 
-    @Schema(description = "Trạng thái xác minh", example = "true")
+    @Schema(description = "Đã xác minh hay chưa?", example = "true")
     private boolean verified;
 
     @Schema(description = "Thông điệp xác minh", example = "Xác minh thành công")

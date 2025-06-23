@@ -23,9 +23,18 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(auth -> auth
                         .pathMatchers(
+                                "/api/customers/login",
                                 "/api/customers/register",
                                 "/corebanking/api/core/customers/sync",
                                 "/api/customers/forgot-password",
+                                "/api/customers/confirm-register",
+                                "/api/customers/forgot-password",
+                                "/api/customers/reset-password",
+                                "/api/customers/register/initiate",
+                                "/api/customers/register/kyc-and-otp",
+                                "/api/customers/register/send-otp",
+                                "/api/customers/register/confirm",
+                                "/account/api/v1/create-initial-payment-account",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"

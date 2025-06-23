@@ -2,8 +2,6 @@ package com.example.transaction_service.repository;
 
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.TransactionStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -36,16 +34,16 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
             ") latest_tx\n" +
             "ON t.id = latest_tx.latest_id\n" +
             "ORDER BY t.created_at DESC;\n",
-    nativeQuery = true)
+            nativeQuery = true)
     List<String> getListToAccountNumberLatest(String fromAccountNumber);
 
     @Query(value = "SELECT * FROM tbl_transaction t\n" +
             "WHERE t.type = 'PAY_BILL' \n" +
             "    AND t.status = 'COMPLETED'\n" +
             "    AND t.timestamp >= :startOfDay AND t.timestamp < :endOfDay",
-    nativeQuery = true)
+            nativeQuery = true)
     List<Transaction> getDailyPaymentTransaction(@Param("startOfDay") LocalDateTime startOfDay,
                                                  @Param("endOfDay") LocalDateTime endOfDay);
 
-    
+
 }

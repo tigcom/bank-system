@@ -399,34 +399,34 @@ public class TransactionServiceImpl implements TransactionService{
             throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
         }
         BigDecimal balance;
-            try {
+        try {
 //                kiểm tra số dư
-                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
-                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
-                        new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        responseType,
-                        transaction.getFromAccountNumber()
-                );
-                balance = response.getBody().getResult();
-            }
-            catch (Exception e) {
-                throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
-            }
+            String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+            ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                    new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+            ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    responseType,
+                    transaction.getFromAccountNumber()
+            );
+            balance = response.getBody().getResult();
+        }
+        catch (Exception e) {
+            throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
+        }
 
-            if (balance.compareTo(transaction.getAmount()) < 0) {
-                throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
-            }
+        if (balance.compareTo(transaction.getAmount()) < 0) {
+            throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
+        }
 
         NapasInquiryResponse napasInquiryResponse = inquiryDestinationAccount(NapasInquiryRequest.builder()
                 .accountNumber(transaction.getToAccountNumber())
                 .bankCode(transaction.getDestinationBankCode())
                 .build());
-            if(!napasInquiryResponse.getAccountStatus().equals("ACTIVE"))
-                throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
+        if(!napasInquiryResponse.getAccountStatus().equals("ACTIVE"))
+            throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
         initTransaction(transaction);
 //        Gửi OTP
         sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
@@ -631,17 +631,17 @@ public class TransactionServiceImpl implements TransactionService{
             BigDecimal balance;
             try {
 //                kiểm tra số dư
-               String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
-               ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
                         new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-               ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         null,
                         responseType,
                         transaction.getFromAccountNumber()
                 );
-               balance = response.getBody().getResult();
+                balance = response.getBody().getResult();
             }
             catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
@@ -665,7 +665,7 @@ public class TransactionServiceImpl implements TransactionService{
                     restTemplate.exchange(urlNapasInquiry, HttpMethod.POST, entity, responseType);
 
             ApiResponse<NapasInquiryResponse> apiResponse = responseEntity.getBody();
-           if(apiResponse.getCode()==404){
+            if(apiResponse.getCode()==404){
                 throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
             }
             return apiResponse.getResult();
