@@ -1,6 +1,7 @@
 package com.example.account_service.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +25,8 @@ import java.util.Map;
 @EnableWebSecurity
 @SuppressWarnings("unused")
 public class SecurityConfig {
+     @Value("${app.api.key}")
+    private String apiKey;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -41,7 +44,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .addFilterBefore(new ApiKeyFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new ApiKeyFilter(apiKey), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

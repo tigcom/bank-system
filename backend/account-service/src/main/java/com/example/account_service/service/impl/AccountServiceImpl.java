@@ -5,7 +5,6 @@ import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.AccountCreateReponse;
-import com.example.common_service.dto.response.BalanceResponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.account_service.entity.Account;
@@ -23,9 +22,7 @@ import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSummaryDTO;
-import com.example.common_service.dto.response.SavingAccountResponse;
+import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,56 +58,12 @@ public class AccountServiceImpl implements AccountService {
     private final CreditCardTypeRepository creditCardTypeRepository;
 
     @DubboReference(timeout = 5000)
-    private final CommonService commonService;
+    private CommonService commonService;
     private final RestTemplate restTemplate;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final StreamBridge streamBridge;
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
-    @Override
-    public AccountCreateReponse createPayment() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
-        log.info("Current Customer : {}", currentCustomer);
-
-        log.info("Create payment request received");
-
-        if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
-            Account account = Account.builder()
-                    .accountType(AccountType.PAYMENT)
-                    .cifCode(currentCustomer.getCifCode())
-                    .status(AccountStatus.ACTIVE)
-                    .build();
-            account.setAccountNumber(generateAccountNumber(account));
-            log.info("Account : " + account);
-
-            CorePaymentAccountDTO corePaymentAccountDTO = CorePaymentAccountDTO.builder()
-                    .cifCode(account.getCifCode())
-                    .accountNumber(account.getAccountNumber())
-                    .build();
-            log.info("corePaymentAccountDTO: {}", corePaymentAccountDTO);
-            //dung dubbo luu account payment len core
-//            commonServiceCore.createCoreAccountPayment(corePaymentAccountDTO);
-
-            //// dung restTemplate call API save account tren CoreBanking
-            String url = coreBankingBaseUrl+ "/create-payment-account";
-            restTemplate.postForObject(url ,corePaymentAccountDTO,Void.class);
-
-            accountRepository.save(account);
-
-            return AccountCreateReponse.builder()
-                    .accountNumber(account.getAccountNumber())
-                    .cifCode(account.getCifCode())
-                    .id(account.getId())
-                    .accountType(account.getAccountType())
-                    .status(account.getStatus())
-                    .build();
-        }
-        throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
-    }
 
     public List<AccountSummaryDTO> getAllAccountsbyCifCode() {
         // Lấy thông tin người dùng từ context bảo mật
@@ -240,7 +193,6 @@ public class AccountServiceImpl implements AccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         log.info("User id: " + userId);
-
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
         String cifCode = currentCustomer.getCifCode();
@@ -266,6 +218,38 @@ public class AccountServiceImpl implements AccountService {
                             .interestPaymentType(account.getInterestPaymentType())
                             .renewOption(account.getRenewOption())
                             .accountNumberSrc(account.getAccountNumberSrc())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CreditAccountResponse> getAllCreditAccountbyCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
+        // Lấy thông tin khách hàng hiện tại
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+        String cifCode = currentCustomer.getCifCode();
+        // Lấy Savings Accounts từ local database
+        List<CreditAccount> creditAccounts = creditAccountRepository.findActiveCreditAccountsByCifCode(cifCode);
+        return creditAccounts.stream()
+                .map(account -> {
+                    BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                    return CreditAccountResponse.builder()
+                            .status(account.getStatus().name())
+                            .accountNumber(account.getAccountNumber())
+                            .cifCode(account.getCifCode())
+                            .accountType(account.getAccountType().name())
+                            .balance(balance)
+                            .imageUrl(account.getCreditCardType().getImageUrl())
+                            .creditLimit(account.getCreditLimit())
+                            .currentDebt(account.getCurrentDebt())
+                            .openedDate(account.getCreatedDate().toLocalDate())
+                            .typeName(account.getCreditCardType().getTypeName())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -325,7 +309,6 @@ public class AccountServiceImpl implements AccountService {
         if (customer == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
-
         // Check trạng thái customer
         if (customer.getStatus() != CustomerStatus.ACTIVE) {
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
@@ -460,9 +443,14 @@ public class AccountServiceImpl implements AccountService {
                 .cifCode(cifCode)
                 .status(AccountStatus.ACTIVE)
                 .build();
-        account.setAccountNumber(generateAccountNumber(account));
+        String number;
+        do {
+            number = generateAccountNumber(account);
+        } while (accountRepository.existsAccountsByAccountNumber(number));
+        account.setAccountNumber(number);
         log.info("Account : " + account);
         accountRepository.save(account);
+
         CoreAccountRequest coreAccount = CoreAccountRequest.builder()
                 .accountNumber(account.getAccountNumber())
                 .cifCode(cifCode)
@@ -486,7 +474,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * Extracts CIF code from temporary key
+     * Extracts CIF code from temporary keyBind method parameters to fields
      */
     private String extractCifFromTempKey(String tempKey) {
         // Format: TEMP_PAYMENT_REQUEST:{cifCode}:{timestamp}

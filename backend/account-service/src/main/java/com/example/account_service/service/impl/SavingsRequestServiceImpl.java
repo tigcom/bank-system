@@ -1,14 +1,11 @@
 package com.example.account_service.service.impl;
 
 import com.example.account_service.dto.request.ConfirmRequestDTO;
-import com.example.account_service.dto.request.CreateSimpleAccountRequest;
 import com.example.account_service.dto.request.SavingRequestCreateDTO;
-import com.example.account_service.dto.request.UpdateBalanceRequest;
 import com.example.account_service.dto.response.SavingsRequestResponse;
 import com.example.account_service.dto.response.withdrawSavingResponse;
 import com.example.account_service.entity.Account;
 import com.example.account_service.entity.SavingsAccount;
-import com.example.account_service.entity.SavingsRequest;
 import com.example.account_service.entity.Term;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
@@ -21,8 +18,6 @@ import com.example.account_service.service.SavingRequestService;
 import com.example.account_service.utils.AccountNumberUtils;
 import com.example.common_service.constant.*;
 import com.example.common_service.dto.*;
-import com.example.common_service.constant.InterestPaymentType;
-import com.example.common_service.constant.RenewOption;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
@@ -625,8 +620,12 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .renewOption(tempRequest.getRenewOption())  // Default to NO_RENEW
                 .accountNumberSrc(tempRequest.getAccountNumberSource())
                 .build();
-        savingsAccount.setAccountNumber(generateAccountNumber(savingsAccount));
 
+        String number;
+        do {
+            number = generateAccountNumber(savingsAccount);
+        } while (accountRepository.existsAccountsByAccountNumber(number));
+        savingsAccount.setAccountNumber(number);
         // Save savings account (Account will be saved automatically due to inheritance)
         return savingsAccountRepository.save(savingsAccount);
     }

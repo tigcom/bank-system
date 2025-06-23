@@ -29,7 +29,6 @@ public class CoreAccountServiceImpl implements CoreAccountService {
                     .status(dto.getStatus())
                     .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
                     .build();
-            log.info("createCoreAccountPayment:{}", coreAccount);
             coreAccountRepo.save(coreAccount);
     }
     @Override
