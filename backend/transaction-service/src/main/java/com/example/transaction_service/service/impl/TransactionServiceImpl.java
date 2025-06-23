@@ -24,9 +24,14 @@ import com.example.transaction_service.gateways.ProviderGateway;
 import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +47,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -65,7 +76,8 @@ public class TransactionServiceImpl implements TransactionService{
     private final TransactionRepository transactionRepository;
 
     private final TransactionMapper transactionMapper;
-
+    private final JwtDecoder jwtDecoder;
+    private final JwtAuthenticationConverter authConverter;
     @DubboReference
     private final AccountQueryService accountQueryService;
 
@@ -94,6 +106,8 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Autowired
     private RestTemplate restTemplate;
+
+
     @Override
     @Transactional
     @CacheEvict(value = "latestRecipients", key = "#transferRequest.fromAccountNumber")
@@ -542,22 +556,30 @@ public class TransactionServiceImpl implements TransactionService{
     public NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request) {
         return inquiryDestinationAccount(request);
     }
-
-
     //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
+        String tokenValue = RpcContext.getContext()
+                .getAttachment("security_jwt_token");
+        if (tokenValue == null) {
+            throw new SecurityException("Missing JWT token");
+        }
+        Jwt jwt = jwtDecoder.decode(tokenValue);
+        AbstractAuthenticationToken tokenAuth = authConverter.convert(jwt);
+        if (!(tokenAuth instanceof JwtAuthenticationToken)) {
+            throw new SecurityException("Expected JwtAuthenticationToken but got "
+                    + tokenAuth.getClass().getName());
+        }
+        JwtAuthenticationToken authToken = (JwtAuthenticationToken) tokenAuth;
+        SecurityContextHolder.getContext().setAuthentication(authToken);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
         log.info("CurrentCustomer: {}",currentCustomer);
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
-
-
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
-
         if (toAccount==null) {
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
         }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Chi tiết thông tin giao dịch")
-public class TransactionDTO {
+public class TransactionDTO  {
 
     @Schema(description = "ID của giao dịch (UUID)", example = "a1b2c3d4-e5f6-7890-abcd-1234567890ef")
     private String id;
