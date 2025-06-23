@@ -1,12 +1,9 @@
 package com.example.customer_service.controllers;
 
 import com.example.common_service.dto.AccountDTO;
-import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.models.Customer;
-import com.example.customer_service.models.KycProfile;
-import com.example.customer_service.models.KycStatus;
 import com.example.customer_service.repositories.CustomerRepository;
 import com.example.customer_service.repositories.KycProfileRepository;
 import com.example.customer_service.responses.*;
@@ -14,35 +11,27 @@ import com.example.customer_service.services.CustomerService;
 import com.example.customer_service.services.KycService;
 import com.example.customer_service.ultils.MessageKeys;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.rpc.RpcContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")

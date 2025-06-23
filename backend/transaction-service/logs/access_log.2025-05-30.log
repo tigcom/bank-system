@@ -1,0 +1,24 @@
+2025-05-30 17:00:07 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/disburse, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"127", accept-language:"vi", x-forwarded-proto:"http", postman-token:"619926c4-232f-4d6f-aca3-3ea9fbfba9aa", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58114"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "toAccountNumber":"12345678",
+    "amount": 100000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}
+2025-05-30 17:08:35 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/pay-bill, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"131", accept-language:"vi", postman-token:"4c85ab39-6891-4eaa-8177-f806ff53ef70", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "fromAccountNumber":"12345678",
+    "amount": 20000,
+    "description":"Thanh toán hóa đơn ",
+    "currency":"VND"
+}
+2025-05-30 17:10:10 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/confirm-transaction, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"88", accept-language:"vi", postman-token:"27bd1c3d-01e4-4dfd-a6ef-de7401a62d54", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "referenceCode":"TXN-12345678-202505301708322d53133e",
+    "otpCode":"492711"
+}
+2025-05-30 17:10:35 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/resend-otp, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"105", accept-language:"vi", postman-token:"e74654ec-c10e-433d-8b87-d836df628dd3", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "referenceCode":"TXN-12345678-202505301708322d53133e",
+    "accountNumberRecipient":"12345678"
+}
+2025-05-30 17:10:52 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/confirm-transaction, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"88", accept-language:"vi", postman-token:"24a43652-3241-4113-8c73-8fd2fe4ba342", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "referenceCode":"TXN-12345678-202505301708322d53133e",
+    "otpCode":"994929"
+}
