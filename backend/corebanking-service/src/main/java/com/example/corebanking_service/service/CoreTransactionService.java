@@ -9,4 +9,6 @@ import java.util.List;
 public interface CoreTransactionService {
     CommonTransactionDTO performTransfer(TransactionRequest request);
     BigDecimal getBalance(String accountNumber);
+
+    void reverseTransaction(TransactionRequest request);
 }

@@ -2,5 +2,6 @@
 /shelf/
 /workspace.xml
 .idea/
-# Ignore all .log files
-*.logs
+logs/
+*.log
+**/logs/

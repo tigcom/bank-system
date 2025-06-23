@@ -1,5 +1,6 @@
 package com.example.common_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ public class AccountDTO implements Serializable {
     private String accountNumber;
     private String cifCode;
     private String accountType;
+    @JsonIgnore
     private BigDecimal balance;
     private String status;
 }

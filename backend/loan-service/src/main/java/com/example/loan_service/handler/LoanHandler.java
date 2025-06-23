@@ -4,19 +4,16 @@ package com.example.loan_service.handler;
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.constant.CustomerStatus;
-import com.example.common_service.models.KycStatus;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
-import com.example.common_service.services.customer.CustomerService;
+import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
-import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -37,7 +34,7 @@ public class LoanHandler {
     @DubboReference
     private final AccountQueryService accountQueryService;
     @DubboReference
-    private final CustomerService customerService;
+    private final CustomerCommonService customerService;
     public Loan createLoan(Loan loan) throws  Exception {
 //        CustomerResponseDTO customer = CustomerResponseDTO.builder()
 //                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
