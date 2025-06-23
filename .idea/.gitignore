@@ -7,3 +7,7 @@
 /dataSources/
 /dataSources.local.xml
 .idea/
+application.properties
+application.yaml
+*.log
+logs/

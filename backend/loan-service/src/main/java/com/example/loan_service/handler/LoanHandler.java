@@ -2,130 +2,77 @@ package com.example.loan_service.handler;
 
 
 import com.example.common_service.dto.AccountDTO;
-import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.constant.CustomerStatus;
-import com.example.common_service.dto.MailMessageDTO;
-import com.example.common_service.dto.request.CommonConfirmTransactionRequest;
-import com.example.common_service.dto.request.CommonDepositRequest;
-import com.example.common_service.dto.request.CommonDisburseRequest;
-import com.example.common_service.dto.request.PayRepaymentRequest;
-import com.example.common_service.models.KycStatus;
-import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
-import com.example.common_service.services.customer.CustomerService;
-import com.example.common_service.services.transactions.CommonTransactionService;
-import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
-import com.example.loan_service.dto.request.LoanRequestDTO;
+import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.loan_service.entity.Loan;
-import com.example.loan_service.entity.LoanRejectionReason;
 import com.example.loan_service.entity.Repayment;
-import com.example.loan_service.mapper.LoanMapper;
-import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
-import com.example.loan_service.service.CoreBankingClient;
-import com.example.loan_service.service.LoanRejectionReasonService;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.checkerframework.checker.units.qual.C;
-import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class LoanHandler {
-    private final StreamBridge streamBridge;
+
     private final LoanService loanService;
-    private final LoanMapper loanMapper;
-    private final CoreBankingClient coreBankingClient;
     private final RepaymentService repaymentService;
-    private final LoanRejectionReasonService loanRejectionReasonService;
     @DubboReference
     private final CustomerQueryService customerQueryService;
+
     @DubboReference
     private final AccountQueryService accountQueryService;
     @DubboReference
-    private final CommonTransactionService commonTransactionService;
-    @DubboReference
-    private final CommonService commonService;
-
-    public Loan createLoan(LoanRequestDTO loan) throws Exception {
-        System.out.println(loan);
-        Long idCustomer = getCustomerId();
-
-        CustomerResponseDTO customer = customerQueryService.getCustomerById(idCustomer);
+    private final CustomerCommonService customerService;
+    public Loan createLoan(Loan loan) throws  Exception {
+//        CustomerResponseDTO customer = CustomerResponseDTO.builder()
+//                .id(12312L).cifCode("12312312").address("Hồ Chí Minh").email("khang@gmail.com")
+//                .dateOfBirth(LocalDate.of(2003, 5, 10))
+//                .status(CustomerStatus.ACTIVE).fullName("Phan Khang").kycStatus(KycStatus.VERIFIED)
+//                .phoneNumber("1234567890").build();
+//        AccountDTO account = AccountDTO.builder()
+//                .accountNumber("123").cifCode("213122").accountType("PAYMENT")
+//                .balance(BigDecimal.valueOf(1231232.00)).status("ACTIVE").build();
+        CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
         System.out.println(customer.getDateOfBirth());
         AccountDTO account = accountQueryService.getAccountByAccountNumber(loan.getAccountNumber());
-        System.out.println(customer);
-        if (!customer.getStatus().equals(CustomerStatus.ACTIVE)) {
-            throw new IllegalArgumentException("Customer status is not ACTIVE");
+        if (!customer.getStatus().equals(CustomerStatus.ACTIVE)){
+            throw new IllegalArgumentException("Customer status is not  ACTIVE");
         } else if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
             throw new IllegalArgumentException("Customer is not old enough");
         } else if (!account.getStatus().equalsIgnoreCase("ACTIVE")) {
-            throw new IllegalArgumentException("Account status is not ACTIVE");
-        } else if (loan.getDeclaredIncome().compareTo(BigDecimal.valueOf(5_000_000.00)) < 0) {
-            throw new IllegalArgumentException("Declared income is not enough");
-        } else {
-            coreBankingClient.syncLoan(loanMapper.toResponseDTO(loan));
-            Loan l = loanMapper.toEntity(loan);
-            l.setCustomerId(idCustomer);
-            System.out.println(l);
-            return loanService.createLoan(l);
+            throw new IllegalArgumentException("Account status is not  ACTIVE");
+        }else if (loan.getDeclaredIncome().compareTo(BigDecimal.valueOf(8000000.00)) <0){
+            throw new IllegalArgumentException("Declared is not enough");
+        }else{
+            return loanService.createLoan(loan);
         }
     }
 
-    public Loan updateLoan(LoanRequestDTO loan) {
-        Long idCustomer = getCustomerId();
-        Loan l = loanMapper.toEntity(loan);
-        l.setCustomerId(idCustomer);
-        return loanService.updateLoan(l);
+    public Loan updateLoan(Loan loan) {
+        return loanService.updateLoan(loan);
     }
 
     public Loan approveLoan(Long loanId) {
-        Long idCustomer = getCustomerId();
-        System.out.println(loanId);
-        Loan loan = loanService.getLoanById(loanId).orElse(null);
-        loan.setCustomerId(idCustomer);
-        System.out.println(loan.getAmount());
-        CommonDisburseRequest commonDisburseRequest = new CommonDisburseRequest();
-        commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
-        commonDisburseRequest.setAmount(loan.getAmount());
-        commonDisburseRequest.setCurrency("VND");
-        CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
-        System.out.println(transaction);
-        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
-        } else {
-            System.out.println(transaction);
-            try {
-                loan = loanService.approveLoan(loanId);
-                repaymentService.generateRepaymentSchedule(loan);
-                coreBankingClient.syncLoan(loanMapper.toDTO(loan));
+        Loan loan =  new Loan();
+        try {
 
-                CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-                MailMessageDTO mailMessage = new MailMessageDTO();
-                mailMessage.setSubject("KÍCH HOẠT KHOẢN VAY");
-                mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                mailMessage.setBody("Khoản vay của bạn đã được duyệt thành công và giải ngân đến tài khoản: " + loan.getAccountNumber());
-                mailMessage.setRecipientName(customer.getFullName());
-                streamBridge.send("mail-out-0", mailMessage);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            loan = loanService.approveLoan(loanId);
+            repaymentService.generateRepaymentSchedule(loan);
+        }catch (Exception e) {
+            e.printStackTrace();
         }
         return loan;
     }
@@ -134,98 +81,49 @@ public class LoanHandler {
         return loanService.getLoanById(loanId);
     }
 
-    public List<Loan> getLoansByCustomerId() {
-        return loanService.getLoansByCustomerId(this.getCustomerId());
+    public List<Loan> getLoansByCustomerId(Long customerId) {
+        return loanService.getLoansByCustomerId(customerId);
     }
 
     public Loan closedLoan(Long loanId) {
-        Loan loan = new Loan();
+        Loan loan =  new Loan();
         try {
             loan = loanService.closedLoan(loanId);
-            Long idCustomer = getCustomerId();
-            loan.setCustomerId(idCustomer);
-            coreBankingClient.syncLoan(loanMapper.toDTO(loan));
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
         return loan;
     }
 
-    public Loan rejectedLoan(Long loanId, LoanRejectionReasonRequestDTO loanRejection) {
-        Loan loan = new Loan();
+    public Loan rejectedLoan(Long loanId) {
+        Loan loan =  new Loan();
         try {
             loan = loanService.rejectedLoan(loanId);
-            Long idCustomer = getCustomerId();
-            loan.setCustomerId(idCustomer);
-            coreBankingClient.syncLoan(loanMapper.toDTO(loan));
-            LoanRejectionReason rejectionReason = new LoanRejectionReason();
-            rejectionReason.setReason(loanRejection.getReason());
-            rejectionReason.setLoan(loanService.getLoanById(loanRejection.getLoan_id()).orElse(null));
-            loanRejectionReasonService.save(rejectionReason);
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
         return loan;
     }
-
-    public List<Loan> findall() {
+    public List<Loan> findall(){
         return loanService.findAllLoan();
     }
-
     public void deleteLoan(Long loanId) {
         loanService.deleteLoan(loanId);
-        coreBankingClient.deleteLoan(loanId);
     }
 
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
         return repaymentService.getRepaymentsByLoanId(loanId);
     }
 
-    public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber ) {
-        PayRepaymentRequest pay = new PayRepaymentRequest();
-        pay.setAmount(amount);
-        pay.setCurrency("VND");
-        pay.setDescription("Get transaction, sent otp");
-        Repayment repayment = repaymentService.getRepaymentById(repaymentId).orElse(null);
-        pay.setFromAccountNumber(accountNumber);
-        CommonTransactionDTO transaction = commonTransactionService.loanPayment(pay);
-        if (!transaction.getStatus().equalsIgnoreCase("PENDING")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
-        }
-        return transaction.getReferenceCode();
-    }
+    public Repayment makeRepayment(Long repaymentId, java.math.BigDecimal amount) {
 
-    public Repayment confirmRepayment(Long repaymentId, BigDecimal amount, String otpCode, String referenceCode) {
-        CommonConfirmTransactionRequest confirm = new CommonConfirmTransactionRequest();
-        confirm.setOtpCode(otpCode);
-        confirm.setReferenceCode(referenceCode);
-        CommonTransactionDTO transaction = commonTransactionService.confirmTransaction(confirm);
-        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
-        }
+
         return repaymentService.makeRepayment(repaymentId, amount);
     }
 
-    public List<Repayment> getHistory() {
-        return repaymentService.getHistoryRepayment(getCustomerId());
-    }
+    public List<Repayment> getHistory(Long loanId) { return repaymentService.getHistoryRepayment(loanId);}
 
-    public Repayment getCurrentRepayment() {
-        Long idCustomer = getCustomerId();
-        System.out.println(idCustomer);
-        return repaymentService.getCurrentRepayment(idCustomer);
-    }
-
-//    public List<Repayment> getCurrentRepayments(Long loanId) {
-//        List<Loan> loans = loanService.getLoansByCustomerId(
-//                loanService.getLoanById(loanId).orElse(null).getCustomerId()
-//        );
-//        List<Repayment> repayments = new ArrayList<>();
-//        for (Loan l : loans) {
-//            repayments.add(repaymentService.getCurrentRepayment(l.getLoanId()));
-//        }
-//        return repayments;
-//    }
+    public Repayment getCurrentRepayment(Long loanId) { return repaymentService.getCurrentRepayment(loanId);}
 
     public Optional<Repayment> getRepaymentById(Long repaymentId) {
         return repaymentService.getRepaymentById(repaymentId);
@@ -239,45 +137,7 @@ public class LoanHandler {
         return repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.LATE);
     }
 
-    public BigDecimal getTotalBorrowed() {
-        Long idCustomer = getCustomerId();
-        List<Loan> list = loanService.getLoansApproveAndCustomerId(idCustomer);
-        return list.stream()
-                .map(Loan::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public BigDecimal getTotalOutstanding() {
-        Long idCustomer = getCustomerId();
-        List<Loan> list = loanService.getLoansApproveAndCustomerId(idCustomer);
-        BigDecimal totalOutstanding = BigDecimal.ZERO;
-        for (Loan loan : list) {
-            for (Repayment repayment : loan.getRepayments()) {
-                BigDecimal x = repayment.getPrincipal()
-                        .add(repayment.getInterest())
-                        .subtract(repayment.getPaidAmount());
-                totalOutstanding = totalOutstanding.add(x);
-            }
-        }
-        return totalOutstanding;
-    }
-
-
-    public Long getCustomerId() {
-//        JwtAuthenticationToken authentication = (JwtAuthenticationToken)
-//                SecurityContextHolder.getContext().getAuthentication();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(auth);
-        JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
-        String userId = jwt.getName();
-//        String userId = authentication.getName();
-        return commonService.getCurrentCustomer(userId).getCustomerId();
-//        return 505L;
-    }
-
-
     public void deleteRepaymentsByLoanId(Long loanId) {
         repaymentService.deleteRepaymentsByLoanId(loanId);
     }
 }
-

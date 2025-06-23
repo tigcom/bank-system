@@ -8,7 +8,19 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface TransactionMapper {
 
+    @Mapping(target = "billProviderCode", source = "billProviderCode")
+    @Mapping(target = "providerTransactionId", source = "providerTransactionId")
+    @Mapping(target = "billType", source = "billType")
+    @Mapping(target = "billCustomerCode", source = "billCustomerCode")
+    @Mapping(target = "billId", source = "billId")
     @Mapping(target = "failedReason", source = "failedReason")
+    @Mapping(target = "destinationBankName", source = "destinationBankName")
+    @Mapping(target = "destinationBankCode", source = "destinationBankCode")
+    @Mapping(target = "bankType", source = "bankType")
+    @Mapping(target = "createdAt", source = "createdAt")
+    @Mapping(target = "updatedAt", source = "updatedAt")
+    @Mapping(target = "createdBy", source = "createdBy")
+    @Mapping(target = "updatedBy", source = "updatedBy")
     TransactionDTO toDTO(Transaction transaction);
 
     Transaction toEntity(TransactionDTO transactionDTO);

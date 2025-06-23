@@ -1,0 +1,23 @@
+2025-06-03 14:16:17 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/transfer, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"158", accept-language:"vi", postman-token:"25d6e949-b7a4-48fa-9422-8aec788c110a", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "fromAccountNumber":"12345678",
+    "toAccountNumber":"87654321",
+    "amount": 7000,
+    "description":"Chuyển tiền ",
+    "currency":"VND"
+}
+2025-06-03 14:17:11 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/confirm-transaction, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"88", postman-token:"feb7fb0f-c16d-4a04-bff4-932846c3258e", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "referenceCode":"TXN-12345678-2025060314161322e392bd",
+    "otpCode":"900594"
+}
+2025-06-03 14:17:50 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"128", accept-language:"vi", postman-token:"9ab5b574-31a0-4b16-b1a2-2b64d919a7db", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "toAccountNumber":"123456783",
+    "amount": 100000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}
+2025-06-03 14:17:56 DEBUG ACCESS_LOGGER - REQUEST DATA: POST /api/transactions/disburse, client=0:0:0:0:0:0:0:1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[authorization:"[PROTECTED]", content-length:"127", accept-language:"vi", postman-token:"52b54921-a46f-41ed-a00f-fd7d177f91cb", host:"localhost:8088", content-type:"application/json", connection:"keep-alive", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0", accept:"*/*"], payload={
+    "toAccountNumber":"12345678",
+    "amount": 100000,
+    "description":"Giải ngân tiền ",
+    "currency":"VND"
+}

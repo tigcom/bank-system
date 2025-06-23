@@ -13,8 +13,9 @@ import java.time.LocalDate;
 public class CartTypeDTO  implements  Serializable {
 
     private String typeName;
-    private BigDecimal defaultCreditLimit  = BigDecimal.ZERO; ;
-    private BigDecimal interestRate  = BigDecimal.ZERO; ;
-    private BigDecimal annualFee  = BigDecimal.ZERO; ;
-    private BigDecimal minimumIncome = BigDecimal.ZERO; ;
+    private BigDecimal defaultCreditLimit  = BigDecimal.ZERO;
+    private BigDecimal interestRate  = BigDecimal.ZERO;
+    private BigDecimal annualFee  = BigDecimal.ZERO;
+    private BigDecimal minimumIncome = BigDecimal.ZERO;
+
 }

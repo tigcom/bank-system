@@ -2,6 +2,10 @@ server:
   port: 8082
   servlet:
     context-path: /account
+app:
+  api:
+    key: QWErtyuiopaqwer
+
 spring:
   application:
     name: account-service
@@ -9,6 +13,7 @@ spring:
     url: jdbc:mysql://localhost:3306/accountdb
     username: root
     password: 22572
+
   security:
     oauth2:
       resourceserver:

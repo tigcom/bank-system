@@ -18,18 +18,51 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
     @Autowired
     private CommonService commonService;
+
     @Override
     public Optional<String> getCurrentAuditor() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // Kiểm tra nếu người dùng chưa đăng nhập (authentication là null hoặc không có tên)
-        if (auth == null || auth.getName() == null) {
-            log.info("No user is authenticated, returning anonymous");
-            return Optional.of("anonymousUser");
-        }
-        String userId = auth.getName();
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info("Current Auditor: " + currentCustomer.getUsername());
-        return Optional.of(currentCustomer.getUsername());
+            // Kiểm tra authentication
+            if (auth == null || auth.getName() == null || "anonymousUser".equals(auth.getName())) {
+                log.info("No user is authenticated or user is anonymous, returning 'system'");
+                return Optional.of("system"); // hoặc "anonymousUser"
+            }
+
+            String userId = auth.getName();
+            log.info("Getting auditor for userId: {}", userId);
+
+            // Gọi service với try-catch
+            CustomerDTO currentCustomer = null;
+            try {
+                currentCustomer = commonService.getCurrentCustomer(userId);
+            } catch (Exception e) {
+                log.error("Error getting current customer for audit: {}", e.getMessage());
+                // Fallback về userId nếu service lỗi
+                return Optional.of(userId);
+            }
+
+            // KIỂM TRA NULL trước khi sử dụng
+            if (currentCustomer == null) {
+                log.warn("Current customer is null for userId: {}, using userId as auditor", userId);
+                return Optional.of(userId);
+            }
+
+            // Kiểm tra username có null không
+            String username = currentCustomer.getUsername();
+            if (username == null || username.trim().isEmpty()) {
+                log.warn("Username is null/empty for customer, using userId: {}", userId);
+                return Optional.of(userId);
+            }
+
+            log.info("Current Auditor: {}", username);
+            return Optional.of(username);
+
+        } catch (Exception e) {
+            log.error("Unexpected error in getCurrentAuditor: {}", e.getMessage(), e);
+            // Fallback cuối cùng
+            return Optional.of("system");
+        }
     }
 }

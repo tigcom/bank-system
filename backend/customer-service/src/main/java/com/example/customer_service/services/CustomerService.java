@@ -2,25 +2,34 @@ package com.example.customer_service.services;
 
 import com.example.customer_service.dtos.*;
 import com.example.customer_service.responses.*;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 
 public interface CustomerService {
-    Response register(RegisterCustomerDTO request) throws Exception;
 
-    //    LoginResponse login(LoginCustomerDTO request) throws Exception;
+    ApiResponseWrapper<?> initiateRegister(RegisterCustomerDTO request);
 
-    Response forgotPassword(String email);
+    ApiResponseWrapper<?> processKycAndSendOtp(String email, KycRequest kycRequest);
 
-    CustomerListResponse getCustomerList();
+    ApiResponseWrapper<?> reSendOtp(String email);
 
-    CustomerResponse getCustomerDetail();
+    ApiResponseWrapper<?> confirmRegister(String email, String otp);
+
+    CustomerListResponse getCustomerList(int page, int size, String keyword);
+
+    CustomerResponse getCustomerDetail(String userId);
 
     CustomerResponse getCustomerDetailByCifCode(String cifCode);
 
-    Response updateCustomerPassword(ChangePasswordDTO request);
+    ApiResponseWrapper<?> updateCustomerPassword(ChangePasswordDTO request);
 
-    Response updateCustomer(UpdateCustomerDTO request);
+    ApiResponseWrapper<?> updateCustomer(UpdateCustomerDTO request);
 
-    Response updateCustomerStatus(UpdateStatusRequest request);
+    ApiResponseWrapper<?> updateCustomerStatus(UpdateStatusRequest request);
 
-    KycResponse verifyKyc(KycRequest request);
+    KycResponse verifyKyc(String userId, KycRequest request);
+
+    void sentEmailForgotPassword(String email);
+
+    ApiResponseWrapper<?> resetPassword(ResetPasswordDTO request);
 }

@@ -9,6 +9,8 @@ import com.example.customer_service.responses.KycResponse;
 import com.example.customer_service.services.KycService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +24,12 @@ public class KycServiceImpl implements KycService {
 
     private final CustomerRepository customerRepository;
 
+    private final MessageSource messageSource;
+
     private final KycProfileRepository kycProfileRepository;
 
     @Override
-    public KycResponse verifyIdentity(String identityNumber, String fullName) {
+    public KycResponse verifyIdentity(String identityNumber, String fullName, LocalDate dateOfBirth, String gender) {
         if (identityNumber == null || fullName == null) {
             KycResponse response = new KycResponse();
             response.setVerified(false);
@@ -69,6 +73,34 @@ public class KycServiceImpl implements KycService {
 
 
     @Override
+    public KycResponse getKycStatus(String userId) {
+        Customer customer = customerRepository.findCustomerByUserId(userId);
+        if (customer == null) {
+            throw new EntityNotFoundException("Không tìm thấy người dùng");
+        }
+
+        Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
+
+        if (kycProfileOpt.isEmpty()) {
+            return new KycResponse(false, "Người dùng chưa có thông tin KYC", null, null);
+        }
+
+        KycProfile kycProfile = kycProfileOpt.get();
+        KycStatus status = kycProfile.getStatus();
+        boolean isVerified = KycStatus.VERIFIED.equals(status);
+
+        String message = switch (status) {
+            case VERIFIED -> "Tài khoản đã được xác minh KYC";
+            case PENDING -> "Thông tin KYC đang chờ xác minh";
+            case REJECTED -> "Thông tin KYC đã bị từ chối";
+            default -> "Trạng thái KYC không xác định";
+        };
+
+        return new KycResponse(isVerified, message, null, status);
+    }
+
+
+    @Override
     @Transactional
     public void saveKycInfo(Long customerId, KycResponse kycResponse, String identityNumber, String fullName,
                             LocalDate dateOfBirth, String gender) {
@@ -82,9 +114,11 @@ public class KycServiceImpl implements KycService {
 
         KycProfile kycProfile = kycProfileRepository.findByCustomer(customer).orElse(new KycProfile());
         kycProfile.setCustomer(customer);
-        kycProfile.setStatus(kycResponse.isVerified() ? KycStatus.VERIFIED : KycStatus.REJECTED);
-        kycProfile.setVerifiedAt(LocalDateTime.now());
-        kycProfile.setVerifiedBy("SYSTEM");
+        if (kycResponse.getStatus() != null) {
+            kycProfile.setStatus(kycResponse.getStatus());
+        } else {
+            kycProfile.setStatus(kycResponse.isVerified() ? KycStatus.VERIFIED : KycStatus.REJECTED);
+        }
 
         kycProfile.setIdentityNumber(identityNumber);
         kycProfile.setFullName(fullName);
@@ -92,5 +126,9 @@ public class KycServiceImpl implements KycService {
         kycProfile.setGender(gender);
 
         kycProfileRepository.save(kycProfile);
+    }
+
+    private String getMessage(String key, Object... args) {
+        return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
     }
 }

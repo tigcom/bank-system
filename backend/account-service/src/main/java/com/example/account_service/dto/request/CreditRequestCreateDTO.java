@@ -9,14 +9,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreditRequestCreateDTO {
-
+public class CreditRequestCreateDTO  implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Schema(description = "Nghề nghiệp của khách hàng", example = "Giáo viên", required = true)
     @NotBlank(message = "Nghề nghiệp không được để trống")
     private String occupation;

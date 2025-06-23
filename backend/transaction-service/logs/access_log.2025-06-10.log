@@ -1,0 +1,495 @@
+2025-06-10 18:08:06 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"270", accept-language:"vi", x-forwarded-proto:"http", postman-token:"9629193f-dfd0-45ea-81ee-c94b74966f07", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54749"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-16",
+    "endDate":"2025-06-20",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:09:10 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"270", accept-language:"vi", x-forwarded-proto:"http", postman-token:"59764703-b0ad-4681-9572-28f7b616c77c", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54883"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09",
+    "endDate":"2025-06-09",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:10:25 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"288", accept-language:"vi", x-forwarded-proto:"http", postman-token:"2a1d4c02-a2dd-4be0-9fcd-e23825c3a8cb", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:10:45 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"188", accept-language:"vi", x-forwarded-proto:"http", postman-token:"8e13f965-dcd1-4c4c-8686-ce49e24aa80b", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:10:58 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"288", accept-language:"vi", x-forwarded-proto:"http", postman-token:"c6dcbbe9-e296-4efb-af0d-1b23bcda51ec", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:11:18 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"259", accept-language:"vi", x-forwarded-proto:"http", postman-token:"1855f3cd-733f-46a2-a449-16e4ecef8c5e", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:11:43 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"75", accept-language:"vi", x-forwarded-proto:"http", postman-token:"45084bbd-0ef4-4f49-8793-3195d55636a3", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    
+    
+    
+    
+    
+    
+    
+    
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:12:07 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"143", accept-language:"vi", x-forwarded-proto:"http", postman-token:"990ddd80-56a8-4a3c-acdd-d891d3390caf", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    
+    
+    
+    
+    
+    
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:12:15 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"167", accept-language:"vi", x-forwarded-proto:"http", postman-token:"67419d9d-201b-43ff-8b8d-09868a42900e", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    
+    
+    
+    
+    
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:12:21 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"196", accept-language:"vi", x-forwarded-proto:"http", postman-token:"94563987-71a4-42e7-b9d6-e57a422784b7", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:12:27 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"215", accept-language:"vi", x-forwarded-proto:"http", postman-token:"0ce73c7d-066a-489a-9f72-70e4658808ca", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:12:36 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"238", accept-language:"vi", x-forwarded-proto:"http", postman-token:"cf9ffc7b-fa23-426a-8d7f-4aa649732173", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:12:58 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"238", accept-language:"vi", x-forwarded-proto:"http", postman-token:"4a9bd9be-86b1-4c62-8a32-ed1b2478f35f", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:00 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"238", accept-language:"vi", x-forwarded-proto:"http", postman-token:"5f165ad0-7962-4aae-aa60-63fe900ecc63", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:25 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"265", accept-language:"vi", x-forwarded-proto:"http", postman-token:"91cab9ea-0998-4863-b3f4-1e054fa5c2df", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:28 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"265", accept-language:"vi", x-forwarded-proto:"http", postman-token:"3bb0797a-a5bc-4c01-865e-791fcd676f8f", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:33 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"245", accept-language:"vi", x-forwarded-proto:"http", postman-token:"19c3d4f8-2301-4d4d-96ae-74ef7c76b93a", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:37 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"245", accept-language:"vi", x-forwarded-proto:"http", postman-token:"6109d432-59b6-463b-9b6f-ab6741fb7bf5", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:42 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"230", accept-language:"vi", x-forwarded-proto:"http", postman-token:"89e4de66-a451-417e-92a1-8f246cdb2ac6", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"c",
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:43 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"230", accept-language:"vi", x-forwarded-proto:"http", postman-token:"f7104464-c1cd-4252-b999-4b78d298cb8f", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"c",
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:44 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"230", accept-language:"vi", x-forwarded-proto:"http", postman-token:"e31841f3-2aad-4c94-b1d3-c389a2f331b8", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"c",
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:13:49 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"215", accept-language:"vi", x-forwarded-proto:"http", postman-token:"ee01cdc3-c74c-4e12-8f19-f7b84d745b81", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:54927"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:15:57 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"196", accept-language:"vi", x-forwarded-proto:"http", postman-token:"89a0b100-518e-4311-95d3-d28367898c1e", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:16:04 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"215", accept-language:"vi", x-forwarded-proto:"http", postman-token:"e54bc005-13f1-4e21-8620-5d6b81cfe608", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:16:08 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"215", accept-language:"vi", x-forwarded-proto:"http", postman-token:"c21bf798-7102-4665-b5a0-f7984a89e722", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:16:27 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"215", accept-language:"vi", x-forwarded-proto:"http", postman-token:"769c82a7-31f8-4b86-9998-9bc8081f2dc4", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 1,
+    "size": 2
+}
+2025-06-10 18:16:32 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"215", accept-language:"vi", x-forwarded-proto:"http", postman-token:"f4dc61c0-d83d-48b7-888f-269f8918daf5", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:17:08 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"238", accept-language:"vi", x-forwarded-proto:"http", postman-token:"ba1085c2-457d-464a-94f2-f558b1d5d2b0", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:17:22 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"259", accept-language:"vi", x-forwarded-proto:"http", postman-token:"18695b24-2c13-4a1f-82fd-146ca158a32d", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+     "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:18:03 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"288", accept-language:"vi", x-forwarded-proto:"http", postman-token:"8393cc13-add4-432d-9f78-39d1d1abc94a", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:18:12 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"288", accept-language:"vi", x-forwarded-proto:"http", postman-token:"d1207793-54d7-4554-997c-828df7849c43", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 2,
+    "size": 2
+}
+2025-06-10 18:18:18 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"289", accept-language:"vi", x-forwarded-proto:"http", postman-token:"8c507aa3-18e6-4585-a503-09ec70773833", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 10
+}
+2025-06-10 18:18:24 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"239", accept-language:"vi", x-forwarded-proto:"http", postman-token:"bd86f6d6-ac0a-49b8-a9be-05b267ce670d", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-09T00:00:00",
+    "page": 0,
+    "size": 10
+}
+2025-06-10 18:18:53 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"239", accept-language:"vi", x-forwarded-proto:"http", postman-token:"1b3e22b2-b7d0-4990-bbaf-a4b0c0801fdf", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-20T00:00:00",
+    "page": 0,
+    "size": 10
+}
+2025-06-10 18:19:02 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"238", accept-language:"vi", x-forwarded-proto:"http", postman-token:"ce7bd1ad-0ea3-4d17-b1c8-efa2fa6403e9", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-20T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:20:00 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"288", accept-language:"vi", x-forwarded-proto:"http", postman-token:"210615f9-2d85-4d31-be6b-c36c70c7112a", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển khoản",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-20T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:20:08 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"258", accept-language:"vi", x-forwarded-proto:"http", postman-token:"902dd8e3-8cc8-4a72-9216-917f8711c988", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-20T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 18:20:34 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"7de6b230-e6d7-4cdb-92f1-8516256f8cd3", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:55272"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"], payload={
+    "accountNumber": "12345678",
+    "keyword":"chuyển",
+    "type": "TRANSFER",
+    "status": "COMPLETED",
+    "currency": "VND",
+    "bankType": "INTERNAL",
+    "startDate":"2024-09-09T00:00:00",
+    "endDate":"2025-06-20T00:00:00",
+    "page": 0,
+    "size": 2
+}
+2025-06-10 21:32:42 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=undefined&toDate=undefined&currency=null&status=null&description=null, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:57258"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 21:33:10 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-02T17:00:00.000Z&toDate=2025-06-05T17:00:00.000Z&currency=null&status=null&description=null, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:57289"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 21:45:16 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"5b341533-2092-47cd-abec-6f2550f77790", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58459"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 21:45:21 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"7d7fe486-b9f5-4a7f-ae80-dd290881178b", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58470"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 21:45:22 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"33237ca9-efea-4e9d-b460-b78e88f2d00f", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58474"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 21:45:23 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"657db9cf-9b1c-47d0-a666-9a58842bb50d", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58478"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 21:45:24 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"1d4a046b-b87e-4eb8-94de-d9bc07becfbc", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58481"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 21:45:25 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"280", accept-language:"vi", x-forwarded-proto:"http", postman-token:"7b256d00-ff98-4872-a633-47d218705d79", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:58487"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", content-type:"application/json", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:01:49 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size%20=2, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"2dac67f3-930f-411d-8d8c-146c914c35a5", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:59951"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:02:20 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size%20=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"0cdd3546-57dd-4db9-904b-401caebc3860", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:59998"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:03:11 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"377d5081-50bb-4d7b-bacd-bd1604d24fc0", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60049"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:03:35 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&currency=VND&status=COMPLETED&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"6ad0a8dc-711d-44b8-bef0-a9edd0323d30", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60049"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:04:37 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"6f905892-19e7-4b0f-98fb-0d9d7d13fe8c", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60143"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:04:50 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"201c7666-aae2-46f4-9da5-83e27130b54d", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60143"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:05:01 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"fc032b60-2bb8-43a1-b24a-323ab0a9012a", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60173"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:11:38 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=undefined&toDate=undefined&currency=null&status=null&description=null&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60654"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:12:11 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=undefined&toDate=undefined&currency=null&status=null&description=null&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"e2e96e60-eced-4316-8f19-f9ce932a1084", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60702"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:12:25 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"91311f20-0c0d-4528-804f-826641a709fe", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:60719"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 22:16:21 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61246"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:16:26 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61251"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:16:56 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61324"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:17:06 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=27072000&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61338"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:17:16 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=27072000&type=TRANSFER&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61348"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:17:18 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=27072000&type=DEPOSIT&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61348"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:17:26 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=27072000&type=TRANSFER&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:61350"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:57:57 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:62784"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:58:28 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&status=COMPLETED&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:62799"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 22:59:04 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:62810"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:00:10 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:62874"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:02:55 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63227"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:03:18 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63254"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:09:01 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63542"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:09:57 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63575"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:10:20 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63597"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:10:44 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63625"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:11:39 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&currency=USD&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63679"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:11:43 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&currency=VND&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:63680"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:18:21 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&page=1&size=5, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[sec-fetch-mode:"cors", referer:"http://localhost:4200/", content-length:"0", sec-fetch-site:"same-site", accept-language:"vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,ar;q=0.5", x-forwarded-proto:"http", origin:"http://localhost:4200", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:64100"", accept:"application/json, text/plain, */*", authorization:"[PROTECTED]", sec-ch-ua:""Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"", sec-ch-ua-mobile:"?0", x-forwarded-host:"localhost:8888", sec-ch-ua-platform:""Windows"", host:"localhost:8088", accept-encoding:"gzip, deflate, br, zstd", user-agent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36", sec-fetch-dest:"empty"]
+2025-06-10 23:41:28 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"b0fb415d-97fa-4bda-9303-10881790d5e9", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:65242"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 23:42:14 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10&sortBy=amount&sortDirection=asc, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"7e6bc684-6242-490e-a634-f1dd3766985b", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:65242"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 23:43:17 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10&sortBy=amount&sortDirection=desc, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"16a448ce-a8e3-482e-b092-9c78c9362985", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:65311"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
+2025-06-10 23:46:44 DEBUG ACCESS_LOGGER - REQUEST DATA: GET /api/transactions/getTransactionsAndFilter?accountNumber=12345678&fromDate=2025-06-07T17:00:00.000Z&toDate=2025-06-09T17:00:00.000Z&type=TRANSFER&currency=VND&status=COMPLETED&description=1232&page=1&size=10&sortBy=amount&sortDirection=asc, client=127.0.0.1, user=12685f8a-d508-45ee-bcfa-1b7b7e5688bb, headers=[content-length:"0", accept-language:"vi", x-forwarded-proto:"http", postman-token:"a7b733d3-1a3e-4fc1-be79-5be431bce78a", x-forwarded-port:"8888", x-forwarded-for:"0:0:0:0:0:0:0:1", forwarded:"proto=http;host="localhost:8888";for="[0:0:0:0:0:0:0:1]:65534"", accept:"*/*", authorization:"[PROTECTED]", x-forwarded-host:"localhost:8888", host:"localhost:8088", cache-control:"no-cache", accept-encoding:"gzip, deflate, br", user-agent:"PostmanRuntime/7.44.0"]
