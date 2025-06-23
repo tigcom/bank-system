@@ -30,6 +30,7 @@ import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.rpc.RpcContext;
 import org.checkerframework.checker.units.qual.C;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.security.core.Authentication;
@@ -62,6 +63,53 @@ public class LoanHandler {
     @DubboReference
     private final CommonService commonService;
 
+    public Loan approveLoan(Long loanId) {
+        Long idCustomer = getCustomerId();
+
+        System.out.println(loanId);
+        System.out.println(idCustomer);
+        Loan loan = loanService.getLoanById(loanId).orElse(null);
+        loan.setCustomerId(idCustomer);
+        System.out.println(loan.getAmount());
+        CommonDisburseRequest commonDisburseRequest = new CommonDisburseRequest();
+        commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
+        commonDisburseRequest.setAmount(loan.getAmount());
+        commonDisburseRequest.setCurrency("VND");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) auth;
+        String token = jwtAuth.getToken().getTokenValue();
+        System.out.println("ssssssssssssssss");
+        System.out.println(token);
+        RpcContext.getContext()
+                .setAttachment("security_jwt_token", token);
+
+        CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
+        SecurityContextHolder.clearContext();
+        System.out.println("transaction");
+        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
+            throw new IllegalArgumentException(transaction.getFailedReason());
+        } else {
+            System.out.println(transaction);
+            try {
+                loan = loanService.approveLoan(loanId);
+                repaymentService.generateRepaymentSchedule(loan);
+                coreBankingClient.syncLoan(loanMapper.toDTO(loan));
+
+                CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+                MailMessageDTO mailMessage = new MailMessageDTO();
+                mailMessage.setSubject("KÍCH HOẠT KHOẢN VAY");
+                mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
+                mailMessage.setBody("Khoản vay của bạn đã được duyệt thành công và giải ngân đến tài khoản: " + loan.getAccountNumber());
+                mailMessage.setRecipientName(customer.getFullName());
+                streamBridge.send("mail-out-0", mailMessage);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return loan;
+    }
     public Loan createLoan(LoanRequestDTO loan) throws Exception {
         System.out.println(loan);
         Long idCustomer = getCustomerId();
@@ -94,41 +142,6 @@ public class LoanHandler {
         return loanService.updateLoan(l);
     }
 
-    public Loan approveLoan(Long loanId) {
-        Long idCustomer = getCustomerId();
-        System.out.println(loanId);
-        Loan loan = loanService.getLoanById(loanId).orElse(null);
-        loan.setCustomerId(idCustomer);
-        System.out.println(loan.getAmount());
-        CommonDisburseRequest commonDisburseRequest = new CommonDisburseRequest();
-        commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
-        commonDisburseRequest.setAmount(loan.getAmount());
-        commonDisburseRequest.setCurrency("VND");
-        CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
-        System.out.println(transaction);
-        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
-        } else {
-            System.out.println(transaction);
-            try {
-                loan = loanService.approveLoan(loanId);
-                repaymentService.generateRepaymentSchedule(loan);
-                coreBankingClient.syncLoan(loanMapper.toDTO(loan));
-
-                CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-                MailMessageDTO mailMessage = new MailMessageDTO();
-                mailMessage.setSubject("KÍCH HOẠT KHOẢN VAY");
-                mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                mailMessage.setBody("Khoản vay của bạn đã được duyệt thành công và giải ngân đến tài khoản: " + loan.getAccountNumber());
-                mailMessage.setRecipientName(customer.getFullName());
-                streamBridge.send("mail-out-0", mailMessage);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return loan;
-    }
 
     public Optional<Loan> getLoanById(Long loanId) {
         return loanService.getLoanById(loanId);
@@ -271,6 +284,7 @@ public class LoanHandler {
         JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
         String userId = jwt.getName();
 //        String userId = authentication.getName();
+
         return commonService.getCurrentCustomer(userId).getCustomerId();
 //        return 505L;
     }
