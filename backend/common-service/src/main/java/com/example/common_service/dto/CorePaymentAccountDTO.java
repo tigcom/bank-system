@@ -2,7 +2,6 @@ package com.example.common_service.dto;
 
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
-import com.example.common_service.services.CoreAccountBaseDTO;
 import lombok.Builder;
 import lombok.Data;
 

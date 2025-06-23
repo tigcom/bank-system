@@ -1,5 +1,5 @@
 package com.example.common_service.constant;
 
 public enum SavingsRequestStatus {
-        PENDING, APPROVED, FAILED
+        PENDING, APPROVED, REJECTED
 }

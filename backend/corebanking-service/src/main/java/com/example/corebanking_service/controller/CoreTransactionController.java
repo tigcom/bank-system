@@ -33,4 +33,13 @@ public class CoreTransactionController {
                 .build();
 
     }
+    @PostMapping("/reverse-transaction")
+    public ApiResponse<Void> reverseTransaction(@RequestBody TransactionRequest request) {
+        coreTransactionService.reverseTransaction(request);
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message("Giao dịch hoàn tiền")
+                .build();
+    }
+
 }

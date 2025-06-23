@@ -6,16 +6,21 @@ import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
+import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
+import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
+import com.example.transaction_service.client.ProviderClient;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
-import com.example.transaction_service.dto.response.ApiResponse;
+import com.example.transaction_service.dto.response.*;
 import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.enums.*;
 import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
+import com.example.transaction_service.filter.TransactionSpecification;
+import com.example.transaction_service.gateways.ProviderGateway;
 import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
@@ -27,15 +32,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.plaf.synth.SynthTabbedPaneUI;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -58,11 +73,20 @@ public class TransactionServiceImpl implements TransactionService{
     @DubboReference
     private final CustomerQueryService customerQueryService;
 
+    @DubboReference
+    private final CommonService commonService;
+
+    private final Map<String, ProviderGateway> providerGateways; // Spring sẽ tự inject tất cả các Bean ProviderGateway vào Map này với key là tên bean
     private final RedisTemplate<String,String> redisTemplate;
 
     private final StreamBridge streamBridge;
 
-    private String URL_CORE_BANK = "http://localhost:8083/corebanking/api/core-bank";
+    private final ProviderClient providerClient;
+    @Value("${core-banking.api.url}")
+    private String URL_CORE_BANK;
+
+    @Value("${mock-napas-api}")
+    private String URL_NAPAS;
 
     @Value("${masterAccount}")
     private String masterAccount;
@@ -72,6 +96,7 @@ public class TransactionServiceImpl implements TransactionService{
     private RestTemplate restTemplate;
     @Override
     @Transactional
+    @CacheEvict(value = "latestRecipients", key = "#transferRequest.fromAccountNumber")
     public TransactionDTO transfer(TransferRequest transferRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(transferRequest.getFromAccountNumber());
@@ -136,13 +161,13 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     @Transactional
-    public TransactionDTO payBill(PaymentRequest repaymentRequest) {
+    public TransactionDTO payBillLoan(LoanPaymentRequest repaymentRequest) {
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(repaymentRequest.getFromAccountNumber());
         transaction.setAmount(repaymentRequest.getAmount());
         transaction.setDescription(repaymentRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(repaymentRequest.getCurrency()));
-        transaction.setType(TransactionType.PAY_BILL);
+        transaction.setType(TransactionType.LOAN_PAYMENT);
 
         transaction.setToAccountNumber(masterAccount);
 
@@ -163,6 +188,61 @@ public class TransactionServiceImpl implements TransactionService{
 
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public BillDetailsResponse checkBill(BillCheckRequest request) {
+        ProviderGateway gateway = providerGateways.get(request.getBillType());
+        if (gateway == null) {
+            throw new AppException(ErrorCode.UNSUPPORTED_OPERATION);
+        }
+        BillDetailsResponse response = gateway.checkBill(request.getCustomerCode(),request.getProvider());
+
+        return response;
+    }
+
+    @Override
+    public TransactionDTO payBill(BillPaymentRequest request) {
+        BillDetailsResponse response = checkBill(BillCheckRequest.builder()
+                .billType(request.getBillType())
+                .customerCode(request.getCustomerCode())
+                .provider(request.getProvider())
+                .build());
+        if(response==null) throw new AppException(ErrorCode.BILL_NOT_FOUND);
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(request.getFromAccountNumber());
+        transaction.setAmount(response.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(request.getCurrency()));
+        transaction.setBillType(request.getBillType());
+        transaction.setBillCustomerCode(request.getCustomerCode());
+        transaction.setBillProviderCode(request.getProvider());
+        transaction.setBillId(response.getBillId());
+        transaction.setType(TransactionType.PAY_BILL);
+
+        transaction.setToAccountNumber(masterAccount);
+
+        //      Validate
+        validateTransaction(transaction);
+
+//      khởi tạo transaction
+        initTransaction(transaction);
+        transactionRepository.save(transaction);
+
+//        Gửi OTP
+        sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
+    public Map<String, List<ProviderDTO>> getGroupedProviders() {
+        Map<String, List<ProviderDTO>> providers = providerClient.getProviders();
+        if (providers.isEmpty()) {
+            log.warn("Service: Không nhận được dữ liệu nhà cung cấp từ ProviderClient.");
+        }
+        return providers;
     }
 
     @Override
@@ -255,6 +335,27 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    public TransactionDTO withdrawAccountSaving(WithdrawAccountSavingRequest depositAccountSavingRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(depositAccountSavingRequest.getToAccountNumber());
+        transaction.setAmount(depositAccountSavingRequest.getAmount());
+        transaction.setDescription(depositAccountSavingRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(depositAccountSavingRequest.getCurrency()));
+        transaction.setType(TransactionType.WITHDRAW_ACCOUNT_SAVING);
+
+        transaction.setFromAccountNumber(masterAccount);
+//      Validate
+        validateTransaction(transaction);
+//      khởi tạo transaction
+        initTransaction(transaction);
+//      Thực thi transaction
+        processTransaction(transaction);
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toDTO(transaction);
+    }
+
+    @Override
     @Transactional
     public TransactionDTO transferToExternalBank(ExternalTransferRequest externalTransferRequest) {
         Transaction transaction = new Transaction();
@@ -277,6 +378,13 @@ public class TransactionServiceImpl implements TransactionService{
         }
 //        Validate thông tin giao dịch
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
+                fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
+            throw new AppException(ErrorCode.INVALID_ACCOUNT);
+        }
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -291,28 +399,34 @@ public class TransactionServiceImpl implements TransactionService{
             throw new AppException(ErrorCode.FROM_CUSTOMER_NOT_ACTIVE);
         }
         BigDecimal balance;
-            try {
+        try {
 //                kiểm tra số dư
-                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
-                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
-                        new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        null,
-                        responseType,
-                        transaction.getFromAccountNumber()
-                );
-                balance = response.getBody().getResult();
-            }
-            catch (Exception e) {
-                throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
-            }
+            String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+            ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                    new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+            ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    responseType,
+                    transaction.getFromAccountNumber()
+            );
+            balance = response.getBody().getResult();
+        }
+        catch (Exception e) {
+            throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
+        }
 
-            if (balance.compareTo(transaction.getAmount()) < 0) {
-                throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
-            }
+        if (balance.compareTo(transaction.getAmount()) < 0) {
+            throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
+        }
 
+        NapasInquiryResponse napasInquiryResponse = inquiryDestinationAccount(NapasInquiryRequest.builder()
+                .accountNumber(transaction.getToAccountNumber())
+                .bankCode(transaction.getDestinationBankCode())
+                .build());
+        if(!napasInquiryResponse.getAccountStatus().equals("ACTIVE"))
+            throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
         initTransaction(transaction);
 //        Gửi OTP
         sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
@@ -358,19 +472,88 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
+    @Cacheable(value = "TransactionDetail", key = "#referenceCode")
     public TransactionDTO getTransactionByTransactionCode(String referenceCode) {
         Transaction transaction = transactionRepository.findByReferenceCode(referenceCode);
         if(transaction==null) throw new AppException(ErrorCode.TRANSACTION_NOT_EXIST);
         return transactionMapper.toDTO(transaction);
     }
 
-//    Kiểm tra thông tin Transaction
+    @Override
+    @Cacheable(value = "latestRecipients", key = "#fromAccountNumber")
+    public List<InforTransactionLatestResponse> getListToAccountNumberLatest(String fromAccountNumber) {
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(fromAccountNumber);
+        if (fromAccount==null) {
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
+        }
+        List<String> accountNumberList = transactionRepository.getListToAccountNumberLatest(fromAccountNumber);
+        List<InforTransactionLatestResponse> listRs = accountNumberList.stream()
+                .map(accountNumber -> InforTransactionLatestResponse.builder()
+                        .accountNumber(accountNumber)
+                        .customerName(accountQueryService.getCustomerByAccountNumber(accountNumber).getFullName())
+                        .build())
+                .collect(Collectors.toList());
+
+        return listRs;
+    }
+
+    @Override
+    public Page<Transaction> filterTransaction(TransactionFilterRequest request) {
+        Sort sort = Sort.by("timestamp").descending();
+        if(request.getSortBy()!=null && !request.getSortBy().isEmpty()){
+            Sort.Direction direction = "asc".equalsIgnoreCase(request.getSortDirection()) ? Sort.Direction.ASC
+                    : Sort.Direction.DESC;
+            sort = Sort.by(direction,request.getSortBy());
+        }
+        Pageable pageable = PageRequest.of(request.getPage()-1 , request.getSize(),sort);
+
+        return transactionRepository.findAll(TransactionSpecification.filter(request),pageable);
+    }
+
+    @Override
+    @Cacheable("filterMetadata")
+    public FilterMetadataResponse getFilterMetadata() {
+        List<FilterOptionDTO> types = Arrays.stream(TransactionType.values())
+                .map(type->  FilterOptionDTO.builder()
+                        .label(type.getDisplayName())
+                        .value(type.name())
+                        .build())
+                .collect(Collectors.toList());
+        List<FilterOptionDTO> statuses = Arrays.stream(TransactionStatus.values())
+                .map(s->  FilterOptionDTO.builder()
+                        .label(s.getDisplayName())
+                        .value(s.name())
+                        .build())
+                .collect(Collectors.toList());
+        List<FilterOptionDTO> currencies = Arrays.stream(CurrencyType.values())
+                .map(currencyType->  FilterOptionDTO.builder()
+                        .label(currencyType.getDisplayName())
+                        .value(currencyType.name())
+                        .build())
+                .collect(Collectors.toList());
+        return FilterMetadataResponse.builder()
+                .transactionTypes(types)
+                .statuses(statuses)
+                .currencies(currencies)
+                .build();
+    }
+
+    @Override
+    public NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request) {
+        return inquiryDestinationAccount(request);
+    }
+
+
+    //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        log.info("CurrentCustomer: {}",currentCustomer);
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
-        System.out.println("]]]]]]]]]]]]]");
-        System.out.println(fromAccount);
-        System.out.println(toAccount);
+
+
         if (fromAccount==null) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -378,28 +561,9 @@ public class TransactionServiceImpl implements TransactionService{
         if (toAccount==null) {
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
         }
-        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
-                TransactionType.DISBURSEMENT,
-                TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
-            if (!fromAccount.getAccountType().equals("PAYMENT")) {
-                throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
-            }
 
-            if (!toAccount.getAccountType().equals("PAYMENT")) {
-                throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
-            }
-        }
-
-        if(!fromAccount.getStatus().equals("ACTIVE")){
-            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_ACTIVE);
-        }
-        if(!toAccount.getStatus().equals("ACTIVE")){
-            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
-        }
         CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
-
         CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
-
         if (fromCustomer==null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_EXIST);
         }
@@ -415,6 +579,43 @@ public class TransactionServiceImpl implements TransactionService{
             throw new AppException(ErrorCode.TO_CUSTOMER_NOT_ACTIVE);
         }
 
+        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
+                TransactionType.PAY_BILL).contains(transaction.getType())) {
+            if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
+                    fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
+                throw new AppException(ErrorCode.INVALID_ACCOUNT);
+            }
+        }else if (EnumSet.of(TransactionType.DEPOSIT,
+                TransactionType.DISBURSEMENT).contains(transaction.getType())) {
+            if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
+                    toAccount.getAccountNumber(),currentCustomer.getCifCode())){
+                throw new AppException(ErrorCode.INVALID_ACCOUNT);
+            }
+        }
+
+
+        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
+                TransactionType.DISBURSEMENT,
+                TransactionType.CORE_BANKING).contains(transaction.getType())) {
+
+            Set<String> allowedTypes = Set.of("PAYMENT", "MASTER");
+            if (!allowedTypes.contains(fromAccount.getAccountType())) {
+                throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
+            }
+
+            if (!allowedTypes.contains(toAccount.getAccountType())) {
+                throw new AppException(ErrorCode.TO_ACCOUNT_NOT_PAYMENT);
+            }
+        }
+
+        if(!fromAccount.getStatus().equals("ACTIVE")){
+            throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_ACTIVE);
+        }
+        if(!toAccount.getStatus().equals("ACTIVE")){
+            throw new AppException(ErrorCode.TO_ACCOUNT_NOT_ACTIVE);
+        }
+
+
         if (transaction.getFromAccountNumber().equals(transaction.getToAccountNumber())) {
             throw new AppException(ErrorCode.SAME_ACCOUNT_TRANSFER);
         }
@@ -426,21 +627,21 @@ public class TransactionServiceImpl implements TransactionService{
         }
 //         Nếu là loại giao dịch cần trừ tiền trong tài khoản nguồn, thì kiểm tra số dư
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.PAY_BILL,
-                TransactionType.CORE_BANKING, TransactionType.INTERNAL_TRANSFER).contains(transaction.getType())) {
+                TransactionType.CORE_BANKING).contains(transaction.getType())) {
             BigDecimal balance;
             try {
 //                kiểm tra số dư
-               String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
-               ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+                String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
+                ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
                         new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-               ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         null,
                         responseType,
                         transaction.getFromAccountNumber()
                 );
-               balance = response.getBody().getResult();
+                balance = response.getBody().getResult();
             }
             catch (Exception e) {
                 throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
@@ -452,7 +653,27 @@ public class TransactionServiceImpl implements TransactionService{
         }
 
     }
+    private NapasInquiryResponse inquiryDestinationAccount(NapasInquiryRequest request){
+        String urlNapasInquiry = URL_NAPAS+"/inquiry";
+        HttpEntity<NapasInquiryRequest> entity = new HttpEntity<>(request);
+        try {
+            ParameterizedTypeReference<ApiResponse<NapasInquiryResponse>> responseType =
+                    new ParameterizedTypeReference<>() {};
 
+            // Dùng exchange để gọi API
+            ResponseEntity<ApiResponse<NapasInquiryResponse>> responseEntity =
+                    restTemplate.exchange(urlNapasInquiry, HttpMethod.POST, entity, responseType);
+
+            ApiResponse<NapasInquiryResponse> apiResponse = responseEntity.getBody();
+            if(apiResponse.getCode()==404){
+                throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
+            }
+            return apiResponse.getResult();
+        }  catch (RestClientException e) {
+            log.error("Lỗi server khi gọi API NAPAS {}", e.getMessage());
+            throw new AppException(ErrorCode.NAPAS_SERVER_ERROR);
+        }
+    }
     private void initTransaction(Transaction transaction) {
         transaction.setStatus(TransactionStatus.PENDING);
         transaction.setTimestamp(LocalDateTime.now());
@@ -477,7 +698,7 @@ public class TransactionServiceImpl implements TransactionService{
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
-                .recipient("phanhuynhphuckhang12c8@gmail.com")
+                .recipient("levandai2692003@gmail.com")
                 .recipientName(fromCustomer.getFullName())
                 .build();
         System.out.println("OTP:"+otp);
@@ -493,6 +714,8 @@ public class TransactionServiceImpl implements TransactionService{
                     .status(transaction.getStatus().name())
                     .timestamp(transaction.getTimestamp())
                     .type(transaction.getType().name())
+                    .referenceCode(transaction.getReferenceCode())
+                    .destinationBankCode(transaction.getDestinationBankCode())
                     .build();
             String url = URL_CORE_BANK+"/perform-transaction";
 
@@ -513,12 +736,27 @@ public class TransactionServiceImpl implements TransactionService{
             ApiResponse<CommonTransactionDTO> apiResponse = responseEntity.getBody();
             if(apiResponse.getCode()==200){
                 transaction.setStatus(TransactionStatus.COMPLETED);
+                if(transaction.getType()==TransactionType.PAY_BILL){
+                    System.out.println(transaction.getType());
+                    ProviderGateway gateway = providerGateways.get(transaction.getBillType());
+                    ProviderPaymentRequest providerPaymentRequest = ProviderPaymentRequest.builder()
+                            .customerCode(transaction.getBillCustomerCode())
+                            .billId(transaction.getBillId())
+                            .paymentTimestamp(transaction.getTimestamp())
+                            .bankTransactionReference(transaction.getReferenceCode())
+                            .amount(transaction.getAmount())
+                            .provider(transaction.getBillProviderCode())
+                            .build();
+                    ProviderPaymentResponse response = gateway.payBill(providerPaymentRequest);
+                    transaction.setProviderTransactionId(response.getProviderTransactionId());
+
+                }
+
             }else {
                 transaction.setStatus(TransactionStatus.FAILED);
                 transaction.setFailedReason(apiResponse.getMessage());
             }
         } catch (HttpClientErrorException e) {
-            // Lấy body lỗi trả về dạng JSON
             String errorBody = e.getResponseBodyAsString();
 
             String failedReason = "Lỗi không xác định";
@@ -545,9 +783,44 @@ public class TransactionServiceImpl implements TransactionService{
 
         } catch (Exception ex) {
             transaction.setStatus(TransactionStatus.FAILED);
-            transaction.setFailedReason("Lỗi hệ thống");
+            transaction.setFailedReason(ex.getMessage());
+            if(transaction.getType()==TransactionType.PAY_BILL){
+                TransactionRequest reverseRequest = TransactionRequest.builder()
+                        .fromAccountNumber(transaction.getFromAccountNumber())
+                        .toAccountNumber(transaction.getToAccountNumber())
+                        .amount(transaction.getAmount())
+                        .type(TransactionType.REFUND.name())
+                        .timestamp(LocalDateTime.now())
+                        .description("Hoàn trả tiền thanh toán hóa đơn")
+                        .referenceCode(transaction.getReferenceCode())
+                        .build();
+                String url = URL_CORE_BANK+"/reverse-transaction";
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(reverseRequest, headers);
+//          Định nghĩa kiểu dữ liệu trả về
+                ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>> responseType =
+                        new ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>>() {};
+
+//          Gửi POST request
+                ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        httpEntity,
+                        responseType
+                );
+                ApiResponse<CommonTransactionDTO> refundResponse = responseEntity.getBody();
+                if (refundResponse == null || refundResponse.getCode() != 200) {
+                    log.error("Hoàn tiền thất bại cho giao dịch {} - response lỗi: {}", transaction.getReferenceCode(), refundResponse);
+                } else {
+                    log.info("Đã hoàn tiền thành công cho giao dịch {}", transaction.getReferenceCode());
+                }
+            }
             log.error("Unexpected error:", ex);
         }
 
     }
+
+
 }

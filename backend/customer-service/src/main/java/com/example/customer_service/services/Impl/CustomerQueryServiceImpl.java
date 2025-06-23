@@ -56,4 +56,6 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
         }
         else return null;
     }
+
+    
 }
