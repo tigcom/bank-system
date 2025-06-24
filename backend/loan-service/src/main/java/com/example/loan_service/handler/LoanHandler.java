@@ -75,18 +75,8 @@ public class LoanHandler {
         commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
         commonDisburseRequest.setAmount(loan.getAmount());
         commonDisburseRequest.setCurrency("VND");
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//
-//        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) auth;
-//        String token = jwtAuth.getToken().getTokenValue();
-//        System.out.println("ssssssssssssssss");
-//        System.out.println(token);
-//        RpcContext.getContext()
-//                .setAttachment("security_jwt_token", token);
-
         CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
         SecurityContextHolder.clearContext();
-        System.out.println("transaction");
         if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
             throw new IllegalArgumentException(transaction.getFailedReason());
         } else {
@@ -136,9 +126,7 @@ public class LoanHandler {
     }
 
     public Loan updateLoan(LoanRequestDTO loan) {
-        Long idCustomer = getCustomerId();
         Loan l = loanMapper.toEntity(loan);
-        l.setCustomerId(idCustomer);
         return loanService.updateLoan(l);
     }
 

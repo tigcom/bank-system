@@ -39,6 +39,8 @@ public class LoanController {
 
     @PutMapping
     public ResponseEntity<ApiResponseWrapper<Loan>> updateLoan(@RequestBody LoanRequestDTO loan) {
+        System.out.println("đang put"+loan);
+
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
         try {
             response.setData(loanHandler.updateLoan(loan));

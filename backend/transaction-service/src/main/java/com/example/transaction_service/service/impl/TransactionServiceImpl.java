@@ -198,10 +198,9 @@ public class TransactionServiceImpl implements TransactionService{
 //      khởi tạo transaction
         initTransaction(transaction);
         transactionRepository.save(transaction);
-
 //        Gửi OTP
         sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
-
+        System.out.println(transaction.getType());
         transactionRepository.save(transaction);
         return transactionMapper.toDTO(transaction);
     }

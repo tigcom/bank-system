@@ -8,9 +8,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface LoanMapper {
-    @Mapping(target = "loanId", ignore = true)
-    @Mapping(target = "status", expression = "java(com.example.loan_service.models.LoanStatus.PENDING)")
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())") // thời gian hiện tại
+    @Mapping(target = "loanId", source = "loanId")
+    @Mapping(target = "status",source = "status" )
+    @Mapping(target = "createdAt",source = "createdAt")
+    @Mapping(target="approvedAt", source="approvedAt")
+    @Mapping(target="customerId", source="customerId")
     Loan toEntity(LoanRequestDTO dto);
     LoanResponseDTO toDTO(Loan entity);
     LoanRequestDTO toRequestDTO(Loan loan);

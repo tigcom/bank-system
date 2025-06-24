@@ -1,6 +1,10 @@
 package com.example.loan_service.dto.request;
 
 
+import com.example.loan_service.models.LoanStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,28 +14,30 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 public class LoanRequestDTO {
-
-    @NotBlank(message = "accountNumber không được để trống")
+    private Long loanId;
+    @NotBlank
     private String accountNumber;
-
-    @NotNull(message = "amount không được null")
-    @DecimalMin(value = "1000.00", message = "amount phải >= 1000.00")
+    @NotNull
     private BigDecimal amount;
-
-    @NotNull(message = "interestRate không được null")
-    @DecimalMin(value = "0.0", message = "interestRate phải >= 0.0")
+    @NotNull
     private BigDecimal interestRate;
-
-    @NotNull(message = "termMonths không được null")
-    @Min(value = 1, message = "termMonths phải >= 1")
-    @Max(value = 360, message = "termMonths phải <= 360")
+    @NotNull @Min(1) @Max(360)
     private Integer termMonths;
-    @DecimalMin(value = "0.0", message = "declaredIncome phải >= 0.0")
+    @DecimalMin("0.0")
     private BigDecimal declaredIncome;
+    @NotNull
+    private Long customerId;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime approvedAt;
+    @Enumerated(EnumType.STRING)
+    private LoanStatus status;
 }
