@@ -75,14 +75,14 @@ public class LoanHandler {
         commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
         commonDisburseRequest.setAmount(loan.getAmount());
         commonDisburseRequest.setCurrency("VND");
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) auth;
-        String token = jwtAuth.getToken().getTokenValue();
-        System.out.println("ssssssssssssssss");
-        System.out.println(token);
-        RpcContext.getContext()
-                .setAttachment("security_jwt_token", token);
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//
+//        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) auth;
+//        String token = jwtAuth.getToken().getTokenValue();
+//        System.out.println("ssssssssssssssss");
+//        System.out.println(token);
+//        RpcContext.getContext()
+//                .setAttachment("security_jwt_token", token);
 
         CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
         SecurityContextHolder.clearContext();

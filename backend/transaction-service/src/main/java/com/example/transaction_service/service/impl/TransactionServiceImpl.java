@@ -25,6 +25,8 @@ import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -557,9 +559,16 @@ public class TransactionServiceImpl implements TransactionService{
         return inquiryDestinationAccount(request);
     }
     //    Kiểm tra thông tin Transaction
-    private void validateTransaction(Transaction transaction){
-        String tokenValue = RpcContext.getContext()
-                .getAttachment("security_jwt_token");
+    private void validateTransaction(Transaction transaction)  {
+        String tokenValue = "";
+        try{
+            String authJson = RpcContext.getContext().getObjectAttachment("security_authentication_context").toString();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(authJson);
+            tokenValue = root.path("token").path("tokenValue").asText();
+        }catch (JsonProcessingException e){
+            System.out.println(e);
+        }
         if (tokenValue == null) {
             throw new SecurityException("Missing JWT token");
         }
@@ -571,6 +580,7 @@ public class TransactionServiceImpl implements TransactionService{
         }
         JwtAuthenticationToken authToken = (JwtAuthenticationToken) tokenAuth;
         SecurityContextHolder.getContext().setAuthentication(authToken);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
@@ -583,7 +593,6 @@ public class TransactionServiceImpl implements TransactionService{
         if (toAccount==null) {
             throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
         }
-
         CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
         CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
         if (fromCustomer==null) {
