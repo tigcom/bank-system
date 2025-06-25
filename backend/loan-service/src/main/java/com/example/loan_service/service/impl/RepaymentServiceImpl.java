@@ -19,7 +19,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -69,9 +68,7 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Override
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
-        return repaymentRepository.findAll().stream()
-                .filter(repayment -> repayment.getLoan().getLoanId().equals(loanId))
-                .toList();
+        return repaymentRepository.findAllByLoan_LoanIdOrderByDueDateAsc(loanId);
     }
 
     @Override
@@ -187,7 +184,7 @@ public class RepaymentServiceImpl implements RepaymentService {
 
         return updatedRepayments;
     }
-
+    @Override
     public Boolean checkLastMonthRepayment(Repayment repayment) {
         List<Repayment> repayments = getRepaymentsByLoanId(repayment.getLoan().getLoanId());
         Boolean check = false;

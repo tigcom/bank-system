@@ -215,6 +215,35 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<AccountPaymentResponse> getAllPaymentAccountsbyUserId(String userId) {
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        // check trang thai cua  Customer trươc
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+        String cifCode = currentCustomer.getCifCode();
+
+        // Lấy Payment Accounts từ local database
+        List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
+                cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
+
+        // Kết hợp thông tin local với balance từ Core Banking
+        return paymentAccounts.stream()
+                .map(account -> {
+                    BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                    return AccountPaymentResponse.builder()
+                            .accountNumber(account.getAccountNumber())
+                            .cifCode(account.getCifCode())
+                            .accountType(account.getAccountType())
+                            .balance(balance)
+                            .status(account.getStatus())
+                            .openedDate(account.getCreatedDate().toLocalDate())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber);
         if(account==null) throw new AppException(ErrorCode.USER_NOTEXISTED);

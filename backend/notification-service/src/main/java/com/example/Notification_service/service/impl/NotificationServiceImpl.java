@@ -27,25 +27,24 @@ public class NotificationServiceImpl implements NotificationService {
     private final ConnectionHealthService connectionHealthService;
 
     @Override
-    @KafkaListener(topics = "send-mail-raw", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "send-mail-raw", groupId = "mail-raw-group", containerFactory = "kafkaListenerContainerFactory")
     public void sendNotification(Message<byte[]> messagee) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             MailMessageDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailMessageDTO.class);
-            log.info("Sending raw email to: {}", mailMessage.getRecipient());
+            log.info("Sending HTML email to: {}", mailMessage.getRecipient());
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
-            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
-            helper.setReplyTo("nguyenhoainam29.08.01@gmail.com");
-            helper.setTo(mailMessage.getRecipient());
-            helper.setSubject(mailMessage.getSubject());
-            helper.setText(mailMessage.getBody(), true);
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "bạn");
+            context.setVariable("content", mailMessage.getBody());
 
-            mailSender.send(message);
-            log.info("Email sent successfully to: {}", mailMessage.getRecipient());
+            String htmlContent = templateEngine.process("noti-template", context);
+
+            // Retry mechanism for email sending
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
+
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý message: {}", e.getMessage(), e);
+            log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
         }
     }
 
@@ -61,7 +60,7 @@ public class NotificationServiceImpl implements NotificationService {
             context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "bạn");
             context.setVariable("content", mailMessage.getBody());
 
-            String htmlContent = templateEngine.process("dto-template", context);
+            String htmlContent = templateEngine.process("otp-template", context);
 
             // Retry mechanism for email sending
             sendEmailWithRetry(mailMessage, htmlContent, 3);

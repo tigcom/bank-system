@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class RepaymentCheckScherduler {
     private final RepaymentService repaymentService;
     @DubboReference
     private final CustomerQueryService customerQueryService;
-//    @Scheduled(fixedRate = 5000)
-//    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(fixedRate = 5000000)
+//    @Scheduled(cron = "0 1 10 * * *")
     public void RepaymentCheckScherduler() {
         List<Loan> loanApproved = loanService.getLoansApprove();
         for (Loan loan : loanApproved) {
@@ -46,21 +47,57 @@ public class RepaymentCheckScherduler {
                     System.out.println("Đã tìm thấy khoan vay bị trễ"+repayment.getRepaymentId());
                     repayment.setStatus(RepaymentStatus.LATE);
                     repaymentService.updateRepayment(repayment);
-                    // tim ra khoan vay hien tai
-                    Repayment currentRepayment =
-                            repaymentService.getCurrentRepaymentbyLoanId(
-                                    repayment.getLoan().getLoanId());
-                    // + khoan vay goc dot truoc vao hien tai
-                    currentRepayment.setPrincipal(currentRepayment.getPrincipal()
-                            .add(repayment.getPrincipal().add(repayment.getInterest()).subtract(repayment.getPaidAmount())));
-                    // + lai vay *1.5% dot truoc vao hien tai
-                    currentRepayment.setInterest(currentRepayment.getInterest()
-                            .add(repayment.getInterest()
-                            .multiply(BigDecimal.valueOf(0.015))));
-                    System.out.println("Cập nhập khoản vay kỳ hiện tại sau kỳ trễ"+currentRepayment.getRepaymentId());
-
-                    repaymentService.updateRepayment(currentRepayment);
-                    coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
+                    if(repaymentService.checkLastMonthRepayment(repayment)){
+                        Repayment penalty = new Repayment();
+                        penalty.setPrincipal(repayment.getPrincipal());
+                        penalty.setStatus(RepaymentStatus.UNPAID);
+                        penalty.setDueDate(repayment.getDueDate().plusMonths(1));
+                        penalty.setInterest(repayment.getInterest().add(repayment.getInterest()
+                                .multiply(BigDecimal.valueOf(0.015))));
+                        penalty.setLoan(repayment.getLoan());
+                        penalty.setPaidAmount(BigDecimal.ZERO);
+                        System.out.println("Tạo thêm kỳ vay sau kỳ trễ: "+repayment.getRepaymentId());
+                        repaymentService.updateRepayment(penalty);
+                        coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
+                    }else {
+                        System.out.println("tìm khoản vay hiện tại dựa theo");
+                        System.out.println(repayment.getLoan().getLoanId());
+                        Repayment currentRepayment =
+                                repaymentService.getCurrentRepaymentbyLoanId(
+                                        repayment.getLoan().getLoanId());
+                        if (currentRepayment != null){
+                            // + khoan vay goc dot truoc vao hien tai
+                            currentRepayment.setPrincipal(currentRepayment.getPrincipal()
+                                    .add(repayment.getPrincipal().add(repayment.getInterest()).subtract(repayment.getPaidAmount())));
+                            // + lai vay *1.5% dot truoc vao hien tai
+                            currentRepayment.setInterest(currentRepayment.getInterest()
+                                    .add(repayment.getInterest()
+                                            .multiply(BigDecimal.valueOf(0.015))));
+                            System.out.println("Cập nhập khoản vay kỳ hiện tại sau kỳ trễ"+currentRepayment.getRepaymentId());
+                            repaymentService.updateRepayment(currentRepayment);
+                            coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
+                        }
+                    }
+                    CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+                    MailMessageDTO mailMessage = new MailMessageDTO();
+                    mailMessage.setSubject("THÔNG BÁO TRẢ TRỄ VAY");
+                    mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
+                    String body = String.format(
+                            "Kính chào %s,\n\n" +
+                                    "Khoản vay ID: %s (số tài khoản %s) của Quý khách đã quá hạn thanh toán từ %s.\n" +
+                                    "Kỳ hạn vay mới đã được tạo thêm.\n" +
+                                    "Bạn bị đánh lãi phạt theo hợp đồng. Và tổng tiền của kỳ thanh toán sắp tới là: %s \n\n" +
+                                    "Vui lòng thanh toán ngay để tránh ảnh hưởng lịch sử tín dụng.\n\n" +
+                                    "Trân trọng,\nĐội ngũ Ngân hàng",
+                            customer.getFullName(),
+                            loan.getLoanId(),
+                            loan.getAccountNumber(),
+                            repayment.getDueDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            repayment.getPrincipal().add(repayment.getInterest())
+                    );
+                    mailMessage.setBody(body);
+                    mailMessage.setRecipientName(customer.getFullName());
+                    streamBridge.send("mail-out-0", mailMessage);
                     break;
                 }
             }

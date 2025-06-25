@@ -22,4 +22,7 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
 
     @Query("SELECT r FROM Repayment r WHERE r.loan.customerId = :customerId AND (r.status != 'UNPAID')  order by r.dueDate desc")
     List<Repayment> findPaidOrPartialByLoanId(@Param("customerId") Long customerId);
+
+    List<Repayment> findAllByLoan_LoanIdOrderByDueDateAsc(Long loanId);
+
 }
