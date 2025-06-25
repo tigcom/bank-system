@@ -19,4 +19,5 @@ public class CreditAccountResponse {
     private BigDecimal currentDebt = BigDecimal.ZERO; // Số tiền mà khách đã sử dụng (nợ hiện tại)
     private String typeName;
     private String imageUrl;
+    private String cardID;
 }

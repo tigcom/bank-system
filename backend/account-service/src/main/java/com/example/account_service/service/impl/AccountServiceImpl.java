@@ -6,17 +6,12 @@ import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
+import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
-import com.example.account_service.entity.Account;
-import com.example.account_service.entity.SavingsAccount;
-import com.example.account_service.entity.CreditAccount;
-import com.example.account_service.entity.CreditCardType;
+import com.example.account_service.entity.*;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
-import com.example.account_service.repository.AccountRepository;
-import com.example.account_service.repository.SavingsAccountRepository;
-import com.example.account_service.repository.CreditAccountRepository;
-import com.example.account_service.repository.CreditCardTypeRepository;
+import com.example.account_service.repository.*;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
@@ -57,6 +52,7 @@ public class AccountServiceImpl implements AccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final CreditAccountRepository creditAccountRepository;
     private final CreditCardTypeRepository creditCardTypeRepository;
+    private final CreditRequestRepository creditRequestRepository;
 
     @DubboReference(timeout = 5000)
     private CommonService commonService;
@@ -257,6 +253,38 @@ public class AccountServiceImpl implements AccountService {
                             .currentDebt(account.getCurrentDebt())
                             .openedDate(account.getCreatedDate().toLocalDate())
                             .typeName(account.getCreditCardType().getTypeName())
+                            .cardID(account.getCreditCardType().getId())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CreditAccountResponse> getAllCreditAccountNonbyCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
+        // Lấy thông tin khách hàng hiện tại
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+        String cifCode = currentCustomer.getCifCode();
+        // Lấy Savings Accounts từ local database
+        List<CreditAccount> creditAccounts = creditAccountRepository.findCreditAccountsByCifCode(cifCode);
+        return creditAccounts.stream()
+                .map(account -> {
+                    return CreditAccountResponse.builder()
+                            .status(account.getStatus().name())
+                            .accountNumber(account.getAccountNumber())
+                            .cifCode(account.getCifCode())
+                            .accountType(account.getAccountType().name())
+                            .imageUrl(account.getCreditCardType().getImageUrl())
+                            .creditLimit(account.getCreditLimit())
+                            .currentDebt(account.getCurrentDebt())
+                            .openedDate(account.getCreatedDate().toLocalDate())
+                            .typeName(account.getCreditCardType().getTypeName())
+                            .cardID(account.getCreditCardType().getId())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -331,6 +359,28 @@ public class AccountServiceImpl implements AccountService {
         return customerQueryService.getCustomerByCifCode(account.getCifCode());
     }
 
+    @Override
+    public List<CreditRequestReponse> getAllCreditRequestPending() {
+        List<CreditRequest> list = creditRequestRepository.findAllByStatus();
+
+        return list.stream()
+                .map(this::maptoCreditRequestReponse)
+                .collect(Collectors.toList());
+    }
+    private CreditRequestReponse maptoCreditRequestReponse(CreditRequest creditRequest) {
+        CreditRequestReponse creditRequestReponse = CreditRequestReponse.builder()
+                .id(creditRequest.getId())
+                .status(creditRequest.getStatus())
+                .cartTypeId(creditRequest.getCartTypeId())
+                .monthlyIncome(creditRequest.getMonthlyIncome())
+                .occupation(creditRequest.getOccupation())
+                .cifCode(creditRequest.getCifCode())
+                .reason(creditRequest.getReason())
+                .accountNumber(creditRequest.getAccountNumber())
+                .build();
+        return creditRequestReponse;
+    }
+
 
     @Override
     public PaymentRequestResponse createPaymentRequest(String cifCode) {
@@ -341,24 +391,24 @@ public class AccountServiceImpl implements AccountService {
         if (customer == null) {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
-
         // Check trạng thái customer
         if (customer.getStatus() != CustomerStatus.ACTIVE) {
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-
-        // Kiểm tra xem customer đã có tài khoản payment nào chưa
-        List<AccountPaymentResponse> existingPaymentAccounts = getAllPaymentAccountsbyCifCode();
-
-        if (existingPaymentAccounts.isEmpty()) {
-            // Lần đầu tạo tài khoản payment - tạo luôn không cần OTP
-            log.info("First time creating payment account for cifCode: {}. Creating directly without OTP.", cifCode);
-            return createPaymentAccountDirectly(cifCode);
-        } else {
-            // Đã có tài khoản payment - cần OTP
-            log.info("Customer already has payment accounts. Requiring OTP verification.");
-            return createPaymentRequestWithOtp(cifCode);
+        //check kyc cua khach hang
+        String KYCurl = "http://localhost:8080/api/customers/status";
+        ResponseEntity<KycResponse> response = restTemplate.exchange(
+                KYCurl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<KycResponse>() {}
+        );
+        if (!response.getBody().isVerified()) {
+            throw new AppException(ErrorCode.KYC_INVALID);
         }
+        log.info("Kyc verified successfully");
+
+        return createPaymentRequestWithOtp(cifCode);
     }
 
     @Override
@@ -510,12 +560,12 @@ public class AccountServiceImpl implements AccountService {
         log.info("Validating OTP for temp request: {}", confirmOtpDTO.getPaymentRequestId());
 
             if (storedOtp == null) {
-                throw new AppException(ErrorCode.OTP_EXPIRED); // Sử dụng error code có sẵn thay vì OTP_EXPIRED
+                throw new AppException(ErrorCode.OTP_EXPIRED);
             }
 
         if (!storedOtp.equals(confirmOtpDTO.getOtpCode())) {
             handleOTPFailure(confirmOtpDTO.getPaymentRequestId());
-            throw new AppException(ErrorCode.INVALID_OTP); // Sử dụng error code có sẵn thay vì INVALID_OTP
+            throw new AppException(ErrorCode.INVALID_OTP);
         }
 
         // Lấy temp request

@@ -25,9 +25,13 @@ import com.example.transaction_service.gateways.ProviderGateway;
 import com.example.transaction_service.mapper.TransactionMapper;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.service.TransactionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.Converter;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +47,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -95,6 +104,10 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Autowired
     private RestTemplate restTemplate;
+    private final JwtDecoder jwtDecoder;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private JwtAuthenticationConverter authConverter;
     @Override
     @Transactional
     @CacheEvict(value = "latestRecipients", key = "#transferRequest.fromAccountNumber")
@@ -466,10 +479,9 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    public List<TransactionDTO> getAccountTransactions(String accountNumber) {
-        List<Transaction> transactionList = transactionRepository.getAccountTransactions(accountNumber);
-        return transactionList.stream()
-                .map(transaction -> transactionMapper.toDTO(transaction)).collect(Collectors.toList());
+    public Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable) {
+        return transactionRepository.findByAccountNumber(accountNumber, pageable)
+                .map(transactionMapper::toDTO);
     }
 
     @Override
@@ -547,8 +559,37 @@ public class TransactionServiceImpl implements TransactionService{
 
     //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
+        String tokenValue = "";
+
+        try {
+            Object authObject = RpcContext.getContext().getObjectAttachment("security_authentication_context");
+            if (authObject != null) {
+                String authJson = authObject.toString();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(authJson);
+                tokenValue = root.path("token").path("tokenValue").asText();
+            }
+        } catch (JsonProcessingException e) {
+            throw new SecurityException("Lỗi khi parse JSON token từ RpcContext", e);
+        }
+
+        if (tokenValue == null || tokenValue.isEmpty()) {
+            throw new SecurityException("Không có JWT token được truyền từ service gọi");
+        }
+
+        Jwt jwt = jwtDecoder.decode(tokenValue);
+        AbstractAuthenticationToken tokenAuth = authConverter.convert(jwt);
+
+        if (!(tokenAuth instanceof JwtAuthenticationToken)) {
+            throw new SecurityException("Expected JwtAuthenticationToken but got "
+                    + tokenAuth.getClass().getName());
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(tokenAuth);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
+
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
         log.info("CurrentCustomer: {}",currentCustomer);
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());

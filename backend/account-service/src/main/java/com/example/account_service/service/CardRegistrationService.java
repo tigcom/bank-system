@@ -1,6 +1,7 @@
 package com.example.account_service.service;
 
 import com.example.account_service.dto.kafkaMessage.CardRegistrationMessage;
+import com.example.account_service.dto.response.MasterCardResponse;
 import com.example.account_service.dto.response.VisaCardResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -90,10 +91,10 @@ public class CardRegistrationService {
 
     @Retry(name = "mastercard-registration", fallbackMethod = "fallbackMasterCardRegistration")
     @CircuitBreaker(name = "mastercard-registration", fallbackMethod = "fallbackMasterCardRegistration")
-    public VisaCardResponse registerMasterCard(CardRegistrationMessage message) {
+    public MasterCardResponse registerMasterCard(CardRegistrationMessage message) {
         log.info("Attempting MasterCard registration for account: {}", message.getAccountNumber());
         
-        String url = "http://localhost:8090/api/mastercard/registration";
+        String url = "http://localhost:8089/api/master/registration";
         
         Map<String, String> request = new HashMap<>();
         request.put("cardType", message.getCardType());
@@ -104,10 +105,10 @@ public class CardRegistrationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
-        ResponseEntity<VisaCardResponse> response = restTemplate.postForEntity(url, entity, VisaCardResponse.class);
+        ResponseEntity<MasterCardResponse> response = restTemplate.postForEntity(url, entity, MasterCardResponse.class);
         
         if (response.getStatusCode().is2xxSuccessful()) {
-            VisaCardResponse responseBody = response.getBody();
+            MasterCardResponse responseBody = response.getBody();
             if (responseBody != null) {
                 log.info("MasterCard registration response for account {}: status={}, message={}", 
                         message.getAccountNumber(), responseBody.getStatus(), responseBody.getMessage());
@@ -140,11 +141,11 @@ public class CardRegistrationService {
     }
 
     // Fallback method for MasterCard registration
-    public VisaCardResponse fallbackMasterCardRegistration(CardRegistrationMessage message, Exception ex) {
+    public MasterCardResponse fallbackMasterCardRegistration(CardRegistrationMessage message, Exception ex) {
         log.error("MasterCard registration fallback triggered for account: {}. Error: {}", 
                  message.getAccountNumber(), ex.getMessage(), ex);
         
-        return VisaCardResponse.builder()
+        return MasterCardResponse.builder()
                 .status("ERROR")
                 .errorCode("SERVICE_UNAVAILABLE")
                 .message("MasterCard registration service is currently unavailable. Please try again later.")
@@ -167,6 +168,23 @@ public class CardRegistrationService {
                errorCode.equals("SANCTIONS_LIST_MATCH") ||
                errorCode.equals("COMPLIANCE_VIOLATION") ||
                errorCode.equals("INCOME_VERIFICATION_FAILED");
+    }
+    private boolean isBusinessLogicFailure(MasterCardResponse response) {
+        if (response.getErrorCode() == null) {
+            return isBusinessLogicFailure(response.getMessage());
+        }
+
+        String errorCode = response.getErrorCode();
+        return errorCode.equals("INVALID_CUSTOMER") ||
+                errorCode.equals("DUPLICATE_REGISTRATION") ||
+                errorCode.equals("BLACKLISTED_CUSTOMER") ||
+                errorCode.equals("KYC_FAILED") ||
+                errorCode.equals("INSUFFICIENT_CREDIT_SCORE") ||
+                errorCode.equals("AGE_RESTRICTION") ||
+                errorCode.equals("CITIZENSHIP_RESTRICTION") ||
+                errorCode.equals("SANCTIONS_LIST_MATCH") ||
+                errorCode.equals("COMPLIANCE_VIOLATION") ||
+                errorCode.equals("INCOME_VERIFICATION_FAILED");
     }
 
     private boolean isBusinessLogicFailure(String errorMessage) {

@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardRegistrationMessage {
+    private String idRequest;
     private String cifCode;
     private String accountNumber;
     private BigDecimal creditLimit;

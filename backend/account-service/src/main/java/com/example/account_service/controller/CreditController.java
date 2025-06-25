@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,7 +70,8 @@ public class CreditController {
             @ApiResponse(responseCode = "404", description = "Credit request not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PutMapping("/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("admin/approve-credit-request/{id}")
     public ApiResponseWrapper<AccountCreateReponse> approveRequest(@PathVariable String id) {
         AccountCreateReponse reponse = creditRequestService.approveCreditRequest(id);
         return ApiResponseWrapper.<AccountCreateReponse>builder()
@@ -78,7 +80,8 @@ public class CreditController {
                 .data(reponse)
                 .build();
     }
-    @PutMapping("/reject/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("admin/reject-credit-request/{id}")
     public ApiResponseWrapper<CreditRequestReponse> rejectRequest(@PathVariable String id) {
         CreditRequestReponse reponse = creditRequestService.rejectCreditRequest(id);
         return ApiResponseWrapper.<CreditRequestReponse>builder()

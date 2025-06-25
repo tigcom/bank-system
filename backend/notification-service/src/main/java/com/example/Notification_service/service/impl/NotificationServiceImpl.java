@@ -108,7 +108,97 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
         }
     }
-    
+
+    @Override
+    @KafkaListener(topics = "sentOtpRegister", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendOtpRegister(byte[] payload) {
+        try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received for OTP Register: {}", payloadStr);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage;
+
+            // Giải mã Base64 trước
+            try {
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                    log.info("Stripped quotes, clean Base64: {}", base64Str);
+                }
+
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                String decodedJson = new String(decodedBytes);
+                log.info("Successfully decoded OTP JSON: {}", decodedJson);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+
+            log.info("Đã nhận yêu cầu gửi email OTP đăng ký tới: {}", mailMessage.getRecipient());
+
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
+            context.setVariable("request", "đăng ký tài khoản");
+            context.setVariable("otp", mailMessage.getBody());
+            context.setVariable("ttl", 5); // TTL = 5 phút
+
+            String htmlContent = templateEngine.process("otp-register-template", context);
+
+            // Retry nếu gặp lỗi khi gửi
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
+
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý gửi email OTP đăng ký: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email OTP đăng ký: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @KafkaListener(topics = "sentOtpForgotPassword", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendOtpForgotPassword(byte[] payload) {
+        try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received for Forgot Password: {}", payloadStr);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage;
+
+            // Giải mã Base64 trước
+            try {
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                    log.info("Stripped quotes, clean Base64: {}", base64Str);
+                }
+
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                String decodedJson = new String(decodedBytes);
+                log.info("Successfully decoded Forgot Password JSON: {}", decodedJson);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+
+            log.info("Đã nhận yêu cầu gửi email khôi phục mật khẩu tới: {}", mailMessage.getRecipient());
+
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
+            context.setVariable("resetLink", mailMessage.getBody());
+
+            String htmlContent = templateEngine.process("reset-password-template", context);
+
+            // Retry nếu gặp lỗi khi gửi
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
+
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý gửi email khôi phục mật khẩu: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email khôi phục mật khẩu: " + e.getMessage(), e);
+        }
+    }
+
     private void sendEmailWithRetry(MailMessageDTO mailMessage, String htmlContent, int maxRetries) {
         // Check connection health before attempting to send
         if (!connectionHealthService.checkGmailConnection()) {
@@ -116,7 +206,7 @@ public class NotificationServiceImpl implements NotificationService {
             connectionHealthService.logNetworkDiagnostics();
             throw new RuntimeException("Gmail SMTP server not reachable");
         }
-        
+
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
@@ -131,23 +221,23 @@ public class NotificationServiceImpl implements NotificationService {
                 return; // Success, exit retry loop
             } catch (Exception e) {
                 log.warn("Email send attempt {} failed for {}: {}", attempt, mailMessage.getRecipient(), e.getMessage());
-                
+
                 // If it's a connection reset, check connectivity again
                 if (e.getMessage().contains("Connection reset")) {
                     log.warn("Connection reset detected, checking Gmail connectivity...");
                     boolean connected = connectionHealthService.checkGmailConnection();
                     log.info("Gmail connectivity check result: {}", connected);
                 }
-                
+
                 if (attempt == maxRetries) {
                     log.error("Failed to send email to {} after {} attempts", mailMessage.getRecipient(), maxRetries, e);
                     connectionHealthService.logNetworkDiagnostics();
                     throw new RuntimeException("Email sending failed after " + maxRetries + " attempts", e);
                 }
-                
+
                 // Wait before retry with exponential backoff
                 try {
-                    Thread.sleep(2000 * attempt); 
+                    Thread.sleep(2000 * attempt);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     break;
@@ -209,6 +299,7 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (Exception e) {
             log.error("Lỗi khi gửi email credit notification: {}", e.getMessage(), e);
         }
+
     }
 
 

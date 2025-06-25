@@ -5,6 +5,7 @@ import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
+import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
 import com.example.common_service.dto.CreditCardDTO;
 import com.example.common_service.dto.CustomerDTO;
@@ -33,12 +34,15 @@ public interface AccountService {
     List<SavingAccountResponse> getAllSavingAccountbyCifCode();
 
     List<CreditAccountResponse> getAllCreditAccountbyCifCode();
-
+    List<CreditAccountResponse> getAllCreditAccountNonbyCifCode();
     List<CreditCardDTO> getAllCreditCard();
 
     CicResponse checkCIC(String idNumber);
     PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest);
     CustomerDTO getCustomerByAccountNumber(String accountNumber);
+
+
+    List<CreditRequestReponse> getAllCreditRequestPending();
 
 
 }

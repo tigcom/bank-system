@@ -134,7 +134,7 @@ public class CustomerServiceImpl implements CustomerService {
             mailMessage.setRecipientName(registerData.getFullName());
             mailMessage.setBody(String.format("Mã OTP của bạn là: %s", otp));
 
-            boolean sent = streamBridge.send("mail-register-out-0", mailMessage);
+            boolean sent = streamBridge.send("mail-out-0", mailMessage);
             if (!sent) {
                 log.error("Không gửi được tin nhắn đến Kafka để nhận email: {}", email);
                 otpCacheService.clearOtp(email);
@@ -173,7 +173,7 @@ public class CustomerServiceImpl implements CustomerService {
             mailMessage.setRecipientName(registerData.getFullName());
             mailMessage.setBody(String.format("Mã OTP của bạn là: %s", otp));
 
-            boolean sent = streamBridge.send("mail-register-out-0", mailMessage);
+            boolean sent = streamBridge.send("mail-out-0", mailMessage);
             if (!sent) {
                 log.error("Failed to send message to Kafka for email: {}", email);
                 otpCacheService.clearOtp(email);
@@ -520,7 +520,11 @@ public class CustomerServiceImpl implements CustomerService {
             mailMessage.setRecipientName(customer.getFullName());
             mailMessage.setBody(resetLink);
 
-            streamBridge.send("mail-forgotPassword-out-0", mailMessage);
+            boolean sent = streamBridge.send("mail-forgotPassword-out-0", mailMessage);
+            if (!sent) {
+                log.error("Failed to send message to Kafka for forgot password email: {}", email);
+                throw new BusinessException(getMessage(MessageKeys.KAFKA_FAILED));
+            }
             log.info("Sent password reset email to {}", email);
         } catch (Exception e) {
             log.error("Failed to send reset email", e);

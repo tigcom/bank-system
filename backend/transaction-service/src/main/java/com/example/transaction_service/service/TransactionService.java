@@ -34,7 +34,7 @@ public interface TransactionService {
     TransactionDTO transferToExternalBank(ExternalTransferRequest externalTransferRequest);
     void resendOtp(ResendOtpRequest resendOtpRequest);
     TransactionDTO getTransactionById(String transactionId);
-    List<TransactionDTO> getAccountTransactions(String accountNumber);
+    Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable);
     TransactionDTO getTransactionByTransactionCode(String referenceCode);
 
     List<InforTransactionLatestResponse> getListToAccountNumberLatest(String fromAccountNumber);
