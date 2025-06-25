@@ -182,11 +182,8 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
     private CreditRequestReponse autoApproveCreditRequest(CreditRequest creditRequest,  String creditRequestId) {
 
-        // tao luon credit
+        // tao local credit
         CreditAccount account = createCreditAccount(creditRequest);
-        createCoreBankingCreditAccount(account, creditRequest);
-      //  sendApprovalNotification(creditRequest, account);
-        //sau khi tạo tài khoản thành công thì mới uppdate trạng thái của request, nếu thất bại request sẽ vẫn là pending
         creditRequest.setStatus(CreditRequestStatus.APPROVED);
         creditRequestRepository.save(creditRequest);
         redisTemplate.delete(creditRequestId);
@@ -199,6 +196,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
                 .cardType(account.getCreditCardType().getCardType())
                 .cifCode(account.getCifCode())
                 .creditLimit(account.getCreditLimit())
+                .idRequest(creditRequest.getId())
                 .build();
         kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
         return mapToDto(creditRequest);
@@ -268,26 +266,39 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         log.info("Admin approving credit request with id: {}", id);
 
         CreditRequest creditRequest = getCreditRequestById(id);
-        validateCreditRequestStatus(creditRequest, CreditRequestStatus.APPROVED);
-
-        // Tạo tài khoản tín dụng
-        CreditAccount account = createCreditAccount(creditRequest);
-        createCoreBankingCreditAccount(account, creditRequest);
-
-        // Update status
-        creditRequest.setStatus(CreditRequestStatus.APPROVED);
-        creditRequestRepository.save(creditRequest);
-
-        // send message gọi api tổ chức thẻ
-        CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
-                .accountNumber(account.getAccountNumber())
-                .cardType(account.getCreditCardType().getCardType())
-                .cifCode(account.getCifCode())
-                .creditLimit(account.getCreditLimit())
-                .build();
-        kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
-        log.info("Credit request approved and account created: {}", account.getAccountNumber());
-        return buildAccountCreateResponse(account);
+        validateCreditRequestStatus(creditRequest);
+        if (creditRequest.getStatus().equals(CreditRequestStatus.PENDING)) {
+            CreditAccount account = createCreditAccount(creditRequest);
+            // Update status
+            creditRequest.setStatus(CreditRequestStatus.APPROVED);
+            creditRequestRepository.save(creditRequest);
+            CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cardType(account.getCreditCardType().getCardType())
+                    .cifCode(account.getCifCode())
+                    .creditLimit(account.getCreditLimit())
+                    .build();
+            kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
+            log.info("Credit request approved and account created: {}", account.getAccountNumber());
+            return buildAccountCreateResponse(account);
+        }
+        else
+        {
+            CreditAccount account = creditAccountRepository.findByAccountNumber(creditRequest.getAccountNumber());
+            if(account!=null)
+            {
+                CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
+                        .accountNumber(account.getAccountNumber())
+                        .cardType(account.getCreditCardType().getCardType())
+                        .cifCode(account.getCifCode())
+                        .creditLimit(account.getCreditLimit())
+                        .build();
+                kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
+                log.info("Credit request approved and account created: {}", account.getAccountNumber());
+                return buildAccountCreateResponse(account);
+            }
+            throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
     }
 
     @Override
@@ -511,8 +522,8 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     /**
      * Validates credit request status
      */
-    private void validateCreditRequestStatus(CreditRequest creditRequest, CreditRequestStatus expectedStatus) {
-        if (creditRequest.getStatus() == expectedStatus) {
+    private void validateCreditRequestStatus(CreditRequest creditRequest) {
+        if (creditRequest.getStatus().equals(CreditRequestStatus.APPROVED) || creditRequest.getStatus().equals(CreditRequestStatus.REJECTED)) {
             throw new AppException(ErrorCode.CREDIT_REQUEST_STATUS_INVALID);
         }
     }

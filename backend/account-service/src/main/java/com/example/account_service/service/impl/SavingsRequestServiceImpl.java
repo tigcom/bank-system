@@ -343,25 +343,16 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
                 .description("Rút tiền tiết kiệm")
                 .build();
         // Backup current security context before calling Dubbo service
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
-            SecurityContextHolder.clearContext();
-            CommonTransactionDTO transactionDTO = commonTransactionService.withdrawAccountSaving(withdrawAccountSavingRequest);
-            if (transactionDTO == null)
-            {
-                throw new AppException(ErrorCode.TRANSACTION_FAILED);
-            }
-            if (!transactionDTO.getStatus().equals("COMPLETED"))
-            {
-                throw new AppException(ErrorCode.TRANSACTION_FAILED);
-            }
-        } finally {
-            // Restore security context
-            if (currentAuth != null) {
-                SecurityContextHolder.getContext().setAuthentication(currentAuth);
-            }
+        CommonTransactionDTO transactionDTO = commonTransactionService.withdrawAccountSaving(withdrawAccountSavingRequest);
+        if (transactionDTO == null)
+        {
+            throw new AppException(ErrorCode.TRANSACTION_FAILED);
         }
+        if (!transactionDTO.getStatus().equals("COMPLETED"))
+        {
+            throw new AppException(ErrorCode.TRANSACTION_FAILED);
+        }
+
     }
 
     /**
@@ -537,10 +528,22 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
 
-        if (currentCustomer.getStatus() != CustomerStatus.ACTIVE) {
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
             log.warn("Customer status is not ACTIVE: {}", currentCustomer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
+        // Check kyc cua user
+        String KYCurl = "http://localhost:8080/api/customers/status";
+        ResponseEntity<KycResponse> response = restTemplate.exchange(
+                KYCurl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<KycResponse>() {}
+        );
+        if (!response.getBody().isVerified()) {
+            throw new AppException(ErrorCode.KYC_INVALID);
+        }
+        log.info("Kyc verified successfully");
 
         return currentCustomer;
     }
@@ -568,31 +571,46 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      */
     private CommonTransactionDTO transferToMasterAccount(SavingRequestCreateDTO tempRequest) {
         // Backup current security context before calling Dubbo service
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
-            SecurityContextHolder.clearContext();
-            CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
-                    CreateAccountSavingRequest.builder()
-                            .fromAccountNumber(tempRequest.getAccountNumberSource())
-                            .amount(tempRequest.getInitialDeposit())
-                            .currency("VND")
-                            .description("Gửi tiền tiết kiệm")
-                            .build()
-            );
+//        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+//        try {
+//            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
+//            SecurityContextHolder.clearContext();
+//            CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
+//                    CreateAccountSavingRequest.builder()
+//                            .fromAccountNumber(tempRequest.getAccountNumberSource())
+//                            .amount(tempRequest.getInitialDeposit())
+//                            .currency("VND")
+//                            .description("Gửi tiền tiết kiệm")
+//                            .build()
+//            );
+//
+//            if (!"COMPLETED".equals(transactionDTO.getStatus())) {
+//                log.error("Transaction failed with status: {}", transactionDTO.getStatus());
+//                throw new AppException(ErrorCode.TRANSACTION_FAILED);
+//            }
+//
+//            return transactionDTO;
+//        } finally {
+//            // Restore security context
+//            if (currentAuth != null) {
+//                SecurityContextHolder.getContext().setAuthentication(currentAuth);
+//            }
+//        }
+        CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
+                CreateAccountSavingRequest.builder()
+                        .fromAccountNumber(tempRequest.getAccountNumberSource())
+                        .amount(tempRequest.getInitialDeposit())
+                        .currency("VND")
+                        .description("Gửi tiền tiết kiệm")
+                        .build()
+        );
 
-            if (!"COMPLETED".equals(transactionDTO.getStatus())) {
-                log.error("Transaction failed with status: {}", transactionDTO.getStatus());
-                throw new AppException(ErrorCode.TRANSACTION_FAILED);
-            }
-
-            return transactionDTO;
-        } finally {
-            // Restore security context
-            if (currentAuth != null) {
-                SecurityContextHolder.getContext().setAuthentication(currentAuth);
-            }
+        if (!"COMPLETED".equals(transactionDTO.getStatus())) {
+            log.error("Transaction failed with status: {}", transactionDTO.getStatus());
+            throw new AppException(ErrorCode.TRANSACTION_FAILED);
         }
+
+        return transactionDTO;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.*;
 import com.example.account_service.entity.CreditAccount;
+import com.example.account_service.entity.CreditRequest;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
 import com.example.common_service.dto.CreditCardDTO;
@@ -17,8 +18,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +33,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
     private final AccountService accountService;
     private final MessageUtils messageUtils;
@@ -107,7 +111,7 @@ public class AccountController {
         return response;
     }
     @GetMapping("/getAllCreditAccount")
-    public ApiResponseWrapper<List<CreditAccountResponse>>  getAllCreditAccountByCurrentCustomer() {
+    public ApiResponseWrapper<List<CreditAccountResponse>>  getAllCreditAccountisActiveByCurrentCustomer() {
         List<CreditAccountResponse> list  = accountService.getAllCreditAccountbyCifCode();
         ApiResponseWrapper<List<CreditAccountResponse>> response = new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),
@@ -116,6 +120,17 @@ public class AccountController {
         );
         return response;
     }
+    @GetMapping("/getAllCreditAccount-anyway")
+    public ApiResponseWrapper<List<CreditAccountResponse>>  getAllCreditAccountByCurrentCustomer() {
+        List<CreditAccountResponse> list  = accountService.getAllCreditAccountNonbyCifCode();
+        ApiResponseWrapper<List<CreditAccountResponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                list
+        );
+        return response;
+    }
+
     @GetMapping("/getAccountPaymentByID/{id}")
      public ApiResponseWrapper<AccountPaymentResponse> getAccountPaymentByID(@PathVariable String id) {
         AccountPaymentResponse accountPaymentResponse = accountService.getAccountPaymentbyID(id);
@@ -154,6 +169,21 @@ public class AccountController {
                 HttpStatus.OK.value(),
                 messageUtils.getMessage("account.payment.createSuccess"),
                Paymentresponse
+        );
+        return response;
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("admin/get-all-credit-crequest")
+    public ApiResponseWrapper<List<CreditRequestReponse>> getAllCreditRequesstPending() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        authentication.getAuthorities().forEach(authority ->
+                log.info("Role: {}", authority.getAuthority())
+        );
+        List<CreditRequestReponse> list = accountService.getAllCreditRequestPending();
+        ApiResponseWrapper<List<CreditRequestReponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.getAll-Credit-request.pending"),
+                list
         );
         return response;
     }

@@ -9,7 +9,7 @@
     },
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.idNumber == '987654321')]"
+        "matchesJsonPath": "$[?(@.idNumber == \"010102020303\")]"
       }
     ]
   },

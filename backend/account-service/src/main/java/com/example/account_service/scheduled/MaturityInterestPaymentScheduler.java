@@ -63,7 +63,7 @@ public class MaturityInterestPaymentScheduler {
     private final CommonTransactionService commonTransactionService;
     private final RestTemplate restTemplate;
 
-    @Scheduled(cron = "0 54 15 * * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void processSavingsAccounts() {
         log.info("Start checking your savings account for the maturity date or monthly interest payment date.");
         LocalDateTime today = LocalDateTime.now();
