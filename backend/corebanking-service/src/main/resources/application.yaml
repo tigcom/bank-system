@@ -6,13 +6,10 @@ spring:
   application:
     name: corebanking-service
   datasource:
-    url: jdbc:mysql://localhost:3307/coredb
+    url: jdbc:mysql://localhost:3306/coredb
     username: root
-    password: 0986341885dai
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
-  messages:
-    basename: i18n/messages
-    encoding: UTF-8
   jpa:
     hibernate:
       ddl-auto: update
