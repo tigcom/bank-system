@@ -615,8 +615,7 @@ public class TransactionServiceImpl implements TransactionService{
                     fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
                 throw new AppException(ErrorCode.INVALID_ACCOUNT);
             }
-        }else if (EnumSet.of(TransactionType.DEPOSIT,
-                TransactionType.DISBURSEMENT).contains(transaction.getType())) {
+        }else if (EnumSet.of(TransactionType.DEPOSIT).contains(transaction.getType())) {
             if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
                     toAccount.getAccountNumber(),currentCustomer.getCifCode())){
                 throw new AppException(ErrorCode.INVALID_ACCOUNT);
@@ -728,7 +727,7 @@ public class TransactionServiceImpl implements TransactionService{
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
-                .recipient("levandai2692003@gmail.com")
+                .recipient("phanhuynhphuckhang12c8@gmail.com")
                 .recipientName(fromCustomer.getFullName())
                 .build();
         System.out.println("OTP:"+otp);

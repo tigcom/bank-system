@@ -120,6 +120,16 @@ public class AccountController {
         );
         return response;
     }
+    @GetMapping("/getAllPaymentAccountByUserId/{userId}")
+    public ApiResponseWrapper<List<AccountPaymentResponse>> getAllPaymentAccountByUserId(@PathVariable String userId) {
+        List<AccountPaymentResponse> accountResponses = accountService.getAllPaymentAccountsbyUserId(userId);
+        ApiResponseWrapper<List<AccountPaymentResponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                accountResponses
+        );
+        return response;
+    }
     @GetMapping("/getAllSavingAccount")
     public ApiResponseWrapper<List<SavingAccountResponse>>  getAllSavingAccountByCurrentCustomer() {
         List<SavingAccountResponse> list  = accountService.getAllSavingAccountbyCifCode();

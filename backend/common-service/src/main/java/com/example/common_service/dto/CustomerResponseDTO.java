@@ -17,6 +17,7 @@ import java.time.LocalDate;
 public class CustomerResponseDTO implements Serializable {
     private Long id;
     private String cifCode;
+    private String userId;
     private String fullName;
     private String address;
     private LocalDate dateOfBirth;

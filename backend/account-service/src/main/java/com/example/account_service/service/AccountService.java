@@ -30,6 +30,8 @@ public interface AccountService {
     List<AccountPaymentResponse> getAllPaymentAccountsbyCifCode();
 
 
+    List<AccountPaymentResponse> getAllPaymentAccountsbyUserId(String userId);
+
     CustomerDTO getCustomerByAccountNumber(String accountNumber);
 
     AccountPaymentResponse getAccountPaymentbyID(String id);

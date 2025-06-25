@@ -225,7 +225,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    private ApiResponseWrapper<?> completeRegistration(RegisterCustomerDTO request, KycRequest kycData) {
+    protected ApiResponseWrapper<?> completeRegistration(RegisterCustomerDTO request, KycRequest kycData) {
         String userId = createKeycloakUser(request);
 
         Customer customer = Customer.builder()

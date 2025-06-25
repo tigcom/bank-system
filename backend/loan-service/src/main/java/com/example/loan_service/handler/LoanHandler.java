@@ -34,6 +34,7 @@ import org.apache.dubbo.rpc.RpcContext;
 import org.checkerframework.checker.units.qual.C;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -64,12 +66,9 @@ public class LoanHandler {
     private final CommonService commonService;
 
     public Loan approveLoan(Long loanId) {
-        Long idCustomer = getCustomerId();
 
         System.out.println(loanId);
-        System.out.println(idCustomer);
         Loan loan = loanService.getLoanById(loanId).orElse(null);
-        loan.setCustomerId(idCustomer);
         System.out.println(loan.getAmount());
         CommonDisburseRequest commonDisburseRequest = new CommonDisburseRequest();
         commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
@@ -100,6 +99,9 @@ public class LoanHandler {
         }
         return loan;
     }
+    public CustomerResponseDTO getUserIdByCustomerId(Long customerId) {
+        return customerQueryService.getCustomerById(customerId);
+    }
     public Loan createLoan(LoanRequestDTO loan) throws Exception {
         System.out.println(loan);
         Long idCustomer = getCustomerId();
@@ -122,6 +124,7 @@ public class LoanHandler {
             l.setCustomerId(idCustomer);
             System.out.println(l);
             return loanService.createLoan(l);
+//            return new Loan();
         }
     }
 
@@ -170,6 +173,15 @@ public class LoanHandler {
     }
 
     public List<Loan> findall() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
+        String userId = jwt.getName();
+        List<String> roles = jwt.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        System.out.println(userId);
+        System.out.println(roles);
+        SecurityContextHolder.clearContext();
         return loanService.findAllLoan();
     }
 
@@ -242,6 +254,7 @@ public class LoanHandler {
 
     public BigDecimal getTotalBorrowed() {
         Long idCustomer = getCustomerId();
+        System.out.println(idCustomer);
         List<Loan> list = loanService.getLoansApproveAndCustomerId(idCustomer);
         return list.stream()
                 .map(Loan::getAmount)
@@ -268,7 +281,6 @@ public class LoanHandler {
 //        JwtAuthenticationToken authentication = (JwtAuthenticationToken)
 //                SecurityContextHolder.getContext().getAuthentication();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(auth);
         JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
         String userId = jwt.getName();
 //        String userId = authentication.getName();

@@ -20,4 +20,6 @@ public interface RepaymentService {
     Repayment getCurrentRepayment(Long customerId);
     Repayment getCurrentRepaymentbyLoanId(Long loanId);
     List<Repayment> getHistoryRepayment(Long loanId);
+
+    Boolean checkLastMonthRepayment(Repayment repayment);
 }

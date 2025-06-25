@@ -7,6 +7,7 @@ import com.example.loan_service.response.ApiResponseWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -50,7 +51,7 @@ public class RepaymentController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{repaymentId}/late/")
     public ResponseEntity<ApiResponseWrapper<Repayment>> lateRepaymentStatus(@PathVariable Long repaymentId) {
         ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();
@@ -66,7 +67,7 @@ public class RepaymentController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{repaymentId}/unpaid/")
     public ResponseEntity<ApiResponseWrapper<Repayment>> unpaidRepaymentStatus(@PathVariable Long repaymentId) {
         ApiResponseWrapper<Repayment> response = new ApiResponseWrapper<>();

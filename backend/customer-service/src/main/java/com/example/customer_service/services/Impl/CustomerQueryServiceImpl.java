@@ -41,8 +41,6 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
     public CustomerResponseDTO getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElse(null);
-        System.out.println(id);
-        System.out.println(customer.getFullName());
         if(customer!=null){
             CustomerResponseDTO customerDTO = CustomerResponseDTO.builder()
                     .id(customer.getCustomerId())
@@ -50,9 +48,13 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
                     .fullName(customer.getFullName())
                     .email(customer.getEmail())
                     .status(customer.getStatus())
+                    .userId(customer.getUserId())
                     .dateOfBirth(customer.getDateOfBirth())
+                    .address(customer.getAddress())
+                    .phoneNumber(customer.getPhoneNumber())
                     .build();
             return customerDTO;
+
         }
         else return null;
     }
