@@ -107,4 +107,9 @@ public class MessageKeys {
 
     // Keycloak
     public static final String KEYCLOAK_UNKNOWN = "keycloak.unknown";
+
+
+    public static final String KEYCLOAK_TEMPORARY_FAILURE = "msg.keycloak.temporary.error";
+    public static final String KYC_TEMPORARY_FAILURE = "msg.kyc.temporary.error";
+    public static final String CORE_BANKING_TEMPORARY_FAILURE = "msg.core.banking.temporary.error";
 }
