@@ -9,6 +9,8 @@ public interface NotificationService {
 
     @KafkaListener(topics = "send-mail", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
     void sendDTO(Message<byte[]> messagee);
+    @KafkaListener(topics = "send-mail-transaction", groupId = "mail-transaction-group", containerFactory = "kafkaListenerContainerFactory")
+    void notificationTransaction(Message<byte[]> messagee);
 
     void sendOtpRegister(Message<byte[]> message);
 

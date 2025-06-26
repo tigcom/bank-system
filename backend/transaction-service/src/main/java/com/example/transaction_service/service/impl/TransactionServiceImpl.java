@@ -1,14 +1,11 @@
 package com.example.transaction_service.service.impl;
 
 
-import com.example.common_service.dto.AccountDTO;
-import com.example.common_service.dto.CommonTransactionDTO;
-import com.example.common_service.dto.CustomerDTO;
-import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.PayInterestRequest;
-import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.dto.request.TransactionRequest;
+import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
@@ -51,7 +48,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.swing.plaf.synth.SynthTabbedPaneUI;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -329,6 +325,40 @@ public class TransactionServiceImpl implements TransactionService{
 //      Thực thi giao dịch
         processTransaction(txn);
         transactionRepository.save(txn);
+
+        AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(txn.getFromAccountNumber());
+        AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(txn.getToAccountNumber());
+
+        CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
+        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
+                TransactionType.PAY_BILL).contains(txn.getType())) {
+            MailTransactionDTO mailTransactionDTO = MailTransactionDTO.builder()
+                    .name(fromCustomer.getFullName())
+                    .recipientMail(fromCustomer.getEmail())
+                    .amount(txn.getAmount())
+                    .referenceCode(txn.getReferenceCode())
+                    .toAccountNumber(txn.getToAccountNumber())
+                    .toCustomerName(toCustomer.getFullName())
+                    .timestamp(txn.getTimestamp())
+                    .description(txn.getDescription())
+                    .subject("Thông báo giao dịch")
+                    .build();
+            System.out.println("Gửi mail tới: "+fromCustomer.getFullName()+ fromCustomer.getEmail());
+            streamBridge.send("mail-transaction-out-0", mailTransactionDTO);
+        }else if (EnumSet.of(TransactionType.DEPOSIT).contains(txn.getType())) {
+            MailTransactionDTO mailTransactionDTO = MailTransactionDTO.builder()
+                    .name(toCustomer.getFullName())
+                    .recipientMail(toCustomer.getEmail())
+                    .amount(txn.getAmount())
+                    .referenceCode(txn.getReferenceCode())
+                    .timestamp(txn.getTimestamp())
+                    .description(txn.getDescription())
+                    .subject("Thông báo giao dịch")
+                    .build();
+            System.out.println("Gửi mail tới: "+toCustomer.getFullName());
+            streamBridge.send("mail-transaction-out-0", mailTransactionDTO);
+        }
 //        Xóa key khỏi redis
         redisTemplate.delete(keyFailCount);
         redisTemplate.delete(keyOTP);
@@ -427,7 +457,7 @@ public class TransactionServiceImpl implements TransactionService{
                 .bankCode(transaction.getDestinationBankCode())
                 .build());
         if(!napasInquiryResponse.getAccountStatus().equals("ACTIVE"))
-            throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_EXIT);
+            throw new AppException(ErrorCode.DESTINATION_ACCOUNT_NOT_ACTIVE);
         initTransaction(transaction);
 //        Gửi OTP
         sendOTP(transaction.getReferenceCode(),transaction.getFromAccountNumber());
@@ -727,10 +757,11 @@ public class TransactionServiceImpl implements TransactionService{
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
-                .recipient("levandai2692003@gmail.com")
+                .recipient(fromCustomer.getEmail())
                 .recipientName(fromCustomer.getFullName())
                 .build();
         System.out.println("OTP:"+otp);
+        System.out.println("Gửi mail OTP tới: "+fromCustomer.getFullName()+ fromCustomer.getEmail());
         streamBridge.send("mail-out-0", mailMessage);
     }
     private void processTransaction(Transaction transaction) {
