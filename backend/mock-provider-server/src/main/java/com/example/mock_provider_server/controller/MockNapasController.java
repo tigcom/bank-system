@@ -92,7 +92,7 @@ public class MockNapasController {
         // --- Các kịch bản giả lập ---
 
         // 1. Kịch bản lỗi kỹ thuật từ phía NAPAS/Ngân hàng hưởng
-        if ("9999999999".equals(request.getToAccountNumber())) {
+        if ("1119999999".equals(request.getToAccountNumber())) {
             return ApiResponse.<NapasTransferResponse>builder()
                     .code(500)
                     .message("Lỗi ở ngân hàng thụ hưởng")
@@ -106,7 +106,7 @@ public class MockNapasController {
         }
 
         // 2. Kịch bản giao dịch bị từ chối
-        if ("8888888888".equals(request.getToAccountNumber())) {
+        if ("1118888888".equals(request.getToAccountNumber())) {
             return ApiResponse.<NapasTransferResponse>builder()
                     .code(500)
                     .message("Giao dịch bị từ chối")
