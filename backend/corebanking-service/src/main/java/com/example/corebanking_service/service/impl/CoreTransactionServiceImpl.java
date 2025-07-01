@@ -14,25 +14,19 @@ import com.example.corebanking_service.repository.CoreTransactionRepo;
 import com.example.corebanking_service.service.CoreTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-
 import java.time.LocalDateTime;
 
-import java.util.List;
-
 @Service
-@DubboService
 @RequiredArgsConstructor
 @Slf4j
 public class CoreTransactionServiceImpl implements CoreTransactionService {
