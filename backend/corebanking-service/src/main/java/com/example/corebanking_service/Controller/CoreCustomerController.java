@@ -1,4 +1,4 @@
-package com.example.corebanking_service.Controller;
+package com.example.corebanking_service.controller;
 
 import com.example.common_service.dto.customer.CoreCustomerDTO;
 import com.example.common_service.dto.customer.CoreResponse;
