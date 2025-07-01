@@ -14,11 +14,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8180/realms/myrealm
 
 #Dubbo
 dubbo:
@@ -31,3 +26,6 @@ dubbo:
     address: zookeeper://localhost:2181
   scan:
     base-packages: com.example.corebanking_service.service
+core-banking:
+  api:
+    key: asdfghjkl

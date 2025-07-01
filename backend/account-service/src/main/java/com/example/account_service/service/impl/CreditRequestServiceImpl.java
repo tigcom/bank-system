@@ -30,6 +30,7 @@ import com.example.common_service.services.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
@@ -66,7 +67,17 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private final CreditRequestRepository creditRequestRepository;
 
     private final AccountNumberUtils    accountNumberUtils;
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("restTemplateInternal")
+    private RestTemplate restTemplateInternal;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate coreBankingRestTemplate;
+    @Autowired
+    @Qualifier("MockServerRestTemplate")
+    private  RestTemplate mockServerTemplate;
+
+
     private final StreamBridge streamBridge;
     private final RedisTemplate<Object, Object> redisTemplate;
     private static final String[] STABLE_OCCUPATIONS = {"Engineer", "Doctor", "Teacher", "Government Employee"};
@@ -253,7 +264,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<CicResponse> response = restTemplate.postForEntity(url, entity, CicResponse.class);
+            ResponseEntity<CicResponse> response = mockServerTemplate.postForEntity(url, entity, CicResponse.class);
             log.info("Response from CIC : " + response.getBody());
             return response.getBody();
         } catch (RestClientException e) {
@@ -490,7 +501,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         ///  check KYC status cua khach hang
         /// goi 1 rest toi customer to check KYC  status
         String KYCurl = "http://localhost:8080/api/customers/status";
-        ResponseEntity<KycResponse> response = restTemplate.exchange(
+        ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
                 KYCurl,
                 HttpMethod.GET,
                 null,
@@ -629,7 +640,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             log.info("corePaymentAccountDTO: {}", coreAccount);
 
             // Call API save account trên CoreBanking
-            restTemplate.postForObject(url ,coreAccount,Void.class);
+            coreBankingRestTemplate.postForObject(url ,coreAccount,Void.class);
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);

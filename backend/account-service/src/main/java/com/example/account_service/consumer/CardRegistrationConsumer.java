@@ -23,6 +23,8 @@ import com.example.common_service.services.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -40,7 +42,9 @@ public class CardRegistrationConsumer {
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
         private String coreBankingBaseUrl;
        private final CreditAccountRepository creditAccountRepository;
-       private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate coreBankingRestTemplate;
        private final CardRegistrationService cardRegistrationService;
     private final StreamBridge streamBridge;
     @DubboReference(timeout = 5000)
@@ -51,7 +55,7 @@ public class CardRegistrationConsumer {
                    containerFactory = "cardRegistrationKafkaListenerContainerFactory")
     public void handleCardRegistration(CardRegistrationMessage message) {
          log.info("Received Card Registration message: {}", message);
-         
+
          try {
              // Gọi API tổ chức dựa trên loại thẻ với Resilience4j
              if ("VISA".equals(message.getCardType())) {
@@ -73,15 +77,15 @@ public class CardRegistrationConsumer {
 
 private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage message) {
         log.info("Processing VISA card registration with Resilience4j for account: {}", message.getAccountNumber());
-        
+
         try {
             // Sử dụng CardRegistrationService với Resilience4j
             VisaCardResponse response = cardRegistrationService.registerVisaCard(message);
-            
+
             if (response != null) {
                 switch (response.getStatus()) {
                     case "SUCCESS":
-                        log.info("VISA registration successful for account: {}. Message: {}", 
+                        log.info("VISA registration successful for account: {}. Message: {}",
                                message.getAccountNumber(), response.getMessage());
                         CreditAccount account= updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.ACTIVE);
                         //thay vi update thi toi luc nay mới lưu tren core
@@ -89,22 +93,22 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
                         updateCardDetails(message.getAccountNumber(), response);
                         sendApprovalNotification(account);
                         break;
-                        
+
                     case "FAILED":
-                        log.warn("VISA registration failed for account: {}. Error Code: {}, Reason: {}", 
+                        log.warn("VISA registration failed for account: {}. Error Code: {}, Reason: {}",
                                message.getAccountNumber(), response.getErrorCode(), response.getMessage());
                         updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_FAILED);
                         updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.FAILED,response.getMessage(),message.getAccountNumber());
                         break;
-                        
+
                     case "ERROR":
-                        log.error("VISA registration error for account: {}. Error Code: {}, Error: {}", 
+                        log.error("VISA registration error for account: {}. Error Code: {}, Error: {}",
                                 message.getAccountNumber(), response.getErrorCode(), response.getMessage());
                         updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_ERROR);
                         updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.ERROR,response.getMessage(),message.getAccountNumber());
                         break;
                     default:
-                        log.warn("Unknown VISA response status for account: {}. Status: {}", 
+                        log.warn("Unknown VISA response status for account: {}. Status: {}",
                                message.getAccountNumber(), response.getStatus());
                         updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_FAILED);
                         updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.FAILED,response.getMessage(),message.getAccountNumber());
@@ -116,7 +120,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
 
             }
         } catch (Exception e) {
-            log.error("Unexpected error in VISA registration with Resilience4j for account: {}. Error: {}", 
+            log.error("Unexpected error in VISA registration with Resilience4j for account: {}. Error: {}",
                      message.getAccountNumber(), e.getMessage(), e);
             updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_ERROR);
             updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.ERROR,e.getMessage(),message.getAccountNumber());
@@ -215,7 +219,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
             log.info("corePaymentAccountDTO: {}", coreAccount);
 
             // Call API save account trên CoreBanking
-            restTemplate.postForObject(url ,coreAccount,Void.class);
+            coreBankingRestTemplate.postForObject(url ,coreAccount,Void.class);
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);

@@ -4,7 +4,8 @@
     "urlPath": "/api/master/registration",
     "headers": {
       "Content-Type": {
-        "equalTo": "application/json"
+        "equalTo": "application/json",
+        "equalTo": "Mock-API-Key"
       }
     },
     "bodyPatterns": [

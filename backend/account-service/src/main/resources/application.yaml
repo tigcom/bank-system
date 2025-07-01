@@ -71,7 +71,8 @@ spring:
 # Core Banking Service Configuration
 core-banking:
   base-url: http://localhost:8083/corebanking
-
+  api:
+    key: asdfghjkl
 dubbo:
   provider:
     filter: -contextHolderAuthenticationResolverFilter
