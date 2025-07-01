@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -64,11 +67,11 @@ public class CustomerController {
     public ResponseEntity<ApiResponseWrapper<?>> khoiTaoDangKy(
             @Valid @RequestBody RegisterCustomerDTO request) {
         try {
-            log.info("Khởi tạo đăng ký cho email: {}", request.getEmail());
+            log.info("[khoiTaoDangKy] Khởi tạo đăng ký cho email: {}, username: {}", request.getEmail(), request.getUsername());
             ApiResponseWrapper<?> response = customerService.initiateRegister(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            log.warn("Dữ liệu đăng ký không hợp lệ: {}", e.getMessage());
+            log.warn("[khoiTaoDangKy] Dữ liệu đăng ký không hợp lệ cho email: {}, username: {}. Lỗi: {}", request.getEmail(), request.getUsername(), e.getMessage());
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
             );
@@ -87,11 +90,11 @@ public class CustomerController {
             @RequestParam String email,
             @Valid @RequestBody KycRequest kycRequest) {
         try {
-            log.info("Xác minh KYC và gửi OTP cho email: {}", email);
+            log.info("[processKycAndSendOtp] Xác minh KYC và gửi OTP cho email: {}, identityNumber: {}", email, kycRequest.getIdentityNumber());
             ApiResponseWrapper<?> response = customerService.processKycAndSendOtp(email, kycRequest);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            log.warn("Thông tin KYC không hợp lệ với email {}: {}", email, e.getMessage());
+            log.warn("[processKycAndSendOtp] Thông tin KYC không hợp lệ với email: {}, identityNumber: {}. Lỗi: {}", email, kycRequest.getIdentityNumber(), e.getMessage());
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
             );
@@ -109,11 +112,11 @@ public class CustomerController {
     public ResponseEntity<ApiResponseWrapper<?>> sendOtp(
             @RequestParam String email) {
         try {
-            log.info("Gửi OTP cho email: {}", email);
+            log.info("[sendOtp] Gửi lại OTP cho email: {}", email);
             ApiResponseWrapper<?> response = customerService.reSendOtp(email);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            log.warn("Gửi otp không thành công cho email {}: {}", email, e.getMessage());
+            log.warn("[sendOtp] Gửi lại OTP không thành công cho email: {}. Lỗi: {}", email, e.getMessage());
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
             );
@@ -133,11 +136,11 @@ public class CustomerController {
             @RequestParam String email,
             @RequestParam String otp) {
         try {
-            log.info("Xác nhận đăng ký cho email: {}", email);
+            log.info("[confirmRegister] Xác nhận đăng ký cho email: {}, otp: {}", email, otp);
             ApiResponseWrapper<?> response = customerService.confirmRegister(email, otp);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            log.warn("Mã OTP không hợp lệ với email {}: {}", email, e.getMessage());
+            log.warn("[confirmRegister] Mã OTP không hợp lệ với email: {}, otp: {}. Lỗi: {}", email, otp, e.getMessage());
             return ResponseEntity.badRequest().body(
                     new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
             );
@@ -155,9 +158,11 @@ public class CustomerController {
     })
     public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
         try {
+            log.info("[resetPassword] Yêu cầu đặt lại mật khẩu cho token: {}", request.getToken());
             ApiResponseWrapper<?> response = customerService.resetPassword(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            log.warn("[resetPassword] Đặt lại mật khẩu thất bại cho token: {}. Lỗi: {}", request.getToken(), e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -175,12 +180,14 @@ public class CustomerController {
     })
     public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordDTO request) {
         try {
+            log.info("[forgotPassword] Yêu cầu gửi email quên mật khẩu cho email: {}", request.getEmail());
             customerService.sentEmailForgotPassword(request.getEmail());
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.FORGOT_PASSWORD_LINK_SENT),
                     new Response(true, getMessage(MessageKeys.FORGOT_PASSWORD_NOTIFICATION))));
         } catch (IllegalArgumentException e) {
+            log.warn("[forgotPassword] Gửi email quên mật khẩu thất bại cho email: {}. Lỗi: {}", request.getEmail(), e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -198,13 +205,16 @@ public class CustomerController {
             @RequestParam(defaultValue = "") String keyword
     ) {
         try {
-            log.info("Fetching customer list - page: {}, size: {}, search: {}", page, size, keyword);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+            log.info("[getCustomerList] Lấy danh sách khách hàng - page: {}, size: {}, search: {}, userId: {}", page, size, keyword, userId);
             CustomerListResponse response = customerService.getCustomerList(page, size, keyword);
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
                     response));
         } catch (IllegalArgumentException e) {
+            log.warn("[getCustomerList] Lỗi lấy danh sách khách hàng. Lỗi: {}", e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -224,14 +234,14 @@ public class CustomerController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userID = authentication.getName();
-            log.info("Fetching customer detail for userId: {}", userID);
-
+            log.info("[getCustomerDetail] Lấy thông tin khách hàng cho userId: {}", userID);
             CustomerResponse customer = customerService.getCustomerDetail(userID);
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
                     customer));
         } catch (IllegalArgumentException e) {
+            log.warn("[getCustomerDetail] Lỗi lấy thông tin khách hàng. Lỗi: {}", e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -248,13 +258,16 @@ public class CustomerController {
     @GetMapping("/detail/{cifCode}")
     public ResponseEntity<?> getCustomerDetailByCifCode(@PathVariable String cifCode) {
         try {
-            log.info("Admin fetching customer detail for cifCode: {}", cifCode);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+            log.info("[getCustomerDetailByCifCode] Admin lấy thông tin khách hàng cho cifCode: {}, userId: {}", cifCode, userId);
             CustomerResponse customer = customerService.getCustomerDetailByCifCode(cifCode);
             return ResponseEntity.ok(new ApiResponseWrapper<>(
                     HttpStatus.OK.value(),
                     getMessage(MessageKeys.SUCCESS_GET_CUSTOMER),
                     customer));
         } catch (IllegalArgumentException e) {
+            log.warn("[getCustomerDetailByCifCode] Lỗi lấy thông tin khách hàng theo cifCode: {}. Lỗi: {}", cifCode, e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -274,10 +287,11 @@ public class CustomerController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userID = authentication.getName();
-            log.info("Update password request for customerId: {}", userID);
+            log.info("[updatePassword] Yêu cầu đổi mật khẩu cho userId: {}", userID);
             ApiResponseWrapper<?> response = customerService.updateCustomerPassword(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            log.warn("[updatePassword] Đổi mật khẩu thất bại. Lỗi: {}", e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -294,10 +308,13 @@ public class CustomerController {
     @PutMapping("/update")
     public ResponseEntity<?> updateCustomer(@Valid @RequestBody UpdateCustomerDTO request) {
         try {
-            log.info("Update customer request for name: {}", request.getFullName());
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userID = authentication.getName();
+            log.info("[updateCustomer] Yêu cầu cập nhật thông tin cho userId: {}", userID);
             ApiResponseWrapper<?> response = customerService.updateCustomer(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            log.warn("[updateCustomer] Cập nhật thông tin thất bại. Lỗi: {}", e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -314,10 +331,13 @@ public class CustomerController {
     @PutMapping("/status")
     public ResponseEntity<?> updateCustomerStatus(@Valid @RequestBody UpdateStatusRequest request) {
         try {
-            log.info("Update status request for customerId: {}", request.getCifCode());
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+            log.info("[updateCustomerStatus] Yêu cầu cập nhật trạng thái cho cifCode: {}, userId: {}", request.getCifCode(), userId);
             ApiResponseWrapper<?> response = customerService.updateCustomerStatus(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            log.warn("[updateCustomerStatus] Cập nhật trạng thái thất bại cho cifCode: {}. Lỗi: {}", request.getCifCode(), e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -330,23 +350,22 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = KycResponse.class))),
             @ApiResponse(responseCode = "400", description = "Không thể lấy trạng thái KYC")
     })
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     @GetMapping("/status")
     public ResponseEntity<?> checkKycStatus() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userId = authentication.getName();
-
-            log.info("Kiểm tra trạng thái KYC cho userId: {}", userId);
+            log.info("[checkKycStatus] Kiểm tra trạng thái KYC cho userId: {}", userId);
             KycResponse response = kycService.getKycStatus(userId);
-
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
+            log.warn("[checkKycStatus] Không tìm thấy trạng thái KYC. Lỗi: {}", e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
         } catch (Exception e) {
-            log.error("Kiểm tra trạng thái KYC thất bại, Lỗi: {}", e.getMessage());
+            log.error("[checkKycStatus] Kiểm tra trạng thái KYC thất bại. Lỗi: {}", e.getMessage(), e);
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
@@ -365,41 +384,156 @@ public class CustomerController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userId = authentication.getName();
-
-            log.info("KYC verification request for userId: {}", userId);
+            log.info("[verifyKyc] Gửi yêu cầu KYC cho userId: {}, identityNumber: {}",
+                    userId, request.getIdentityNumber());
             KycResponse response = customerService.verifyKyc(userId, request);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.KYC_SUBMISSION_SUCCESS),
+                    response
+            ));
         } catch (IllegalArgumentException e) {
+            log.warn("[verifyKyc] Xác minh KYC thất bại. Lỗi: {}", e.getMessage());
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));
         }
     }
 
-    @GetMapping("/accounts")
-    @Operation(summary = "Lấy danh sách tài khoản", description = "Truy vấn danh sách tài khoản của khách hàng")
+    @GetMapping("/kyc/pending")
+    @Operation(summary = "Lấy danh sách KYC đang chờ duyệt",
+            description = "Lấy danh sách các yêu cầu KYC có trạng thái PENDING (chỉ dành cho admin)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lấy danh sách tài khoản thành công",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
+            @ApiResponse(responseCode = "200", description = "Lấy danh sách KYC thành công",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KycListResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập"),
             @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
     })
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> getCustomerAccounts() {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseWrapper<?>> getPendingKycRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            log.info("Start get list account");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userID = authentication.getName();
-            Customer customer = customerRepository.findCustomerByUserId(userID);
-            log.info("Get list account for username: {}", customer.getUsername());
-
-            SecurityContextHolder.clearContext();
-
-            List<AccountDTO> accounts = customerCommonService.getAccountsByCifCode(customer.getCifCode());
-            log.info("List account: {}", accounts);
-            log.info("Get list account successfully");
-            return ResponseEntity.ok(accounts);
+            String userId = authentication.getName();
+            log.info("[getPendingKycRequests] Lấy danh sách KYC đang chờ duyệt - page: {}, size: {}, userId: {}",
+                    page, size, userId);
+            KycListResponse response = customerService.getPendingKycRequests(page, size);
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.SUCCESS_GET_KYC_LIST),
+                    response
+            ));
         } catch (IllegalArgumentException e) {
+            log.error("[getPendingKycRequests] Lỗi khi lấy danh sách KYC đang chờ duyệt. Lỗi: {}",
+                    e.getMessage(), e);
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/kyc/approve")
+    @Operation(summary = "Duyệt hoặc từ chối KYC",
+            description = "Admin duyệt hoặc từ chối yêu cầu KYC (VERIFIED/REJECTED)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Duyệt KYC thành công",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KycResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ"),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseWrapper<?>> approveKyc(
+            @Valid @RequestBody ApproveKycRequest request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+            log.info("[approveKyc] Duyệt KYC cho cifCode: {}, status: {}, userId: {}",
+                    request.getCifCode(), request.getStatus(), userId);
+            KycResponse response = customerService.approveKyc(request.getCifCode(),
+                    request.getStatus(), request.getReason());
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.KYC_APPROVAL_SUCCESS),
+                    response
+            ));
+        } catch (IllegalArgumentException | EntityNotFoundException e) {
+            log.warn("[approveKyc] Duyệt KYC thất bại cho cifCode: {}. Lỗi: {}",
+                    request.getCifCode(), e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null)
+            );
+        }
+    }
+
+    @GetMapping("/kyc/statistics")
+    @Operation(summary = "Thống kê KYC",
+            description = "Lấy thống kê số lượng KYC (tổng, thành công, thất bại, đang chờ) theo thời gian")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lấy thống kê KYC thành công",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KycStatisticsResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseWrapper<?>> getKycStatistics(
+            @RequestParam(required = false)
+            LocalDate startDate,
+            @RequestParam(required = false)
+            LocalDate endDate) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+            log.info("[getKycStatistics] controller Lấy thống kê KYC từ {} đến {}, userId: {}",
+                    startDate, endDate, userId);
+            KycStatisticsResponse response = customerService.getKycStatistics(startDate, endDate);
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.SUCCESS_GET_KYC_STATISTICS),
+                    response
+            ));
+        } catch (IllegalArgumentException e) {
+            log.error("[getKycStatistics] Lỗi khi lấy thống kê KYC. Lỗi: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponseWrapper.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/growth")
+    @Operation(summary = "Thống kê tăng trưởng khách hàng",
+            description = "Lấy thống kê số khách hàng mới và tỷ lệ tăng trưởng theo thời gian")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lấy thống kê tăng trưởng thành công",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomerGrowthResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Không có quyền truy cập"),
+            @ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseWrapper<?>> getCustomerGrowth(
+            @RequestParam(required = false)
+            LocalDate startDate,
+            @RequestParam(required = false)
+            LocalDate endDate) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
+            log.info("[getCustomerGrowth] Lấy thống kê tăng trưởng khách hàng từ {} đến {}, userId: {}",
+                    startDate, endDate, userId);
+            CustomerGrowthResponse response = customerService.getCustomerGrowth(startDate, endDate);
+            return ResponseEntity.ok(new ApiResponseWrapper<>(
+                    HttpStatus.OK.value(),
+                    getMessage(MessageKeys.SUCCESS_GET_CUSTOMER_GROWTH),
+                    response
+            ));
+        } catch (IllegalArgumentException e) {
+            log.error("[getCustomerGrowth] Lỗi khi lấy thống kê tăng trưởng khách hàng. Lỗi: {}",
+                    e.getMessage(), e);
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponseWrapper.error(e.getMessage()));

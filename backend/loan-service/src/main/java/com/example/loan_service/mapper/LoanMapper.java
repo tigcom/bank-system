@@ -15,6 +15,8 @@ public interface LoanMapper {
     @Mapping(target = "status", constant = "PENDING")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     Loan toEntity(LoanRequestDTO dto);
-
     LoanResponseDTO toDTO(Loan entity);
+    LoanRequestDTO toRequestDTO(Loan loan);
+    LoanResponseDTO toResponseDTO(LoanRequestDTO loan);
+
 }

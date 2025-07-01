@@ -66,7 +66,6 @@ public class KycServiceImpl implements KycService {
             case VERIFIED -> "Tài khoản đã được xác minh KYC";
             case PENDING -> "Thông tin KYC đang chờ xác minh";
             case REJECTED -> "Thông tin KYC đã bị từ chối";
-            default -> "Trạng thái KYC không xác định";
         };
 
         return new KycResponse(isVerified, message, null, status);
