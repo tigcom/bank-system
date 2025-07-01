@@ -2,6 +2,7 @@ CREATE DATABASE customerdb;
 CREATE DATABASE transaction_service;
 CREATE DATABASE accountdb;
 CREATE DATABASE coredb;
+CREATE DATABASE loan_service_db;
 USE customerdb;
 
 CREATE TABLE customers (

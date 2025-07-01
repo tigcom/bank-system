@@ -186,6 +186,8 @@ public class AccountServiceImpl implements AccountService {
         String userId = authentication.getName();
         log.info("User id: " + userId);
 
+        SecurityContextHolder.clearContext();
+
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
         // check trang thai cua  Customer trươc
@@ -248,6 +250,8 @@ public class AccountServiceImpl implements AccountService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         log.info("User id: " + userId);
+
+        SecurityContextHolder.clearContext();;
 
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);

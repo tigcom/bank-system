@@ -40,6 +40,7 @@ public class RegistrationCacheService {
                 return null;
             }
 
+            // Nếu dữ liệu là LinkedHashMap (do Redis trả về JSON), chuyển đổi thành RegisterCustomerDTO bằng ObjectMapper.
             if (data instanceof LinkedHashMap) {
                 return objectMapper.convertValue(data, RegisterCustomerDTO.class);
             }
