@@ -602,21 +602,38 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse getCustomerDetailByCifCode(String cifCode) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = authentication.getName();
+        String requestId = UUID.randomUUID().toString();
+        
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        Optional<Customer> customerOpt = customerRepository.findByCifCode(cifCode);
-        if (customerOpt.isEmpty()) {
-            throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
-        }
+        log.info("GET_CUSTOMER_BY_CIF_START - RequestId: {}, CurrentUserId: {}, TargetCifCode: {}, IsAdmin: {}",
+                requestId, currentUserId, cifCode, isAdmin);
 
-        Customer customer = customerOpt.get();
-        if (!isAdmin && !customer.getUserId().equals(currentUserId)) {
-            log.warn("User {} attempted unauthorized access to customer {}", currentUserId, cifCode);
-            throw new BusinessException(getMessage(MessageKeys.UNAUTHORIZED_ACCESS));
-        }
+        try {
+            Optional<Customer> customerOpt = customerRepository.findByCifCode(cifCode);
+            if (customerOpt.isEmpty()) {
+                log.warn("GET_CUSTOMER_BY_CIF_FAILED - RequestId: {}, CifCode: {}, Reason: USER_NOT_FOUND",
+                        requestId, cifCode);
+                throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
+            }
 
-        return toCustomerResponse(customer);
+            Customer customer = customerOpt.get();
+            if (!isAdmin && !customer.getUserId().equals(currentUserId)) {
+                log.warn("GET_CUSTOMER_BY_CIF_UNAUTHORIZED - RequestId: {}, CurrentUserId: {}, CustomerUserId: {}, CifCode: {}",
+                        requestId, currentUserId, customer.getUserId(), cifCode);
+                throw new BusinessException(getMessage(MessageKeys.UNAUTHORIZED_ACCESS));
+            }
+
+            log.info("GET_CUSTOMER_BY_CIF_SUCCESS - RequestId: {}, CifCode: {}, UserId: {}, Status: {}",
+                    requestId, cifCode, customer.getUserId(), customer.getStatus());
+
+            return toCustomerResponse(customer);
+        } catch (Exception e) {
+            log.error("GET_CUSTOMER_BY_CIF_ERROR - RequestId: {}, CifCode: {}, Error: {}",
+                    requestId, cifCode, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
@@ -701,101 +718,153 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ApiResponseWrapper<?> updateCustomerStatus(UpdateStatusRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = authentication.getName();
+        String requestId = UUID.randomUUID().toString();
+        
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        
+        log.info("UPDATE_CUSTOMER_STATUS_START - RequestId: {}, AdminUserId: {}, TargetCifCode: {}, NewStatus: {}",
+                requestId, currentUserId, request.getCifCode(), request.getStatus());
+        
         if (!isAdmin) {
+            log.warn("UPDATE_CUSTOMER_STATUS_FAILED - RequestId: {}, UserId: {}, Reason: NOT_ADMIN",
+                    requestId, currentUserId);
             throw new BusinessException(getMessage(MessageKeys.ADMIN_ONLY));
         }
 
-        Optional<Customer> customerOpt = customerRepository.findByCifCode(request.getCifCode());
-        if (customerOpt.isEmpty()) {
-            throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
-        }
+        try {
+            Optional<Customer> customerOpt = customerRepository.findByCifCode(request.getCifCode());
+            if (customerOpt.isEmpty()) {
+                log.warn("UPDATE_CUSTOMER_STATUS_FAILED - RequestId: {}, CifCode: {}, Reason: USER_NOT_FOUND",
+                        requestId, request.getCifCode());
+                throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
+            }
 
-        Customer customer = customerOpt.get();
-        CustomerStatus newStatus = request.getStatus();
+            Customer customer = customerOpt.get();
+            CustomerStatus oldStatus = customer.getStatus();
+            CustomerStatus newStatus = request.getStatus();
 
-        if (newStatus == null) {
-            throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_STATUS));
-        }
+            if (newStatus == null) {
+                log.warn("UPDATE_CUSTOMER_STATUS_FAILED - RequestId: {}, CifCode: {}, Reason: INVALID_STATUS",
+                        requestId, customer.getCifCode());
+                throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_STATUS));
+            }
 
-        if (customer.getStatus() == CustomerStatus.CLOSED) {
-            throw new BusinessException(getMessage(MessageKeys.CLOSED_ACCOUNT_STATUS));
-        }
+            if (customer.getStatus() == CustomerStatus.CLOSED) {
+                log.warn("UPDATE_CUSTOMER_STATUS_FAILED - RequestId: {}, CifCode: {}, CurrentStatus: CLOSED, Reason: CLOSED_ACCOUNT_STATUS",
+                        requestId, customer.getCifCode());
+                throw new BusinessException(getMessage(MessageKeys.CLOSED_ACCOUNT_STATUS));
+            }
 
-        if (customer.getStatus().equals(newStatus)) {
-            log.info("No status change needed for CIF: {}", customer.getCifCode());
+            if (customer.getStatus().equals(newStatus)) {
+                log.info("UPDATE_CUSTOMER_STATUS_NO_CHANGE - RequestId: {}, CifCode: {}, Status: {}",
+                        requestId, customer.getCifCode(), customer.getStatus());
+                return new ApiResponseWrapper<>(HttpStatus.OK.value(), getMessage(MessageKeys.SUCCESS_UPDATE), customer.getStatus());
+            }
+
+            // Cập nhật trạng thái
+            customer.setStatus(newStatus);
+            customerRepository.save(customer);
+            
+            log.info("CUSTOMER_STATUS_UPDATED - RequestId: {}, CifCode: {}, UserId: {}, OldStatus: {}, NewStatus: {}",
+                    requestId, customer.getCifCode(), customer.getUserId(), oldStatus, newStatus);
+
+            // Cập nhật KYC tương ứng với status
+            KycStatus kycStatusToUpdate = switch (newStatus) {
+                case ACTIVE -> KycStatus.VERIFIED;
+                case SUSPENDED -> KycStatus.PENDING;
+                case CLOSED -> KycStatus.REJECTED;
+            };
+
+            log.info("KYC_STATUS_UPDATE_START - RequestId: {}, CifCode: {}, OldKycStatus: UNKNOWN, NewKycStatus: {}",
+                    requestId, customer.getCifCode(), kycStatusToUpdate);
+
+            KycResponse kycResponse = new KycResponse();
+            kycResponse.setVerified(kycStatusToUpdate == KycStatus.VERIFIED);
+            kycResponse.setStatus(kycStatusToUpdate);
+            kycResponse.setMessage("Updated due to status change: " + newStatus);
+            kycResponse.setDetails("{\"auto_update\": true}");
+
+            kycService.saveKycInfo(
+                    customer.getCustomerId(),
+                    kycResponse,
+                    customer.getIdentityNumber(),
+                    customer.getFullName(),
+                    customer.getDateOfBirth(),
+                    customer.getGender().toString()
+            );
+
+            log.info("KYC_STATUS_UPDATE_SUCCESS - RequestId: {}, CifCode: {}, NewKycStatus: {}",
+                    requestId, customer.getCifCode(), kycStatusToUpdate);
+
+            CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
+                    .cifCode(customer.getCifCode())
+                    .status(customer.getStatus().toString())
+                    .build();
+
+            log.info("CORE_BANKING_STATUS_SYNC_START - RequestId: {}, CifCode: {}, NewStatus: {}",
+                    requestId, customer.getCifCode(), customer.getStatus());
+            
+            CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
+            if (!coreResponse.isSuccess()) {
+                log.error("CORE_BANKING_STATUS_SYNC_FAILED - RequestId: {}, CifCode: {}, Error: {}",
+                        requestId, customer.getCifCode(), coreResponse.getMessage());
+                throw new BusinessException(getMessage(MessageKeys.STATUS_SYNC_FAILED, coreResponse.getMessage()));
+            }
+            
+            log.info("CORE_BANKING_STATUS_SYNC_SUCCESS - RequestId: {}, CifCode: {}, NewStatus: {}",
+                    requestId, customer.getCifCode(), customer.getStatus());
+
+            log.info("UPDATE_CUSTOMER_STATUS_SUCCESS - RequestId: {}, CifCode: {}, FinalStatus: {}",
+                    requestId, customer.getCifCode(), customer.getStatus());
+
             return new ApiResponseWrapper<>(HttpStatus.OK.value(), getMessage(MessageKeys.SUCCESS_UPDATE), customer.getStatus());
+        } catch (Exception e) {
+            log.error("UPDATE_CUSTOMER_STATUS_ERROR - RequestId: {}, CifCode: {}, Error: {}",
+                    requestId, request.getCifCode(), e.getMessage(), e);
+            throw e;
         }
-
-        // Cập nhật trạng thái
-        customer.setStatus(newStatus);
-        customerRepository.save(customer);
-        log.info("Updated customer status for CIF: {} from {} to {}", customer.getCifCode(), customer.getStatus(), newStatus);
-
-        // Cập nhật KYC tương ứng với status
-        KycStatus kycStatusToUpdate = switch (newStatus) {
-            case ACTIVE -> KycStatus.VERIFIED;
-            case SUSPENDED -> KycStatus.PENDING;
-            case CLOSED -> KycStatus.REJECTED;
-        };
-
-        KycResponse kycResponse = new KycResponse();
-        kycResponse.setVerified(kycStatusToUpdate == KycStatus.VERIFIED);
-        kycResponse.setStatus(kycStatusToUpdate);
-        kycResponse.setMessage("Updated due to status change: " + newStatus);
-        kycResponse.setDetails("{\"auto_update\": true}");
-
-        kycService.saveKycInfo(
-                customer.getCustomerId(),
-                kycResponse,
-                customer.getIdentityNumber(),
-                customer.getFullName(),
-                customer.getDateOfBirth(),
-                customer.getGender().toString()
-        );
-
-        log.info("KYC status updated to {} for CIF: {}", kycStatusToUpdate, customer.getCifCode());
-
-        CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
-                .cifCode(customer.getCifCode())
-                .status(customer.getStatus().toString())
-                .build();
-
-        log.info("Syncing customer status for CIF: {}", customer.getCifCode());
-        CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
-        if (!coreResponse.isSuccess()) {
-            log.error("Failed to sync customer status for CIF: {}. Error: {}", customer.getCifCode(), coreResponse.getMessage());
-            throw new BusinessException(getMessage(MessageKeys.STATUS_SYNC_FAILED, coreResponse.getMessage()));
-        }
-        log.info("Successfully synced customer status for CIF: {}", customer.getCifCode());
-
-        return new ApiResponseWrapper<>(HttpStatus.OK.value(), getMessage(MessageKeys.SUCCESS_UPDATE), customer.getStatus());
     }
 
     @Transactional
     public KycResponse verifyKyc(String userId, KycRequest request) {
+        String requestId = UUID.randomUUID().toString();
+        log.info("KYC_VERIFY_START - RequestId: {}, UserId: {}, IdentityNumber: {}",
+                requestId, userId,
+                request.getIdentityNumber() != null ? request.getIdentityNumber().substring(0, 3) + "***" : "null");
+
         try {
-            System.out.println(request);
             if (!isValidKycRequest(request)) {
+                log.warn("KYC_VERIFY_FAILED - RequestId: {}, UserId: {}, Reason: INVALID_KYC_DATA", requestId, userId);
                 throw new IllegalArgumentException(getMessage(MessageKeys.INVALID_KYC_DATA));
             }
 
             Customer customer = customerRepository.findCustomerByUserId(userId);
-
             if (customer == null) {
+                log.warn("KYC_VERIFY_FAILED - RequestId: {}, UserId: {}, Reason: USER_NOT_FOUND", requestId, userId);
                 throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
             }
 
+            log.info("CUSTOMER_FOUND - RequestId: {}, UserId: {}, CifCode: {}, CurrentStatus: {}",
+                    requestId, userId, customer.getCifCode(), customer.getStatus());
+
             Optional<KycProfile> kycProfileOpt = kycProfileRepository.findByCustomer(customer);
             if (kycProfileOpt.isPresent() && KycStatus.VERIFIED.equals(kycProfileOpt.get().getStatus())) {
+                log.warn("KYC_VERIFY_FAILED - RequestId: {}, UserId: {}, CifCode: {}, Reason: ALREADY_VERIFIED",
+                        requestId, userId, customer.getCifCode());
                 throw new BusinessException(getMessage(MessageKeys.ACCOUNT_ALREADY_VERIFIED));
             }
 
             String errorMessage = validateCustomerData(customer, request);
             if (errorMessage != null) {
+                log.warn("KYC_DATA_VALIDATION_FAILED - RequestId: {}, UserId: {}, CifCode: {}, ValidationError: {}",
+                        requestId, userId, customer.getCifCode(), errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
+
+            log.info("KYC_DATA_VALIDATION_SUCCESS - RequestId: {}, UserId: {}, CifCode: {}",
+                    requestId, userId, customer.getCifCode());
 
             KycResponse kycResponse = kycService.verifyIdentity(
                     request.getIdentityNumber(),
@@ -803,6 +872,9 @@ public class CustomerServiceImpl implements CustomerService {
                     request.getDateOfBirth(),
                     request.getGender().toString()
             );
+
+            log.info("KYC_IDENTITY_VERIFICATION_COMPLETED - RequestId: {}, UserId: {}, CifCode: {}, IsVerified: {}",
+                    requestId, userId, customer.getCifCode(), kycResponse.isVerified());
 
             if (kycResponse.isVerified()) {
                 kycService.saveKycInfo(
@@ -813,29 +885,44 @@ public class CustomerServiceImpl implements CustomerService {
                         request.getDateOfBirth(),
                         request.getGender().toString()
                 );
+                
+                CustomerStatus oldStatus = customer.getStatus();
                 customer.setStatus(CustomerStatus.ACTIVE);
+
+                log.info("CUSTOMER_STATUS_CHANGED - RequestId: {}, UserId: {}, CifCode: {}, OldStatus: {}, NewStatus: ACTIVE",
+                        requestId, userId, customer.getCifCode(), oldStatus);
 
                 CoreCustomerDTO coreCustomerDTO = CoreCustomerDTO.builder()
                         .cifCode(customer.getCifCode())
                         .status(customer.getStatus().toString())
                         .build();
 
-                log.info("Syncing KYC status for CIF: {}", customer.getCifCode());
+                log.info("CORE_BANKING_KYC_SYNC_START - RequestId: {}, UserId: {}, CifCode: {}",
+                        requestId, userId, customer.getCifCode());
+                
                 CoreResponse coreResponse = coreBankingClient.syncCustomer(coreCustomerDTO);
-
                 if (!coreResponse.isSuccess()) {
-                    log.error("Failed to sync KYC status for CIF: {}. Error: {}", customer.getCifCode(), coreResponse.getMessage());
+                    log.error("CORE_BANKING_KYC_SYNC_FAILED - RequestId: {}, UserId: {}, CifCode: {}, Error: {}",
+                            requestId, userId, customer.getCifCode(), coreResponse.getMessage());
                     throw new BusinessException(getMessage(MessageKeys.KYC_SYNC_FAILED, coreResponse.getMessage()));
                 }
 
                 customerRepository.save(customer);
 
-                log.info("Successfully synced KYC status for CIF: {}", customer.getCifCode());
+                log.info("CORE_BANKING_KYC_SYNC_SUCCESS - RequestId: {}, UserId: {}, CifCode: {}",
+                        requestId, userId, customer.getCifCode());
+                
+                log.info("KYC_VERIFY_SUCCESS - RequestId: {}, UserId: {}, CifCode: {}, FinalStatus: ACTIVE",
+                        requestId, userId, customer.getCifCode());
+            } else {
+                log.warn("KYC_VERIFY_FAILED - RequestId: {}, UserId: {}, CifCode: {}, Reason: KYC_NOT_VERIFIED, KycMessage: {}",
+                        requestId, userId, customer.getCifCode(), kycResponse.getMessage());
             }
 
             return kycResponse;
         } catch (Exception e) {
-            log.error("KYC verification failed for customerId: {}. Error: {}", userId, e.getMessage(), e);
+            log.error("KYC_VERIFY_ERROR - RequestId: {}, UserId: {}, Error: {}",
+                    requestId, userId, e.getMessage(), e);
             throw new BusinessException(getMessage(MessageKeys.KYC_VERIFICATION_FAILED, e.getMessage()));
         }
     }

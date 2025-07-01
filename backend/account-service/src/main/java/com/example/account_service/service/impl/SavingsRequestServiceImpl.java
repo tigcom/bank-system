@@ -570,32 +570,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
      * Transfers money from source account to master account
      */
     private CommonTransactionDTO transferToMasterAccount(SavingRequestCreateDTO tempRequest) {
-        // Backup current security context before calling Dubbo service
-//        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-//        try {
-//            // Clear context to avoid JwtAuthenticationToken serialization issues with Dubbo
-//            SecurityContextHolder.clearContext();
-//            CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
-//                    CreateAccountSavingRequest.builder()
-//                            .fromAccountNumber(tempRequest.getAccountNumberSource())
-//                            .amount(tempRequest.getInitialDeposit())
-//                            .currency("VND")
-//                            .description("Gửi tiền tiết kiệm")
-//                            .build()
-//            );
-//
-//            if (!"COMPLETED".equals(transactionDTO.getStatus())) {
-//                log.error("Transaction failed with status: {}", transactionDTO.getStatus());
-//                throw new AppException(ErrorCode.TRANSACTION_FAILED);
-//            }
-//
-//            return transactionDTO;
-//        } finally {
-//            // Restore security context
-//            if (currentAuth != null) {
-//                SecurityContextHolder.getContext().setAuthentication(currentAuth);
-//            }
-//        }
+
         CommonTransactionDTO transactionDTO = commonTransactionService.createAccountSaving(
                 CreateAccountSavingRequest.builder()
                         .fromAccountNumber(tempRequest.getAccountNumberSource())

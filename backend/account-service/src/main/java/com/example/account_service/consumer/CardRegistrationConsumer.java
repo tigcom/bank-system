@@ -57,7 +57,6 @@ public class CardRegistrationConsumer {
              if ("VISA".equals(message.getCardType())) {
                  handleVisaRegistrationWithResilience4j(message);
              } else if ("MASTER".equals(message.getCardType())) {
-                 // TODO: Implement MasterCard registration with Resilience4j
                  handleMasterRegistrationWithResilience4j(message);
                  log.info("MasterCard registration not implemented yet");
 } else {

@@ -573,20 +573,17 @@ public class TransactionServiceImpl implements TransactionService{
             throw new SecurityException("Lỗi khi parse JSON token từ RpcContext", e);
         }
 
-        if (tokenValue == null || tokenValue.isEmpty()) {
-            throw new SecurityException("Không có JWT token được truyền từ service gọi");
+        if (tokenValue != null && !tokenValue.isEmpty()) {
+            Jwt jwt = jwtDecoder.decode(tokenValue);
+            AbstractAuthenticationToken tokenAuth = authConverter.convert(jwt);
+
+            if (!(tokenAuth instanceof JwtAuthenticationToken)) {
+                throw new SecurityException("Expected JwtAuthenticationToken but got "
+                        + tokenAuth.getClass().getName());
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(tokenAuth);
         }
-
-        Jwt jwt = jwtDecoder.decode(tokenValue);
-        AbstractAuthenticationToken tokenAuth = authConverter.convert(jwt);
-
-        if (!(tokenAuth instanceof JwtAuthenticationToken)) {
-            throw new SecurityException("Expected JwtAuthenticationToken but got "
-                    + tokenAuth.getClass().getName());
-        }
-
-        SecurityContextHolder.getContext().setAuthentication(tokenAuth);
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 

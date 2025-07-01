@@ -9,6 +9,7 @@ import com.example.account_service.entity.CreditRequest;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
 import com.example.common_service.dto.CreditCardDTO;
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CreditAccountResponse;
@@ -147,6 +148,14 @@ public class AccountController {
         String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
         System.out.println(token);
         return ResponseEntity.ok("Test auth with service, user: " + token);
+    }
+    @GetMapping("/get-customer/{accountNumber}")
+    public ApiResponseWrapper<CustomerDTO> getCustomerByAccountNumber(@PathVariable String accountNumber){
+        return ApiResponseWrapper.<CustomerDTO>builder()
+                .message("Thông tin khách hàng")
+                .status(HttpStatus.OK.value())
+                .data(accountService.getCustomerByAccountNumber(accountNumber))
+                .build();
     }
     @GetMapping("/getAllCreditCard")
     public ApiResponseWrapper<List<CreditCardDTO>> getAllCreditCardByCurrentCustomer() {
