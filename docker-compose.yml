@@ -44,8 +44,22 @@ services:
 #    ports:
 #      - "6379:6379"
 #    volumes:
-#      - redis-data:/data
-#    restart: unless-stopped
+  #      - redis-data:/data
+  #    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9411/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   zookeeper:
     image: zookeeper:latest
