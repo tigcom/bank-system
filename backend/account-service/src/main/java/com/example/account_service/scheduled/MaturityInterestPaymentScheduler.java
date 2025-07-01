@@ -26,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
@@ -61,7 +63,9 @@ public class MaturityInterestPaymentScheduler {
 
     @DubboReference(timeout = 5000)
     private final CommonTransactionService commonTransactionService;
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate coreBankingRestTemplate;
 
     @Scheduled(cron = "0 0 3 * * ?")
     public void processSavingsAccounts() {
@@ -191,7 +195,7 @@ public class MaturityInterestPaymentScheduler {
                         .status(account.getStatus())
                         .build();
                 String url = coreBankingBaseUrl + "/update-account-status";
-                restTemplate.postForObject(url ,request,Void.class);
+               coreBankingRestTemplate.postForObject(url ,request,Void.class);
 
             } catch (Exception e) {
                 log.error("Failed to create account in core banking system", e);
@@ -211,7 +215,7 @@ public class MaturityInterestPaymentScheduler {
     private BigDecimal getBalanceFromCorebanking(String accountNumber) {
         try {
             String url = coreBankingBaseUrl + "/get-balance-by-accountNumber/"+accountNumber;
-            ResponseEntity<BalanceResponse> response = restTemplate.exchange(
+            ResponseEntity<BalanceResponse> response = coreBankingRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -255,7 +259,7 @@ public class MaturityInterestPaymentScheduler {
             log.info("corePaymentAccountDTO: {}", coreAccount);
             // Call API save account trên CoreBanking
             String saveurl = "http://localhost:8083/corebanking/save-account";
-            restTemplate.postForObject(saveurl ,coreAccount,Void.class);
+           coreBankingRestTemplate.postForObject(saveurl ,coreAccount,Void.class);
 
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);

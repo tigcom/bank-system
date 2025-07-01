@@ -3,7 +3,6 @@ package com.example.account_service.service.impl;
 
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
-import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.CreditRequestReponse;
@@ -23,6 +22,8 @@ import com.example.common_service.services.customer.CustomerQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
@@ -30,7 +31,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
@@ -59,8 +58,13 @@ public class AccountServiceImpl implements AccountService {
     private CommonService commonService;
     @DubboReference(timeout = 5000)
     private final CustomerQueryService customerQueryService;
+    @Autowired
+    @Qualifier("restTemplateInternal")
+    private  RestTemplate restTemplateInternal;
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate coreBankingRestTemplate;
 
     private final RedisTemplate<Object, Object> redisTemplate;
 
@@ -419,7 +423,7 @@ public class AccountServiceImpl implements AccountService {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<CicResponse> response = restTemplate.postForEntity(url, entity, CicResponse.class);
+            ResponseEntity<CicResponse> response = coreBankingRestTemplate.postForEntity(url, entity, CicResponse.class);
             log.info("Response : " + response.getBody());
             return response.getBody();
         } catch (RestClientException e) {
@@ -519,7 +523,7 @@ public class AccountServiceImpl implements AccountService {
             
             log.info("KYC_CHECK_START - CifCode: {}, KycUrl: {}", cifCode, KYCurl);
             
-            ResponseEntity<KycResponse> response = restTemplate.exchange(
+            ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
                     KYCurl,
                     HttpMethod.GET,
                     null,
@@ -738,7 +742,7 @@ public class AccountServiceImpl implements AccountService {
 
             // Call API save account trên CoreBanking
             String url = coreBankingBaseUrl + "/save-account";
-            restTemplate.postForObject(url, coreAccount, Void.class);
+            coreBankingRestTemplate.postForObject(url, coreAccount, Void.class);
             
             log.info("CORE_BANKING_SYNC_SUCCESS - CifCode: {}, AccountNumber: {}, CoreBankingUrl: {}",
                     cifCode, account.getAccountNumber(), url);
@@ -922,7 +926,7 @@ public class AccountServiceImpl implements AccountService {
             
             log.debug("CORE_BANKING_BALANCE_REQUEST - AccountNumber: {}, Url: {}", accountNumber, url);
             
-            ResponseEntity<BalanceResponse> response = restTemplate.exchange(
+            ResponseEntity<BalanceResponse> response = coreBankingRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,

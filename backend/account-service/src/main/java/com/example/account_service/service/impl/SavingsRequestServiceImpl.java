@@ -27,6 +27,8 @@ import com.example.common_service.services.transactions.CommonTransactionService
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
@@ -42,6 +44,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -60,11 +63,16 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
     private final CreditRequestRepository creditRequestRepository;
     private final AccountNumberUtils accountNumberUtils;
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("restTemplateInternal")
+    private final RestTemplate restTemplateInternal;
+
     private final SavingsRequestRepository savingsRequestRepository;
     private final StreamBridge streamBridge;
     private final RedisTemplate<Object, Object> redisTemplate;
-
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate coreBankingRestTemplate;
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
 
@@ -299,7 +307,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
-            ResponseEntity<AccountSavingUpdateResponse> newresponse = restTemplate.exchange(
+            ResponseEntity<AccountSavingUpdateResponse> newresponse = coreBankingRestTemplate.exchange(
                     urlUpdate,
                     HttpMethod.PUT,
                     entity,
@@ -325,7 +333,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
-            ResponseEntity<AccountSavingUpdateResponse> newresponse = restTemplate.exchange(
+            ResponseEntity<AccountSavingUpdateResponse> newresponse = coreBankingRestTemplate.exchange(
                     urlUpdate,
                     HttpMethod.PUT,
                     entity,
@@ -480,7 +488,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     private BigDecimal getBalanceFromCorebanking(String accountNumber) {
         try {
             String url = coreBankingBaseUrl + "/get-balance-by-accountNumber/"+accountNumber;
-            ResponseEntity<BalanceResponse> response = restTemplate.exchange(
+            ResponseEntity<BalanceResponse> response = coreBankingRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -534,7 +542,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         }
         // Check kyc cua user
         String KYCurl = "http://localhost:8080/api/customers/status";
-        ResponseEntity<KycResponse> response = restTemplate.exchange(
+        ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
                 KYCurl,
                 HttpMethod.GET,
                 null,
@@ -640,7 +648,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             log.info("corePaymentAccountDTO: {}", coreAccount);
             // Call API save account trên CoreBanking
             String saveurl = "http://localhost:8083/corebanking/save-account";
-            restTemplate.postForObject(saveurl ,coreAccount,Void.class);
+            coreBankingRestTemplate.postForObject(saveurl ,coreAccount,Void.class);
 
         } catch (Exception e) {
             log.error("Failed to create account in core banking system", e);
@@ -654,7 +662,7 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             List<Term> activeTerms = termRepository.findAllActiveTermsOrderByMonths();
             return activeTerms.stream()
                     .map(this::mapToCoreTermDTO)
-                    .collect(java.util.stream.Collectors.toList());
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Failed to get terms from local database", e);
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);

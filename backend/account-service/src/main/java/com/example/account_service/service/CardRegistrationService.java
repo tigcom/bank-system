@@ -7,6 +7,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,11 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class CardRegistrationService {
-
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("MockServerRestTemplate")
+    private  RestTemplate mockServerTemplate;
 
     @Retry(name = "visa-registration", fallbackMethod = "fallbackVisaRegistration")
     @CircuitBreaker(name = "visa-registration", fallbackMethod = "fallbackVisaRegistration")
@@ -42,7 +44,7 @@ public class CardRegistrationService {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<VisaCardResponse> response = restTemplate.postForEntity(url, entity, VisaCardResponse.class);
+            ResponseEntity<VisaCardResponse> response = mockServerTemplate.postForEntity(url, entity, VisaCardResponse.class);
             
             if (response.getStatusCode().is2xxSuccessful()) {
                 VisaCardResponse responseBody = response.getBody();
@@ -105,7 +107,7 @@ public class CardRegistrationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
-        ResponseEntity<MasterCardResponse> response = restTemplate.postForEntity(url, entity, MasterCardResponse.class);
+        ResponseEntity<MasterCardResponse> response = mockServerTemplate.postForEntity(url, entity, MasterCardResponse.class);
         
         if (response.getStatusCode().is2xxSuccessful()) {
             MasterCardResponse responseBody = response.getBody();

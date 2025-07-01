@@ -30,21 +30,21 @@ mvn clean package -DskipTests
 
 echo ""
 echo "6. Starting customer-service with Zipkin tracing..."
-java "-javaagent:../../telemetry/opentelemetry-javaagent.jar" \
-     "-Dotel.service.name=customer-service" \
-     "-Dotel.traces.exporter=zipkin" \
-     "-Dotel.exporter.zipkin.endpoint=http://localhost:9411/api/v2/spans" \
-     "-Dotel.metrics.exporter=none" \
-     "-Dotel.logs.exporter=none" \
-     "-Dotel.instrumentation.logback-appender.enabled=true" \
-     "-Dotel.instrumentation.logback-mdc.add-baggage=true" \
-     "-Dotel.propagators=tracecontext,baggage,b3" \
-     "-Dotel.resource.attributes=service.name=customer-service,service.version=1.0.0" \
-     "-Dotel.instrumentation.spring-webmvc.enabled=true" \
-     "-Dotel.instrumentation.spring-web.enabled=true" \
-     "-Dotel.instrumentation.jdbc.enabled=true" \
-     "-Dotel.instrumentation.http.enabled=true" \
-     -jar target/customer-service-0.0.1-SNAPSHOT.jar
+    java "-javaagent:../../telemetry/opentelemetry-javaagent.jar" \
+        "-Dotel.service.name=customer-service" \
+        "-Dotel.traces.exporter=zipkin" \
+        "-Dotel.exporter.zipkin.endpoint=http://localhost:9411/api/v2/spans" \
+        "-Dotel.metrics.exporter=none" \
+        "-Dotel.logs.exporter=none" \
+        "-Dotel.instrumentation.logback-appender.enabled=true" \
+        "-Dotel.instrumentation.logback-mdc.add-baggage=true" \
+        "-Dotel.propagators=tracecontext,baggage,b3" \
+        "-Dotel.resource.attributes=service.name=customer-service,service.version=1.0.0" \
+        "-Dotel.instrumentation.spring-webmvc.enabled=true" \
+        "-Dotel.instrumentation.spring-web.enabled=true" \
+        "-Dotel.instrumentation.jdbc.enabled=true" \
+        "-Dotel.instrumentation.http.enabled=true" \
+        -jar target/customer-service-0.0.1-SNAPSHOT.jar
 
 echo ""
 echo "Customer Services started!"

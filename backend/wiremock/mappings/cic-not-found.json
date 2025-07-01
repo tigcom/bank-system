@@ -4,7 +4,9 @@
     "urlPath": "/api/cic/check",
     "headers": {
       "Content-Type": {
-        "equalTo": "application/json"
+        "equalTo": "application/json",
+        "equalTo": "Mock-API-Key"
+
       }
     },
     "bodyPatterns": [
