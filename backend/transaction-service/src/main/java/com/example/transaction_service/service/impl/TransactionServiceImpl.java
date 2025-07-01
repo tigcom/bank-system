@@ -29,6 +29,7 @@ import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -90,7 +91,12 @@ public class TransactionServiceImpl implements TransactionService{
     private static final Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Autowired
-    private RestTemplate restTemplate;
+    @Qualifier("coreBankRestTemplate")
+    private RestTemplate coreBankRestTemplate;
+
+    @Autowired
+    @Qualifier("mockServerRestTemplate")
+    private RestTemplate mockServerRestTemplate;
     @Override
     @Transactional
     @CacheEvict(value = "latestRecipients", key = "#transferRequest.fromAccountNumber")
@@ -168,7 +174,7 @@ public class TransactionServiceImpl implements TransactionService{
 
         transaction.setToAccountNumber(masterAccount);
 
-        //      Validate
+         //      Validate
         try{
             validateTransaction(transaction);
         }catch (RpcException rpcEx) {
@@ -330,9 +336,10 @@ public class TransactionServiceImpl implements TransactionService{
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(txn.getToAccountNumber());
 
         CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
-        CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
+
         if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,
                 TransactionType.PAY_BILL).contains(txn.getType())) {
+            CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
             MailTransactionDTO mailTransactionDTO = MailTransactionDTO.builder()
                     .name(fromCustomer.getFullName())
                     .recipientMail(fromCustomer.getEmail())
@@ -347,6 +354,7 @@ public class TransactionServiceImpl implements TransactionService{
             System.out.println("Gửi mail tới: "+fromCustomer.getFullName()+ fromCustomer.getEmail());
             streamBridge.send("mail-transaction-out-0", mailTransactionDTO);
         }else if (EnumSet.of(TransactionType.DEPOSIT).contains(txn.getType())) {
+            CustomerDTO toCustomer = customerQueryService.getCustomerByCifCode(toAccount.getCifCode());
             MailTransactionDTO mailTransactionDTO = MailTransactionDTO.builder()
                     .name(toCustomer.getFullName())
                     .recipientMail(toCustomer.getEmail())
@@ -407,7 +415,7 @@ public class TransactionServiceImpl implements TransactionService{
         } catch (AppException e) {
             throw new AppException(ErrorCode.BANK_CODE_VALID);
         }
-//        Validate thông tin giao dịch
+//      Validate thông tin giao dịch
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -435,7 +443,7 @@ public class TransactionServiceImpl implements TransactionService{
             String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
             ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
                     new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-            ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<BigDecimal>> response = coreBankRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -443,6 +451,7 @@ public class TransactionServiceImpl implements TransactionService{
                     transaction.getFromAccountNumber()
             );
             balance = response.getBody().getResult();
+            log.info("Fetched balance: {} for account {}", balance, transaction.getFromAccountNumber());
         }
         catch (Exception e) {
             throw new AppException(ErrorCode.CORE_BANKING_UNAVAILABLE);
@@ -693,7 +702,7 @@ public class TransactionServiceImpl implements TransactionService{
                 String url = URL_CORE_BANK+"/get-balance/{accountNumber}";
                 ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
                         new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
-                ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
+                ResponseEntity<ApiResponse<BigDecimal>> response = coreBankRestTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         null,
@@ -721,7 +730,7 @@ public class TransactionServiceImpl implements TransactionService{
 
             // Dùng exchange để gọi API
             ResponseEntity<ApiResponse<NapasInquiryResponse>> responseEntity =
-                    restTemplate.exchange(urlNapasInquiry, HttpMethod.POST, entity, responseType);
+                    mockServerRestTemplate.exchange(urlNapasInquiry, HttpMethod.POST, entity, responseType);
 
             ApiResponse<NapasInquiryResponse> apiResponse = responseEntity.getBody();
             if(apiResponse.getCode()==404){
@@ -760,8 +769,6 @@ public class TransactionServiceImpl implements TransactionService{
                 .recipient(fromCustomer.getEmail())
                 .recipientName(fromCustomer.getFullName())
                 .build();
-        System.out.println("OTP:"+otp);
-        System.out.println("Gửi mail OTP tới: "+fromCustomer.getFullName()+ fromCustomer.getEmail());
         streamBridge.send("mail-out-0", mailMessage);
     }
     private void processTransaction(Transaction transaction) {
@@ -779,15 +786,13 @@ public class TransactionServiceImpl implements TransactionService{
                     .build();
             String url = URL_CORE_BANK+"/perform-transaction";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(request, headers);
+            HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(request);
 //          Định nghĩa kiểu dữ liệu trả về
             ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>> responseType =
                     new ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>>() {};
 
 //          Gửi POST request
-            ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = restTemplate.exchange(
+            ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = coreBankRestTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     httpEntity,
@@ -855,16 +860,13 @@ public class TransactionServiceImpl implements TransactionService{
                         .referenceCode(transaction.getReferenceCode())
                         .build();
                 String url = URL_CORE_BANK+"/reverse-transaction";
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(reverseRequest, headers);
+                HttpEntity<TransactionRequest> httpEntity = new HttpEntity<>(reverseRequest);
 //          Định nghĩa kiểu dữ liệu trả về
                 ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>> responseType =
                         new ParameterizedTypeReference<ApiResponse<CommonTransactionDTO>>() {};
 
 //          Gửi POST request
-                ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = restTemplate.exchange(
+                ResponseEntity<ApiResponse<CommonTransactionDTO>> responseEntity = coreBankRestTemplate.exchange(
                         url,
                         HttpMethod.POST,
                         httpEntity,

@@ -1,6 +1,8 @@
 package com.example.transaction_service.client;
 
 import com.example.transaction_service.dto.response.ProviderDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +21,10 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class ProviderClient {
-    private final RestTemplate restTemplate;
+
+    @Autowired
+    @Qualifier("mockServerRestTemplate")
+    private RestTemplate mockServerRestTemplate;
 
     @Value("${mock-provider-api}")
     private String providerApiUrl;
@@ -32,7 +37,7 @@ public class ProviderClient {
                     new ParameterizedTypeReference<>() {};
             HttpEntity<String> entity = new HttpEntity<>(null);
             ResponseEntity<Map<String, List<ProviderDTO>>> responseEntity =
-                    restTemplate.exchange(url, HttpMethod.GET, entity, responseType);
+                    mockServerRestTemplate.exchange(url, HttpMethod.GET, entity, responseType);
 
             return responseEntity.getBody();
 
