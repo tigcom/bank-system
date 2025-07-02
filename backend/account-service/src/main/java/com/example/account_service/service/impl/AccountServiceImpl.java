@@ -5,38 +5,40 @@ import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
+import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
-import com.example.account_service.entity.Account;
-import com.example.account_service.entity.CreditAccount;
-import com.example.account_service.entity.CreditCardType;
-import com.example.account_service.entity.SavingsAccount;
+import com.example.account_service.entity.*;
 import com.example.account_service.exception.AppException;
 import com.example.account_service.exception.ErrorCode;
-import com.example.account_service.repository.AccountRepository;
-import com.example.account_service.repository.CreditAccountRepository;
-import com.example.account_service.repository.CreditCardTypeRepository;
-import com.example.account_service.repository.SavingsAccountRepository;
+import com.example.account_service.repository.*;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
-import com.example.common_service.dto.response.AccountPaymentResponse;
-import com.example.common_service.dto.response.AccountSummaryDTO;
-import com.example.common_service.dto.response.BalanceResponse;
-import com.example.common_service.dto.response.SavingAccountResponse;
+import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.customer.CustomerQueryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.rpc.RpcContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -44,8 +46,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 @Slf4j
@@ -55,224 +61,362 @@ public class AccountServiceImpl implements AccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final CreditAccountRepository creditAccountRepository;
     private final CreditCardTypeRepository creditCardTypeRepository;
+    private final CreditRequestRepository creditRequestRepository;
+    private final JwtDecoder jwtDecoder;
+    private final JwtAuthenticationConverter authConverter;
 
     @DubboReference(timeout = 5000)
-    private final CommonService commonService;
-
-
+    private CommonService commonService;
     @DubboReference(timeout = 5000)
     private final CustomerQueryService customerQueryService;
+    @Autowired
+    @Qualifier("restTemplateInternal")
+    private  RestTemplate restTemplateInternal;
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate coreBankingRestTemplate;
+
     private final RedisTemplate<Object, Object> redisTemplate;
+
     private final StreamBridge streamBridge;
+
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
-    @Override
-    public AccountCreateReponse createPayment() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
-        log.info("Current Customer : {}", currentCustomer);
-
-        log.info("Create payment request received");
-
-        if (currentCustomer.getStatus() == CustomerStatus.ACTIVE) {
-            Account account = Account.builder()
-                    .accountType(AccountType.PAYMENT)
-                    .cifCode(currentCustomer.getCifCode())
-                    .status(AccountStatus.ACTIVE)
-                    .build();
-            account.setAccountNumber(generateAccountNumber(account));
-            log.info("Account : " + account);
-
-            CorePaymentAccountDTO corePaymentAccountDTO = CorePaymentAccountDTO.builder()
-                    .cifCode(account.getCifCode())
-                    .accountNumber(account.getAccountNumber())
-                    .build();
-            log.info("corePaymentAccountDTO: {}", corePaymentAccountDTO);
-            //dung dubbo luu account payment len core
-//            commonServiceCore.createCoreAccountPayment(corePaymentAccountDTO);
-
-            //// dung restTemplate call API save account tren CoreBanking
-            String url = coreBankingBaseUrl+ "/create-payment-account";
-            restTemplate.postForObject(url ,corePaymentAccountDTO,Void.class);
-
-            accountRepository.save(account);
-
-            return AccountCreateReponse.builder()
-                    .accountNumber(account.getAccountNumber())
-                    .cifCode(account.getCifCode())
-                    .id(account.getId())
-                    .accountType(account.getAccountType())
-                    .status(account.getStatus())
-                    .build();
-        }
-        throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
-    }
 
     public List<AccountSummaryDTO> getAllAccountsbyCifCode() {
         // Lấy thông tin người dùng từ context bảo mật
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        log.info("User id: " + userId);
+        
+        log.info("GET_ALL_ACCOUNTS_START - UserId: {}", userId);
 
-        // Lấy thông tin khách hàng hiện tại
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        String cifCode = currentCustomer.getCifCode();
+        try {
+            // Lấy thông tin khách hàng hiện tại
+            CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+            String cifCode = currentCustomer.getCifCode();
+            
+            log.info("CUSTOMER_INFO_RETRIEVED - UserId: {}, CifCode: {}, CustomerStatus: {}",
+                    userId, cifCode, currentCustomer.getStatus());
 
-        List<AccountSummaryDTO> result = new ArrayList<>();
+            List<AccountSummaryDTO> result = new ArrayList<>();
 
-        // Lấy Payment Accounts
-        List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
-                cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
-        for (Account account : paymentAccounts) {
-            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
-            result.add(AccountSummaryDTO.builder()
-                    .accountNumber(account.getAccountNumber())
-                    .cifCode(account.getCifCode())
-                    .accountType(account.getAccountType())
-                    .balance(balance)
-                    .status(account.getStatus())
-                    .openedDate(account.getCreatedDate().toLocalDate())
-                    .build());
+            // Lấy Payment Accounts
+            List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
+                    cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
+            
+            log.info("PAYMENT_ACCOUNTS_RETRIEVED - CifCode: {}, Count: {}",
+                    cifCode, paymentAccounts.size());
+            
+            for (Account account : paymentAccounts) {
+                BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                result.add(AccountSummaryDTO.builder()
+                        .accountNumber(account.getAccountNumber())
+                        .cifCode(account.getCifCode())
+                        .accountType(account.getAccountType())
+                        .balance(balance)
+                        .status(account.getStatus())
+                        .openedDate(account.getCreatedDate().toLocalDate())
+                        .build());
+            }
+
+            // Lấy Savings Accounts
+            List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
+            
+            log.info("SAVINGS_ACCOUNTS_RETRIEVED - CifCode: {}, Count: {}",
+                    cifCode, savingsAccounts.size());
+            
+            for (SavingsAccount account : savingsAccounts) {
+                BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                result.add(AccountSummaryDTO.builder()
+                        .accountNumber(account.getAccountNumber())
+                        .cifCode(account.getCifCode())
+                        .accountType(account.getAccountType())
+                        .balance(balance)
+                        .status(account.getStatus())
+                        .openedDate(account.getCreatedDate().toLocalDate())
+                        .initialDeposit(account.getInitialDeposit())
+                        .termValueMonths(account.getTerm().getTermValueMonths())
+                        .interestRate(account.getTerm().getInterestRate())
+                        .maturityDate(account.getMaturityDate())
+                        .interestPaymentType(account.getInterestPaymentType())
+                        .renewOption(account.getRenewOption())
+                        .build());
+            }
+
+            // Lấy Credit Accounts
+            List<CreditAccount> creditAccounts = creditAccountRepository.findActiveCreditAccountsByCifCode(cifCode);
+            
+            log.info("CREDIT_ACCOUNTS_RETRIEVED - CifCode: {}, Count: {}",
+                    cifCode, creditAccounts.size());
+            
+            for (CreditAccount account : creditAccounts) {
+                BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                result.add(AccountSummaryDTO.builder()
+                        .accountNumber(account.getAccountNumber())
+                        .cifCode(account.getCifCode())
+                        .accountType(account.getAccountType())
+                        .balance(balance)
+                        .status(account.getStatus())
+                        .openedDate(account.getCreatedDate().toLocalDate())
+                        .creditLimit(account.getCreditLimit())
+                        .currentDebt(account.getCurrentDebt())
+                        .creditCardType(account.getCreditCardType().getTypeName())
+                        .build());
+            }
+
+            log.info("GET_ALL_ACCOUNTS_SUCCESS - UserId: {}, CifCode: {}, TotalAccounts: {}, PaymentAccounts: {}, SavingsAccounts: {}, CreditAccounts: {}",
+                    userId, cifCode, result.size(), paymentAccounts.size(), savingsAccounts.size(), creditAccounts.size());
+
+            return result;
+        } catch (Exception e) {
+            log.error("GET_ALL_ACCOUNTS_ERROR - UserId: {}, Error: {}",
+                    userId, e.getMessage(), e);
+            throw e;
         }
-
-        // Lấy Savings Accounts
-        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
-        for (SavingsAccount account : savingsAccounts) {
-            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
-            result.add(AccountSummaryDTO.builder()
-                    .accountNumber(account.getAccountNumber())
-                    .cifCode(account.getCifCode())
-                    .accountType(account.getAccountType())
-                    .balance(balance)
-                    .status(account.getStatus())
-                    .openedDate(account.getCreatedDate().toLocalDate())
-                    .initialDeposit(account.getInitialDeposit())
-                    .termValueMonths(account.getTerm().getTermValueMonths())
-                    .interestRate(account.getTerm().getInterestRate())
-                    .maturityDate(account.getMaturityDate())
-                    .interestPaymentType(account.getInterestPaymentType())
-                    .renewOption(account.getRenewOption())
-                    .build());
-        }
-
-        // Lấy Credit Accounts
-        List<CreditAccount> creditAccounts = creditAccountRepository.findActiveCreditAccountsByCifCode(cifCode);
-        for (CreditAccount account : creditAccounts) {
-            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
-            result.add(AccountSummaryDTO.builder()
-                    .accountNumber(account.getAccountNumber())
-                    .cifCode(account.getCifCode())
-                    .accountType(account.getAccountType())
-                    .balance(balance)
-                    .status(account.getStatus())
-                    .openedDate(account.getCreatedDate().toLocalDate())
-                    .creditLimit(account.getCreditLimit())
-                    .currentDebt(account.getCurrentDebt())
-                    .creditCardType(account.getCreditCardType().getTypeName())
-                    .build());
-        }
-
-        return result;
     }
 
     @Override
     public List<AccountPaymentResponse> getAllPaymentAccountsbyCifCode() {
+        String tokenValue = "";
+
+        try {
+            Object authObject = RpcContext.getContext().getObjectAttachment("security_authentication_context");
+            if (authObject != null) {
+                String authJson = authObject.toString();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(authJson);
+                tokenValue = root.path("token").path("tokenValue").asText();
+            }
+        } catch (JsonProcessingException e) {
+            throw new SecurityException("Lỗi khi parse JSON token từ RpcContext", e);
+        }
+
+        if (tokenValue != null && !tokenValue.isEmpty()) {
+            Jwt jwt = jwtDecoder.decode(tokenValue);
+            AbstractAuthenticationToken tokenAuth = authConverter.convert(jwt);
+
+            if (!(tokenAuth instanceof JwtAuthenticationToken)) {
+                throw new SecurityException("Expected JwtAuthenticationToken but got "
+                        + tokenAuth.getClass().getName());
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(tokenAuth);
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        log.info("User id: " + userId);
+        
+        log.info("GET_PAYMENT_ACCOUNTS_START - UserId: {}", userId);
 
-        // Lấy thông tin khách hàng hiện tại
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        // check trang thai cua  Customer trươc
-        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
-            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        try {
+            // Lấy thông tin khách hàng hiện tại
+            CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+            
+            log.info("CUSTOMER_INFO_RETRIEVED - UserId: {}, CifCode: {}, CustomerStatus: {}",
+                    userId, currentCustomer.getCifCode(), currentCustomer.getStatus());
+            
+            // check trang thai cua Customer trươc
+            if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+                log.warn("GET_PAYMENT_ACCOUNTS_FAILED - UserId: {}, CifCode: {}, Reason: CUSTOMER_NOT_ACTIVE",
+                        userId, currentCustomer.getCifCode());
+                throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+            }
+            
+            String cifCode = currentCustomer.getCifCode();
+
+            // Lấy Payment Accounts từ local database
+            List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
+                    cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
+
+            log.info("PAYMENT_ACCOUNTS_FOUND - UserId: {}, CifCode: {}, Count: {}",
+                    userId, cifCode, paymentAccounts.size());
+
+            // Kết hợp thông tin local với balance từ Core Banking
+            List<AccountPaymentResponse> result = paymentAccounts.stream()
+                    .map(account -> {
+                        BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                        log.debug("ACCOUNT_BALANCE_RETRIEVED - AccountNumber: {}, Balance: {}",
+                                account.getAccountNumber(), balance);
+                        return AccountPaymentResponse.builder()
+                                .accountNumber(account.getAccountNumber())
+                                .cifCode(account.getCifCode())
+                                .accountType(account.getAccountType())
+                                .balance(balance)
+                                .status(account.getStatus())
+                                .openedDate(account.getCreatedDate().toLocalDate())
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("GET_PAYMENT_ACCOUNTS_SUCCESS - UserId: {}, CifCode: {}, TotalAccounts: {}",
+                    userId, cifCode, result.size());
+
+            return result;
+        } catch (Exception e) {
+            log.error("GET_PAYMENT_ACCOUNTS_ERROR - UserId: {}, Error: {}",
+                    userId, e.getMessage(), e);
+            throw e;
         }
-        String cifCode = currentCustomer.getCifCode();
-
-        // Lấy Payment Accounts từ local database
-        List<Account> paymentAccounts = accountRepository.findByCifCodeAndAccountTypeAndStatus(
-                cifCode, AccountType.PAYMENT, AccountStatus.ACTIVE);
-
-        // Kết hợp thông tin local với balance từ Core Banking
-        return paymentAccounts.stream()
-                .map(account -> {
-                    BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
-                    return AccountPaymentResponse.builder()
-                            .accountNumber(account.getAccountNumber())
-                            .cifCode(account.getCifCode())
-                            .accountType(account.getAccountType())
-                            .balance(balance)
-                            .status(account.getStatus())
-                            .openedDate(account.getCreatedDate().toLocalDate())
-                            .build();
-                })
-                .collect(Collectors.toList());
     }
 
     @Override
-    public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
-        Account account = accountRepository.findByAccountNumber(accountNumber);
-        if(account==null) throw new AppException(ErrorCode.USER_NOTEXISTED);
-        return customerQueryService.getCustomerByCifCode(account.getCifCode());
-    }
-
-
     public AccountPaymentResponse getAccountPaymentbyID(String id) {
-        // Lấy thông tin account từ local database
-        Account account = accountRepository.findByAccountNumber(id);
-        if (account == null) {
-            throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        log.info("GET_PAYMENT_ACCOUNT_BY_ID_START - AccountNumber: {}", id);
+
+        try {
+            // Lấy thông tin account từ local database
+            Account account = accountRepository.findByAccountNumber(id);
+            if (account == null) {
+                log.warn("GET_PAYMENT_ACCOUNT_BY_ID_FAILED - AccountNumber: {}, Reason: ACCOUNT_NOT_FOUND",
+                        id);
+                throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+            }
+
+            log.info("ACCOUNT_FOUND - AccountNumber: {}, CifCode: {}, AccountType: {}, Status: {}",
+                    id, account.getCifCode(), account.getAccountType(), account.getStatus());
+
+            // Lấy balance từ Core Banking
+            BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+            
+            log.info("ACCOUNT_BALANCE_RETRIEVED - AccountNumber: {}, Balance: {}",
+                    account.getAccountNumber(), balance);
+
+            // Kết hợp thông tin
+            AccountPaymentResponse response = AccountPaymentResponse.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(account.getCifCode())
+                    .accountType(account.getAccountType())
+                    .balance(balance)
+                    .status(account.getStatus())
+                    .openedDate(account.getCreatedDate().toLocalDate())
+                    .build();
+
+            log.info("GET_PAYMENT_ACCOUNT_BY_ID_SUCCESS - AccountNumber: {}, CifCode: {}",
+                    id, account.getCifCode());
+
+            return response;
+        } catch (Exception e) {
+            log.error("GET_PAYMENT_ACCOUNT_BY_ID_ERROR - AccountNumber: {}, Error: {}",
+                    id, e.getMessage(), e);
+            throw e;
         }
-
-        // Lấy balance từ Core Banking
-        BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
-
-        // Kết hợp thông tin
-        return AccountPaymentResponse.builder()
-                .accountNumber(account.getAccountNumber())
-                .cifCode(account.getCifCode())
-                .accountType(account.getAccountType())
-                .balance(balance)
-                .status(account.getStatus())
-                .openedDate(account.getCreatedDate().toLocalDate())
-                .build();
     }
 
     @Override
     public List<SavingAccountResponse> getAllSavingAccountbyCifCode() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        log.info("User id: " + userId);
+        
+        log.info("GET_SAVING_ACCOUNTS_START - UserId: {}", userId);
 
+        try {
+            // Lấy thông tin khách hàng hiện tại
+            CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+            String cifCode = currentCustomer.getCifCode();
+
+            log.info("CUSTOMER_INFO_RETRIEVED - UserId: {}, CifCode: {}, CustomerStatus: {}",
+                    userId, cifCode, currentCustomer.getStatus());
+
+            // Lấy Savings Accounts từ local database
+            List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
+
+            log.info("SAVINGS_ACCOUNTS_FOUND - UserId: {}, CifCode: {}, Count: {}",
+                    userId, cifCode, savingsAccounts.size());
+
+            // Kết hợp thông tin local với balance từ Core Banking
+            List<SavingAccountResponse> result = savingsAccounts.stream()
+                    .map(account -> {
+                        BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                        log.debug("SAVINGS_ACCOUNT_BALANCE_RETRIEVED - AccountNumber: {}, Balance: {}",
+                                account.getAccountNumber(), balance);
+                        return SavingAccountResponse.builder()
+                                .status(account.getStatus().name())
+                                .accountNumber(account.getAccountNumber())
+                                .cifCode(account.getCifCode())
+                                .accountType(account.getAccountType().name())
+                                .balance(balance)   
+                                .initialDeposit(account.getInitialDeposit())
+                                .termValueMonths(account.getTerm().getTermValueMonths())
+                                .interestRate(account.getTerm().getInterestRate())
+                                .openedDate(account.getCreatedDate().toLocalDate())
+                                .maturityDate(account.getMaturityDate())
+                                .interestPaymentType(account.getInterestPaymentType())
+                                .renewOption(account.getRenewOption())
+                                .accountNumberSrc(account.getAccountNumber())
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("GET_SAVING_ACCOUNTS_SUCCESS - UserId: {}, CifCode: {}, TotalAccounts: {}",
+                    userId, cifCode, result.size());
+
+            return result;
+        } catch (Exception e) {
+            log.error("GET_SAVING_ACCOUNTS_ERROR - UserId: {}, Error: {}",
+                    userId, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public List<CreditAccountResponse> getAllCreditAccountbyCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
         String cifCode = currentCustomer.getCifCode();
-
         // Lấy Savings Accounts từ local database
-        List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
-
-        // Kết hợp thông tin local với balance từ Core Banking
-        return savingsAccounts.stream()
+        List<CreditAccount> creditAccounts = creditAccountRepository.findActiveCreditAccountsByCifCode(cifCode);
+        return creditAccounts.stream()
                 .map(account -> {
                     BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
-                    return SavingAccountResponse.builder()
+                    return CreditAccountResponse.builder()
                             .status(account.getStatus().name())
                             .accountNumber(account.getAccountNumber())
                             .cifCode(account.getCifCode())
                             .accountType(account.getAccountType().name())
                             .balance(balance)
-                            .initialDeposit(account.getInitialDeposit())
-                            .termValueMonths(account.getTerm().getTermValueMonths())
-                            .interestRate(account.getTerm().getInterestRate())
+                            .imageUrl(account.getCreditCardType().getImageUrl())
+                            .creditLimit(account.getCreditLimit())
+                            .currentDebt(account.getCurrentDebt())
                             .openedDate(account.getCreatedDate().toLocalDate())
-                            .maturityDate(account.getMaturityDate())
-                            .interestPaymentType(account.getInterestPaymentType())
-                            .renewOption(account.getRenewOption())
+                            .typeName(account.getCreditCardType().getTypeName())
+                            .cardID(account.getCreditCardType().getId())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CreditAccountResponse> getAllCreditAccountNonbyCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        log.info("User id: " + userId);
+        // Lấy thông tin khách hàng hiện tại
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+        }
+        String cifCode = currentCustomer.getCifCode();
+        // Lấy Savings Accounts từ local database
+        List<CreditAccount> creditAccounts = creditAccountRepository.findCreditAccountsByCifCode(cifCode);
+        return creditAccounts.stream()
+                .map(account -> {
+                    return CreditAccountResponse.builder()
+                            .status(account.getStatus().name())
+                            .accountNumber(account.getAccountNumber())
+                            .cifCode(account.getCifCode())
+                            .accountType(account.getAccountType().name())
+                            .imageUrl(account.getCreditCardType().getImageUrl())
+                            .creditLimit(account.getCreditLimit())
+                            .currentDebt(account.getCurrentDebt())
+                            .openedDate(account.getCreatedDate().toLocalDate())
+                            .typeName(account.getCreditCardType().getTypeName())
+                            .cardID(account.getCreditCardType().getId())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -315,7 +459,7 @@ public class AccountServiceImpl implements AccountService {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
 
         try {
-            ResponseEntity<CicResponse> response = restTemplate.postForEntity(url, entity, CicResponse.class);
+            ResponseEntity<CicResponse> response = coreBankingRestTemplate.postForEntity(url, entity, CicResponse.class);
             log.info("Response : " + response.getBody());
             return response.getBody();
         } catch (RestClientException e) {
@@ -324,161 +468,337 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+
     @Override
     public PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest) {
-        log.info("Tạo tài khoản  bắt đầu");
+        String cifCode = paymentRequest.getCifCode();
+        
+        log.info("CREATE_PAYMENT_INIT_START - CifCode: {}", cifCode);
 
-        return createPaymentAccountDirectly(paymentRequest.getCifCode());
+        try {
+            CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
+            if (customer == null) {
+                log.warn("CREATE_PAYMENT_INIT_FAILED - CifCode: {}, Reason: CUSTOMER_NOT_FOUND", cifCode);
+                throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+            }
+            
+            log.info("CUSTOMER_FOUND - CifCode: {}, CustomerStatus: {}", cifCode, customer.getStatus());
+
+            // Check trạng thái customer
+            if (customer.getStatus() != CustomerStatus.ACTIVE) {
+                log.warn("CREATE_PAYMENT_INIT_FAILED - CifCode: {}, CustomerStatus: {}, Reason: CUSTOMER_NOT_ACTIVE",
+                        cifCode, customer.getStatus());
+                throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+            }
+
+            PaymentRequestResponse response = createPaymentAccountDirectly(cifCode);
+            
+            log.info("CREATE_PAYMENT_INIT_SUCCESS - CifCode: {}, AccountNumber: {}, Status: {}",
+                    cifCode, response.getId(), response.getStatus());
+
+            return response;
+        } catch (Exception e) {
+            log.error("CREATE_PAYMENT_INIT_ERROR - CifCode: {}, Error: {}", cifCode, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
+    public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber);
+        if(account==null) throw new AppException(ErrorCode.USER_NOTEXISTED);
+        return customerQueryService.getCustomerByCifCode(account.getCifCode());
+    }
+
+    @Override
+    public List<CreditRequestReponse> getAllCreditRequestPending() {
+        List<CreditRequest> list = creditRequestRepository.findAllByStatus();
+
+        return list.stream()
+                .map(this::maptoCreditRequestReponse)
+                .collect(Collectors.toList());
+    }
+    private CreditRequestReponse maptoCreditRequestReponse(CreditRequest creditRequest) {
+        CreditRequestReponse creditRequestReponse = CreditRequestReponse.builder()
+                .id(creditRequest.getId())
+                .status(creditRequest.getStatus())
+                .cartTypeId(creditRequest.getCartTypeId())
+                .monthlyIncome(creditRequest.getMonthlyIncome())
+                .occupation(creditRequest.getOccupation())
+                .cifCode(creditRequest.getCifCode())
+                .reason(creditRequest.getReason())
+                .accountNumber(creditRequest.getAccountNumber())
+                .build();
+        return creditRequestReponse;
+    }
+
+
+    @Override
     public PaymentRequestResponse createPaymentRequest(String cifCode) {
-        log.info("Starting createPaymentRequest with cifCode: {}", cifCode);
+        log.info("CREATE_PAYMENT_REQUEST_START - CifCode: {}", cifCode);
 
-        // Lấy thông tin customer theo cifCode
-        CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
-        if (customer == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
-        }
+        try {
+            // Lấy thông tin customer theo cifCode
+            CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
+            if (customer == null) {
+                log.warn("CREATE_PAYMENT_REQUEST_FAILED - CifCode: {}, Reason: CUSTOMER_NOT_FOUND", cifCode);
+                throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+            }
+            
+            log.info("CUSTOMER_FOUND - CifCode: {}, CustomerStatus: {}", cifCode, customer.getStatus());
 
-        // Check trạng thái customer
-        if (customer.getStatus() != CustomerStatus.ACTIVE) {
-            throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
-        }
+            // Check trạng thái customer
+            if (customer.getStatus() != CustomerStatus.ACTIVE) {
+                log.warn("CREATE_PAYMENT_REQUEST_FAILED - CifCode: {}, CustomerStatus: {}, Reason: CUSTOMER_NOT_ACTIVE",
+                        cifCode, customer.getStatus());
+                throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+            }
 
-        // Kiểm tra xem customer đã có tài khoản payment nào chưa
-        List<AccountPaymentResponse> existingPaymentAccounts = getAllPaymentAccountsbyCifCode();
+            //check kyc cua khach hang
+            String KYCurl = "http://localhost:8080/api/customers/status";
+            
+            log.info("KYC_CHECK_START - CifCode: {}, KycUrl: {}", cifCode, KYCurl);
+            
+            ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
+                    KYCurl,
+                    HttpMethod.GET, 
+                    null,
+                    new ParameterizedTypeReference<KycResponse>() {}
+            );
+            
+            if (!response.getBody().isVerified()) {
+                log.warn("CREATE_PAYMENT_REQUEST_FAILED - CifCode: {}, Reason: KYC_NOT_VERIFIED", cifCode);
+                throw new AppException(ErrorCode.KYC_INVALID);
+            }
+            
+            log.info("KYC_CHECK_SUCCESS - CifCode: {}, KycVerified: true", cifCode);
 
-        if (existingPaymentAccounts.isEmpty()) {
-            // Lần đầu tạo tài khoản payment - tạo luôn không cần OTP
-            log.info("First time creating payment account for cifCode: {}. Creating directly without OTP.", cifCode);
-            return createPaymentAccountDirectly(cifCode);
-        } else {
-            // Đã có tài khoản payment - cần OTP
-            log.info("Customer already has payment accounts. Requiring OTP verification.");
-            return createPaymentRequestWithOtp(cifCode);
+            PaymentRequestResponse result = createPaymentRequestWithOtp(cifCode);
+            
+            log.info("CREATE_PAYMENT_REQUEST_SUCCESS - CifCode: {}, TempRequestId: {}, Status: {}",
+                    cifCode, result.getId(), result.getStatus());
+
+            return result;
+        } catch (Exception e) {
+            log.error("CREATE_PAYMENT_REQUEST_ERROR - CifCode: {}, Error: {}", cifCode, e.getMessage(), e);
+            throw e;
         }
     }
 
     @Override
     public AccountCreateReponse confirmOtpAndCreatePayment(PaymentConfirmOtpDTO paymentConfirmOtpDTO) {
-        log.info("Confirming OTP and creating payment account: {}", paymentConfirmOtpDTO.getPaymentRequestId());
+        String tempRequestId = paymentConfirmOtpDTO.getPaymentRequestId();
+        
+        log.info("CONFIRM_OTP_CREATE_PAYMENT_START - TempRequestId: {}", tempRequestId);
 
-        // Validate OTP
-        PaymentCreateDTO tempRequest = validateOTPAndGetTempRequest(paymentConfirmOtpDTO);
+        try {
+            // Validate OTP
+            PaymentCreateDTO tempRequest = validateOTPAndGetTempRequest(paymentConfirmOtpDTO);
 
-        // Lấy thông tin customer
-        String cifCode = extractCifFromTempKey(paymentConfirmOtpDTO.getPaymentRequestId());
-        log.info("Creating payment account for CIF Code: {}", cifCode);
-        CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+            // Lấy thông tin customer
+            String cifCode = extractCifFromTempKey(tempRequestId);
+            
+            log.info("CIF_CODE_EXTRACTED - TempRequestId: {}, CifCode: {}", tempRequestId, cifCode);
+            
+            CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+            
+            log.info("CUSTOMER_RETRIEVED - CifCode: {}, CustomerName: {}", cifCode, customerDTO.getFullName());
 
-        // Tạo Payment Account
-        AccountCreateReponse response = createPaymentAccountForCustomer(cifCode);
+            // Tạo Payment Account
+            AccountCreateReponse response = createPaymentAccountForCustomer(cifCode);
 
-        // Cleanup temp data
-        redisTemplate.delete(paymentConfirmOtpDTO.getPaymentRequestId());
-        redisTemplate.delete("OTP:PAYMENT:" + paymentConfirmOtpDTO.getPaymentRequestId());
+            // Cleanup temp data
+            redisTemplate.delete(tempRequestId);
+            redisTemplate.delete("OTP:PAYMENT:" + tempRequestId);
+            
+            log.info("TEMP_DATA_CLEANED - TempRequestId: {}, RedisKeysDeleted: 2", tempRequestId);
 
-        log.info("Payment account created successfully: {}", response.getAccountNumber());
-        return response;
+            log.info("CONFIRM_OTP_CREATE_PAYMENT_SUCCESS - TempRequestId: {}, CifCode: {}, AccountNumber: {}",
+                    tempRequestId, cifCode, response.getAccountNumber());
+            
+            return response;
+        } catch (Exception e) {
+            log.error("CONFIRM_OTP_CREATE_PAYMENT_ERROR - TempRequestId: {}, Error: {}",
+                    tempRequestId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
     public void resendPaymentOtp(String tempRequestKey) {
-        log.info("Resending OTP for temp request key: {}", tempRequestKey);
+        log.info("RESEND_PAYMENT_OTP_START - TempRequestKey: {}", tempRequestKey);
 
-        // Kiểm tra temp request có tồn tại không
-        Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
-        if (tempRequest == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND); // Sử dụng error code có sẵn
+        try {
+            // Kiểm tra temp request có tồn tại không
+            Object tempRequest = redisTemplate.opsForValue().get(tempRequestKey);
+            if (tempRequest == null) {
+                log.warn("RESEND_PAYMENT_OTP_FAILED - TempRequestKey: {}, Reason: TEMP_REQUEST_NOT_FOUND", tempRequestKey);
+                throw new AppException(ErrorCode.UNCATERROR_ERROR);
+            }
+
+            log.info("TEMP_REQUEST_EXISTS - TempRequestKey: {}", tempRequestKey);
+
+            // Lấy thông tin customer từ temp key
+            String cifCode = extractCifFromTempKey(tempRequestKey);
+            
+            log.info("CIF_CODE_EXTRACTED - TempRequestKey: {}, CifCode: {}", tempRequestKey, cifCode);
+            
+            CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
+
+            if (customerDTO == null) {
+                log.warn("RESEND_PAYMENT_OTP_FAILED - TempRequestKey: {}, CifCode: {}, Reason: CUSTOMER_NOT_FOUND", 
+                        tempRequestKey, cifCode);
+                throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+            }
+
+            log.info("CUSTOMER_FOUND - TempRequestKey: {}, CifCode: {}, CustomerName: {}", 
+                    tempRequestKey, cifCode, customerDTO.getFullName());
+
+            String otp = generateAndStoreOTP(tempRequestKey);
+            sendOTPEmail(customerDTO, otp);
+
+            log.info("RESEND_PAYMENT_OTP_SUCCESS - TempRequestKey: {}, CifCode: {}, Email: {}", 
+                    tempRequestKey, cifCode, customerDTO.getEmail());
+        } catch (Exception e) {
+            log.error("RESEND_PAYMENT_OTP_ERROR - TempRequestKey: {}, Error: {}", 
+                    tempRequestKey, e.getMessage(), e);
+            throw e;
         }
-
-        // Lấy thông tin customer từ temp key
-        String cifCode = extractCifFromTempKey(tempRequestKey);
-        log.info("Resending OTP for payment request. CIF code: {}", cifCode);
-        CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-
-        if (customerDTO == null) {
-            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
-        }
-
-        String otp = generateAndStoreOTP(tempRequestKey);
-        sendOTPEmail(customerDTO, otp);
-
-        log.info("OTP resent successfully for temp request: {}", tempRequestKey);
     }
 
-
     private PaymentRequestResponse createPaymentAccountDirectly(String cifCode) {
-        // Tạo account luôn không cần OTP
-        AccountCreateReponse account = createPaymentAccountForCustomer(cifCode);
+        log.info("CREATE_PAYMENT_ACCOUNT_DIRECTLY_START - CifCode: {}", cifCode);
+        
+        try {
+            // Tạo account luôn không cần OTP
+            AccountCreateReponse account = createPaymentAccountForCustomer(cifCode);
 
-        return PaymentRequestResponse.builder()
-                .id(account.getId())
-                .cifCode(cifCode)
-                .accountType(AccountType.PAYMENT)
-                .status(PaymentRequestResponse.PaymentRequestStatus.APPROVED)
-                .build();
+            PaymentRequestResponse response = PaymentRequestResponse.builder()
+                    .id(account.getId())
+                    .cifCode(cifCode)
+                    .accountType(AccountType.PAYMENT)
+                    .status(PaymentRequestResponse.PaymentRequestStatus.APPROVED)
+                    .build();
+
+            log.info("CREATE_PAYMENT_ACCOUNT_DIRECTLY_SUCCESS - CifCode: {}, AccountNumber: {}",
+                    cifCode, account.getAccountNumber());
+
+            return response;
+        } catch (Exception e) {
+            log.error("CREATE_PAYMENT_ACCOUNT_DIRECTLY_ERROR - CifCode: {}, Error: {}",
+                    cifCode, e.getMessage(), e);
+            throw e;
+        }
     }
 
     private PaymentRequestResponse createPaymentRequestWithOtp(String cifCode) {
-        // Tạo temporary key để lưu thông tin request trước khi verify OTP
-        String tempRequestKey = "TEMP_PAYMENT_REQUEST:" + cifCode + ":" + System.currentTimeMillis();
+        log.info("CREATE_PAYMENT_REQUEST_WITH_OTP_START - CifCode: {}", cifCode);
 
-        // Lưu thông tin request vào Redis (expire sau 1 giờ)
-        PaymentCreateDTO tempRequest = PaymentCreateDTO.builder()
-                .cifCode(cifCode)
-                .build();
+        try {
+            // Tạo temporary key để lưu thông tin request trước khi verify OTP
+            String tempRequestKey = "TEMP_PAYMENT_REQUEST:" + cifCode + ":" + System.currentTimeMillis();
 
-        redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
+            log.info("TEMP_REQUEST_KEY_GENERATED - CifCode: {}, TempKey: {}", cifCode, tempRequestKey);
 
-        // Lấy thông tin customer để gửi OTP
-        CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
+            // Lưu thông tin request vào Redis (expire sau 1 giờ)
+            PaymentCreateDTO tempRequest = PaymentCreateDTO.builder()
+                    .cifCode(cifCode)
+                    .build();
 
-        // Tạo và gửi OTP
-        String otp = generateAndStoreOTP(tempRequestKey);
-        sendOTPEmail(customer, otp);
+            redisTemplate.opsForValue().set(tempRequestKey, tempRequest, Duration.ofMinutes(60));
+            
+            log.info("TEMP_REQUEST_STORED_REDIS - CifCode: {}, TempKey: {}, ExpiryMinutes: 60",
+                    cifCode, tempRequestKey);
 
-        log.info("OTP sent for payment request creation. Temp key: {}", tempRequestKey);
+            // Lấy thông tin customer để gửi OTP
+            CustomerDTO customer = commonService.getCustomerByCifCode(cifCode);
 
-        // Trả về response với temp key để client có thể confirm OTP
-        return PaymentRequestResponse.builder()
-                .id(tempRequestKey)
-                .cifCode(cifCode)
-                .accountType(AccountType.PAYMENT)
-                .status(PaymentRequestResponse.PaymentRequestStatus.PENDING)
-                .build();
+            // Tạo và gửi OTP
+            String otp = generateAndStoreOTP(tempRequestKey);
+            sendOTPEmail(customer, otp);
+
+            log.info("OTP_PROCESS_COMPLETED - CifCode: {}, TempKey: {}, EmailSent: true",
+                    cifCode, tempRequestKey);
+
+            // Trả về response với temp key để client có thể confirm OTP
+            PaymentRequestResponse response = PaymentRequestResponse.builder()
+                    .id(tempRequestKey)
+                    .cifCode(cifCode)
+                    .accountType(AccountType.PAYMENT)
+                    .status(PaymentRequestResponse.PaymentRequestStatus.PENDING)
+                    .build();
+
+            log.info("CREATE_PAYMENT_REQUEST_WITH_OTP_SUCCESS - CifCode: {}, TempKey: {}, Status: PENDING",
+                    cifCode, tempRequestKey);
+
+            return response;
+        } catch (Exception e) {
+            log.error("CREATE_PAYMENT_REQUEST_WITH_OTP_ERROR - CifCode: {}, Error: {}",
+                    cifCode, e.getMessage(), e);
+            throw e;
+        }
     }
 
     private AccountCreateReponse createPaymentAccountForCustomer(String cifCode) {
-        Account account = Account.builder()
-                .accountType(AccountType.PAYMENT)
-                .cifCode(cifCode)
-                .status(AccountStatus.ACTIVE)
-                .build();
-        account.setAccountNumber(generateAccountNumber(account));
-        log.info("Account : " + account);
-        accountRepository.save(account);
-        CoreAccountRequest coreAccount = CoreAccountRequest.builder()
-                .accountNumber(account.getAccountNumber())
-                .cifCode(cifCode)
-                .balance(BigDecimal.ZERO)
-                .accountType(account.getAccountType())
-                .status(AccountStatus.ACTIVE)
-                .build();
-        log.info("corePaymentAccountDTO: {}", coreAccount);
+        log.info("CREATE_PAYMENT_ACCOUNT_FOR_CUSTOMER_START - CifCode: {}", cifCode);
 
-        // Call API save account trên CoreBanking
-        String url = "http://localhost:8083/corebanking/save-account";
-        restTemplate.postForObject(url ,coreAccount,Void.class);
+        try {
+            Account account = Account.builder()
+                    .accountType(AccountType.PAYMENT)
+                    .cifCode(cifCode)
+                    .status(AccountStatus.ACTIVE)
+                    .build();
+            
+            String number;
+            do {
+                number = generateAccountNumber(account);
+            } while (accountRepository.existsAccountsByAccountNumber(number));
+            
+            account.setAccountNumber(number);
+            
+            log.info("ACCOUNT_NUMBER_GENERATED - CifCode: {}, AccountNumber: {}, AccountType: {}",
+                    cifCode, number, AccountType.PAYMENT);
+            
+            accountRepository.save(account);
+            
+            log.info("ACCOUNT_SAVED_LOCAL - CifCode: {}, AccountNumber: {}, AccountId: {}",
+                    cifCode, account.getAccountNumber(), account.getId());
 
-        return AccountCreateReponse.builder()
-                .accountNumber(account.getAccountNumber())
-                .cifCode(account.getCifCode())
-                .id(account.getId())
-                .accountType(account.getAccountType())
-                .status(account.getStatus())
-                .build();
+            CoreAccountRequest coreAccount = CoreAccountRequest.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(cifCode)
+                    .balance(BigDecimal.ZERO)
+                    .accountType(account.getAccountType())
+                    .status(AccountStatus.ACTIVE)
+                    .build();
+            
+            log.info("CORE_BANKING_SYNC_START - CifCode: {}, AccountNumber: {}, Balance: {}",
+                    cifCode, account.getAccountNumber(), BigDecimal.ZERO);
+
+            // Call API save account trên CoreBanking
+            String url = coreBankingBaseUrl + "/save-account";
+            coreBankingRestTemplate.postForObject(url, coreAccount, Void.class);
+            
+            log.info("CORE_BANKING_SYNC_SUCCESS - CifCode: {}, AccountNumber: {}, CoreBankingUrl: {}",
+                    cifCode, account.getAccountNumber(), url);
+
+            AccountCreateReponse response = AccountCreateReponse.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .cifCode(account.getCifCode())
+                    .id(account.getId())
+                    .accountType(account.getAccountType())
+                    .status(account.getStatus())
+                    .build();
+
+            log.info("CREATE_PAYMENT_ACCOUNT_FOR_CUSTOMER_SUCCESS - CifCode: {}, AccountNumber: {}, AccountId: {}",
+                    cifCode, account.getAccountNumber(), account.getId());
+
+            return response;
+        } catch (Exception e) {
+            log.error("CREATE_PAYMENT_ACCOUNT_FOR_CUSTOMER_ERROR - CifCode: {}, Error: {}",
+                    cifCode, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -497,29 +817,44 @@ public class AccountServiceImpl implements AccountService {
      * Validates OTP and returns the payment request if valid
      */
     private PaymentCreateDTO validateOTPAndGetTempRequest(PaymentConfirmOtpDTO confirmOtpDTO) {
-        String keyOTP = "OTP:PAYMENT:" + confirmOtpDTO.getPaymentRequestId();
-        log.info("keyOTP: {}", keyOTP);
-        String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
-        log.info("storedOtp: {}", storedOtp);
-        log.info("Validating OTP for temp request: {}", confirmOtpDTO.getPaymentRequestId());
+        String tempRequestId = confirmOtpDTO.getPaymentRequestId();
+        String keyOTP = "OTP:PAYMENT:" + tempRequestId;
+        String providedOtp = confirmOtpDTO.getOtpCode();
+        
+        log.info("OTP_VALIDATION_START - TempRequestId: {}, OtpKey: {}", tempRequestId, keyOTP);
+
+        try {
+            String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
+            
+            log.info("OTP_RETRIEVED_FROM_REDIS - TempRequestId: {}, OtpExists: {}", tempRequestId, storedOtp != null);
 
             if (storedOtp == null) {
-                throw new AppException(ErrorCode.OTP_EXPIRED); // Sử dụng error code có sẵn thay vì OTP_EXPIRED
+                log.warn("OTP_VALIDATION_FAILED - TempRequestId: {}, Reason: OTP_EXPIRED", tempRequestId);
+                throw new AppException(ErrorCode.OTP_EXPIRED);
             }
 
-        if (!storedOtp.equals(confirmOtpDTO.getOtpCode())) {
-            handleOTPFailure(confirmOtpDTO.getPaymentRequestId());
-            throw new AppException(ErrorCode.INVALID_OTP); // Sử dụng error code có sẵn thay vì INVALID_OTP
-        }
+            if (!storedOtp.equals(providedOtp)) {
+                log.warn("OTP_VALIDATION_FAILED - TempRequestId: {}, Reason: INVALID_OTP", tempRequestId);
+                handleOTPFailure(tempRequestId);
+                throw new AppException(ErrorCode.INVALID_OTP);
+            }
 
-        // Lấy temp request
-        PaymentCreateDTO tempRequest = (PaymentCreateDTO) redisTemplate.opsForValue().get(confirmOtpDTO.getPaymentRequestId());
-        if (tempRequest == null) {
-            throw new AppException(ErrorCode.UNCATERROR_ERROR);
-        }
+            log.info("OTP_VALIDATION_SUCCESS - TempRequestId: {}", tempRequestId);
 
-        log.info("OTP validated successfully for temp request: {}", confirmOtpDTO.getPaymentRequestId());
-        return tempRequest;
+            // Lấy temp request
+            PaymentCreateDTO tempRequest = (PaymentCreateDTO) redisTemplate.opsForValue().get(tempRequestId);
+            if (tempRequest == null) {
+                log.warn("TEMP_REQUEST_NOT_FOUND - TempRequestId: {}, Reason: TEMP_REQUEST_EXPIRED", tempRequestId);
+                throw new AppException(ErrorCode.UNCATERROR_ERROR);
+            }
+
+            log.info("TEMP_REQUEST_RETRIEVED - TempRequestId: {}, CifCode: {}", tempRequestId, tempRequest.getCifCode());
+
+            return tempRequest;
+        } catch (Exception e) {
+            log.error("OTP_VALIDATION_ERROR - TempRequestId: {}, Error: {}", tempRequestId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -527,18 +862,35 @@ public class AccountServiceImpl implements AccountService {
      */
     private void handleOTPFailure(String tempRequestKey) {
         String keyFailCount = "OTP_FAIL_COUNT:PAYMENT:" + tempRequestKey;
-        String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
-        int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
+        
+        log.info("OTP_FAILURE_HANDLING_START - TempRequestKey: {}, FailCountKey: {}", tempRequestKey, keyFailCount);
 
-        failCount++;
-        redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount), Duration.ofMinutes(5));
+        try {
+            String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
+            int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
+            int newFailCount = failCount + 1;
 
-        if (failCount >= 3) {
-            // Xóa temp request
-            redisTemplate.delete(tempRequestKey);
-            redisTemplate.delete("OTP:PAYMENT:" + tempRequestKey);
-            log.error("Payment request creation failed due to OTP entered incorrectly more than 3 times");
-            throw new AppException(ErrorCode.OTP_WRONG_MANY); // Sử dụng error code có sẵn thay vì OTP_WRONG_MANY
+            log.info("OTP_FAIL_COUNT_INCREMENTED - TempRequestKey: {}, OldCount: {}, NewCount: {}", 
+                    tempRequestKey, failCount, newFailCount);
+
+            redisTemplate.opsForValue().set(keyFailCount, String.valueOf(newFailCount), Duration.ofMinutes(5));
+
+            if (newFailCount >= 3) {
+                // Xóa temp request
+                redisTemplate.delete(tempRequestKey);
+                redisTemplate.delete("OTP:PAYMENT:" + tempRequestKey);
+                
+                log.warn("OTP_FAILURE_LIMIT_EXCEEDED - TempRequestKey: {}, FailCount: {}, Action: TEMP_DATA_DELETED", 
+                        tempRequestKey, newFailCount);
+                
+                throw new AppException(ErrorCode.OTP_WRONG_MANY);
+            }
+
+            log.info("OTP_FAILURE_HANDLED - TempRequestKey: {}, FailCount: {}, RemainingAttempts: {}", 
+                    tempRequestKey, newFailCount, (3 - newFailCount));
+        } catch (Exception e) {
+            log.error("OTP_FAILURE_HANDLING_ERROR - TempRequestKey: {}, Error: {}", tempRequestKey, e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -548,8 +900,12 @@ public class AccountServiceImpl implements AccountService {
     private String generateAndStoreOTP(String key) {
         String keyOTP = "OTP:PAYMENT:" + key;
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(10)); // OTP có hiệu lực 10 phút
-        log.info("OTP generated and stored for key: {}", key);
+        
+        log.info("OTP_GENERATION_START - TempKey: {}, OtpKey: {}", key, keyOTP);
+        
+        redisTemplate.opsForValue().set(keyOTP, otp, Duration.ofMinutes(3)); // OTP có hiệu lực 3 phút
+        
+        log.info("OTP_GENERATION_SUCCESS - TempKey: {}, OtpKey: {}, ExpiryMinutes: 3", key, keyOTP);
         return otp;
     }
 
@@ -557,14 +913,27 @@ public class AccountServiceImpl implements AccountService {
      * Sends OTP email to customer
      */
     private void sendOTPEmail(CustomerDTO customer, String otp) {
-        MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
-                .recipientName(customer.getFullName())
-                .recipient(customer.getEmail())
-                .body(otp)
-                .subject("Xác thực OTP - Tạo tài khoản thanh toán")
-                .build();
-        streamBridge.send("mail-out-0", mailMessageDTO);
-        log.info("OTP email sent to: {}", customer.getEmail());
+        log.info("SEND_OTP_EMAIL_START - Email: {}, CustomerName: {}", customer.getEmail(), customer.getFullName());
+        
+        try {
+            MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
+                    .recipientName(customer.getFullName())
+                    .recipient(customer.getEmail())
+                    .body(otp)
+                    .subject("Xác thực OTP - Tạo tài khoản thanh toán")
+                    .build();
+            
+            boolean sent = streamBridge.send("mail-out-0", mailMessageDTO);
+            if (sent) {
+                log.info("SEND_OTP_EMAIL_SUCCESS - Email: {}, KafkaTopic: mail-out-0", customer.getEmail());
+            } else {
+                log.error("SEND_OTP_EMAIL_FAILED - Email: {}, Reason: KAFKA_SEND_FAILED", customer.getEmail());
+                throw new AppException(ErrorCode.UNCATERROR_ERROR);
+            }
+        } catch (Exception e) {
+            log.error("SEND_OTP_EMAIL_ERROR - Email: {}, Error: {}", customer.getEmail(), e.getMessage(), e);
+            throw e;
+        }
     }
 
     public String generateAccountNumber(Account dto) {
@@ -585,9 +954,14 @@ public class AccountServiceImpl implements AccountService {
      * Lấy balance từ Core Banking Service
      */
     private BigDecimal getBalanceFromCorebanking(String accountNumber) {
+        log.debug("GET_BALANCE_FROM_COREBANKING_START - AccountNumber: {}", accountNumber);
+
         try {
-            String url = coreBankingBaseUrl + "/get-balance-by-accountNumber/"+accountNumber;
-            ResponseEntity<BalanceResponse> response = restTemplate.exchange(
+            String url = coreBankingBaseUrl + "/get-balance-by-accountNumber/" + accountNumber;
+            
+            log.debug("CORE_BANKING_BALANCE_REQUEST - AccountNumber: {}, Url: {}", accountNumber, url);
+            
+            ResponseEntity<BalanceResponse> response = coreBankingRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -596,11 +970,16 @@ public class AccountServiceImpl implements AccountService {
 
             BalanceResponse balanceResponse = response.getBody();
             if (balanceResponse != null && balanceResponse.getBalance() != null) {
+                log.debug("GET_BALANCE_FROM_COREBANKING_SUCCESS - AccountNumber: {}, Balance: {}", 
+                        accountNumber, balanceResponse.getBalance());
                 return balanceResponse.getBalance();
             }
+            
+            log.warn("GET_BALANCE_FROM_COREBANKING_NULL_RESPONSE - AccountNumber: {}, UsingZeroBalance: true", accountNumber);
             return BigDecimal.ZERO;
         } catch (Exception e) {
-            log.warn("Failed to get balance from core banking for account: {}. Using zero balance.", accountNumber, e);
+            log.warn("GET_BALANCE_FROM_COREBANKING_ERROR - AccountNumber: {}, Error: {}, UsingZeroBalance: true", 
+                    accountNumber, e.getMessage(), e);
             return BigDecimal.ZERO;
         }
     }

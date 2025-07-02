@@ -1,8 +1,11 @@
 package com.example.transaction_service.service;
 
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
+import com.example.common_service.dto.response.AccountPaymentResponse;
+import com.example.common_service.dto.response.CustomerResponse;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.*;
@@ -45,4 +48,8 @@ public interface TransactionService {
     Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable);
 
     TransactionDTO payInterest(PayInterestRequest request);
+
+    List<AccountPaymentResponse> getAllAccountPaymentForCurrentCustomer();
+    CustomerDTO getCustomerByAccountNumber(String accountNumber);
+    CustomerResponse getCurrentCustomer();
 }

@@ -1,29 +1,28 @@
 package com.example.account_service.controller;
 
-
-import com.example.account_service.dto.response.AccountCreateReponse;
-import com.example.account_service.dto.response.ApiResponseWrapper;
-import com.example.account_service.service.AccountService;
-import com.example.account_service.utils.MessageUtils;
-import com.example.common_service.dto.CustomerDTO;
-import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
-import com.example.account_service.dto.request.SavingCreateDTO;
+import com.example.account_service.dto.request.PaymentCreateDTO;
+import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.*;
-import com.example.account_service.entity.Account;
+import com.example.account_service.entity.CreditAccount;
+import com.example.account_service.entity.CreditRequest;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.utils.MessageUtils;
 import com.example.common_service.dto.CreditCardDTO;
+import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.CreditAccountResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +34,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
     private final AccountService accountService;
     private final MessageUtils messageUtils;
@@ -81,25 +81,6 @@ public class AccountController {
                 .data("OTP resent to user email.")
                 .build();
     }
-    
-    @Operation(
-            summary = "Create Payment Account",
-            description = "Creates a new payment account based on the provided details."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Payment account created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @PostMapping("/createPayment")
-    public ApiResponseWrapper<AccountCreateReponse> createPayment() {
-        AccountCreateReponse accountCreateReponse= accountService.createPayment();
-        return ApiResponseWrapper.<AccountCreateReponse>builder()
-                .status(HttpStatus.CREATED.value())
-                .message(messageUtils.getMessage("account.payment.createSuccess"))
-                .data(accountCreateReponse)
-                .build();
-    }
     @GetMapping("/getALlAccount")
     public ApiResponseWrapper<List<AccountSummaryDTO>> getALlAccountByCurrentCustomer() {
         List<AccountSummaryDTO> accountResponses = accountService.getAllAccountsbyCifCode();
@@ -124,6 +105,26 @@ public class AccountController {
     public ApiResponseWrapper<List<SavingAccountResponse>>  getAllSavingAccountByCurrentCustomer() {
         List<SavingAccountResponse> list  = accountService.getAllSavingAccountbyCifCode();
         ApiResponseWrapper<List<SavingAccountResponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                list
+        );
+        return response;
+    }
+    @GetMapping("/getAllCreditAccount")
+    public ApiResponseWrapper<List<CreditAccountResponse>>  getAllCreditAccountisActiveByCurrentCustomer() {
+        List<CreditAccountResponse> list  = accountService.getAllCreditAccountbyCifCode();
+        ApiResponseWrapper<List<CreditAccountResponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                list
+        );
+        return response;
+    }
+    @GetMapping("/getAllCreditAccount-anyway")
+    public ApiResponseWrapper<List<CreditAccountResponse>>  getAllCreditAccountByCurrentCustomer() {
+        List<CreditAccountResponse> list  = accountService.getAllCreditAccountNonbyCifCode();
+        ApiResponseWrapper<List<CreditAccountResponse>> response = new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),
                 messageUtils.getMessage("account.get-all.success"),
                 list
@@ -156,7 +157,6 @@ public class AccountController {
                 .data(accountService.getCustomerByAccountNumber(accountNumber))
                 .build();
     }
-
     @GetMapping("/getAllCreditCard")
     public ApiResponseWrapper<List<CreditCardDTO>> getAllCreditCardByCurrentCustomer() {
         List<CreditCardDTO> list = accountService.getAllCreditCard();
@@ -171,15 +171,30 @@ public class AccountController {
     public ResponseEntity<CicResponse> checkCIC(@RequestParam String idNumber) {
         return ResponseEntity.ok(accountService.checkCIC(idNumber));
     }
-
     @PostMapping("/api/v1/create-initial-payment-account")
     public ApiResponseWrapper<PaymentRequestResponse> createPaymentInnit(@RequestBody PaymentCreateDTO paymentRequest) {
         PaymentRequestResponse Paymentresponse = accountService.createPaymentInit(paymentRequest);
         ApiResponseWrapper<PaymentRequestResponse> response = new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),
                 messageUtils.getMessage("account.payment.createSuccess"),
-                Paymentresponse
+               Paymentresponse
         );
         return response;
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("admin/get-all-credit-crequest")
+    public ApiResponseWrapper<List<CreditRequestReponse>> getAllCreditRequesstPending() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        authentication.getAuthorities().forEach(authority ->
+                log.info("Role: {}", authority.getAuthority())
+        );
+        List<CreditRequestReponse> list = accountService.getAllCreditRequestPending();
+        ApiResponseWrapper<List<CreditRequestReponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.getAll-Credit-request.pending"),
+                list
+        );
+        return response;
+    }
+
 }

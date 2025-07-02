@@ -1,6 +1,8 @@
 package com.example.account_service.dto.response;
 
 import com.example.common_service.constant.CreditRequestStatus;
+import com.example.common_service.constant.InterestPaymentType;
+import com.example.common_service.constant.RenewOption;
 import com.example.common_service.constant.SavingsRequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -24,5 +26,6 @@ public class SavingsRequestResponse {
     private String accountNumberSource;
     private BigDecimal interestRate;
     private SavingsRequestStatus status; // PENDING, APPROVED, FAILED
-
+    private InterestPaymentType interestPaymentType;
+    private RenewOption renewOption;
 }
