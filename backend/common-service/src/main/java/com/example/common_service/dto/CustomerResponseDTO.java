@@ -24,5 +24,6 @@ public class CustomerResponseDTO implements Serializable {
     private String email;
     private String phoneNumber;
     private CustomerStatus status;
+    private String identityNumber;
 }
 

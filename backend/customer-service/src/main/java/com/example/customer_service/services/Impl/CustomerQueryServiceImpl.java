@@ -52,6 +52,7 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
                     .dateOfBirth(customer.getDateOfBirth())
                     .address(customer.getAddress())
                     .phoneNumber(customer.getPhoneNumber())
+                    .identityNumber(customer.getIdentityNumber())
                     .build();
             return customerDTO;
 

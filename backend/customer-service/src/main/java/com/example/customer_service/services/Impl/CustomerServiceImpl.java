@@ -551,6 +551,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public ApiResponseWrapper<?> getCustomerDetailById(Long customerId) {
+        Customer cus = customerRepository.findById(customerId).orElse(null);
+        return new ApiResponseWrapper<>(HttpStatus.OK.value(), getMessage(MessageKeys.PASSWORD_RESET_SUCCESS), cus);
+    }
+
+    @Override
     public CustomerListResponse getCustomerList(int page, int size, String keyword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()

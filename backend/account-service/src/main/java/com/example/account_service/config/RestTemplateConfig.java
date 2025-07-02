@@ -14,8 +14,8 @@ import java.util.List;
 @Configuration(proxyBeanMethods = false)
 public class RestTemplateConfig {
 
-    @Bean
-    public RestTemplate restTemplate() {
+    @Bean(name = "restTemplateInternal")
+    public RestTemplate restTemplateInternal() {
         RestTemplate restTemplate = new RestTemplate();
 
         // Tạo interceptor để thêm Authorization header
@@ -34,7 +34,7 @@ public class RestTemplateConfig {
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
         interceptors.add(interceptor);
         restTemplate.setInterceptors(interceptors);
-
         return restTemplate;
     }
+
 }

@@ -23,9 +23,8 @@ public class AccountTransactionDubboServiceImpl implements AccountQueryService {
     public AccountDTO getAccountByAccountNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber);
         System.out.println("=====================");
-        System.out.println("225721");
-        System.out.println(account.getAccountNumber());
-        System.out.println(account.getStatus());
+//        System.out.println(account.getAccountNumber());
+//        System.out.println(account.getStatus());
         System.out.println("=====================");
         if(account!=null){
             AccountDTO accountDTO = AccountDTO.builder()

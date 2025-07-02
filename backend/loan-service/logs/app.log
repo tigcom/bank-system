@@ -1,0 +1,48 @@
+2025-07-03 00:04:13 INFO  [http-nio-9827-exec-9] c.e.l.restcontroller.LoanController [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_LOANS_BY_CUSTOMER_START
+2025-07-03 00:04:13 INFO  [http-nio-9827-exec-9] c.e.loan_service.handler.LoanHandler [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_LOANS_BY_CUSTOMER_HANDLER_START
+2025-07-03 00:04:13 INFO  [http-nio-9827-exec-9] c.e.loan_service.handler.LoanHandler [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_CUSTOMER_ID_HANDLER_START
+2025-07-03 00:04:15 INFO  [http-nio-9827-exec-9] c.e.loan_service.handler.LoanHandler [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_CUSTOMER_ID_HANDLER_SUCCESS - customerId: 507
+2025-07-03 00:04:15 INFO  [http-nio-9827-exec-9] c.e.l.service.impl.LoanServiceImpl [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_LOANS_BY_CUSTOMER_START - customerId: 507
+2025-07-03 00:04:16 INFO  [http-nio-9827-exec-9] c.e.l.service.impl.LoanServiceImpl [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_LOANS_BY_CUSTOMER_SUCCESS - customerId: 507, total: 0
+2025-07-03 00:04:16 INFO  [http-nio-9827-exec-9] c.e.loan_service.handler.LoanHandler [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_LOANS_BY_CUSTOMER_HANDLER_SUCCESS - count: 0
+2025-07-03 00:04:16 INFO  [http-nio-9827-exec-9] c.e.l.restcontroller.LoanController [41be733f0a23a6f478904d37938c2840,1ec9dc6068409b5a] - GET_LOANS_BY_CUSTOMER_SUCCESS - count: 0
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-1] c.e.l.restcontroller.LoanController [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_TOTAL_OUTSTANDING_START
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-1] c.e.loan_service.handler.LoanHandler [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_TOTAL_OUTSTANDING_HANDLER_START
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-1] c.e.loan_service.handler.LoanHandler [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_CUSTOMER_ID_HANDLER_START
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-10] c.e.l.restcontroller.LoanController [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_TOTAL_BORROWED_START
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-10] c.e.loan_service.handler.LoanHandler [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_TOTAL_BORROWED_HANDLER_START
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-10] c.e.loan_service.handler.LoanHandler [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_CUSTOMER_ID_HANDLER_START
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-1] c.e.loan_service.handler.LoanHandler [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_CUSTOMER_ID_HANDLER_SUCCESS - customerId: 507
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-1] c.e.l.service.impl.LoanServiceImpl [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_APPROVED_LOANS_BY_CUSTOMER_START - customerId: 507
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-10] c.e.loan_service.handler.LoanHandler [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_CUSTOMER_ID_HANDLER_SUCCESS - customerId: 507
+2025-07-03 00:04:19 INFO  [http-nio-9827-exec-10] c.e.l.service.impl.LoanServiceImpl [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_APPROVED_LOANS_BY_CUSTOMER_START - customerId: 507
+2025-07-03 00:04:20 INFO  [http-nio-9827-exec-10] c.e.l.service.impl.LoanServiceImpl [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_APPROVED_LOANS_BY_CUSTOMER_SUCCESS - customerId: 507, total: 0
+2025-07-03 00:04:20 INFO  [http-nio-9827-exec-10] c.e.loan_service.handler.LoanHandler [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_TOTAL_BORROWED_HANDLER_SUCCESS - total: 0
+2025-07-03 00:04:20 INFO  [http-nio-9827-exec-10] c.e.l.restcontroller.LoanController [029d77c3ac502ade9479e8f699522d01,8b26b6d6d627a428] - GET_TOTAL_BORROWED_SUCCESS - total: 0
+2025-07-03 00:04:20 INFO  [http-nio-9827-exec-1] c.e.l.service.impl.LoanServiceImpl [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_APPROVED_LOANS_BY_CUSTOMER_SUCCESS - customerId: 507, total: 0
+2025-07-03 00:04:20 INFO  [http-nio-9827-exec-1] c.e.loan_service.handler.LoanHandler [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_TOTAL_OUTSTANDING_HANDLER_SUCCESS - total: 0
+2025-07-03 00:04:20 INFO  [http-nio-9827-exec-1] c.e.l.restcontroller.LoanController [95e14bd63851723247e2e906dea39199,591039838caa1a25] - GET_TOTAL_OUTSTANDING_SUCCESS - total: 0
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.l.restcontroller.LoanController [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_LOANS_BY_CUSTOMER_START
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.loan_service.handler.LoanHandler [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_LOANS_BY_CUSTOMER_HANDLER_START
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.loan_service.handler.LoanHandler [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_CUSTOMER_ID_HANDLER_START
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.loan_service.handler.LoanHandler [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_CUSTOMER_ID_HANDLER_SUCCESS - customerId: 507
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.l.service.impl.LoanServiceImpl [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_LOANS_BY_CUSTOMER_START - customerId: 507
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.l.service.impl.LoanServiceImpl [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_LOANS_BY_CUSTOMER_SUCCESS - customerId: 507, total: 0
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.loan_service.handler.LoanHandler [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_LOANS_BY_CUSTOMER_HANDLER_SUCCESS - count: 0
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-4] c.e.l.restcontroller.LoanController [93f9d6b18a52c401f69f5efc909f6dd3,782dcf48c341002d] - GET_LOANS_BY_CUSTOMER_SUCCESS - count: 0
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-2] c.e.l.restcontroller.LoanController [dd6d9da5d900b5fda563b0ab00f2dfa4,53dc00fb7ca07329] - GET_ALL_ACCOUNT
+2025-07-03 00:04:21 INFO  [http-nio-9827-exec-2] c.e.loan_service.handler.LoanHandler [dd6d9da5d900b5fda563b0ab00f2dfa4,53dc00fb7ca07329] - GET_USER_ID_FROM_AUTHEN - userId: da716029-daf1-4528-8ee8-f8b28f605f10
+2025-07-03 00:04:27 INFO  [http-nio-9827-exec-2] c.e.loan_service.handler.LoanHandler [dd6d9da5d900b5fda563b0ab00f2dfa4,53dc00fb7ca07329] - GET_ALL_PAYMENT_ACCOUNTS_BY_USER_SUCCESS - userId: da716029-daf1-4528-8ee8-f8b28f605f10, totalAccounts: 1
+2025-07-03 00:04:27 INFO  [http-nio-9827-exec-2] c.e.l.restcontroller.LoanController [dd6d9da5d900b5fda563b0ab00f2dfa4,53dc00fb7ca07329] - GET_ALL_ACCOUNT_BY_USER_SUCCESS  totalAccounts: 1
+2025-07-03 00:04:46 INFO  [http-nio-9827-exec-3] c.e.l.restcontroller.LoanController [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CREATE_LOAN_START - request: LoanRequestDTO(loanId=null, accountNumber=97045221666070882, amount=12312312, interestRate=5, termMonths=12, declaredIncome=1231231231, customerId=null, createdAt=null, approvedAt=null, status=PENDING)
+2025-07-03 00:04:46 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CREATE_LOAN_HANDLER_START - request: LoanRequestDTO(loanId=null, accountNumber=97045221666070882, amount=12312312, interestRate=5, termMonths=12, declaredIncome=1231231231, customerId=null, createdAt=null, approvedAt=null, status=PENDING)
+2025-07-03 00:04:46 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - GET_CUSTOMER_ID_HANDLER_START
+2025-07-03 00:04:47 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - GET_CUSTOMER_ID_HANDLER_SUCCESS - customerId: 507
+2025-07-03 00:04:47 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CUSTOMER_INFO - idNumber=010102020303, status=ACTIVE
+2025-07-03 00:04:48 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - ACCOUNT_INFO - accountNumber=97045221666070882, status=ACTIVE
+2025-07-03 00:04:48 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CALLING_CIC - CICRequest: CICRequest(idNumber=010102020303, name=test frontend)
+2025-07-03 00:04:48 INFO  [http-nio-9827-exec-3] c.e.l.service.impl.CICClientImpl [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CHECK_CIC - CICRequest: CICRequest(idNumber=010102020303, name=test frontend)
+2025-07-03 00:04:50 INFO  [http-nio-9827-exec-3] c.e.l.service.impl.CICClientImpl [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CHECK_CIC - CICResponse: CicResponse(status=fail, creditScore=500, overdue=false, debtGroup=4, errorCode=null, message=null)
+2025-07-03 00:04:50 INFO  [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CIC_RESPONSE - status=fail, creditScore=500, overdue=false, debtGroup=4, errorCode=null, message=null
+2025-07-03 00:04:50 ERROR [http-nio-9827-exec-3] c.e.loan_service.handler.LoanHandler [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CREATE_LOAN_HANDLER_INVALID - dto=LoanRequestDTO(loanId=null, accountNumber=97045221666070882, amount=12312312, interestRate=5, termMonths=12, declaredIncome=1231231231, customerId=null, createdAt=null, approvedAt=null, status=PENDING), error: CIC fail
+2025-07-03 00:04:50 WARN  [http-nio-9827-exec-3] c.e.l.restcontroller.LoanController [3d91bed3df08577198ec72db7e8a2e14,2df8a71af6eabf6e] - CREATE_LOAN_INVALID - reason: CIC fail

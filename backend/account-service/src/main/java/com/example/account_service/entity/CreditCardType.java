@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @Table(name = "credit_card_types")
 public class CreditCardType {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "card_type_id")
@@ -43,7 +43,10 @@ public class CreditCardType {
     @Column(name = "description")
     private String description;
 
-//    @ElementCollection
+    @Column(name = "type_Card")
+    private String cardType;
+
+    //    @ElementCollection
 //    @CollectionTable(name = "credit_card_type_conditions", joinColumns = @JoinColumn(name = "card_type_id"))
 //    @Column(name = "condition_text")
 //    private List<String> conditions;

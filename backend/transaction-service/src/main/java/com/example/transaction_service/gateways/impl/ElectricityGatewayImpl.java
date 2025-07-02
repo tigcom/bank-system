@@ -8,6 +8,7 @@ import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
 import com.example.transaction_service.gateways.ProviderGateway;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -27,11 +28,12 @@ import java.util.Map;
 @Slf4j
 public class ElectricityGatewayImpl implements ProviderGateway {
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate mockServerRestTemplate;
     private final String apiUrl;
 
-    public ElectricityGatewayImpl(RestTemplate restTemplate, @Value("${provider.api.electricity.url}") String apiUrl) {
-        this.restTemplate = restTemplate;
+    public ElectricityGatewayImpl(@Qualifier("mockServerRestTemplate") RestTemplate restTemplate
+            , @Value("${provider.api.electricity.url}") String apiUrl) {
+        this.mockServerRestTemplate = restTemplate;
         this.apiUrl = apiUrl;
     }
 
@@ -50,7 +52,7 @@ public class ElectricityGatewayImpl implements ProviderGateway {
                     new ParameterizedTypeReference<>() {};
 
             ResponseEntity<ApiResponse<BillDetailsResponse>> responseEntity =
-                    restTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
+                    mockServerRestTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
 
             ApiResponse<BillDetailsResponse> apiResponse = responseEntity.getBody();
 
@@ -86,7 +88,7 @@ public class ElectricityGatewayImpl implements ProviderGateway {
 
             // Dùng exchange để gọi API
             ResponseEntity<ApiResponse<ProviderPaymentResponse>> responseEntity =
-                    restTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
+                    mockServerRestTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
 
             ApiResponse<ProviderPaymentResponse> apiResponse = responseEntity.getBody();
             System.out.println(apiResponse.getCode());

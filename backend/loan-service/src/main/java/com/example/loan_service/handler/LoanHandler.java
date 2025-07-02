@@ -1,37 +1,32 @@
 package com.example.loan_service.handler;
 
-
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.MailMessageDTO;
-import com.example.common_service.dto.request.CommonConfirmTransactionRequest;
-import com.example.common_service.dto.request.CommonDepositRequest;
-import com.example.common_service.dto.request.CommonDisburseRequest;
-import com.example.common_service.dto.request.PayRepaymentRequest;
-import com.example.common_service.models.KycStatus;
+import com.example.common_service.dto.request.*;
+import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
+import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.common_service.services.customer.CustomerQueryService;
-import com.example.common_service.services.customer.CustomerService;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
 import com.example.loan_service.dto.request.LoanRequestDTO;
+import com.example.loan_service.dto.response.CicResponse;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.LoanRejectionReason;
 import com.example.loan_service.entity.Repayment;
+import com.example.loan_service.handler.LoanHandler;
 import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
-import com.example.loan_service.service.CoreBankingClient;
-import com.example.loan_service.service.LoanRejectionReasonService;
-import com.example.loan_service.service.LoanService;
-import com.example.loan_service.service.RepaymentService;
+import com.example.loan_service.response.ApiResponseWrapper;
+import com.example.loan_service.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.rpc.RpcContext;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,11 +37,11 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoanHandler {
@@ -55,243 +50,431 @@ public class LoanHandler {
     private final LoanMapper loanMapper;
     private final CoreBankingClient coreBankingClient;
     private final RepaymentService repaymentService;
+    private final CICClient cicClient;
     private final LoanRejectionReasonService loanRejectionReasonService;
-    @DubboReference
-    private final CustomerQueryService customerQueryService;
-    @DubboReference
-    private final AccountQueryService accountQueryService;
-    @DubboReference
-    private final CommonTransactionService commonTransactionService;
-    @DubboReference
-    private final CommonService commonService;
+    @DubboReference private final CustomerQueryService customerQueryService;
+    @DubboReference private final AccountQueryService accountQueryService;
+    @DubboReference private final CommonTransactionService commonTransactionService;
+    @DubboReference private final CommonService commonService;
+    @DubboReference private final CustomerCommonService customerCommonService;
 
     public Loan approveLoan(Long loanId) {
-
-        System.out.println(loanId);
-        Loan loan = loanService.getLoanById(loanId).orElse(null);
-        System.out.println(loan.getAmount());
-        CommonDisburseRequest commonDisburseRequest = new CommonDisburseRequest();
-        commonDisburseRequest.setToAccountNumber(loan.getAccountNumber());
-        commonDisburseRequest.setAmount(loan.getAmount());
-        commonDisburseRequest.setCurrency("VND");
-        CommonTransactionDTO transaction = commonTransactionService.loanDisbursement(commonDisburseRequest);
-        SecurityContextHolder.clearContext();
-        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
-        } else {
-            System.out.println(transaction);
-            try {
-                loan = loanService.approveLoan(loanId);
-                repaymentService.generateRepaymentSchedule(loan);
-                coreBankingClient.syncLoan(loanMapper.toDTO(loan));
-
-                CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-                MailMessageDTO mailMessage = new MailMessageDTO();
-                mailMessage.setSubject("KÍCH HOẠT KHOẢN VAY");
-                mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                mailMessage.setBody("Khoản vay của bạn đã được duyệt thành công và giải ngân đến tài khoản: " + loan.getAccountNumber());
-                mailMessage.setRecipientName(customer.getFullName());
-                streamBridge.send("mail-out-0", mailMessage);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+        log.info("APPROVE_LOAN_HANDLER_START - loanId: {}", loanId);
+        try {
+            Loan loan = loanService.getLoanById(loanId)
+                    .orElseThrow(() -> new IllegalArgumentException("Loan not found: " + loanId));
+            log.debug("LOAN_FETCHED - {}", loan);
+            
+            CommonDisburseRequest disburseReq = new CommonDisburseRequest();
+            disburseReq.setToAccountNumber(loan.getAccountNumber());
+            disburseReq.setAmount(loan.getAmount());
+            disburseReq.setCurrency("VND");
+            CommonTransactionDTO tx = commonTransactionService.loanDisbursement(disburseReq);
+            log.info("LOAN_DISBURSE_TRANSACTION - status: {}, ref: {}", tx.getStatus(), tx.getReferenceCode());
+            
+            if (!"COMPLETED".equalsIgnoreCase(tx.getStatus())) {
+                log.warn("APPROVE_LOAN_DISBURSE_FAILED - reason: {}", tx.getFailedReason());
+                throw new IllegalArgumentException(tx.getFailedReason());
             }
-        }
-        return loan;
-    }
-    public CustomerResponseDTO getUserIdByCustomerId(Long customerId) {
-        return customerQueryService.getCustomerById(customerId);
-    }
-    public Loan createLoan(LoanRequestDTO loan) throws Exception {
-        System.out.println(loan);
-        Long idCustomer = getCustomerId();
 
-        CustomerResponseDTO customer = customerQueryService.getCustomerById(idCustomer);
-        System.out.println(customer.getDateOfBirth());
-        AccountDTO account = accountQueryService.getAccountByAccountNumber(loan.getAccountNumber());
-        System.out.println(customer);
-        if (!customer.getStatus().equals(CustomerStatus.ACTIVE)) {
-            throw new IllegalArgumentException("Customer status is not ACTIVE");
-        } else if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
-            throw new IllegalArgumentException("Customer is not old enough");
-        } else if (!account.getStatus().equalsIgnoreCase("ACTIVE")) {
-            throw new IllegalArgumentException("Account status is not ACTIVE");
-        } else if (loan.getDeclaredIncome().compareTo(BigDecimal.valueOf(5_000_000.00)) < 0) {
-            throw new IllegalArgumentException("Declared income is not enough");
-        } else {
-            coreBankingClient.syncLoan(loanMapper.toResponseDTO(loan));
-            Loan l = loanMapper.toEntity(loan);
-            l.setCustomerId(idCustomer);
-            System.out.println(l);
-            return loanService.createLoan(l);
-//            return new Loan();
+            loan = loanService.approveLoan(loanId);
+            repaymentService.generateRepaymentSchedule(loan);
+            coreBankingClient.syncLoan(loanMapper.toDTO(loan));
+            log.info("LOAN_APPROVED_AND_SYNCED - loanId: {}", loanId);
+
+            CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+            MailMessageDTO mail = new MailMessageDTO();
+            mail.setSubject("KÍCH HOẠT KHOẢN VAY");
+            mail.setRecipient(customer.getEmail());
+            mail.setBody("Khoản vay đã duyệt và giải ngân tài khoản: " + loan.getAccountNumber());
+            mail.setRecipientName(customer.getFullName());
+            streamBridge.send("mail-out-0", mail);
+            log.info("APPROVE_LOAN_MAIL_SENT - loanId: {}, to: {}", loanId, customer.getEmail());
+
+            log.info("APPROVE_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
+            return loan;
+        } catch (IllegalArgumentException e) {
+            log.error("APPROVE_LOAN_HANDLER_INVALID - loanId: {}, error: {}", loanId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("APPROVE_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
         }
     }
 
-    public Loan updateLoan(LoanRequestDTO loan) {
-        Loan l = loanMapper.toEntity(loan);
-        return loanService.updateLoan(l);
+    public Loan createLoan(LoanRequestDTO dto) throws Exception {
+        log.info("CREATE_LOAN_HANDLER_START - request: {}", dto);
+        try {
+            Long customerId = getCustomerId();
+            log.debug("CUSTOMER_ID_FETCHED - {}", customerId);
+
+            CustomerResponseDTO customer = customerQueryService.getCustomerById(customerId);
+            log.info("CUSTOMER_INFO - idNumber={}, status={}", customer.getIdentityNumber(), customer.getStatus());
+
+            AccountDTO account = accountQueryService.getAccountByAccountNumber(dto.getAccountNumber());
+            log.info("ACCOUNT_INFO - accountNumber={}, status={}", dto.getAccountNumber(), account.getStatus());
+            CICRequest cicRequest = new CICRequest();
+            cicRequest.setIdNumber(customer.getIdentityNumber());
+            cicRequest.setName(customer.getFullName());
+            log.info("CALLING_CIC - CICRequest: {}", cicRequest);
+
+            CicResponse cicResponse = cicClient.checkCIC(cicRequest);
+            log.info("CIC_RESPONSE - status={}, creditScore={}, overdue={}, debtGroup={}, errorCode={}, message={}",
+                    cicResponse.getStatus(),
+                    cicResponse.getCreditScore(),
+                    cicResponse.getOverdue(),
+                    cicResponse.getDebtGroup(),
+                    cicResponse.getErrorCode(),
+                    cicResponse.getMessage()
+            );
+            if (!CustomerStatus.ACTIVE.equals(customer.getStatus())) {
+                throw new IllegalArgumentException("Hồ sơ khách hàng không hợp lệ");
+            }
+            if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
+                throw new IllegalArgumentException("Người dùng chưa đủ tuổi");
+            }
+            if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
+                throw new IllegalArgumentException("Tài khoản ngân hàng không hợp lệ");
+            }
+            if (dto.getDeclaredIncome().compareTo(BigDecimal.valueOf(5_000_000)) < 0) {
+                throw new IllegalArgumentException("Thu nhập cá nhân thấp hơn yêu cầu");
+            }
+            if ("fail".equalsIgnoreCase(cicResponse.getStatus())) {
+                throw new IllegalArgumentException("Hồ sơ có dấu hiệu nợ xấu");
+            }
+            coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
+            Loan l = loanMapper.toEntity(dto);
+            l.setCustomerId(customerId);
+            Loan created = loanService.createLoan(l);
+            log.info("CREATE_LOAN_HANDLER_SUCCESS - loanId: {}", created.getLoanId());
+            return created;
+        } catch (IllegalArgumentException e) {
+            log.error("CREATE_LOAN_HANDLER_INVALID - dto={}, error: {}", dto, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("CREATE_LOAN_HANDLER_ERROR - dto={}, error: {}", dto, e.getMessage(), e);
+            throw e;
+        }
     }
 
+
+    public Loan updateLoan(LoanRequestDTO dto) {
+        log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
+        try {
+            Loan updated = loanService.updateLoan(loanMapper.toEntity(dto));
+            coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
+            log.info("UPDATE_LOAN_HANDLER_SUCCESS - loanId: {}", updated.getLoanId());
+            return updated;
+        } catch (Exception e) {
+            log.error("UPDATE_LOAN_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
 
     public Optional<Loan> getLoanById(Long loanId) {
-        return loanService.getLoanById(loanId);
+        log.info("GET_LOAN_BY_ID_HANDLER_START - loanId: {}", loanId);
+        try {
+            Optional<Loan> loan = loanService.getLoanById(loanId);
+            log.info("GET_LOAN_BY_ID_HANDLER_SUCCESS - found: {}", loan.isPresent());
+            return loan;
+        } catch (Exception e) {
+            log.error("GET_LOAN_BY_ID_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public List<Loan> getLoansByCustomerId() {
-        return loanService.getLoansByCustomerId(this.getCustomerId());
+        log.info("GET_LOANS_BY_CUSTOMER_HANDLER_START");
+        try {
+            Long customerId = getCustomerId();
+            List<Loan> list = loanService.getLoansByCustomerId(customerId);
+            log.info("GET_LOANS_BY_CUSTOMER_HANDLER_SUCCESS - count: {}", list.size());
+            return list;
+        } catch (Exception e) {
+            log.error("GET_LOANS_BY_CUSTOMER_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public Loan closedLoan(Long loanId) {
-        Loan loan = new Loan();
+        log.info("CLOSE_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
-            loan = loanService.closedLoan(loanId);
-            Long idCustomer = getCustomerId();
-            loan.setCustomerId(idCustomer);
+            Loan loan = loanService.closedLoan(loanId);
             coreBankingClient.syncLoan(loanMapper.toDTO(loan));
+            log.info("CLOSE_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
+            return loan;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("CLOSE_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
         }
-        return loan;
     }
 
-    public Loan rejectedLoan(Long loanId, LoanRejectionReasonRequestDTO loanRejection) {
-        Loan loan = new Loan();
+    public Loan rejectedLoan(Long loanId, LoanRejectionReasonRequestDTO req) {
+        log.info("REJECT_LOAN_HANDLER_START - loanId: {}, reason: {}", loanId, req.getReason());
         try {
-            loan = loanService.rejectedLoan(loanId);
-            Long idCustomer = getCustomerId();
-            loan.setCustomerId(idCustomer);
+            Loan loan = loanService.rejectedLoan(loanId);
             coreBankingClient.syncLoan(loanMapper.toDTO(loan));
-            LoanRejectionReason rejectionReason = new LoanRejectionReason();
-            rejectionReason.setReason(loanRejection.getReason());
-            rejectionReason.setLoan(loanService.getLoanById(loanRejection.getLoan_id()).orElse(null));
-            loanRejectionReasonService.save(rejectionReason);
+            LoanRejectionReason reason = new LoanRejectionReason();
+            reason.setReason(req.getReason());
+            reason.setLoan(loan);
+            loanRejectionReasonService.save(reason);
+            log.info("REJECT_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
+            return loan;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("REJECT_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
         }
-        return loan;
     }
 
     public List<Loan> findall() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
-        String userId = jwt.getName();
-        List<String> roles = jwt.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-        System.out.println(userId);
-        System.out.println(roles);
-        SecurityContextHolder.clearContext();
-        return loanService.findAllLoan();
+        log.info("FIND_ALL_LOANS_HANDLER_START");
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
+//            log.info("+++++++++++++++++++++++++++++");
+//            Long customerId = getCustomerId();
+//            log.info("customerid: {}", customerId);
+//            log.info("+++++++++++++++++++++++++++++");
+
+            List<Loan> list = loanService.findAllLoan();
+            log.info("FIND_ALL_LOANS_HANDLER_SUCCESS - count: {}", list.size());
+            return list;
+        } catch (Exception e) {
+            log.error("FIND_ALL_LOANS_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public void deleteLoan(Long loanId) {
-        loanService.deleteLoan(loanId);
-        coreBankingClient.deleteLoan(loanId);
+        log.info("DELETE_LOAN_HANDLER_START - loanId: {}", loanId);
+        try {
+            loanService.deleteLoan(loanId);
+            coreBankingClient.deleteLoan(loanId);
+            log.info("DELETE_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
+        } catch (Exception e) {
+            log.error("DELETE_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
-        return repaymentService.getRepaymentsByLoanId(loanId);
+        log.info("GET_REPAYMENTS_BY_LOAN_HANDLER_START - loanId: {}", loanId);
+        try {
+            List<Repayment> list = repaymentService.getRepaymentsByLoanId(loanId);
+            log.info("GET_REPAYMENTS_BY_LOAN_HANDLER_SUCCESS - loanId: {}, count: {}", loanId, list.size());
+            return list;
+        } catch (Exception e) {
+            log.error("GET_REPAYMENTS_BY_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
 
-    public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber ) {
-        PayRepaymentRequest pay = new PayRepaymentRequest();
-        pay.setAmount(amount);
-        pay.setCurrency("VND");
-        pay.setDescription("Get transaction, sent otp");
-        Repayment repayment = repaymentService.getRepaymentById(repaymentId).orElse(null);
-        pay.setFromAccountNumber(accountNumber);
-        CommonTransactionDTO transaction = commonTransactionService.loanPayment(pay);
-        if (!transaction.getStatus().equalsIgnoreCase("PENDING")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
+    public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber) {
+        log.info("MAKE_REPAYMENT_HANDLER_START - repaymentId: {}, amount: {}, account: {}", repaymentId, amount, accountNumber);
+        try {
+            PayRepaymentRequest pay = new PayRepaymentRequest();
+            pay.setAmount(amount);
+            pay.setCurrency("VND");
+            pay.setDescription("OTP request");
+            pay.setFromAccountNumber(accountNumber);
+
+            CommonTransactionDTO tx = commonTransactionService.loanPayment(pay);
+            log.info("MAKE_REPAYMENT_TRANSACTION - status: {}, ref: {}", tx.getStatus(), tx.getReferenceCode());
+            if (!"PENDING".equalsIgnoreCase(tx.getStatus())) {
+                throw new IllegalArgumentException(tx.getFailedReason());
+            }
+            log.info("MAKE_REPAYMENT_HANDLER_SUCCESS - referenceCode: {}", tx.getReferenceCode());
+            return tx.getReferenceCode();
+        } catch (IllegalArgumentException e) {
+            log.error("MAKE_REPAYMENT_HANDLER_INVALID - {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("MAKE_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
         }
-        return transaction.getReferenceCode();
     }
 
     public Repayment confirmRepayment(Long repaymentId, BigDecimal amount, String otpCode, String referenceCode) {
-        CommonConfirmTransactionRequest confirm = new CommonConfirmTransactionRequest();
-        confirm.setOtpCode(otpCode);
-        confirm.setReferenceCode(referenceCode);
-        CommonTransactionDTO transaction = commonTransactionService.confirmTransaction(confirm);
-        if (!transaction.getStatus().equalsIgnoreCase("COMPLETED")) {
-            throw new IllegalArgumentException(transaction.getFailedReason());
+        log.info("CONFIRM_REPAYMENT_HANDLER_START - repaymentId: {}, referenceCode: {}", repaymentId, referenceCode);
+        try {
+            CommonConfirmTransactionRequest confirm = new CommonConfirmTransactionRequest();
+            confirm.setOtpCode(otpCode);
+            confirm.setReferenceCode(referenceCode);
+
+            CommonTransactionDTO tx = commonTransactionService.confirmTransaction(confirm);
+            log.info("CONFIRM_REPAYMENT_TRANSACTION - status: {}", tx.getStatus());
+            if (!"COMPLETED".equalsIgnoreCase(tx.getStatus())) {
+                throw new IllegalArgumentException(tx.getFailedReason());
+            }
+
+            Repayment r = repaymentService.makeRepayment(repaymentId, amount);
+            log.info("CONFIRM_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", repaymentId);
+            return r;
+        } catch (IllegalArgumentException e) {
+            log.error("CONFIRM_REPAYMENT_HANDLER_INVALID - {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("CONFIRM_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
         }
-        return repaymentService.makeRepayment(repaymentId, amount);
     }
 
     public List<Repayment> getHistory() {
-        return repaymentService.getHistoryRepayment(getCustomerId());
+        log.info("GET_HISTORY_HANDLER_START");
+        try {
+            Long customerId = getCustomerId();
+            List<Repayment> history = repaymentService.getHistoryRepayment(customerId);
+            log.info("GET_HISTORY_HANDLER_SUCCESS - count: {}", history.size());
+            return history;
+        } catch (Exception e) {
+            log.error("GET_HISTORY_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public Repayment getCurrentRepayment() {
-        Long idCustomer = getCustomerId();
-        System.out.println(idCustomer);
-        return repaymentService.getCurrentRepayment(idCustomer);
+        log.info("GET_CURRENT_REPAYMENT_HANDLER_START");
+        try {
+            Long customerId = getCustomerId();
+            Repayment r = repaymentService.getCurrentRepayment(customerId);
+            log.info("GET_CURRENT_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", r.getRepaymentId());
+            return r;
+        } catch (Exception e) {
+            log.error("GET_CURRENT_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
-//    public List<Repayment> getCurrentRepayments(Long loanId) {
-//        List<Loan> loans = loanService.getLoansByCustomerId(
-//                loanService.getLoanById(loanId).orElse(null).getCustomerId()
-//        );
-//        List<Repayment> repayments = new ArrayList<>();
-//        for (Loan l : loans) {
-//            repayments.add(repaymentService.getCurrentRepayment(l.getLoanId()));
-//        }
-//        return repayments;
-//    }
-
     public Optional<Repayment> getRepaymentById(Long repaymentId) {
-        return repaymentService.getRepaymentById(repaymentId);
+        log.info("GET_REPAYMENT_BY_ID_HANDLER_START - repaymentId: {}", repaymentId);
+        try {
+            Optional<Repayment> r = repaymentService.getRepaymentById(repaymentId);
+            log.info("GET_REPAYMENT_BY_ID_HANDLER_SUCCESS - found: {}", r.isPresent());
+            return r;
+        } catch (Exception e) {
+            log.error("GET_REPAYMENT_BY_ID_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public Repayment unpaidRepayment(Long repaymentId) {
-        return repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.UNPAID);
+        log.info("UNPAID_REPAYMENT_HANDLER_START - repaymentId: {}", repaymentId);
+        try {
+            Repayment r = repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.UNPAID);
+            log.info("UNPAID_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", repaymentId);
+            return r;
+        } catch (Exception e) {
+            log.error("UNPAID_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public Repayment lateRepayment(Long repaymentId) {
-        return repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.LATE);
+        log.info("LATE_REPAYMENT_HANDLER_START - repaymentId: {}", repaymentId);
+        try {
+            Repayment r = repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.LATE);
+            log.info("LATE_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", repaymentId);
+            return r;
+        } catch (Exception e) {
+            log.error("LATE_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public BigDecimal getTotalBorrowed() {
-        Long idCustomer = getCustomerId();
-        System.out.println(idCustomer);
-        List<Loan> list = loanService.getLoansApproveAndCustomerId(idCustomer);
-        return list.stream()
-                .map(Loan::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        log.info("GET_TOTAL_BORROWED_HANDLER_START");
+        try {
+            Long customerId = getCustomerId();
+            BigDecimal total = loanService.getLoansApproveAndCustomerId(customerId)
+                    .stream().map(Loan::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            log.info("GET_TOTAL_BORROWED_HANDLER_SUCCESS - total: {}", total);
+            return total;
+        } catch (Exception e) {
+            log.error("GET_TOTAL_BORROWED_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public BigDecimal getTotalOutstanding() {
-        Long idCustomer = getCustomerId();
-        List<Loan> list = loanService.getLoansApproveAndCustomerId(idCustomer);
-        BigDecimal totalOutstanding = BigDecimal.ZERO;
-        for (Loan loan : list) {
-            for (Repayment repayment : loan.getRepayments()) {
-                BigDecimal x = repayment.getPrincipal()
-                        .add(repayment.getInterest())
-                        .subtract(repayment.getPaidAmount());
-                totalOutstanding = totalOutstanding.add(x);
-            }
+        log.info("GET_TOTAL_OUTSTANDING_HANDLER_START");
+        try {
+            Long customerId = getCustomerId();
+            BigDecimal total = loanService.getLoansApproveAndCustomerId(customerId).stream()
+                .flatMap(l -> l.getRepayments().stream())
+                .map(r -> r.getPrincipal().add(r.getInterest()).subtract(r.getPaidAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            log.info("GET_TOTAL_OUTSTANDING_HANDLER_SUCCESS - total: {}", total);
+            return total;
+        } catch (Exception e) {
+            log.error("GET_TOTAL_OUTSTANDING_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
         }
-        return totalOutstanding;
     }
-
 
     public Long getCustomerId() {
-//        JwtAuthenticationToken authentication = (JwtAuthenticationToken)
-//                SecurityContextHolder.getContext().getAuthentication();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
-        String userId = jwt.getName();
-//        String userId = authentication.getName();
-
-        return commonService.getCurrentCustomer(userId).getCustomerId();
-//        return 505L;
+        log.info("GET_CUSTOMER_ID_HANDLER_START");
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
+            String user = jwt.getName();
+            Long customerId = commonService.getCurrentCustomer(user).getCustomerId();
+            log.info("GET_CUSTOMER_ID_HANDLER_SUCCESS - customerId: {}", customerId);
+            return customerId;
+        } catch (Exception e) {
+            log.error("GET_CUSTOMER_ID_HANDLER_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
-
 
     public void deleteRepaymentsByLoanId(Long loanId) {
-        repaymentService.deleteRepaymentsByLoanId(loanId);
+        log.info("DELETE_REPAYMENTS_BY_LOAN_HANDLER_START - loanId: {}", loanId);
+        try {
+            repaymentService.deleteRepaymentsByLoanId(loanId);
+            log.info("DELETE_REPAYMENTS_BY_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
+        } catch (Exception e) {
+            log.error("DELETE_REPAYMENTS_BY_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
-}
 
+    public CustomerResponseDTO getCustomerDetailById(Long id) {
+        try {
+            log.debug("CUSTOMER_ID_FETCHED - {}", id);
+            CustomerResponseDTO customer = customerQueryService.getCustomerById(id);
+            log.info("CUSTOMER_INFO - status: {}", customer.getStatus());
+            return customer;
+        } catch (Exception e) {
+            log.error("CUSTOMER_ID_FETCHED - error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+
+    public List<AccountPaymentResponse> getAllPaymentAccountsbyUserId(String id) {
+        try {
+            log.debug("GET_ALL_PAYMENT_ACCOUNTS_BY_USER_START - userId: {}", id);
+            List<AccountPaymentResponse> accounts = customerCommonService.getAllPaymentAccountsbyUserId(id);
+            log.info("GET_ALL_PAYMENT_ACCOUNTS_BY_USER_SUCCESS - userId: {}, totalAccounts: {}", id, accounts.size());
+            return accounts;
+        } catch (Exception e) {
+            log.error("GET_ALL_PAYMENT_ACCOUNTS_BY_USER_ERROR - userId: {}, error: {}", id, e.getMessage(), e);
+            throw e;
+        }
+    }
+    public List<AccountPaymentResponse> getAllPaymentAccountsbyCurrentUser() {
+        try {
+            log.debug("GET_ALL_PAYMENT_ACCOUNTS_BY_CURRENT_USER");
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
+            String id = jwt.getName();
+            log.info("GET_USER_ID_FROM_AUTHEN - userId: {}", id);
+            List<AccountPaymentResponse> accounts = customerCommonService.getAllPaymentAccountsbyUserId(id);
+            log.info("GET_ALL_PAYMENT_ACCOUNTS_BY_USER_SUCCESS - userId: {}, totalAccounts: {}", id, accounts.size());
+            return accounts;
+        } catch (Exception e) {
+            log.error("GET_ALL_PAYMENT_ACCOUNTS_BY_USER_ERROR - userId: {}, error: {}", null, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+}

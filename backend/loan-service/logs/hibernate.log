@@ -1,0 +1,872 @@
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] o.h.e.t.internal.TransactionImpl [41be733f0a23a6f478904d37938c2840,62d04c82d60dd6ee] - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] o.h.e.t.internal.TransactionImpl [41be733f0a23a6f478904d37938c2840,62d04c82d60dd6ee] - begin
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.sql.ast.create [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Created new SQL alias : l1_0
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.sql.ast.create [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Registration of TableGroup [StandardTableGroup(com.example.loan_service.entity.Loan(36))] with identifierForTableGroup [com.example.loan_service.entity.Loan] for NavigablePath [com.example.loan_service.entity.Loan] 
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.graph.AST [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - DomainResult Graph:
+ \-EntityResultImpl [com.example.loan_service.entity.Loan(36)]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).accountNumber]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).amount]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).approvedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).createdAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).customerId]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).declaredIncome]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).interestRate]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(36).rejectionReasons]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(36).repayments]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(36).status]
+ |  \-BasicFetch [com.example.loan_service.entity.Loan(36).termMonths]
+
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.sql.ast.tree [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (l1 : com.example.loan_service.entity.Loan(36)) {
+          primaryTableReference : loan as l1_0
+        }
+      }
+    }
+
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.sql.exec [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Initializer list:
+	  com.example.loan_service.entity.Loan(36).rejectionReasons -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(36).rejectionReasons)@1199995330 (PluralAttribute(com.example.loan_service.entity.Loan.rejectionReasons))
+	  com.example.loan_service.entity.Loan(36) -> EntityResultInitializer(com.example.loan_service.entity.Loan(36))@1582634764 (SingleTableEntityPersister(com.example.loan_service.entity.Loan))
+	  com.example.loan_service.entity.Loan(36).repayments -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(36).repayments)@2144352760 (PluralAttribute(com.example.loan_service.entity.Loan.repayments))
+
+2025-07-03 00:04:15 DEBUG [http-nio-9827-exec-9] org.hibernate.SQL [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - 
+    select
+        l1_0.loan_id,
+        l1_0.account_number,
+        l1_0.amount,
+        l1_0.approved_at,
+        l1_0.created_at,
+        l1_0.customer_id,
+        l1_0.declared_income,
+        l1_0.interest_rate,
+        l1_0.status,
+        l1_0.term_months 
+    from
+        loan l1_0
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [1]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 1
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#1
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#1
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#1] : 1117503681
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [ACC1001]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [50000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-05-01T16:15]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [101]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [15000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [7.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#1
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [2]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 2
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#2
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#2
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#2] : 899629738
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [BUS2002]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [200000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-04-20T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-04-15T21:30]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [202]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [100000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [9.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [24]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#2
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [3]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 3
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#3
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#3
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#3] : 1364480378
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [STU3003]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [10000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-03-12T15:45]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-03-10T18:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [2000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#3
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [4]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 4
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#4
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#4
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#4] : 390142428
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [CAR4004]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [150000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-06-13T08:52:54]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-02-01T23:20]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [20000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [8.20]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [36]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#4
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [10]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 10
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#10
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#10
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#10] : 1809309756
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [12211221.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-10T10:28:43]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [11111111.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#10
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [14]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 14
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#14
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#14
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#14] : 347519597
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [37154329]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [120000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-06-12T14:57:56]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-12T14:52:03]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [50000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [10.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [23]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#14
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [15]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 15
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#15
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#15
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#15] : 622795031
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [87654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [30000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2024-01-12T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2024-01-09T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [6000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [7.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#15
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [16]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 16
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#16
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#16
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#16] : 1826159166
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [87654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [45000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-01-07T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-01-05T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [13500000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [8.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#16
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [17]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 17
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#17
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#17
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#17] : 1522061159
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [87654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [35000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-10T18:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [8750000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [10.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#17
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [18]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 18
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#18
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#18
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#18] : 1073219743
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [17654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [50000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2024-05-08T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2024-05-05T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [404]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [10000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [6.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#18
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [19]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 19
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#19
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#19
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#19] : 2020256940
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [17654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [40000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-01-11T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-01-09T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [404]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [12000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [8.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#19
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [20]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 20
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#20
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#20
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#20] : 170761452
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [17654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [25000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-02T18:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [404]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [6250000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [10.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#20
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [21]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 21
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#21
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#21
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#21] : 737975255
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [50000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2024-08-21T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2024-08-18T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [10000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [7.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#21
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [22]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 22
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#22
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#22
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#22] : 2073822704
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [40000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-01-09T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-01-07T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [12000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [8.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#22
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [23]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 23
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#23
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#23
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#23] : 1318869831
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [35000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-09T18:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [8750000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [9.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#23
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [24]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 24
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#24
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#24
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#24] : 1922334518
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [30000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2024-05-05T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2024-05-02T17:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [506]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [6000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [8.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#24
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [25]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 25
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#25
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#25
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#25] : 1459344621
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [40000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-01-09T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-01-07T16:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [506]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [12000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [7.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#25
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [26]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 26
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#26
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#26
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#26] : 1591298787
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [25000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-14T18:00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [506]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [6250000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [10.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#26
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [28]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 28
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#28
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#28
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#28] : 2048326142
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [21000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-06-25T20:07:10]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-24T09:06:58]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [101]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [13000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [23]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#28
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [29]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 29
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#29
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#29
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#29] : 977053243
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [22222222.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [2025-06-24T09:43:32]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-24T09:40:31]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [222222222.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [123]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#29
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [0] - [38]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(36)): 38
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).rejectionReasons#38
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.o.r.l.o.h.o.r.loading.collection [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(36).repayments#38
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(36)#38] : 668415306
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [2] - [60000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [4] - [2025-06-25T23:54:05]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [6] - [40000000.00]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [7] - [15.50]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [8] - [PENDING]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Extracted JDBC value [9] - [120]
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.orm.results.loading.entity [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(36)#38
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] org.hibernate.orm.results.loading [41be733f0a23a6f478904d37938c2840,a0e78d58b401a91b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@299e0290
+2025-07-03 00:04:16 DEBUG [http-nio-9827-exec-9] o.h.e.t.internal.TransactionImpl [41be733f0a23a6f478904d37938c2840,7d6aecefa0509413] - committing
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.orm.sql.ast.create [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Created new SQL alias : l1_0
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.orm.sql.ast.create [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Registration of TableGroup [StandardTableGroup(com.example.loan_service.entity.Loan(29))] with identifierForTableGroup [com.example.loan_service.entity.Loan] for NavigablePath [com.example.loan_service.entity.Loan] 
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] org.hibernate.orm.sql.ast.create [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Created new SQL alias : l1_0
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] org.hibernate.orm.sql.ast.create [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Registration of TableGroup [StandardTableGroup(com.example.loan_service.entity.Loan(29))] with identifierForTableGroup [com.example.loan_service.entity.Loan] for NavigablePath [com.example.loan_service.entity.Loan] 
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] o.h.q.s.sql.BaseSqmToSqlAstConverter [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@79200ae3
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] o.h.q.s.sql.BaseSqmToSqlAstConverter [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@7b77c7dd
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] o.h.q.s.sql.BaseSqmToSqlAstConverter [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(29).status) 
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] o.h.q.s.sql.BaseSqmToSqlAstConverter [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(29).status) 
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] o.h.q.s.sql.BaseSqmToSqlAstConverter [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3fa3683c
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] o.h.q.s.sql.BaseSqmToSqlAstConverter [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(29).customerId) 
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] o.h.q.s.sql.BaseSqmToSqlAstConverter [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@5cb012ac
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] o.h.q.s.sql.BaseSqmToSqlAstConverter [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(29).customerId) 
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.orm.results.graph.AST [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - DomainResult Graph:
+ \-EntityResultImpl [com.example.loan_service.entity.Loan(29)]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).accountNumber]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).amount]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).approvedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).createdAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).customerId]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).declaredIncome]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).interestRate]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(29).rejectionReasons]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(29).repayments]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).status]
+ |  \-BasicFetch [com.example.loan_service.entity.Loan(29).termMonths]
+
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.orm.sql.ast.tree [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (l1 : com.example.loan_service.entity.Loan(29)) {
+          primaryTableReference : loan as l1_0
+        }
+      }
+    }
+
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] org.hibernate.orm.results.graph.AST [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - DomainResult Graph:
+ \-EntityResultImpl [com.example.loan_service.entity.Loan(29)]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).accountNumber]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).amount]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).approvedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).createdAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).customerId]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).declaredIncome]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).interestRate]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(29).rejectionReasons]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(29).repayments]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(29).status]
+ |  \-BasicFetch [com.example.loan_service.entity.Loan(29).termMonths]
+
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] org.hibernate.orm.sql.ast.tree [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (l1 : com.example.loan_service.entity.Loan(29)) {
+          primaryTableReference : loan as l1_0
+        }
+      }
+    }
+
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-1] org.hibernate.orm.sql.exec [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.orm.sql.exec [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.orm.results [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - Initializer list:
+	  com.example.loan_service.entity.Loan(29) -> EntityResultInitializer(com.example.loan_service.entity.Loan(29))@1203019245 (SingleTableEntityPersister(com.example.loan_service.entity.Loan))
+	  com.example.loan_service.entity.Loan(29).repayments -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(29).repayments)@773237913 (PluralAttribute(com.example.loan_service.entity.Loan.repayments))
+	  com.example.loan_service.entity.Loan(29).rejectionReasons -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(29).rejectionReasons)@2108125087 (PluralAttribute(com.example.loan_service.entity.Loan.rejectionReasons))
+
+2025-07-03 00:04:19 DEBUG [http-nio-9827-exec-10] org.hibernate.SQL [029d77c3ac502ade9479e8f699522d01,53523c73543024b1] - 
+    select
+        l1_0.loan_id,
+        l1_0.account_number,
+        l1_0.amount,
+        l1_0.approved_at,
+        l1_0.created_at,
+        l1_0.customer_id,
+        l1_0.declared_income,
+        l1_0.interest_rate,
+        l1_0.status,
+        l1_0.term_months 
+    from
+        loan l1_0 
+    where
+        l1_0.status=? 
+        and l1_0.customer_id=?
+2025-07-03 00:04:20 DEBUG [http-nio-9827-exec-1] org.hibernate.orm.results [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - Initializer list:
+	  com.example.loan_service.entity.Loan(29) -> EntityResultInitializer(com.example.loan_service.entity.Loan(29))@756222971 (SingleTableEntityPersister(com.example.loan_service.entity.Loan))
+	  com.example.loan_service.entity.Loan(29).repayments -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(29).repayments)@1098937777 (PluralAttribute(com.example.loan_service.entity.Loan.repayments))
+	  com.example.loan_service.entity.Loan(29).rejectionReasons -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(29).rejectionReasons)@1764694509 (PluralAttribute(com.example.loan_service.entity.Loan.rejectionReasons))
+
+2025-07-03 00:04:20 DEBUG [http-nio-9827-exec-1] org.hibernate.SQL [95e14bd63851723247e2e906dea39199,82a0263c5bd1f1aa] - 
+    select
+        l1_0.loan_id,
+        l1_0.account_number,
+        l1_0.amount,
+        l1_0.approved_at,
+        l1_0.created_at,
+        l1_0.customer_id,
+        l1_0.declared_income,
+        l1_0.interest_rate,
+        l1_0.status,
+        l1_0.term_months 
+    from
+        loan l1_0 
+    where
+        l1_0.status=? 
+        and l1_0.customer_id=?
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.e.t.internal.TransactionImpl [93f9d6b18a52c401f69f5efc909f6dd3,fdb143b6c24b6bae] - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.e.t.internal.TransactionImpl [93f9d6b18a52c401f69f5efc909f6dd3,fdb143b6c24b6bae] - begin
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.ast.create [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Created new SQL alias : l1_0
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.ast.create [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Registration of TableGroup [StandardTableGroup(com.example.loan_service.entity.Loan(37))] with identifierForTableGroup [com.example.loan_service.entity.Loan] for NavigablePath [com.example.loan_service.entity.Loan] 
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.graph.AST [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - DomainResult Graph:
+ \-EntityResultImpl [com.example.loan_service.entity.Loan(37)]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).accountNumber]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).amount]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).approvedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).createdAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).customerId]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).declaredIncome]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).interestRate]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(37).rejectionReasons]
+ |  +-DelayedCollectionFetch [com.example.loan_service.entity.Loan(37).repayments]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(37).status]
+ |  \-BasicFetch [com.example.loan_service.entity.Loan(37).termMonths]
+
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.ast.tree [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (l1 : com.example.loan_service.entity.Loan(37)) {
+          primaryTableReference : loan as l1_0
+        }
+      }
+    }
+
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.exec [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Initializer list:
+	  com.example.loan_service.entity.Loan(37).repayments -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(37).repayments)@442678340 (PluralAttribute(com.example.loan_service.entity.Loan.repayments))
+	  com.example.loan_service.entity.Loan(37) -> EntityResultInitializer(com.example.loan_service.entity.Loan(37))@1105032641 (SingleTableEntityPersister(com.example.loan_service.entity.Loan))
+	  com.example.loan_service.entity.Loan(37).rejectionReasons -> DelayedCollectionInitializer(com.example.loan_service.entity.Loan(37).rejectionReasons)@1492780814 (PluralAttribute(com.example.loan_service.entity.Loan.rejectionReasons))
+
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.SQL [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - 
+    select
+        l1_0.loan_id,
+        l1_0.account_number,
+        l1_0.amount,
+        l1_0.approved_at,
+        l1_0.created_at,
+        l1_0.customer_id,
+        l1_0.declared_income,
+        l1_0.interest_rate,
+        l1_0.status,
+        l1_0.term_months 
+    from
+        loan l1_0
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [1]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 1
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#1
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#1
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#1] : 1828423285
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [ACC1001]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [50000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-05-01T16:15]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [101]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [15000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [7.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#1
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [2]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 2
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#2
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#2
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#2] : 597558016
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [BUS2002]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [200000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-04-20T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-04-15T21:30]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [202]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [100000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [9.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [24]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#2
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [3]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 3
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#3
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#3
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#3] : 444884594
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [STU3003]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [10000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-03-12T15:45]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-03-10T18:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [2000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#3
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [4]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 4
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#4
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#4
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#4] : 1971881858
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [CAR4004]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [150000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-06-13T08:52:54]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-02-01T23:20]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [20000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [8.20]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [36]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#4
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [10]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 10
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#10
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#10
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#10] : 2073390548
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [12211221.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-10T10:28:43]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [11111111.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#10
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [14]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 14
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#14
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#14
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#14] : 1039903700
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [37154329]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [120000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-06-12T14:57:56]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-12T14:52:03]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [50000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [10.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [23]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#14
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [15]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 15
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#15
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#15
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#15] : 1586429167
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [87654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [30000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2024-01-12T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2024-01-09T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [6000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [7.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#15
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [16]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 16
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#16
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#16
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#16] : 1488356949
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [87654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [45000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-01-07T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-01-05T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [13500000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [8.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#16
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [17]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 17
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#17
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#17
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#17] : 1213261059
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [87654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [35000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-10T18:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [303]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [8750000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [10.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#17
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [18]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 18
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#18
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#18
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#18] : 1181141265
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [17654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [50000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2024-05-08T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2024-05-05T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [404]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [10000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [6.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#18
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [19]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 19
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#19
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#19
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#19] : 1704250074
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [17654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [40000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-01-11T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-01-09T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [404]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [12000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [8.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#19
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [20]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 20
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#20
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#20
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#20] : 499850484
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [17654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [25000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-02T18:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [404]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [6250000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [10.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#20
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [21]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 21
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#21
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#21
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#21] : 1146442829
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [50000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2024-08-21T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2024-08-18T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [10000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [7.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#21
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [22]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 22
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#22
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#22
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#22] : 1520968489
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [40000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-01-09T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-01-07T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [12000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [8.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#22
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [23]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 23
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#23
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#23
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#23] : 1257875470
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [35000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-09T18:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [8750000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [9.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#23
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [24]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 24
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#24
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#24
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#24] : 1302660318
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [30000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2024-05-05T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2024-05-02T17:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [506]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [6000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [8.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#24
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [25]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 25
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#25
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#25
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#25] : 1625750032
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [40000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-01-09T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-01-07T16:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [506]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [12000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [7.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [APPROVED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [6]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#25
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [26]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 26
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#26
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#26
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#26] : 1141749441
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [25000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-14T18:00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [506]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [6250000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [10.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [12]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#26
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [28]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 28
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#28
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#28
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#28] : 2113502201
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [37654329]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [21000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-06-25T20:07:10]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-24T09:06:58]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [101]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [13000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [REJECTED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [23]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#28
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [29]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 29
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#29
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#29
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#29] : 284183080
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [22222222.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [2025-06-24T09:43:32]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-24T09:40:31]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [222222222.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [5.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [CLOSED]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [123]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#29
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [0] - [38]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Hydrated EntityKey (com.example.loan_service.entity.Loan(37)): 38
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).rejectionReasons#38
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.o.r.l.o.h.o.r.loading.collection [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (DelayedCollectionInitializer) Current row collection key : com.example.loan_service.entity.Loan(37).repayments#38
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Created new entity instance [com.example.loan_service.entity.Loan(37)#38] : 410980585
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [1] - [27654321]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [2] - [60000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [3] - [null]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [4] - [2025-06-25T23:54:05]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [5] - [505]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [6] - [40000000.00]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [7] - [15.50]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [8] - [PENDING]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Extracted JDBC value [9] - [120]
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.orm.results.loading.entity [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - (EntityResultInitializer) Done materializing entityInstance : com.example.loan_service.entity.Loan(37)#38
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.loading [93f9d6b18a52c401f69f5efc909f6dd3,4978e0f5483d6e0f] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1366f737
+2025-07-03 00:04:21 DEBUG [http-nio-9827-exec-4] o.h.e.t.internal.TransactionImpl [93f9d6b18a52c401f69f5efc909f6dd3,20cf8ee4114e65ee] - committing

@@ -32,4 +32,5 @@ public interface CustomerService {
     void sentEmailForgotPassword(String email);
 
     ApiResponseWrapper<?> resetPassword(ResetPasswordDTO request);
+    ApiResponseWrapper<?> getCustomerDetailById(Long customerId);
 }

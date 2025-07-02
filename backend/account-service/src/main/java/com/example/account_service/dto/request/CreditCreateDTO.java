@@ -17,13 +17,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class CreditCreateDTO   {
-    private final com.example.common_service.constant.AccountType accountType = com.example.common_service.constant.AccountType.CREDIT;
+    private final AccountType accountType = AccountType.CREDIT;
 
     @NotBlank(message = "CIF code is required")
     private String cifCode;
 
     @NotNull(message = "Account status is required")
-    private com.example.common_service.constant.AccountStatus status;
+    private AccountStatus status;
 
 
     @NotNull(message = "Credit limit is required")
