@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-06-25T09:00:00.000+07:00",
+  "status": 500,
+  "error": "Internal Server Error",
+  "message": "Something went wrong on the server.",
+  "path": "/api/master/registration"
+}

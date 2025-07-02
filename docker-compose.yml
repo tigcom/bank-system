@@ -37,7 +37,8 @@ services:
       vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=970452999999999
       provider.api.electricity.url=http://localhost:8089/mock-api/electricity provider.api.telephone.url=http://localhost:8089/mock-api/telephone
       core-banking.api.url=http://localhost:8083/corebanking/api/core-bank mock-provider-api=http://localhost:8089/mock-api
-      mock-napas-api=http://localhost:8089/mock-napas;
+      mock-napas-api=http://localhost:8089/mock-napas core-banking.api-key=a5dde333-b181-406d-8b41-5ae960579488
+      mock-server-api-key=961a800c-9839-4140-9bf3-f4208fe61ab2;
       "
 
   redis:
@@ -48,7 +49,19 @@ services:
     volumes:
       - redis-data:/data
     restart: unless-stopped
-
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9411/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   zookeeper:
     image: zookeeper:latest
     container_name: zookeeperRegistry

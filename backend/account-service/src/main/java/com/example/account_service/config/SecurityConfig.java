@@ -25,7 +25,6 @@ import java.util.Map;
 @EnableWebSecurity
 @SuppressWarnings("unused")
 public class SecurityConfig {
-
     @Value("${app.api.key}")
     private String apiKey;
     @Bean

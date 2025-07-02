@@ -1,9 +1,7 @@
 package com.example.loan_service.scheduler;
 
-import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.dto.MailMessageDTO;
-import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
@@ -13,6 +11,7 @@ import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,107 +23,145 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RepaymentCheckScherduler {
+
     private final LoanService loanService;
     private final LoanMapper loanMapper;
     private final StreamBridge streamBridge;
     private final CoreBankingClient coreBankingClient;
     private final RepaymentService repaymentService;
-    @DubboReference
-    private final CustomerQueryService customerQueryService;
-    @Scheduled(fixedRate = 5000000)
-//    @Scheduled(cron = "0 1 10 * * *")
-    public void RepaymentCheckScherduler() {
-        List<Loan> loanApproved = loanService.getLoansApprove();
-        for (Loan loan : loanApproved) {
-            System.out.println("Kiểm tra loan: "+loan.getLoanId());
-            List<Repayment> repayments =repaymentService.getRepaymentNotPaid(loan.getLoanId());
-            for (Repayment repayment : repayments) {
-                //tim ra khoan vay dinh ky dang bi tre so voi ngay hien tai
-                if (repayment.getDueDate().isBefore(LocalDate.now()) && repayment.getStatus() != RepaymentStatus.LATE ) {
-                    System.out.println("Đã tìm thấy khoan vay bị trễ"+repayment.getRepaymentId());
-                    repayment.setStatus(RepaymentStatus.LATE);
-                    repaymentService.updateRepayment(repayment);
-                    if(repaymentService.checkLastMonthRepayment(repayment)){
-                        Repayment penalty = new Repayment();
-                        penalty.setPrincipal(repayment.getPrincipal());
-                        penalty.setStatus(RepaymentStatus.UNPAID);
-                        penalty.setDueDate(repayment.getDueDate().plusMonths(1));
-                        penalty.setInterest(repayment.getInterest().add(repayment.getInterest()
-                                .multiply(BigDecimal.valueOf(0.015))));
-                        penalty.setLoan(repayment.getLoan());
-                        penalty.setPaidAmount(BigDecimal.ZERO);
-                        System.out.println("Tạo thêm kỳ vay sau kỳ trễ: "+repayment.getRepaymentId());
-                        repaymentService.updateRepayment(penalty);
-                        coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
-                    }else {
-                        System.out.println("tìm khoản vay hiện tại dựa theo");
-                        System.out.println(repayment.getLoan().getLoanId());
-                        Repayment currentRepayment =
-                                repaymentService.getCurrentRepaymentbyLoanId(
-                                        repayment.getLoan().getLoanId());
-                        if (currentRepayment != null){
-                            // + khoan vay goc dot truoc vao hien tai
-                            currentRepayment.setPrincipal(currentRepayment.getPrincipal()
-                                    .add(repayment.getPrincipal().add(repayment.getInterest()).subtract(repayment.getPaidAmount())));
-                            // + lai vay *1.5% dot truoc vao hien tai
-                            currentRepayment.setInterest(currentRepayment.getInterest()
-                                    .add(repayment.getInterest()
-                                            .multiply(BigDecimal.valueOf(0.015))));
-                            System.out.println("Cập nhập khoản vay kỳ hiện tại sau kỳ trễ"+currentRepayment.getRepaymentId());
-                            repaymentService.updateRepayment(currentRepayment);
+    @DubboReference private final CustomerQueryService customerQueryService;
+
+    @Scheduled(fixedRateString = "${repayment.scheduler.fix-rate:5000000}")
+    public void checkAndHandleLateRepayments() {
+        log.info("CHECK_LATE_REPAYMENTS_START");
+        try {
+            List<Loan> approvedLoans = loanService.getLoansApprove();
+            log.info("CHECK_LATE_REPAYMENTS - loansFetched: {}", approvedLoans.size());
+
+            for (Loan loan : approvedLoans) {
+                log.debug("CHECK_LATE_REPAYMENTS_PROCESS_LOAN - loanId: {}", loan.getLoanId());
+                List<Repayment> dueList = repaymentService.getRepaymentNotPaid(loan.getLoanId());
+                for (Repayment repayment : dueList) {
+                    if (repayment.getDueDate().isBefore(LocalDate.now())
+                            && repayment.getStatus() != RepaymentStatus.LATE) {
+                        log.info("MARK_REPAYMENT_LATE_START - repaymentId: {}", repayment.getRepaymentId());
+
+                        // đánh dấu trễ
+                        repayment.setStatus(RepaymentStatus.LATE);
+                        repaymentService.updateRepayment(repayment);
+                        log.info("MARK_REPAYMENT_LATE_SUCCESS - repaymentId: {}", repayment.getRepaymentId());
+
+                        boolean isLast = repaymentService.checkLastMonthRepayment(repayment);
+                        if (isLast) {
+                            log.info("CREATE_PENALTY_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
+                            Repayment penalty = new Repayment();
+                            penalty.setPrincipal(repayment.getPrincipal());
+                            penalty.setStatus(RepaymentStatus.UNPAID);
+                            penalty.setDueDate(repayment.getDueDate().plusMonths(1));
+                            penalty.setInterest(
+                                repayment.getInterest()
+                                         .add(repayment.getInterest().multiply(BigDecimal.valueOf(0.015)))
+                            );
+                            penalty.setLoan(repayment.getLoan());
+                            penalty.setPaidAmount(BigDecimal.ZERO);
+                            repaymentService.updateRepayment(penalty);
                             coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
+                            log.info("CREATE_PENALTY_REPAYMENT_SUCCESS - newRepaymentDueDate: {}",
+                                    penalty.getDueDate().format(DateTimeFormatter.ISO_DATE));
+                        } else {
+                            log.info("ROLL_FORWARD_PENALTY_START - repaymentId: {}", repayment.getRepaymentId());
+                            Repayment current = repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId());
+                            if (current != null) {
+                                BigDecimal extraPrincipal = repayment.getPrincipal()
+                                        .add(repayment.getInterest())
+                                        .subtract(repayment.getPaidAmount());
+                                current.setPrincipal(current.getPrincipal().add(extraPrincipal));
+                                current.setInterest(
+                                    current.getInterest()
+                                           .add(repayment.getInterest().multiply(BigDecimal.valueOf(0.015)))
+                                );
+                                repaymentService.updateRepayment(current);
+                                coreBankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(loan)));
+                                log.info("ROLL_FORWARD_PENALTY_SUCCESS - currentRepaymentId: {}", current.getRepaymentId());
+                            } else {
+                                log.warn("ROLL_FORWARD_PENALTY_SKIPPED - no current repayment for loanId: {}", loan.getLoanId());
+                            }
                         }
-                    }
-                    CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-                    MailMessageDTO mailMessage = new MailMessageDTO();
-                    mailMessage.setSubject("THÔNG BÁO TRẢ TRỄ VAY");
-                    mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                    String body = String.format(
-                            "Kính chào %s,\n\n" +
-                                    "Khoản vay ID: %s (số tài khoản %s) của Quý khách đã quá hạn thanh toán từ %s.\n" +
-                                    "Kỳ hạn vay mới đã được tạo thêm.\n" +
-                                    "Bạn bị đánh lãi phạt theo hợp đồng. Và tổng tiền của kỳ thanh toán sắp tới là: %s \n\n" +
-                                    "Vui lòng thanh toán ngay để tránh ảnh hưởng lịch sử tín dụng.\n\n" +
-                                    "Trân trọng,\nĐội ngũ Ngân hàng",
+
+                        // gửi email thông báo
+                        CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+                        MailMessageDTO mail = new MailMessageDTO();
+                        mail.setSubject("THÔNG BÁO TRẢ TRỄ VAY");
+                        mail.setRecipient(customer.getEmail());
+                        String body = String.format(
+                            "Kính chào %s,%n%n" +
+                            "Khoản vay ID: %s (TK: %s) quá hạn từ %s.%n" +
+                            "Số tiền kỳ này: %s VND.%n%n" +
+                            "Vui lòng thanh toán để tránh ảnh hưởng lịch sử tín dụng.%n%n" +
+                            "Trân trọng, Ngân hàng",
                             customer.getFullName(),
                             loan.getLoanId(),
                             loan.getAccountNumber(),
                             repayment.getDueDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                             repayment.getPrincipal().add(repayment.getInterest())
-                    );
-                    mailMessage.setBody(body);
-                    mailMessage.setRecipientName(customer.getFullName());
-                    streamBridge.send("mail-out-0", mailMessage);
-                    break;
-                }
-            }
-        }
+                        );
+                        mail.setBody(body);
+                        mail.setRecipientName(customer.getFullName());
+                        streamBridge.send("mail-out-0", mail);
+                        log.info("LATE_REPAYMENT_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
 
-    }
-//        @Scheduled(fixedRate = 5000)
-//    @Scheduled(cron = " 0 39 10 * * *")
-    public void RepaymentRemindScherduler() {
-        List<Loan> loanApproved = loanService.getLoansApprove();
-        for (Loan loan : loanApproved) {
-            System.out.println("Kiểm tra loan: "+loan.getLoanId());
-            Repayment repayment =repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId()) != null ? repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId()) : null ;
-            if (repayment != null) {
-                long days = ChronoUnit.DAYS.between(LocalDate.now(), repayment.getDueDate());
-                if (days >= 1 && days <= 3) {
-                    System.out.println("còn lại:"+days+" ngày");
-                    System.out.println("gửi mail đến repayment có id: "+repayment.getRepaymentId());
-                    CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-                    MailMessageDTO mailMessage = new MailMessageDTO();
-                    mailMessage.setSubject("NHẮC NỢ ĐỊNH KỲ");
-                    mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                    mailMessage.setBody("Bạn sắp đến hạn thanh toán vay nợ định kỳ. Khoản vay: "+repayment.getPrincipal().add(repayment.getInterest())+", Đến số tài khoản: "+loan.getAccountNumber());
-                    mailMessage.setRecipientName(customer.getFullName());
-                    streamBridge.send("mail-out-0", mailMessage);
+                        break;  // chỉ xử lý 1 kỳ trễ mỗi loan lần chạy
+                    }
                 }
             }
+            log.info("CHECK_LATE_REPAYMENTS_SUCCESS");
+        } catch (Exception e) {
+            log.error("CHECK_LATE_REPAYMENTS_ERROR - error: {}", e.getMessage(), e);
+        }
+    }
+
+    @Scheduled(cron = "${repayment.scheduler.remind-cron:0 0 9 * * *}")
+    public void remindUpcomingRepayments() {
+        log.info("REMIND_UPCOMING_REPAYMENTS_START");
+        try {
+            List<Loan> approvedLoans = loanService.getLoansApprove();
+            log.info("REMIND_UPCOMING_REPAYMENTS - loansFetched: {}", approvedLoans.size());
+
+            for (Loan loan : approvedLoans) {
+                Repayment next = repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId());
+                if (next != null) {
+                    long daysToDue = ChronoUnit.DAYS.between(LocalDate.now(), next.getDueDate());
+                    if (daysToDue >= 1 && daysToDue <= 3) {
+                        log.info("REMIND_UPCOMING_REPAYMENT_PROCESS - repaymentId: {}, daysToDue: {}",
+                                next.getRepaymentId(), daysToDue);
+
+                        CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
+                        MailMessageDTO mail = new MailMessageDTO();
+                        mail.setSubject("NHẮC NỢ ĐỊNH KỲ");
+                        mail.setRecipient(customer.getEmail());
+                        mail.setBody(String.format(
+                            "Kính chào %s,%n%n" +
+                            "Bạn còn %d ngày đến kỳ thanh toán khoản vay ID: %s với tổng số tiền %s VND.%n%n" +
+                            "Vui lòng chuẩn bị để tránh phát sinh phí trễ.%n%n" +
+                            "Trân trọng, Ngân hàng",
+                            customer.getFullName(),
+                            daysToDue,
+                            loan.getLoanId(),
+                            next.getPrincipal().add(next.getInterest())
+                        ));
+                        mail.setRecipientName(customer.getFullName());
+                        streamBridge.send("mail-out-0", mail);
+                        log.info("REMIND_UPCOMING_REPAYMENT_NOTIFICATION_SENT - repaymentId: {}", next.getRepaymentId());
+                    }
+                }
+            }
+            log.info("REMIND_UPCOMING_REPAYMENTS_SUCCESS");
+        } catch (Exception e) {
+            log.error("REMIND_UPCOMING_REPAYMENTS_ERROR - error: {}", e.getMessage(), e);
         }
     }
 }

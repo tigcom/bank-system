@@ -330,7 +330,7 @@ public class CustomerController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = KycResponse.class))),
             @ApiResponse(responseCode = "400", description = "Không thể lấy trạng thái KYC")
     })
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     @GetMapping("/status")
     public ResponseEntity<?> checkKycStatus() {
         try {
@@ -409,4 +409,5 @@ public class CustomerController {
     private String getMessage(String key, Object... args) {
         return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
     }
+
 }

@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
@@ -15,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Yêu cầu giải ngân khoản vay vào tài khoản khách hàng")
-public class DisburseRequest implements Serializable {
+public class DisburseRequest {
 
     @Schema(description = "Số tài khoản nhận tiền giải ngân", example = "100000002", required = true)
     @NotBlank(message = "{toAccountNumber.notblank}")

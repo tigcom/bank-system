@@ -3,6 +3,7 @@
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/backend/account-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/cic-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/common-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/corebanking-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/customer-service/src/main/java" charset="UTF-8" />
