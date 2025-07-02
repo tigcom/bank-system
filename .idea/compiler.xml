@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Notification-service" />
         <module name="common-service" />
+        <module name="master-service" />
         <module name="customer-service" />
         <module name="mock-provider-server" />
         <module name="corebanking-service" />
@@ -27,6 +28,16 @@
         </processorPath>
         <module name="account-service" />
       </profile>
+      <profile name="Annotation profile for cic-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="cic-service" />
+        <module name="visa-service" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
@@ -34,12 +45,15 @@
       <module name="Notification-service" options="-parameters" />
       <module name="account-service" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
+      <module name="cic-service" options="-parameters" />
       <module name="common-service" options="-parameters" />
       <module name="corebanking-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
+      <module name="master-service" options="-parameters" />
       <module name="mock-provider-server" options="-parameters" />
       <module name="transaction-service" options="-parameters" />
+      <module name="visa-service" options="-parameters" />
     </option>
   </component>
 </project>

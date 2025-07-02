@@ -518,19 +518,8 @@ public class AccountServiceImpl implements AccountService {
                 throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
             }
 
-            //check kyc cua khach hang
-            String KYCurl = "http://localhost:8080/api/customers/status";
-            
-            log.info("KYC_CHECK_START - CifCode: {}, KycUrl: {}", cifCode, KYCurl);
-            
-            ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
-                    KYCurl,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<KycResponse>() {}
-            );
-            
-            if (!response.getBody().isVerified()) {
+            // Check KYC status from CustomerDTO
+            if (!customer.isKycVerified()) {
                 log.warn("CREATE_PAYMENT_REQUEST_FAILED - CifCode: {}, Reason: KYC_NOT_VERIFIED", cifCode);
                 throw new AppException(ErrorCode.KYC_INVALID);
             }

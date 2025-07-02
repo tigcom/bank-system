@@ -43,7 +43,9 @@ public enum ErrorCode {
     ACCOUNT_NOT_ACTIVE(1033, "account.not.active"),
     TRANSACTION_FAILED(1034, "transaction.failed"),
     KYC_INVALID(1035, "kyc.invalid"),
-    ACCOUNT_NUMBER_EXISTED(1036, "account.number.existed"),;
+    ACCOUNT_NUMBER_EXISTED(1036, "account.number.existed"),
+    CIC_SERVICE_ERROR(1037, "CIC.service_error");
+
 
 
 

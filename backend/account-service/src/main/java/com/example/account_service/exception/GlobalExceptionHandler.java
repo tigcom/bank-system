@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponseWrapper<?>> handleAppException(AppException ex) {
         ErrorCode errorCode = ex.getErrorCode();
-        ApiResponseWrapper<?> response = ApiResponseWrapper.error(errorCode.getCode(),messageUtils.getMessage(errorCode.getMessage()) );
+       ApiResponseWrapper<?> response = ApiResponseWrapper.error(errorCode.getCode(),messageUtils.getMessage(errorCode.getMessage()) );
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 
