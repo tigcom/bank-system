@@ -6,6 +6,8 @@ import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
+import com.example.common_service.dto.response.AccountPaymentResponse;
+import com.example.common_service.dto.response.CustomerResponse;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
@@ -743,6 +745,21 @@ public class TransactionServiceImpl implements TransactionService{
                     request.getToAccountNumber(), request.getAmount(), ex.getMessage(), ex);
             throw ex;
         }
+    }
+
+    @Override
+    public List<AccountPaymentResponse> getAllAccountPaymentForCurrentCustomer() {
+        return accountQueryService.getAllAccountPaymentForCurrentCustomer();
+    }
+
+    @Override
+    public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
+        return accountQueryService.getCustomerByAccountNumber(accountNumber);
+    }
+
+    @Override
+    public CustomerResponse getCurrentCustomer() {
+        return customerQueryService.getCurrentCustomer();
     }
 
     //    Kiểm tra thông tin Transaction

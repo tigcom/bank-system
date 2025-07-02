@@ -1,6 +1,8 @@
 package com.example.account_service.dto.request;
 
 import com.example.common_service.constant.AccountType;
+import com.example.common_service.constant.InterestPaymentType;
+import com.example.common_service.constant.RenewOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -32,4 +34,8 @@ public class SavingRequestCreateDTO implements Serializable {
     @NotNull(message = "Term (in months) is required")
     @Min(value = 1, message = "Term must be at least 1 month")
     private Integer term; // kỳ hạn (tháng)
+
+    private RenewOption renewOption;
+
+    private InterestPaymentType interestPaymentType;
 }

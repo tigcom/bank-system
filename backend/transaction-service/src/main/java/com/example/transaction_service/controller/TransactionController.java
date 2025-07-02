@@ -1,6 +1,9 @@
 package com.example.transaction_service.controller;
 
 
+import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.response.AccountPaymentResponse;
+import com.example.common_service.dto.response.CustomerResponse;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.*;
@@ -14,9 +17,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -403,6 +411,31 @@ public class TransactionController {
                 .code(200)
                 .message("Danh sách transaction")
                 .result(transactionService.filterTransaction(request))
+                .build();
+    }
+
+    @GetMapping("/account/getAllPaymentAccount")
+    public ApiResponse<List<AccountPaymentResponse>> getALlPaymentAccountByCurrentCustomer() {
+        return ApiResponse.<List<AccountPaymentResponse>>builder()
+                .code(200)
+                .message("Danh sách tài khoản của khách hàng")
+                .result(transactionService.getAllAccountPaymentForCurrentCustomer())
+                .build();
+    }
+    @GetMapping("/account/get-customer/{accountNumber}")
+    public ApiResponse<CustomerDTO> getCustomerByAccountNumber(@PathVariable String accountNumber){
+        return ApiResponse.<CustomerDTO>builder()
+                .message("Thông tin khách hàng")
+                .code(HttpStatus.OK.value())
+                .result(transactionService.getCustomerByAccountNumber(accountNumber))
+                .build();
+    }
+    @GetMapping("/customers/detail")
+    public ApiResponse<CustomerResponse> getCustomerDetail() {
+        return ApiResponse.<CustomerResponse>builder()
+                .code(200)
+                .message("Thông tin khách hàng")
+                .result(transactionService.getCurrentCustomer())
                 .build();
     }
     @GetMapping("/getDailyPaymentTransaction")

@@ -14,10 +14,9 @@ import com.example.corebanking_service.repository.CoreTransactionRepo;
 import com.example.corebanking_service.service.CoreTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -35,6 +34,9 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
     private final CoreTransactionRepo transactionRepo;
 
     private final RestTemplate restTemplate;
+
+    @Value("${mock-napas-api-key}")
+    private String NAPAS_API_KEY;
 
     @Override
     @Transactional
@@ -62,7 +64,10 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
                     .description(request.getDescription())
                     .bankCode(request.getDestinationBankCode())
                     .build();
-            HttpEntity<NapasTransferRequest> entity = new HttpEntity<>(napasTransferRequest);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("X-API-Key", NAPAS_API_KEY);
+            HttpEntity<NapasTransferRequest> entity = new HttpEntity<>(napasTransferRequest,headers);
             try {
                 ParameterizedTypeReference<ApiResponse<NapasTransferResponse>> responseType =
                         new ParameterizedTypeReference<>() {};

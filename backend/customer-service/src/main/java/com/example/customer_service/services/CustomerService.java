@@ -19,6 +19,7 @@ public interface CustomerService {
 
     CustomerResponse getCustomerDetail(String userId);
 
+
     CustomerResponse getCustomerDetailByCifCode(String cifCode);
 
     ApiResponseWrapper<?> updateCustomerPassword(ChangePasswordDTO request);

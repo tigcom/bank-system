@@ -42,6 +42,11 @@ public class CreditRequest  extends  Auditable implements Serializable {
     @Column(name = "status")
     private CreditRequestStatus status; // PENDING, APPROVED, REJECTED
 
+    @Column(name="reason")
+    private String reason;
+
+    @Column(name="account_Credit_Number")
+    private String accountNumber;
 //    @Column(name = "created_at")
 //    private LocalDateTime createdAt;
 

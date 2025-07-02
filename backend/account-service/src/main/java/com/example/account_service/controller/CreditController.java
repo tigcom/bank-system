@@ -2,11 +2,13 @@ package com.example.account_service.controller;
 
 import com.example.account_service.dto.request.CreditRequestConfirmDTO;
 import com.example.account_service.dto.request.CreditRequestCreateDTO;
+import com.example.account_service.dto.request.CreditSensitiveConfirmDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
 import com.example.account_service.dto.request.SavingCreateDTO;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.dto.response.CreditRequestReponse;
+import com.example.account_service.dto.response.CreditSensitiveReponse;
 import com.example.account_service.service.AccountService;
 import com.example.account_service.service.CreditRequestService;
 import com.example.account_service.utils.MessageUtils;
@@ -17,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,7 +70,8 @@ public class CreditController {
             @ApiResponse(responseCode = "404", description = "Credit request not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PutMapping("/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("admin/approve-credit-request/{id}")
     public ApiResponseWrapper<AccountCreateReponse> approveRequest(@PathVariable String id) {
         AccountCreateReponse reponse = creditRequestService.approveCreditRequest(id);
         return ApiResponseWrapper.<AccountCreateReponse>builder()
@@ -76,7 +80,8 @@ public class CreditController {
                 .data(reponse)
                 .build();
     }
-    @PutMapping("/reject/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("admin/reject-credit-request/{id}")
     public ApiResponseWrapper<CreditRequestReponse> rejectRequest(@PathVariable String id) {
         CreditRequestReponse reponse = creditRequestService.rejectCreditRequest(id);
         return ApiResponseWrapper.<CreditRequestReponse>builder()
@@ -104,5 +109,82 @@ public class CreditController {
         );
         return response;
     }
+    @PostMapping("/resend-otp-credit/{tempRequestKey}")
+    public ApiResponseWrapper<String> resendPaymentOtp(@PathVariable String tempRequestKey) {
+        creditRequestService.resendCreditOtp(tempRequestKey);
+        return ApiResponseWrapper.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("OTP đã được gửi lại thành công.")
+                .data("OTP resent to user email.")
+                .build();
+    }
+    @PostMapping("/credit/getSensitiveInfo/{accountNumber}")
+    public ApiResponseWrapper<CreditSensitiveReponse> getCreditSensitiveInfo(@PathVariable String accountNumber)
+    {
+        CreditSensitiveReponse reponse= creditRequestService.getCreditSensitiveResponse(accountNumber);
+        ApiResponseWrapper<CreditSensitiveReponse> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.credit-request.list"),
+                reponse
+        );
+        return response;
+    }
+    @Operation(
+            summary = "Send OTP for Credit Sensitive Information",
+            description = "Send OTP to customer's email for accessing sensitive credit card information"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OTP sent successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid account number"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/send-otp/credit/getSensitiveInfo/{accountNumber}")
+    public ApiResponseWrapper<String> sendOTPForSensitiveInfo(@PathVariable String accountNumber) {
+        String tempRequestKey = creditRequestService.sendOTPForSensitiveInfo(accountNumber);
+        return ApiResponseWrapper.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("OTP đã được gửi đến email của bạn để truy cập thông tin thẻ.")
+                .data(tempRequestKey)
+                .build();
+    }
 
+    @Operation(
+            summary = "Confirm OTP and Get Credit Sensitive Information",
+            description = "Confirm OTP and retrieve sensitive credit card information including card number, expiry date, and holder name"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OTP validated and sensitive info retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid OTP or request data"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/confirm-otp/credit/getSensitiveInfo")
+    public ApiResponseWrapper<CreditSensitiveReponse> confirmOTPAndGetSensitiveInfo(@RequestBody @Valid CreditSensitiveConfirmDTO confirmDTO) {
+        CreditSensitiveReponse response = creditRequestService.confirmOTPAndGetSensitiveInfo(confirmDTO);
+        return ApiResponseWrapper.<CreditSensitiveReponse>builder()
+                .status(HttpStatus.OK.value())
+                .message("Xác thực OTP thành công. Thông tin thẻ đã được truy xuất.")
+                .data(response)
+                .build();
+    }
+
+    @Operation(
+            summary = "Resend OTP for Credit Sensitive Information",
+            description = "Resend OTP to customer's email for accessing sensitive credit card information"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OTP resent successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired request"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/resend-otp/credit/getSensitiveInfo/{tempRequestKey}")
+    public ApiResponseWrapper<String> resendSensitiveInfoOtp(@PathVariable String tempRequestKey) {
+        creditRequestService.resendSensitiveInfoOtp(tempRequestKey);
+        return ApiResponseWrapper.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("OTP đã được gửi lại thành công.")
+                .data("OTP resent to user email for sensitive info access.")
+                .build();
+    }
 }
