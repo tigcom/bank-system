@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/cic/check",
+    "headers": {
+      "Content-Type": {"equalTo": "application/json"},
+      "Mock-API-Key": {"equalTo": "ApiKey abc123xyz"}
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.idNumber == '123456789000')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "cic-response-success.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

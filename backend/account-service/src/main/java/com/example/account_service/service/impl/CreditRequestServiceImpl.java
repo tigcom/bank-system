@@ -4,10 +4,8 @@ import com.example.account_service.dto.kafkaMessage.CardRegistrationMessage;
 import com.example.account_service.dto.request.CreditRequestCreateDTO;
 import com.example.account_service.dto.request.CreditRequestConfirmDTO;
 import com.example.account_service.dto.request.CreditSensitiveConfirmDTO;
-import com.example.account_service.dto.response.AccountCreateReponse;
-import com.example.account_service.dto.response.CicResponse;
-import com.example.account_service.dto.response.CreditRequestReponse;
-import com.example.account_service.dto.response.CreditSensitiveReponse;
+import com.example.account_service.dto.response.*;
+import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.entity.Account;
 import com.example.account_service.entity.CreditAccount;
 import com.example.account_service.entity.CreditCardType;
@@ -25,6 +23,7 @@ import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CreditRequestStatus;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
+import com.example.common_service.dto.request.CICRequest;
 import com.example.common_service.dto.response.KycResponse;
 import com.example.common_service.services.CommonService;
 import lombok.RequiredArgsConstructor;
@@ -68,14 +67,11 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
     private final AccountNumberUtils    accountNumberUtils;
     @Autowired
-    @Qualifier("restTemplateInternal")
-    private RestTemplate restTemplateInternal;
-    @Autowired
     @Qualifier("coreBankingRestTemplate")
     private RestTemplate coreBankingRestTemplate;
     @Autowired
-    @Qualifier("MockServerRestTemplate")
-    private  RestTemplate mockServerTemplate;
+    @Qualifier("interServiceRestTemplate")
+    private RestTemplate interServiceRestTemplate;
 
 
     private final StreamBridge streamBridge;
@@ -83,6 +79,9 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private static final String[] STABLE_OCCUPATIONS = {"Engineer", "Doctor", "Teacher", "Government Employee"};
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
+
+    @Value("${cic-service.base-url:http://localhost:8085}")
+    private String cicServiceBaseUrl;
 
     @Override
     public CreditRequestReponse createCreditRequest(CreditRequestCreateDTO creditRequestCreateDTO) {
@@ -158,7 +157,6 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         log.info("Cif Code : {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
         /// Check CIC Gia Lap
-        log.info("CCCD: " +customerDTO.getIdentityNumber());
         CicResponse cicResponse = checkCIC(customerDTO.getIdentityNumber());
         // Tính điểm tín dụng tổng hợp
         int finalScore = calculateCreditScore(tempRequest.getMonthlyIncome(), tempRequest.getOccupation(), cicResponse.getCreditScore());
@@ -175,7 +173,8 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             return autoRejectCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
         }
         if (finalScore >= 80) {
-            // cap nhat trang thai Approved va send email duyet the  -->>
+                   creditRequest.setStatus(CreditRequestStatus.PENDING);
+                   creditRequestRepository.save(creditRequest);
             return   autoApproveCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
 
         }
@@ -195,11 +194,9 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
         // tao local credit
         CreditAccount account = createCreditAccount(creditRequest);
-        creditRequest.setStatus(CreditRequestStatus.APPROVED);
-        creditRequestRepository.save(creditRequest);
+
         redisTemplate.delete(creditRequestId);
         redisTemplate.delete("OTP:CREDIT:" + creditRequestId);
-        log.info("Credit request approved and account created: {}", account.getAccountNumber());
 
         // send message gọi api tổ chức thẻ
         CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
@@ -252,24 +249,40 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     }
 
     private CicResponse checkCIC(String idNumber) {
-        String url = "http://localhost:8089/api/cic/check";
+        String url = cicServiceBaseUrl + "/api/cic-servive/check-cic";
 
-        Map<String, String> request = new HashMap<>();
-        request.put("idNumber", idNumber);
-        request.put("name", "Nguyen Van A");
+        CICRequest cicRequest = CICRequest.builder()
+                .idNumber(idNumber)
+                .build();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+        HttpEntity<CICRequest> entity = new HttpEntity<>(cicRequest, headers);
 
         try {
-            ResponseEntity<CicResponse> response = mockServerTemplate.postForEntity(url, entity, CicResponse.class);
-            log.info("Response from CIC : " + response.getBody());
-            return response.getBody();
+            ResponseEntity<ApiResponseWrapper<CicResponse>> response = interServiceRestTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<ApiResponseWrapper<CicResponse>>() {}
+            );
+            
+            if (response.getBody() != null && response.getBody().getData() != null) {
+                log.info("CIC check successful for ID: ***{}, Score: {}, DebtGroup: {}", 
+                    idNumber.substring(Math.max(0, idNumber.length() - 3)),
+                    response.getBody().getData().getCreditScore(),
+                    response.getBody().getData().getDebtGroup());
+                return response.getBody().getData();
+            }
+            
+            log.error("CIC service returned empty response for ID: ***{}", 
+                idNumber.substring(Math.max(0, idNumber.length() - 3)));
+            throw new AppException(ErrorCode.CIC_SERVICE_ERROR);
         } catch (RestClientException e) {
-            log.info(e.getMessage());
-            return null;
+            log.error("CIC service call failed for ID: ***{}, Error: {}", 
+                idNumber.substring(Math.max(0, idNumber.length() - 3)), e.getMessage());
+            throw new AppException(ErrorCode.CIC_SERVICE_ERROR);
         }
     }
     @Override
@@ -280,14 +293,15 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         validateCreditRequestStatus(creditRequest);
         if (creditRequest.getStatus().equals(CreditRequestStatus.PENDING)) {
             CreditAccount account = createCreditAccount(creditRequest);
-            // Update status
-            creditRequest.setStatus(CreditRequestStatus.APPROVED);
-            creditRequestRepository.save(creditRequest);
+//            // Update status
+//            creditRequest.setStatus(CreditRequestStatus.APPROVED);
+//            creditRequestRepository.save(creditRequest);
             CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
                     .accountNumber(account.getAccountNumber())
                     .cardType(account.getCreditCardType().getCardType())
                     .cifCode(account.getCifCode())
                     .creditLimit(account.getCreditLimit())
+                    .idRequest(creditRequest.getId())
                     .build();
             kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
             log.info("Credit request approved and account created: {}", account.getAccountNumber());
@@ -303,6 +317,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
                         .cardType(account.getCreditCardType().getCardType())
                         .cifCode(account.getCifCode())
                         .creditLimit(account.getCreditLimit())
+                        .idRequest(creditRequest.getId())
                         .build();
                 kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
                 log.info("Credit request approved and account created: {}", account.getAccountNumber());
@@ -498,19 +513,14 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             log.warn("Customer status is not ACTIVE: {}", customer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-        ///  check KYC status cua khach hang
-        /// goi 1 rest toi customer to check KYC  status
-        String KYCurl = "http://localhost:8080/api/customers/status";
-        ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
-                KYCurl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<KycResponse>() {}
-        );
-        if (!response.getBody().isVerified()) {
+        
+        // Check KYC status from CustomerDTO
+        if (!customer.isKycVerified()) {
+            log.warn("Customer KYC is not verified: {}", customer.getCifCode());
             throw new AppException(ErrorCode.KYC_INVALID);
         }
-        log.info("Kyc verified successfully");
+        log.info("Customer KYC verified successfully for CIF: {}", customer.getCifCode());
+        
         int age = Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears();
         log.info("Customer age: {} years", age);
         if (age < 21) {

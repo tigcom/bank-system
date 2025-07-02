@@ -63,10 +63,6 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
     private final CreditRequestRepository creditRequestRepository;
     private final AccountNumberUtils accountNumberUtils;
-    @Autowired
-    @Qualifier("restTemplateInternal")
-    private final RestTemplate restTemplateInternal;
-
     private final SavingsRequestRepository savingsRequestRepository;
     private final StreamBridge streamBridge;
     private final RedisTemplate<Object, Object> redisTemplate;
@@ -540,18 +536,13 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             log.warn("Customer status is not ACTIVE: {}", currentCustomer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-        // Check kyc cua user
-        String KYCurl = "http://localhost:8080/api/customers/status";
-        ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
-                KYCurl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<KycResponse>() {}
-        );
-        if (!response.getBody().isVerified()) {
+        
+        // Check KYC status from CustomerDTO
+        if (!currentCustomer.isKycVerified()) {
+            log.warn("Customer KYC is not verified: {}", currentCustomer.getCifCode());
             throw new AppException(ErrorCode.KYC_INVALID);
         }
-        log.info("Kyc verified successfully");
+        log.info("Customer KYC verified successfully for CIF: {}", currentCustomer.getCifCode());
 
         return currentCustomer;
     }

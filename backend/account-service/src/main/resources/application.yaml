@@ -89,6 +89,22 @@ dubbo:
   scan:
     base-packages: com.example.account_service.service
 
+# Keycloak Configuration for Inter-Service Communication
+keycloak:
+  auth-server-url: http://localhost:8180
+  realm: myrealm
+  client-id: account-service
+  client-secret: v7Kcx1LP8aIEMP5tOkyvzsjTr5yhAcxz
+
+# External Services Configuration
+visa:
+  service:
+    url: http://localhost:8087
+
+master:
+  service:
+    url: http://localhost:8086
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -96,53 +112,53 @@ springdoc:
     path: /swagger-ui.html
 
 # Resilience4j Configuration
-resilience4j:
-  retry:
-    instances:
-      visa-registration:
-        max-attempts: 3
-        wait-duration: 2s
-        exponential-backoff-multiplier: 2
-        exponential-max-wait-duration: 10s
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-          - java.net.SocketTimeoutException
-          - java.net.ConnectException
-          - org.springframework.web.client.HttpServerErrorException
-        ignore-exceptions:
-          - java.lang.IllegalArgumentException
-      mastercard-registration:
-        max-attempts: 3
-        wait-duration: 2s
-        exponential-backoff-multiplier: 2
-        exponential-max-wait-duration: 10s
-        retry-exceptions:
-          - org.springframework.web.client.RestClientException
-          - java.net.SocketTimeoutException
-          - java.net.ConnectException
-          - org.springframework.web.client.HttpServerErrorException
-        ignore-exceptions:
-          - java.lang.IllegalArgumentException
-  circuitbreaker:
-    instances:
-      visa-registration:
-        register-health-indicator: true
-        sliding-window-size: 10
-        minimum-number-of-calls: 5
-        permitted-number-of-calls-in-half-open-state: 3
-        automatic-transition-from-open-to-half-open-enabled: true
-        wait-duration-in-open-state: 30s
-        failure-rate-threshold: 50
-        event-consumer-buffer-size: 10
-      mastercard-registration:
-        register-health-indicator: true
-        sliding-window-size: 10
-        minimum-number-of-calls: 5
-        permitted-number-of-calls-in-half-open-state: 3
-        automatic-transition-from-open-to-half-open-enabled: true
-        wait-duration-in-open-state: 30s
-        failure-rate-threshold: 50
-        event-consumer-buffer-size: 10
+#resilience4j:
+#  retry:
+#    instances:
+#      visa-registration:
+#        max-attempts: 3
+#        wait-duration: 2s
+#        exponential-backoff-multiplier: 2
+#        exponential-max-wait-duration: 10s
+#        retry-exceptions:
+#          - org.springframework.web.client.RestClientException
+#          - java.net.SocketTimeoutException
+#          - java.net.ConnectException
+#          - org.springframework.web.client.HttpServerErrorException
+#        ignore-exceptions:
+#          - java.lang.IllegalArgumentException
+#      mastercard-registration:
+#        max-attempts: 3
+#        wait-duration: 2s
+#        exponential-backoff-multiplier: 2
+#        exponential-max-wait-duration: 10s
+#        retry-exceptions:
+#          - org.springframework.web.client.RestClientException
+#          - java.net.SocketTimeoutException
+#          - java.net.ConnectException
+#          - org.springframework.web.client.HttpServerErrorException
+#        ignore-exceptions:
+#          - java.lang.IllegalArgumentException
+#  circuitbreaker:
+#    instances:
+#      visa-registration:
+#        register-health-indicator: true
+#        sliding-window-size: 10
+#        minimum-number-of-calls: 5
+#        permitted-number-of-calls-in-half-open-state: 3
+#        automatic-transition-from-open-to-half-open-enabled: true
+#        wait-duration-in-open-state: 30s
+#        failure-rate-threshold: 50
+#        event-consumer-buffer-size: 10
+#      mastercard-registration:
+#        register-health-indicator: true
+#        sliding-window-size: 10
+#        minimum-number-of-calls: 5
+#        permitted-number-of-calls-in-half-open-state: 3
+#        automatic-transition-from-open-to-half-open-enabled: true
+#        wait-duration-in-open-state: 30s
+#        failure-rate-threshold: 50
+#        event-consumer-buffer-size: 10
 
 # Enable resilience4j actuator endpoints
 management:
