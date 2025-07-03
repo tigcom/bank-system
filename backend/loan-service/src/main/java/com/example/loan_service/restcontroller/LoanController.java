@@ -2,8 +2,10 @@ package com.example.loan_service.restcontroller;
 
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
+import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
 import com.example.loan_service.dto.request.LoanRequestDTO;
+import com.example.loan_service.dto.response.TransactionDto;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.handler.LoanHandler;
@@ -31,6 +33,7 @@ public class LoanController {
         log.info("CREATE_LOAN_START - request: {}", loan);
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
         try {
+
             Loan created = loanHandler.createLoan(loan);
             response.setData(created);
             response.setStatus(HttpStatus.OK.value());
@@ -329,6 +332,23 @@ public class LoanController {
             log.error("GET_ALL_ACCOUNT_BY_USER_ERROR  error: {}",  e.getMessage(), e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setMessage("Failed to get account payment information: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+    @PostMapping("/check-info-income")
+    public ResponseEntity<ApiResponseWrapper<List<TransactionDto>>> checkInfoIncome(@RequestBody InfoIncomeRequestDto infoIncome) {
+        log.info("CHECK_INFO_INCOME with info: {}", infoIncome);
+        ApiResponseWrapper<List<TransactionDto>> response = new ApiResponseWrapper<>();
+        try {
+            List<TransactionDto> transactions = loanHandler.checkInfoIncome(infoIncome);
+            response.setData(transactions);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Income transaction data retrieved successfully");
+            log.info("CHECK_INFO_INCOME_SUCCESS  totalTransactions: {}", transactions.size());
+        } catch (Exception e) {
+            log.error("CHECK_INFO_INCOME_ERROR  error: {}", e.getMessage(), e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to check income information: " + e.getMessage());
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }

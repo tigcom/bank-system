@@ -12,13 +12,17 @@ import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.transactions.CommonTransactionService;
+import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
 import com.example.loan_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.dto.response.CicResponse;
+import com.example.loan_service.dto.response.TransactionDto;
+import com.example.loan_service.entity.InfoIncome;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.LoanRejectionReason;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.handler.LoanHandler;
+import com.example.loan_service.mapper.InfoIncomeMapper;
 import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
@@ -37,6 +41,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,9 +53,12 @@ public class LoanHandler {
     private final StreamBridge streamBridge;
     private final LoanService loanService;
     private final LoanMapper loanMapper;
+    private final InfoIncomeMapper  infoIncomeMapper;
     private final CoreBankingClient coreBankingClient;
     private final RepaymentService repaymentService;
     private final CICClient cicClient;
+    private final  OpeningBankingClient openingBankingClient;
+    private final InfoIncomeService infoIncomeService;
     private final LoanRejectionReasonService loanRejectionReasonService;
     @DubboReference private final CustomerQueryService customerQueryService;
     @DubboReference private final AccountQueryService accountQueryService;
@@ -136,16 +144,20 @@ public class LoanHandler {
             if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
                 throw new IllegalArgumentException("Tài khoản ngân hàng không hợp lệ");
             }
-            if (dto.getDeclaredIncome().compareTo(BigDecimal.valueOf(5_000_000)) < 0) {
-                throw new IllegalArgumentException("Thu nhập cá nhân thấp hơn yêu cầu");
-            }
             if ("fail".equalsIgnoreCase(cicResponse.getStatus())) {
                 throw new IllegalArgumentException("Hồ sơ có dấu hiệu nợ xấu");
             }
             coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
             Loan l = loanMapper.toEntity(dto);
             l.setCustomerId(customerId);
+            InfoIncome income = infoIncomeMapper.toEntity(dto.getInfoIncome());
+            income.setLoan(l);
+            l.setInfoIncome(income);
             Loan created = loanService.createLoan(l);
+
+
+
+
             log.info("CREATE_LOAN_HANDLER_SUCCESS - loanId: {}", created.getLoanId());
             return created;
         } catch (IllegalArgumentException e) {
@@ -162,6 +174,7 @@ public class LoanHandler {
         log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
         try {
             Loan updated = loanService.updateLoan(loanMapper.toEntity(dto));
+            infoIncomeService.updateInfoIncome(infoIncomeMapper.toEntity(dto.getInfoIncome()));
             coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
             log.info("UPDATE_LOAN_HANDLER_SUCCESS - loanId: {}", updated.getLoanId());
             return updated;
@@ -474,6 +487,17 @@ public class LoanHandler {
         } catch (Exception e) {
             log.error("GET_ALL_PAYMENT_ACCOUNTS_BY_USER_ERROR - userId: {}, error: {}", null, e.getMessage(), e);
             throw e;
+        }
+    }
+    public List<TransactionDto> checkInfoIncome(InfoIncomeRequestDto infoIncome) {
+        log.info("LOAN_HANDLER_CHECK_INFO_INCOME input: {}", infoIncome);
+        try {
+            List<TransactionDto> result = openingBankingClient.checkIncome(infoIncome);
+            log.info("LOAN_HANDLER_CHECK_INFO_INCOME_SUCCESS size: {}", result.size());
+            return result;
+        } catch (Exception e) {
+            log.error("LOAN_HANDLER_CHECK_INFO_INCOME_ERROR: {}", e.getMessage(), e);
+            return Collections.emptyList();
         }
     }
 

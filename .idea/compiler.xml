@@ -11,22 +11,18 @@
         <module name="common-service" />
         <module name="customer-service" />
         <module name="mock-provider-server" />
+        <module name="cic-service" />
         <module name="corebanking-service" />
         <module name="loan-service" />
         <module name="api-gateway" />
         <module name="transaction-service" />
+        <module name="openingbanking-service" />
         <module name="account-service" />
       </profile>
-      <profile name="Annotation profile for cic-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-        </processorPath>
-        <module name="cic-service" />
-      </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="openibanking-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -39,6 +35,8 @@
       <module name="customer-service" options="-parameters" />
       <module name="loan-service" options="-parameters" />
       <module name="mock-provider-server" options="-parameters" />
+      <module name="openibanking-service" options="-parameters" />
+      <module name="openingbanking-service" options="-parameters" />
       <module name="transaction-service" options="-parameters" />
     </option>
   </component>

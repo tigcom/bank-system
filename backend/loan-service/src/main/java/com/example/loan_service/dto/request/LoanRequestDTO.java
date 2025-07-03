@@ -30,8 +30,6 @@ public class LoanRequestDTO {
     private BigDecimal interestRate;
     @NotNull @Min(1) @Max(360)
     private Integer termMonths;
-    @DecimalMin("0.0")
-    private BigDecimal declaredIncome;
     @NotNull
     private Long customerId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -40,4 +38,5 @@ public class LoanRequestDTO {
     private LocalDateTime approvedAt;
     @Enumerated(EnumType.STRING)
     private LoanStatus status;
+    private InfoIncomeRequestDto infoIncome;
 }
