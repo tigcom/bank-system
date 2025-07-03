@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,31 +23,31 @@ public class CoreCustomerImpl implements CoreCustomerService {
     @Override
     @Transactional
     public CoreResponse syncCoreCustomer(CoreCustomerDTO coreCustomerDTO) {
+        String requestId = UUID.randomUUID().toString();
         try {
-            log.info("Đang đồng bộ khách hàng với CIF: {}, Status: {}",
-                    coreCustomerDTO.getCifCode(), coreCustomerDTO.getStatus());
+            log.info("SYNC_CORE_CUSTOMER - RequestId: {}, CifCode: {}, Status: {}", requestId, coreCustomerDTO.getCifCode(), coreCustomerDTO.getStatus());
 
             Optional<CoreCustomer> existingCustomer = coreCustomerRepo.findByCifCode(coreCustomerDTO.getCifCode());
             if (existingCustomer.isPresent()) {
-                log.info("Cập nhật khách hàng hiện có với CIF: {}", coreCustomerDTO.getCifCode());
+                log.info("UPDATE_EXISTING_CUSTOMER - RequestId: {}, CifCode: {}", requestId, coreCustomerDTO.getCifCode());
                 CoreCustomer coreCustomer = existingCustomer.get();
                 coreCustomer.setStatus(coreCustomerDTO.getStatus());
                 coreCustomerRepo.save(coreCustomer);
-                log.info("Đã cập nhật khách hàng thành công với CIF: {}", coreCustomer.getCifCode());
-                return new CoreResponse(true, "Cập nhật khách hàng thành công");
+                log.info("UPDATE_CUSTOMER_SUCCESS - RequestId: {}, CifCode: {}", requestId, coreCustomer.getCifCode());
+                return new CoreResponse(true, "Customer updated successfully");
             }
 
             if (coreCustomerDTO.getCifCode() == null || coreCustomerDTO.getCifCode().isEmpty()) {
-                log.error("Mã CIF không hợp lệ: {}", coreCustomerDTO.getCifCode());
-                return new CoreResponse(false, "Mã CIF không hợp lệ");
+                log.warn("INVALID_CIF_CODE - RequestId: {}, CifCode: {}", requestId, coreCustomerDTO.getCifCode());
+                return new CoreResponse(false, "Invalid CIF code");
             }
             if (coreCustomerDTO.getStatus() == null || coreCustomerDTO.getStatus().isEmpty()) {
-                log.error("Trạng thái không hợp lệ: {}", coreCustomerDTO.getStatus());
-                return new CoreResponse(false, "Trạng thái không hợp lệ");
+                log.warn("INVALID_STATUS - RequestId: {}, Status: {}", requestId, coreCustomerDTO.getStatus());
+                return new CoreResponse(false, "Invalid status");
             }
             if (coreCustomerRepo.findByCifCode(coreCustomerDTO.getCifCode()).isPresent()) {
-                log.error("Mã CIF đã tồn tại: {}", coreCustomerDTO.getCifCode());
-                return new CoreResponse(false, "Mã CIF đã tồn tại");
+                log.warn("CIF_ALREADY_EXISTS - RequestId: {}, CifCode: {}", requestId, coreCustomerDTO.getCifCode());
+                return new CoreResponse(false, "CIF code already exists");
             }
 
             CoreCustomer coreCustomer = CoreCustomer.builder()
@@ -54,14 +55,13 @@ public class CoreCustomerImpl implements CoreCustomerService {
                     .status(coreCustomerDTO.getStatus())
                     .build();
 
-            log.info("Đang lưu khách hàng vào core_customers với CIF: {}", coreCustomer.getCifCode());
+            log.info("SAVE_NEW_CUSTOMER - RequestId: {}, CifCode: {}", requestId, coreCustomer.getCifCode());
             coreCustomerRepo.save(coreCustomer);
-            log.info("Đã lưu khách hàng thành công với CIF: {}", coreCustomer.getCifCode());
-            return new CoreResponse(true, "Đồng bộ khách hàng thành công");
+            log.info("SAVE_CUSTOMER_SUCCESS - RequestId: {}, CifCode: {}", requestId, coreCustomer.getCifCode());
+            return new CoreResponse(true, "Customer synchronized successfully");
         } catch (Exception e) {
-            log.error("Đồng bộ khách hàng thất bại với CIF: {}. Lỗi: {}",
-                    coreCustomerDTO.getCifCode(), e.getMessage(), e);
-            throw new RuntimeException("Đồng bộ khách hàng thất bại: " + e.getMessage(), e);
+            log.error("SYNC_CORE_CUSTOMER_FAILED - RequestId: {}, CifCode: {}, Error: {}", requestId, coreCustomerDTO.getCifCode(), e.getMessage(), e);
+            throw new RuntimeException("Customer synchronization failed: " + e.getMessage(), e);
         }
     }
 

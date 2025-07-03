@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class CustomRequestLoggingFilter extends OncePerRequestFilter {
@@ -32,7 +33,9 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String requestId = UUID.randomUUID().toString();
         Instant start = Instant.now();
+        
         try {
             filterChain.doFilter(request, response);
         } finally {
@@ -55,20 +58,16 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
             int status = response.getStatus();
 
             // Log với thông tin cần thiết
-            StringBuilder logMessage = new StringBuilder();
-            logMessage.append("IP: ").append(ip)
-                    .append(", Method: ").append(method)
-                    .append(", URL: ").append(fullUrl)
-                    .append(", Status: ").append(status)
-                    .append(", Time: ").append(durationMs).append(" ms");
+            String logMessage = String.format("ACCESS_LOG - RequestId: %s, IP: %s, Method: %s, URL: %s, Status: %d, Duration: %d ms",
+                    requestId, ip, method, fullUrl, status, durationMs);
 
             // Log theo level phù hợp với status code
             if (status >= 500) {
-                logger.error(logMessage.toString());
+                logger.error(logMessage);
             } else if (status >= 400) {
-                logger.warn(logMessage.toString());
+                logger.warn(logMessage);
             } else {
-                logger.info(logMessage.toString());
+                logger.info(logMessage);
             }
         }
     }

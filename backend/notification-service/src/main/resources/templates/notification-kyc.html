@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo KYC</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f2f2f2; margin: 0; padding: 20px;">
+<div style="background-color: #ffffff; padding: 30px; max-width: 600px; margin: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #333333;">Chào <span th:text="${name}">Bạn</span>,</h2>
+    <p style="font-size: 16px; color: #555555; line-height: 1.5;"
+       th:text="${body}">
+    </p>
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e0e0e0;"/>
+
+    <p style="font-size: 12px; color: #aaaaaa;">
+        Trân trọng,<br/>
+        Đội ngũ hỗ trợ
+    </p>
+</div>
+</body>
+</html>

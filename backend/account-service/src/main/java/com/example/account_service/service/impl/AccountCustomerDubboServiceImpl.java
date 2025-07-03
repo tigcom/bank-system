@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @DubboService
@@ -31,31 +32,35 @@ public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
 
     @Override
     public List<AccountDTO> getAccountsByCifCode(String cifCode) {
+        String requestId = UUID.randomUUID().toString();
+        log.info("GET_ACCOUNTS_BY_CIF_REQUEST - RequestId: {}, CifCode: {}", requestId, cifCode);
         try {
             List<Account> accounts = accountRepository.findByCifCode(cifCode);
-            return accounts.stream()
+            List<AccountDTO> result = accounts.stream()
                     .map(this::mapToDto)
                     .collect(Collectors.toList());
+            log.info("GET_ACCOUNTS_BY_CIF_SUCCESS - RequestId: {}, CifCode: {}, Count: {}", requestId, cifCode, result.size());
+            return result;
         } catch (Exception e) {
-            log.error("[getAccountsByCifCode] Lỗi khi lấy danh sách account cho CIF: {}: {}", cifCode, e.getMessage(), e);
-            throw new RuntimeException("Không thể lấy danh sách tài khoản: " + e.getMessage(), e);
+            log.error("GET_ACCOUNTS_BY_CIF_FAILED - RequestId: {}, CifCode: {}, Error: {}", requestId, cifCode, e.getMessage(), e);
+            throw new RuntimeException("Unable to get account list: " + e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional
     public PaymentRequestResponse createPaymentInit(PaymentCreateDTO paymentRequest) {
-        log.info("[createPaymentInit] Bắt đầu tạo payment account cho CIF: {}", paymentRequest.getCifCode());
-        return createPaymentAccountDirectly(paymentRequest.getCifCode());
+        String requestId = UUID.randomUUID().toString();
+        log.info("CREATE_PAYMENT_INIT_REQUEST - RequestId: {}, CifCode: {}", requestId, paymentRequest.getCifCode());
+        return createPaymentAccountDirectly(paymentRequest.getCifCode(), requestId);
     }
 
-    private PaymentRequestResponse createPaymentAccountDirectly(String cifCode) {
+    private PaymentRequestResponse createPaymentAccountDirectly(String cifCode, String requestId) {
         try {
-            // Tạo account trong database local
-            AccountCreateReponse account = createPaymentAccountForCustomer(cifCode);
+            // Create account in local database
+            AccountCreateReponse account = createPaymentAccountForCustomer(cifCode, requestId);
 
-            log.info("[createPaymentAccountDirectly] Đã tạo payment account cho CIF: {}, AccountNumber: {}",
-                    cifCode, account.getAccountNumber());
+            log.info("CREATE_PAYMENT_ACCOUNT_DIRECTLY_SUCCESS - RequestId: {}, CifCode: {}, AccountNumber: {}", requestId, cifCode, account.getAccountNumber());
 
             return PaymentRequestResponse.builder()
                     .id(account.getId())
@@ -65,15 +70,15 @@ public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
                     .build();
 
         } catch (Exception e) {
-            log.error("[createPaymentAccountDirectly] Lỗi khi tạo payment account cho CIF: {}: {}", cifCode, e.getMessage(), e);
-            throw new RuntimeException("Không thể tạo tài khoản thanh toán trực tiếp: " + e.getMessage(), e);
+            log.error("CREATE_PAYMENT_ACCOUNT_DIRECTLY_FAILED - RequestId: {}, CifCode: {}, Error: {}", requestId, cifCode, e.getMessage(), e);
+            throw new RuntimeException("Unable to create payment account directly: " + e.getMessage(), e);
         }
     }
 
-    private AccountCreateReponse createPaymentAccountForCustomer(String cifCode) {
+    private AccountCreateReponse createPaymentAccountForCustomer(String cifCode, String requestId) {
         Account account = null;
         try {
-            // 1. Tạo account trong database local
+            // 1. Create account in local database
             account = Account.builder()
                     .accountType(AccountType.PAYMENT)
                     .cifCode(cifCode)
@@ -83,11 +88,10 @@ public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
             account.setAccountNumber(generateAccountNumber(account));
             account = accountRepository.save(account);
 
-            log.info("[createPaymentAccountForCustomer] Đã lưu account local cho CIF: {}, AccountNumber: {}",
-                    cifCode, account.getAccountNumber());
+            log.info("CREATE_PAYMENT_ACCOUNT_LOCAL_SUCCESS - RequestId: {}, CifCode: {}, AccountNumber: {}", requestId, cifCode, account.getAccountNumber());
 
-            // 2. Đồng bộ với CoreBanking
-            syncWithCoreBanking(account);
+            // 2. Sync with CoreBanking
+            syncWithCoreBanking(account, requestId);
 
             return AccountCreateReponse.builder()
                     .accountNumber(account.getAccountNumber())
@@ -98,25 +102,24 @@ public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
                     .build();
 
         } catch (Exception e) {
-            log.error("[createPaymentAccountForCustomer] Lỗi khi tạo account cho CIF: {}: {}", cifCode, e.getMessage(), e);
+            log.error("CREATE_PAYMENT_ACCOUNT_FOR_CUSTOMER_FAILED - RequestId: {}, CifCode: {}, Error: {}", requestId, cifCode, e.getMessage(), e);
 
-            // Rollback: Xóa account nếu đã tạo trong database nhưng sync CoreBanking thất bại
+            // Rollback: Delete account if created in DB but sync failed
             if (account != null && account.getId() != null) {
                 try {
                     accountRepository.deleteById(account.getId());
-                    log.info("[createPaymentAccountForCustomer] Đã rollback account ID: {}", account.getId());
+                    log.info("ROLLBACK_ACCOUNT_SUCCESS - RequestId: {}, AccountId: {}", requestId, account.getId());
                 } catch (Exception rollbackEx) {
-                    log.error("[createPaymentAccountForCustomer] Lỗi khi rollback account ID: {}. Vui lòng kiểm tra thủ công!",
-                            account.getId(), rollbackEx);
-                    throw new RuntimeException("Lỗi khi rollback tài khoản: " + rollbackEx.getMessage(), rollbackEx);
+                    log.error("ROLLBACK_ACCOUNT_FAILED - RequestId: {}, AccountId: {}, Error: {}", requestId, account.getId(), rollbackEx.getMessage(), rollbackEx);
+                    throw new RuntimeException("Rollback account failed: " + rollbackEx.getMessage(), rollbackEx);
                 }
             }
 
-            throw new RuntimeException("Không thể tạo tài khoản thanh toán: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to create payment account: " + e.getMessage(), e);
         }
     }
 
-    private void syncWithCoreBanking(Account account) {
+    private void syncWithCoreBanking(Account account, String requestId) {
         try {
             CoreAccountRequest coreAccount = CoreAccountRequest.builder()
                     .accountNumber(account.getAccountNumber())
@@ -128,18 +131,15 @@ public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
 
             String url = "http://localhost:8083/corebanking/save-account";
 
-            log.info("[syncWithCoreBanking] Gửi yêu cầu đồng bộ đến CoreBanking: URL={}, AccountNumber={}",
-                    url, account.getAccountNumber());
+            log.info("SYNC_WITH_COREBANKING_REQUEST - RequestId: {}, URL: {}, AccountNumber: {}", requestId, url, account.getAccountNumber());
 
             restTemplate.postForObject(url, coreAccount, Void.class);
 
-            log.info("[syncWithCoreBanking] Đã đồng bộ thành công account với CoreBanking: {}",
-                    account.getAccountNumber());
+            log.info("SYNC_WITH_COREBANKING_SUCCESS - RequestId: {}, AccountNumber: {}", requestId, account.getAccountNumber());
 
         } catch (Exception e) {
-            log.error("[syncWithCoreBanking] Lỗi khi đồng bộ account {} với CoreBanking: {}",
-                    account.getAccountNumber(), e.getMessage(), e);
-            throw new RuntimeException("Không thể đồng bộ với hệ thống CoreBanking: " + e.getMessage(), e);
+            log.error("SYNC_WITH_COREBANKING_FAILED - RequestId: {}, AccountNumber: {}, Error: {}", requestId, account.getAccountNumber(), e.getMessage(), e);
+            throw new RuntimeException("Unable to sync with CoreBanking: " + e.getMessage(), e);
         }
     }
 
