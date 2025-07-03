@@ -514,7 +514,7 @@ public class TransactionController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TransactionStatsResponse> getTransactionStats(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
                                                                      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "1") int page,
                                                                      @RequestParam(defaultValue = "5") int size){
         Pageable pageable = PageRequest.of(page-1, size);
         TransactionStatsResponse response = transactionService.getTransactionStats(startDate, endDate, pageable);

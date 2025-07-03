@@ -781,21 +781,37 @@ public class TransactionServiceImpl implements TransactionService{
             // Top khách hàng
             log.info("[GET_TXN_STATS] Đang lấy top khách hàng...");
             List<Object[]> topAccountsRaw = transactionRepository.findTopAccounts(startDate, endDate, pageable);
-            List<TransactionStatsResponse.TopCustomerStats> topCustomers = topAccountsRaw.stream()
-                    .filter(row -> !((String) row[0]).equals(masterAccount))
+            Map<String, TransactionStatsResponse.TopCustomerStats> topCustomersMap = topAccountsRaw.stream()
+                    .filter(row -> {
+                        String accountNumber = (String) row[0];
+                        return !accountNumber.equals(masterAccount);
+                    })
                     .map(row -> {
                         String accountNumber = (String) row[0];
                         long count = ((Number) row[1]).longValue();
                         BigDecimal total = (BigDecimal) row[2];
                         CustomerDTO customerDTO = accountQueryService.getCustomerByAccountNumber(accountNumber);
-                        return TransactionStatsResponse.TopCustomerStats.builder()
-                                .cifCode(customerDTO.getCifCode())
-                                .name(customerDTO.getFullName())
-                                .transactionCount(count)
-                                .totalAmount(total)
-                                .build();
+                        return new AbstractMap.SimpleEntry<>(customerDTO.getCifCode(), new Object[] {
+                                customerDTO.getFullName(), count, total
+                        });
                     })
-                    .toList();
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            entry -> TransactionStatsResponse.TopCustomerStats.builder()
+                                    .cifCode(entry.getKey())
+                                    .name((String) entry.getValue()[0])
+                                    .transactionCount((Long) entry.getValue()[1])
+                                    .totalAmount((BigDecimal) entry.getValue()[2])
+                                    .build(),
+                            (existing, incoming) -> TransactionStatsResponse.TopCustomerStats.builder()
+                                    .cifCode(existing.getCifCode())
+                                    .name(existing.getName()) // giữ nguyên tên đầu tiên
+                                    .transactionCount(existing.getTransactionCount() + incoming.getTransactionCount())
+                                    .totalAmount(existing.getTotalAmount().add(incoming.getTotalAmount()))
+                                    .build()
+                    ));
+
+            List<TransactionStatsResponse.TopCustomerStats> topCustomers = new ArrayList<>(topCustomersMap.values());
             log.info("[GET_TXN_STATS] Top khách hàng: {} khách hàng", topCustomers.size());
 
             // Thống kê theo loại giao dịch
@@ -817,11 +833,11 @@ public class TransactionServiceImpl implements TransactionService{
             List<Transaction> latestTransactions = transactionRepository.findTop5ByCreatedAtBetweenOrderByCreatedAtDesc(startDate, endDate);
             List<TransactionStatsResponse.RecentTransaction> recentTransactions = latestTransactions.stream().map(tx -> {
                 TransactionStatsResponse.RecentTransaction recent = TransactionStatsResponse.RecentTransaction.builder()
-                        .transactionId(tx.getId())
+                        .transactionId(tx.getReferenceCode())
                         .fromAccount(tx.getFromAccountNumber())
                         .toAccount(tx.getToAccountNumber())
                         .amount(tx.getAmount())
-                        .type(tx.getType().name())
+                        .type(tx.getType().getDisplayName())
                         .status(tx.getStatus().name())
                         .createdAt(tx.getCreatedAt())
                         .build();
