@@ -80,3 +80,19 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# Enable resilience4j actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,retries,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0  # Sample 100% of requests in development
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans

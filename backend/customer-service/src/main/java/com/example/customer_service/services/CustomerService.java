@@ -24,7 +24,7 @@ public interface CustomerService {
     CustomerResponse getCustomerDetailByCifCode(String cifCode);
     KycResponse verifyKyc(String userId, KycRequest request);
     KycResponse approveKyc(String cifCode, KycStatus status, String reason);
-    KycListResponse getPendingKycRequests(int page, int size);
+    KycListResponse getPendingKycRequests(int page, int size, String keyword);
     KycStatisticsResponse getKycStatistics(LocalDate startDate, LocalDate endDate);
     CustomerGrowthResponse getCustomerGrowth(LocalDate startDate, LocalDate endDate);
 }

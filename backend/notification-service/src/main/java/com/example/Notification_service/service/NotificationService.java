@@ -13,4 +13,8 @@ public interface NotificationService {
     void sendOtpRegister(Message<byte[]> message);
 
     void sendOtpForgotPassword(Message<byte[]> message);
+
+    void sendNotificationKyc(Message<byte[]> message);
+
+    void sendNotificationKycResult(Message<byte[]> message);
 }
