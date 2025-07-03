@@ -42,7 +42,6 @@ spring:
         mail-out-0:
           destination: send-mail-html
           content-type: application/json
-        # Thêm binding cho card registration nếu muốn dùng Stream
         card-registration-out-0:
           destination: card-registration-topic
           content-type: application/json
@@ -71,6 +70,7 @@ spring:
 # Core Banking Service Configuration
 core-banking:
   base-url: http://localhost:8083/corebanking
+
   api:
     key: a5dde333-b181-406d-8b41-5ae960579488
 dubbo:
@@ -81,13 +81,23 @@ dubbo:
   application:
     name: account-service
     qos-enable: false
+    serialize-check-status: WARN
+    # hoặc nếu cần thiết (không khuyến nghị cho production):
+    # serialize-check-status: DISABLE
+    serialize:
+      allowlist: com.example.customer_service.exceptions.AppException,java.lang.RuntimeException,java.lang.Exception
+
   protocol:
     name: dubbo
     port: 20882
+    serialization: hessian2
+
   registry:
     address: zookeeper://localhost:2181
+
   scan:
     base-packages: com.example.account_service.service
+
 
 springdoc:
   api-docs:
@@ -95,7 +105,6 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-# Resilience4j Configuration
 resilience4j:
   retry:
     instances:

@@ -169,9 +169,7 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountPaymentResponse> getAllPaymentAccountsbyCifCode() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        
         log.info("GET_PAYMENT_ACCOUNTS_START - UserId: {}", userId);
-
         try {
             // Lấy thông tin khách hàng hiện tại
             CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
@@ -272,7 +270,6 @@ public class AccountServiceImpl implements AccountService {
         String userId = authentication.getName();
         
         log.info("GET_SAVING_ACCOUNTS_START - UserId: {}", userId);
-
         try {
             // Lấy thông tin khách hàng hiện tại
             CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
