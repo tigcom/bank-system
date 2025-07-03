@@ -73,3 +73,295 @@
 2025-07-03 00:04:26 [DubboServerHandler-192.168.1.3:20882-thread-32] DEBUG org.hibernate.orm.results - Extracted JDBC value [9] - [ACTIVE] MDC:[traceId=, spanId=]
 2025-07-03 00:04:26 [DubboServerHandler-192.168.1.3:20882-thread-32] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Done materializing entityInstance : com.example.account_service.entity.Account(54)#14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
 2025-07-03 00:04:26 [DubboServerHandler-192.168.1.3:20882-thread-32] DEBUG org.hibernate.orm.results.loading - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1906580d MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_0 MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.account_service.entity.Account(56))] with identifierForTableGroup [com.example.account_service.entity.Account] for NavigablePath [com.example.account_service.entity.Account]  MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_1 MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_2 MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@16060293] with identifierForTableGroup [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.CreditAccount).creditCardType] for NavigablePath [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.CreditAccount).creditCardType]  MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@39db2975] with identifierForTableGroup [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.SavingsAccount).term] for NavigablePath [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.SavingsAccount).term]  MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@66d62b7f MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(56).accountNumber)  MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.account_service.entity.Account(56)]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).accountNumber]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).accountType]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).cifCode]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).createdBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).createdDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).lastModifiedBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).lastModifiedDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).status]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).cardHolderName]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).cardNumber]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).cardToken]
+ |  +-CircularFetchImpl [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditLimit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).currentDebt]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).expiryDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).accountNumberSrc]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).initialDeposit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).interestPaymentType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).maturityDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).renewOption]
+ |  \-CircularFetchImpl [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term]
+ MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (a1 : com.example.account_service.entity.Account(56)) {
+          primaryTableReference : accounts as a1_0
+          TableReferenceJoins {
+            left  join credit_accounts as a1_1
+            left  join savings_accounts as a1_2
+          }
+          TableGroupJoins {
+            left  join LazyTableGroup (cct1 : treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType) {
+            }
+            left  join LazyTableGroup (t1 : treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term) {
+            }
+          }
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.account_service.entity.Account(56) -> EntityResultInitializer(com.example.account_service.entity.Account(56))@1679548035 (JoinedSubclassEntityPersister(com.example.account_service.entity.Account))
+	  treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term)@1110395401 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.SavingsAccount.term])@370850608)
+	  treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType)@585057208 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.CreditAccount.creditCardType])@766620513)
+ MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.SQL - select a1_0.id,case when a1_1.id is not null then 1 when a1_2.id is not null then 2 when a1_0.id is not null then 0 end,a1_0.account_number,a1_0.account_type,a1_0.cif_code,a1_0.created_by,a1_0.created_date,a1_0.last_modified_by,a1_0.last_modified_date,a1_0.status,a1_1.card_holder_name,a1_1.card_number,a1_1.card_token,a1_1.card_type_id,a1_1.credit_limit,a1_1.current_debt,a1_1.expiry_date,a1_2.accountnumber_src,a1_2.initial_deposit,a1_2.interest_payment_type,a1_2.maturity_date,a1_2.renew_option,a1_2.term_id from accounts a1_0 left join credit_accounts a1_1 on a1_0.id=a1_1.id left join savings_accounts a1_2 on a1_0.id=a1_2.id where a1_0.account_number=? MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [0] - [14a4b335-9623-4afc-b453-5b7724dfc5dc] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Hydrated EntityKey (com.example.account_service.entity.Account(56)): 14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Created new entity instance [com.example.account_service.entity.Account(56)#14a4b335-9623-4afc-b453-5b7724dfc5dc] : 1100527226 MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [2] - [97045221666070882] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [3] - [PAYMENT] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [4] - [9704522166607] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [5] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [6] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [7] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [8] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results - Extracted JDBC value [9] - [ACTIVE] MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Done materializing entityInstance : com.example.account_service.entity.Account(56)#14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:04:48 [DubboServerHandler-192.168.1.3:20882-thread-33] DEBUG org.hibernate.orm.results.loading - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@1902ff72 MDC:[traceId=, spanId=]
+2025-07-03 00:10:53 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_0 MDC:[traceId=, spanId=]
+2025-07-03 00:10:53 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.account_service.entity.Account(54))] with identifierForTableGroup [com.example.account_service.entity.Account] for NavigablePath [com.example.account_service.entity.Account]  MDC:[traceId=, spanId=]
+2025-07-03 00:10:53 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_1 MDC:[traceId=, spanId=]
+2025-07-03 00:10:53 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_2 MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@767437b8] with identifierForTableGroup [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.CreditAccount).creditCardType] for NavigablePath [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.CreditAccount).creditCardType]  MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@5218a4db] with identifierForTableGroup [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.SavingsAccount).term] for NavigablePath [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.SavingsAccount).term]  MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6c065cc3 MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(54).cifCode)  MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@2904df27 MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(54).accountType)  MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3e50361b MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(54).status)  MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.account_service.entity.Account(54)]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).accountNumber]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).accountType]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).cifCode]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).createdBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).createdDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).lastModifiedBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).lastModifiedDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).status]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).cardHolderName]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).cardNumber]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).cardToken]
+ |  +-CircularFetchImpl [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditLimit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).currentDebt]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).expiryDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).accountNumberSrc]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).initialDeposit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).interestPaymentType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).maturityDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).renewOption]
+ |  \-CircularFetchImpl [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term]
+ MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (a1 : com.example.account_service.entity.Account(54)) {
+          primaryTableReference : accounts as a1_0
+          TableReferenceJoins {
+            left  join credit_accounts as a1_1
+            left  join savings_accounts as a1_2
+          }
+          TableGroupJoins {
+            left  join LazyTableGroup (cct1 : treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType) {
+            }
+            left  join LazyTableGroup (t1 : treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term) {
+            }
+          }
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.account_service.entity.Account(54) -> EntityResultInitializer(com.example.account_service.entity.Account(54))@223542249 (JoinedSubclassEntityPersister(com.example.account_service.entity.Account))
+	  treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term)@1053688660 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.SavingsAccount.term])@370850608)
+	  treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType)@1596265442 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.CreditAccount.creditCardType])@766620513)
+ MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.SQL - select a1_0.id,case when a1_1.id is not null then 1 when a1_2.id is not null then 2 when a1_0.id is not null then 0 end,a1_0.account_number,a1_0.account_type,a1_0.cif_code,a1_0.created_by,a1_0.created_date,a1_0.last_modified_by,a1_0.last_modified_date,a1_0.status,a1_1.card_holder_name,a1_1.card_number,a1_1.card_token,a1_1.card_type_id,a1_1.credit_limit,a1_1.current_debt,a1_1.expiry_date,a1_2.accountnumber_src,a1_2.initial_deposit,a1_2.interest_payment_type,a1_2.maturity_date,a1_2.renew_option,a1_2.term_id from accounts a1_0 left join credit_accounts a1_1 on a1_0.id=a1_1.id left join savings_accounts a1_2 on a1_0.id=a1_2.id where a1_0.cif_code=? and a1_0.account_type=? and a1_0.status=? MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [0] - [14a4b335-9623-4afc-b453-5b7724dfc5dc] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Hydrated EntityKey (com.example.account_service.entity.Account(54)): 14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Created new entity instance [com.example.account_service.entity.Account(54)#14a4b335-9623-4afc-b453-5b7724dfc5dc] : 1287965530 MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [2] - [97045221666070882] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [3] - [PAYMENT] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [4] - [9704522166607] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [5] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [6] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [7] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [8] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results - Extracted JDBC value [9] - [ACTIVE] MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Done materializing entityInstance : com.example.account_service.entity.Account(54)#14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:10:54 [DubboServerHandler-192.168.1.3:20882-thread-34] DEBUG org.hibernate.orm.results.loading - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@3b897b23 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_0 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.account_service.entity.Account(54))] with identifierForTableGroup [com.example.account_service.entity.Account] for NavigablePath [com.example.account_service.entity.Account]  MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_1 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_2 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@65ea0511] with identifierForTableGroup [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.CreditAccount).creditCardType] for NavigablePath [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.CreditAccount).creditCardType]  MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@20d90e9d] with identifierForTableGroup [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.SavingsAccount).term] for NavigablePath [treat(com.example.account_service.entity.Account(54) as com.example.account_service.entity.SavingsAccount).term]  MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@56273466 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(54).cifCode)  MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@1325b0c6 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(54).accountType)  MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@35247a5b MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(54).status)  MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.account_service.entity.Account(54)]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).accountNumber]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).accountType]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).cifCode]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).createdBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).createdDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).lastModifiedBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).lastModifiedDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(54).status]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).cardHolderName]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).cardNumber]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).cardToken]
+ |  +-CircularFetchImpl [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditLimit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).currentDebt]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).expiryDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).accountNumberSrc]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).initialDeposit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).interestPaymentType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).maturityDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).renewOption]
+ |  \-CircularFetchImpl [treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term]
+ MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (a1 : com.example.account_service.entity.Account(54)) {
+          primaryTableReference : accounts as a1_0
+          TableReferenceJoins {
+            left  join credit_accounts as a1_1
+            left  join savings_accounts as a1_2
+          }
+          TableGroupJoins {
+            left  join LazyTableGroup (cct1 : treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType) {
+            }
+            left  join LazyTableGroup (t1 : treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term) {
+            }
+          }
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.account_service.entity.Account(54) -> EntityResultInitializer(com.example.account_service.entity.Account(54))@720814707 (JoinedSubclassEntityPersister(com.example.account_service.entity.Account))
+	  treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.SavingsAccount).term)@1643451584 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.SavingsAccount.term])@370850608)
+	  treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(54) as #com.example.account_service.entity.CreditAccount).creditCardType)@811716036 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.CreditAccount.creditCardType])@766620513)
+ MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.SQL - select a1_0.id,case when a1_1.id is not null then 1 when a1_2.id is not null then 2 when a1_0.id is not null then 0 end,a1_0.account_number,a1_0.account_type,a1_0.cif_code,a1_0.created_by,a1_0.created_date,a1_0.last_modified_by,a1_0.last_modified_date,a1_0.status,a1_1.card_holder_name,a1_1.card_number,a1_1.card_token,a1_1.card_type_id,a1_1.credit_limit,a1_1.current_debt,a1_1.expiry_date,a1_2.accountnumber_src,a1_2.initial_deposit,a1_2.interest_payment_type,a1_2.maturity_date,a1_2.renew_option,a1_2.term_id from accounts a1_0 left join credit_accounts a1_1 on a1_0.id=a1_1.id left join savings_accounts a1_2 on a1_0.id=a1_2.id where a1_0.cif_code=? and a1_0.account_type=? and a1_0.status=? MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [0] - [14a4b335-9623-4afc-b453-5b7724dfc5dc] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Hydrated EntityKey (com.example.account_service.entity.Account(54)): 14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Created new entity instance [com.example.account_service.entity.Account(54)#14a4b335-9623-4afc-b453-5b7724dfc5dc] : 996505605 MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [2] - [97045221666070882] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [3] - [PAYMENT] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [4] - [9704522166607] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [5] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [6] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [7] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [8] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results - Extracted JDBC value [9] - [ACTIVE] MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Done materializing entityInstance : com.example.account_service.entity.Account(54)#14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:11:11 [DubboServerHandler-192.168.1.3:20882-thread-35] DEBUG org.hibernate.orm.results.loading - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@5d48d40 MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_0 MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.account_service.entity.Account(56))] with identifierForTableGroup [com.example.account_service.entity.Account] for NavigablePath [com.example.account_service.entity.Account]  MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_1 MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : a1_2 MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@1b02878c] with identifierForTableGroup [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.CreditAccount).creditCardType] for NavigablePath [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.CreditAccount).creditCardType]  MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [org.hibernate.sql.ast.tree.from.LazyTableGroup@75d6d5cd] with identifierForTableGroup [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.SavingsAccount).term] for NavigablePath [treat(com.example.account_service.entity.Account(56) as com.example.account_service.entity.SavingsAccount).term]  MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6bdfa2e9 MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.account_service.entity.Account(56).accountNumber)  MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.account_service.entity.Account(56)]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).accountNumber]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).accountType]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).cifCode]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).createdBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).createdDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).lastModifiedBy]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).lastModifiedDate]
+ |  +-BasicFetch [com.example.account_service.entity.Account(56).status]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).cardHolderName]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).cardNumber]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).cardToken]
+ |  +-CircularFetchImpl [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditLimit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).currentDebt]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).expiryDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).accountNumberSrc]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).initialDeposit]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).interestPaymentType]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).maturityDate]
+ |  +-BasicFetch [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).renewOption]
+ |  \-CircularFetchImpl [treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term]
+ MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (a1 : com.example.account_service.entity.Account(56)) {
+          primaryTableReference : accounts as a1_0
+          TableReferenceJoins {
+            left  join credit_accounts as a1_1
+            left  join savings_accounts as a1_2
+          }
+          TableGroupJoins {
+            left  join LazyTableGroup (cct1 : treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType) {
+            }
+            left  join LazyTableGroup (t1 : treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term) {
+            }
+          }
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.account_service.entity.Account(56) -> EntityResultInitializer(com.example.account_service.entity.Account(56))@584624116 (JoinedSubclassEntityPersister(com.example.account_service.entity.Account))
+	  treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.SavingsAccount).term)@770271940 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.SavingsAccount.term])@370850608)
+	  treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType -> EntityDelayedFetchInitializer(treat(com.example.account_service.entity.Account(56) as #com.example.account_service.entity.CreditAccount).creditCardType)@1859303945 (ToOneAttributeMapping(NavigableRole[com.example.account_service.entity.CreditAccount.creditCardType])@766620513)
+ MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.SQL - select a1_0.id,case when a1_1.id is not null then 1 when a1_2.id is not null then 2 when a1_0.id is not null then 0 end,a1_0.account_number,a1_0.account_type,a1_0.cif_code,a1_0.created_by,a1_0.created_date,a1_0.last_modified_by,a1_0.last_modified_date,a1_0.status,a1_1.card_holder_name,a1_1.card_number,a1_1.card_token,a1_1.card_type_id,a1_1.credit_limit,a1_1.current_debt,a1_1.expiry_date,a1_2.accountnumber_src,a1_2.initial_deposit,a1_2.interest_payment_type,a1_2.maturity_date,a1_2.renew_option,a1_2.term_id from accounts a1_0 left join credit_accounts a1_1 on a1_0.id=a1_1.id left join savings_accounts a1_2 on a1_0.id=a1_2.id where a1_0.account_number=? MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [0] - [14a4b335-9623-4afc-b453-5b7724dfc5dc] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Hydrated EntityKey (com.example.account_service.entity.Account(56)): 14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Created new entity instance [com.example.account_service.entity.Account(56)#14a4b335-9623-4afc-b453-5b7724dfc5dc] : 1331327100 MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [2] - [97045221666070882] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [3] - [PAYMENT] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [4] - [9704522166607] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [5] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [6] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [7] - [system] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [8] - [2025-06-25T09:49:43.047829] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results - Extracted JDBC value [9] - [ACTIVE] MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG o.h.orm.results.loading.entity - (EntityResultInitializer) Done materializing entityInstance : com.example.account_service.entity.Account(56)#14a4b335-9623-4afc-b453-5b7724dfc5dc MDC:[traceId=, spanId=]
+2025-07-03 00:11:23 [DubboServerHandler-192.168.1.3:20882-thread-36] DEBUG org.hibernate.orm.results.loading - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@3423896c MDC:[traceId=, spanId=]

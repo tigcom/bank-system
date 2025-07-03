@@ -1,6 +1,7 @@
 package com.example.loan_service.dto.response;
 
 
+import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,8 +22,8 @@ public class LoanResponseDTO {
     private BigDecimal interestRate;
     private Integer termMonths;
     private LocalDate startDate;
-    private BigDecimal declaredIncome;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
+    private InfoIncomeRequestDto infoIncome;
 }
