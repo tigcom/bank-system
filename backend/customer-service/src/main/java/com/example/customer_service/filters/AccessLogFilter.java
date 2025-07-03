@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 //@Component
 public class AccessLogFilter extends OncePerRequestFilter {
@@ -22,6 +23,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String requestId = UUID.randomUUID().toString();
         Instant start = Instant.now();
 
         try {
@@ -37,8 +39,8 @@ public class AccessLogFilter extends OncePerRequestFilter {
             String ip = request.getRemoteAddr();
             int status = response.getStatus();
 
-            logger.info("IP: {}, Method: {}, URL: {}, Status: {}, Time: {} ms",
-                    ip, method, fullUrl, status, durationMs);
+            logger.info("ACCESS_LOG - RequestId: {}, IP: {}, Method: {}, URL: {}, Status: {}, Duration: {} ms",
+                    requestId, ip, method, fullUrl, status, durationMs);
         }
     }
 }
