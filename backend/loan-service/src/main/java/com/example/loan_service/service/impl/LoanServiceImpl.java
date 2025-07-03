@@ -5,6 +5,7 @@ import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.models.LoanStatus;
 import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.repository.LoanRepository;
+import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class LoanServiceImpl implements LoanService {
     public Loan createLoan(Loan loan) {
         loan.setStatus(LoanStatus.PENDING);
         loan.setCreatedAt(LocalDateTime.now());
+
         return loanRepository.save(loan);
     }
 
@@ -32,16 +34,9 @@ public class LoanServiceImpl implements LoanService {
     public Loan updateLoan(Loan loan) {
         return loanRepository.save(loan);
     }
-    private final StreamBridge streamBridge;
 
     @Override
     public List<Loan> findAllLoan() {
-        MailMessageDTO mailMessage = new MailMessageDTO();
-        mailMessage.setSubject("Test notifi");
-        mailMessage.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-        mailMessage.setBody("Loan Service gui mail");
-        mailMessage.setRecipientName("khang đẹp trai");
-        streamBridge.send("mail-out-0", mailMessage);
         return loanRepository.findAll();
     }
 
@@ -86,6 +81,11 @@ public class LoanServiceImpl implements LoanService {
         return loanRepository.findAll().stream()
                 .filter(loan -> loan.getCustomerId().equals(customerId))
                 .toList();
+    }
+
+    @Override
+    public List<Loan> getLoansApproveAndCustomerId(Long customerId) {
+        return loanRepository.findAllByStatusIsAndCustomerId(LoanStatus.APPROVED, customerId);
     }
 
     @Override
