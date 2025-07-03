@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 "/api/customers/register/kyc-and-otp",
                                 "/api/customers/register/send-otp",
                                 "/api/customers/register/confirm",
+                                "/actuator/circuitbreakers",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"

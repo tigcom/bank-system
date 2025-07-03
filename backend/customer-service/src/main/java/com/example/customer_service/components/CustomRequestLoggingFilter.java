@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -13,36 +14,32 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Component
 public class CustomRequestLoggingFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger("ACCESS_LOG");
 
-    // Danh sách query parameters nhạy cảm cần ẩn
+    // parameters
     private static final List<String> SENSITIVE_PARAMS = Arrays.asList(
             "password", "token", "access_token", "refresh_token", "api_key",
             "client_secret", "otp", "verification_code", "verificationCode",
             "jwt", "bearer", "auth", "authorization", "key", "secret"
     );
 
-    // Danh sách header nhạy cảm cần ẩn
-    private static final List<String> SENSITIVE_HEADERS = Arrays.asList(
-            "authorization", "bearer", "token", "api_key", "client_secret", "jwt"
-    );
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String requestId = UUID.randomUUID().toString();
         Instant start = Instant.now();
-
+        
         try {
             filterChain.doFilter(request, response);
         } finally {
+            MDC.clear();
             Instant end = Instant.now();
             long durationMs = Duration.between(start, end).toMillis();
 
@@ -59,75 +56,23 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
 
             String ip = getClientIpAddress(request);
             int status = response.getStatus();
-            String clientInfo = getClientInfo(request);
-            String headers = getHeaders(request);
 
-            // Log với thông tin cần thiết nhưng an toàn
-            StringBuilder logMessage = new StringBuilder();
-            logMessage.append("IP: ").append(ip)
-                    .append(", Method: ").append(method)
-                    .append(", URL: ").append(fullUrl)
-                    .append(", Status: ").append(status)
-                    .append(", Time: ").append(durationMs).append(" ms");
-
-            if (clientInfo != null && !clientInfo.isEmpty()) {
-                logMessage.append(", ClientInfo: ").append(clientInfo);
-            }
-            if (headers != null && !headers.isEmpty()) {
-                logMessage.append(", Headers: ").append(headers);
-            }
+            // Log với thông tin cần thiết
+            String logMessage = String.format("ACCESS_LOG - RequestId: %s, IP: %s, Method: %s, URL: %s, Status: %d, Duration: %d ms",
+                    requestId, ip, method, fullUrl, status, durationMs);
 
             // Log theo level phù hợp với status code
             if (status >= 500) {
-                logger.error(logMessage.toString());
+                logger.error(logMessage);
             } else if (status >= 400) {
-                logger.warn(logMessage.toString());
+                logger.warn(logMessage);
             } else {
-                logger.info(logMessage.toString());
+                logger.info(logMessage);
             }
         }
     }
 
-    /**
-     * Lấy thông tin client (RemoteUser, SessionId)
-     */
-    private String getClientInfo(HttpServletRequest request) {
-        StringBuilder clientInfo = new StringBuilder();
-        String remoteUser = request.getRemoteUser();
-        if (remoteUser != null) {
-            clientInfo.append("RemoteUser=").append(remoteUser);
-        }
-        String sessionId = request.getSession(false) != null ? request.getSession().getId() : null;
-        if (sessionId != null) {
-            if (clientInfo.length() > 0) {
-                clientInfo.append(", ");
-            }
-            clientInfo.append("SessionId=").append(sessionId);
-        }
-        return clientInfo.toString();
-    }
-
-    /**
-     * Lấy headers từ request, ẩn các header nhạy cảm
-     */
-    private String getHeaders(HttpServletRequest request) {
-        return Collections.list(request.getHeaderNames()).stream()
-                .map(name -> name + "=" + (isSensitiveHeader(name) ? "***HIDDEN***" : truncateString(request.getHeader(name), 100)))
-                .collect(Collectors.joining(", "));
-    }
-
-    /**
-     * Kiểm tra xem header có phải là thông tin nhạy cảm không
-     */
-    private boolean isSensitiveHeader(String headerName) {
-        String lowerHeaderName = headerName.toLowerCase();
-        return SENSITIVE_HEADERS.stream()
-                .anyMatch(sensitive -> lowerHeaderName.contains(sensitive));
-    }
-
-    /**
-     * Ẩn các query parameters nhạy cảm
-     */
+    // Ẩn các query parameters nhạy cảm
     private String sanitizeQueryString(String queryString) {
         if (queryString == null || queryString.isEmpty()) {
             return queryString;
@@ -159,18 +104,14 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
         return sanitized.toString();
     }
 
-    /**
-     * Kiểm tra xem parameter có phải là thông tin nhạy cảm không
-     */
+    // Kiểm tra xem parameter có phải là thông tin nhạy cảm không
     private boolean isSensitiveParam(String paramName) {
         String lowerParamName = paramName.toLowerCase();
         return SENSITIVE_PARAMS.stream()
                 .anyMatch(sensitive -> lowerParamName.contains(sensitive));
     }
 
-    /**
-     * Lấy địa chỉ IP thực của client (xử lý trường hợp có proxy)
-     */
+    // Lấy địa chỉ IP thực của client (xử lý trường hợp có proxy)
     private String getClientIpAddress(HttpServletRequest request) {
         // Kiểm tra X-Forwarded-For header (load balancer/proxy)
         String xForwardedFor = request.getHeader("X-Forwarded-For");
@@ -212,19 +153,7 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
         return request.getRemoteAddr();
     }
 
-    /**
-     * Cắt ngắn chuỗi để tránh log quá dài
-     */
-    private String truncateString(String str, int maxLength) {
-        if (str == null || str.length() <= maxLength) {
-            return str;
-        }
-        return str.substring(0, maxLength) + "...";
-    }
-
-    /**
-     * Loại trừ một số endpoint không cần log
-     */
+    // Loại trừ một số endpoint không cần log
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
