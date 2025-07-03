@@ -39044,3 +39044,7 @@ java.lang.Exception: exception just for purpose of providing stack trace
 2025-07-03 12:58:07 DEBUG [http-nio-8082-exec-2] org.hibernate.orm.results [a49ef5340970703a8b5c45c5677a61e0,d88b653798e7359b] - Extracted JDBC value [9] - [ACTIVE]
 2025-07-03 12:58:07 DEBUG [http-nio-8082-exec-2] o.h.orm.results.loading.entity [a49ef5340970703a8b5c45c5677a61e0,d88b653798e7359b] - (EntityResultInitializer) Done materializing entityInstance : com.example.account_service.entity.Account(14)#802d5877-6fa1-41f6-8235-b9b0fb69780b
 2025-07-03 12:58:07 DEBUG [http-nio-8082-exec-2] org.hibernate.orm.results.loading [a49ef5340970703a8b5c45c5677a61e0,d88b653798e7359b] - Calling top-level assembler (0 / 1) : org.hibernate.sql.results.graph.entity.internal.EntityAssembler@6e1ac1c6
+2025-07-03 13:18:44 DEBUG [SpringApplicationShutdownHook] o.h.internal.SessionFactoryImpl [,] - HHH000031: Closing
+2025-07-03 13:18:44 DEBUG [SpringApplicationShutdownHook] o.h.type.spi.TypeConfiguration$Scope [,] - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@1f0417fd] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@c8e66f4]
+2025-07-03 13:18:44 DEBUG [SpringApplicationShutdownHook] o.h.s.i.AbstractServiceRegistryImpl [,] - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
+2025-07-03 13:18:44 DEBUG [SpringApplicationShutdownHook] o.h.b.r.i.BootstrapServiceRegistryImpl [,] - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries
