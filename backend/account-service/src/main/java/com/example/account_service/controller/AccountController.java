@@ -185,10 +185,6 @@ public class AccountController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("admin/get-all-credit-crequest")
     public ApiResponseWrapper<List<CreditRequestReponse>> getAllCreditRequesstPending() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        authentication.getAuthorities().forEach(authority ->
-                log.info("Role: {}", authority.getAuthority())
-        );
         List<CreditRequestReponse> list = accountService.getAllCreditRequestPending();
         ApiResponseWrapper<List<CreditRequestReponse>> response = new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),

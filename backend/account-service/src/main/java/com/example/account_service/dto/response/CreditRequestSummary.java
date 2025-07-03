@@ -8,19 +8,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreditRequestReponse {
+public class CreditRequestSummary {
 
     @Schema(description = "ID yêu cầu tín dụng", example = "123e4567-e89b-12d3-a456-426614174000")
     private String id;
-
-    @Schema(description = "Mã CIF khách hàng", example = "CIF987654321")
-    private String cifCode;
 
     @Schema(description = "Nghề nghiệp của khách hàng", example = "Software Engineer")
     private String occupation;
@@ -33,8 +29,9 @@ public class CreditRequestReponse {
 
     @Schema(description = "Trạng thái yêu cầu tín dụng", example = "PENDING")
     private CreditRequestStatus status;
-    private String fullname;
-    private String email;
+
+
+
     private String reason;
     private String accountNumber;
 

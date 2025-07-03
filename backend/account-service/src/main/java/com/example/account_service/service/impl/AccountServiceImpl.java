@@ -476,14 +476,35 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<CreditRequestReponse> getAllCreditRequestPending() {
-        List<CreditRequest> list = creditRequestRepository.findAllByStatus();
+        log.info("GET_ALL_CREDIT_REQUEST_PENDING_START");
 
-        return list.stream()
-                .map(this::maptoCreditRequestReponse)
-                .collect(Collectors.toList());
+        try {
+            List<CreditRequest> list = creditRequestRepository.findAllByStatus();
+            
+            log.info("CREDIT_REQUESTS_FOUND - Count: {}", list.size());
+
+            return list.stream()
+                    .map(creditRequest -> {
+                        try {
+                            // Lấy thông tin khách hàng qua Dubbo service
+                            CustomerDTO customer = commonService.getCustomerByCifCode(creditRequest.getCifCode());
+                            return maptoCreditRequestReponse(creditRequest, customer);
+                        } catch (Exception e) {
+                            log.warn("CUSTOMER_INFO_NOT_FOUND - CifCode: {}, Error: {}", 
+                                    creditRequest.getCifCode(), e.getMessage());
+                            // Nếu không lấy được thông tin customer, vẫn trả về response nhưng không có fullname và email
+                            return maptoCreditRequestReponse(creditRequest, null);
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("GET_ALL_CREDIT_REQUEST_PENDING_ERROR - Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
-    private CreditRequestReponse maptoCreditRequestReponse(CreditRequest creditRequest) {
-        CreditRequestReponse creditRequestReponse = CreditRequestReponse.builder()
+    
+    private CreditRequestReponse maptoCreditRequestReponse(CreditRequest creditRequest, CustomerDTO customer) {
+        CreditRequestReponse.CreditRequestReponseBuilder builder = CreditRequestReponse.builder()
                 .id(creditRequest.getId())
                 .status(creditRequest.getStatus())
                 .cartTypeId(creditRequest.getCartTypeId())
@@ -491,9 +512,15 @@ public class AccountServiceImpl implements AccountService {
                 .occupation(creditRequest.getOccupation())
                 .cifCode(creditRequest.getCifCode())
                 .reason(creditRequest.getReason())
-                .accountNumber(creditRequest.getAccountNumber())
-                .build();
-        return creditRequestReponse;
+                .accountNumber(creditRequest.getAccountNumber());
+        
+        // Thêm thông tin khách hàng nếu có
+        if (customer != null) {
+            builder.fullname(customer.getFullName())
+                   .email(customer.getEmail());
+        }
+        
+        return builder.build();
     }
 
 

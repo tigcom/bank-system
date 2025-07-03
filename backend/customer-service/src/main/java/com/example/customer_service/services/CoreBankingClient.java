@@ -3,15 +3,17 @@ package com.example.customer_service.services;
 import com.example.common_service.dto.customer.CoreCustomerDTO;
 import com.example.common_service.dto.customer.CoreResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@RequiredArgsConstructor
 public class CoreBankingClient {
-
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private  RestTemplate restTemplate;
 
     public CoreResponse syncCustomer(CoreCustomerDTO dto) {
         ResponseEntity<CoreResponse> response = restTemplate.postForEntity(
