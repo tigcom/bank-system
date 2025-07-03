@@ -8,7 +8,6 @@ import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.CustomerResponse;
-import com.example.common_service.services.CommonService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.transaction_service.client.ProviderClient;
@@ -27,7 +26,6 @@ import com.example.transaction_service.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +40,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -66,15 +66,11 @@ public class TransactionServiceImpl implements TransactionService{
 
     private final TransactionMapper transactionMapper;
 
-    @DubboReference
+    @DubboReference(timeout = 5000)
     private final AccountQueryService accountQueryService;
 
-
-    @DubboReference
+    @DubboReference(timeout = 5000)
     private final CustomerQueryService customerQueryService;
-
-    @DubboReference
-    private final CommonService commonService;
 
     private final Map<String, ProviderGateway> providerGateways; // Spring sẽ tự inject tất cả các Bean ProviderGateway vào Map này với key là tên bean
     private final RedisTemplate<String,String> redisTemplate;
@@ -488,9 +484,7 @@ public class TransactionServiceImpl implements TransactionService{
         try {
             log.info("[EXTERNAL_TRANSFER] Validate thông tin giao dịch...");
             AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+            CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
             if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
                     fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
                 throw new AppException(ErrorCode.INVALID_ACCOUNT);
@@ -762,11 +756,101 @@ public class TransactionServiceImpl implements TransactionService{
         return customerQueryService.getCurrentCustomer();
     }
 
+    @Override
+    public TransactionStatsResponse getTransactionStats(LocalDateTime startDate,
+                                                        LocalDateTime endDate,Pageable pageable) {
+        log.info("[GET_TXN_STATS] Bắt đầu lấy thống kê giao dịch | startDate: {} | endDate: {} | pageable: {}", startDate, endDate, pageable);
+        try {
+            if (startDate == null) startDate = LocalDateTime.now().minusDays(30);
+            if (endDate == null) endDate = LocalDateTime.now();
+            log.info("[GET_TXN_STATS] Thời gian thống kê | startDate: {} | endDate: {}", startDate, endDate);
+
+            // Tổng giao dịch và tổng tiền
+            log.info("[GET_TXN_STATS] Đang tính tổng giao dịch và tổng tiền...");
+            long totalTransactions = transactionRepository.countByCreatedAtBetween(startDate, endDate);
+            BigDecimal totalAmount = transactionRepository.sumAmountByCreatedAtBetween(startDate, endDate);
+            log.info("[GET_TXN_STATS] Tổng giao dịch: {} | Tổng tiền: {}", totalTransactions, totalAmount);
+
+            // Đếm theo trạng thái
+            log.info("[GET_TXN_STATS] Đang thống kê theo trạng thái...");
+            long successCount = transactionRepository.countByStatusAndCreatedAtBetween(TransactionStatus.COMPLETED, startDate, endDate);
+            long failedCount = transactionRepository.countByStatusAndCreatedAtBetween(TransactionStatus.FAILED, startDate, endDate);
+            long pendingCount = transactionRepository.countByStatusAndCreatedAtBetween(TransactionStatus.PENDING, startDate, endDate);
+            log.info("[GET_TXN_STATS] Thống kê trạng thái | Success: {} | Failed: {} | Pending: {}", successCount, failedCount, pendingCount);
+
+            // Top khách hàng
+            log.info("[GET_TXN_STATS] Đang lấy top khách hàng...");
+            List<Object[]> topAccountsRaw = transactionRepository.findTopAccounts(startDate, endDate, pageable);
+            List<TransactionStatsResponse.TopCustomerStats> topCustomers = topAccountsRaw.stream()
+                    .filter(row -> !((String) row[0]).equals(masterAccount))
+                    .map(row -> {
+                        String accountNumber = (String) row[0];
+                        long count = ((Number) row[1]).longValue();
+                        BigDecimal total = (BigDecimal) row[2];
+                        CustomerDTO customerDTO = accountQueryService.getCustomerByAccountNumber(accountNumber);
+                        return TransactionStatsResponse.TopCustomerStats.builder()
+                                .cifCode(customerDTO.getCifCode())
+                                .name(customerDTO.getFullName())
+                                .transactionCount(count)
+                                .totalAmount(total)
+                                .build();
+                    })
+                    .toList();
+            log.info("[GET_TXN_STATS] Top khách hàng: {} khách hàng", topCustomers.size());
+
+            // Thống kê theo loại giao dịch
+            log.info("[GET_TXN_STATS] Đang thống kê theo loại giao dịch...");
+            List<Object[]> typeSummaryRaw = transactionRepository.groupByTypeAndSum(startDate, endDate);
+            List<TransactionStatsResponse.TransactionTypeSummary> typeSummary = typeSummaryRaw.stream().map(row -> {
+                TransactionStatsResponse.TransactionTypeSummary summary =
+                        TransactionStatsResponse.TransactionTypeSummary.builder()
+                                .transactionType(row[0].toString())
+                                .count(((Number) row[1]).longValue())
+                                .totalAmount((BigDecimal) row[2])
+                                .build();
+                return summary;
+            }).toList();
+            log.info("[GET_TXN_STATS] Thống kê theo loại giao dịch: {} loại", typeSummary.size());
+
+            // Giao dịch gần nhất
+            log.info("[GET_TXN_STATS] Đang lấy giao dịch gần nhất...");
+            List<Transaction> latestTransactions = transactionRepository.findTop5ByCreatedAtBetweenOrderByCreatedAtDesc(startDate, endDate);
+            List<TransactionStatsResponse.RecentTransaction> recentTransactions = latestTransactions.stream().map(tx -> {
+                TransactionStatsResponse.RecentTransaction recent = TransactionStatsResponse.RecentTransaction.builder()
+                        .transactionId(tx.getId())
+                        .fromAccount(tx.getFromAccountNumber())
+                        .toAccount(tx.getToAccountNumber())
+                        .amount(tx.getAmount())
+                        .type(tx.getType().name())
+                        .status(tx.getStatus().name())
+                        .createdAt(tx.getCreatedAt())
+                        .build();
+                return recent;
+            }).toList();
+            log.info("[GET_TXN_STATS] Giao dịch gần nhất: {} giao dịch", recentTransactions.size());
+
+            TransactionStatsResponse response = new TransactionStatsResponse();
+            response.setTotalTransactions(totalTransactions);
+            response.setTotalAmount(totalAmount);
+            response.setSuccessCount(successCount);
+            response.setFailedCount(failedCount);
+            response.setPendingCount(pendingCount);
+            response.setTransactionTypeSummary(typeSummary);
+            response.setTopCustomers(topCustomers);
+            response.setLatestTransactions(recentTransactions);
+
+            log.info("[GET_TXN_STATS] Hoàn thành lấy thống kê giao dịch | Tổng giao dịch: {} | Tổng tiền: {}", totalTransactions, totalAmount);
+            return response;
+        } catch (Exception ex) {
+            log.error("[GET_TXN_STATS] Lỗi khi lấy thống kê giao dịch | startDate: {} | endDate: {} | Lý do: {}", startDate, endDate, ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+
     //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
         log.info("CurrentCustomer: {}",currentCustomer);
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());

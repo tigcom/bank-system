@@ -13,6 +13,7 @@ import com.example.transaction_service.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -52,4 +53,6 @@ public interface TransactionService {
     List<AccountPaymentResponse> getAllAccountPaymentForCurrentCustomer();
     CustomerDTO getCustomerByAccountNumber(String accountNumber);
     CustomerResponse getCurrentCustomer();
+
+    TransactionStatsResponse getTransactionStats(LocalDateTime startDate, LocalDateTime endDate,Pageable pageable);
 }
