@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -504,6 +507,21 @@ public class TransactionController {
                 .code(200)
                 .message("Chuyển khoản liên ngân hàng")
                 .result(transactionService.transferToExternalBank(request))
+                .build();
+    }
+// Thống kê
+    @GetMapping("/admin/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TransactionStatsResponse> getTransactionStats(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+                                                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page-1, size);
+        TransactionStatsResponse response = transactionService.getTransactionStats(startDate, endDate, pageable);
+        return ApiResponse.<TransactionStatsResponse>builder()
+                .code(200)
+                .message("Thống kê giao dịch")
+                .result(response)
                 .build();
     }
 

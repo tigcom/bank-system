@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,5 +53,28 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
             "ORDER BY timestamp DESC",
             nativeQuery = true)
     Page<Transaction> findByAccountNumber(@Param("accountNumber") String accountNumber, Pageable pageable);
+
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.createdAt BETWEEN :start AND :end")
+    BigDecimal sumAmountByCreatedAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    long countByStatusAndCreatedAtBetween(TransactionStatus status, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT t.type, COUNT(t), SUM(t.amount) FROM Transaction t " +
+            "WHERE t.createdAt BETWEEN :start AND :end GROUP BY t.type")
+    List<Object[]> groupByTypeAndSum(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT t.fromAccountNumber, COUNT(t), SUM(t.amount) " +
+            "FROM Transaction t " +
+            "WHERE t.createdAt BETWEEN :start AND :end " +
+            "GROUP BY t.fromAccountNumber " +
+            "ORDER BY SUM(t.amount) DESC")
+    List<Object[]> findTopAccounts(@Param("start") LocalDateTime start,
+                                   @Param("end") LocalDateTime end,
+                                   Pageable pageable);
+
+    List<Transaction> findTop5ByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime start, LocalDateTime end);
 
 }
