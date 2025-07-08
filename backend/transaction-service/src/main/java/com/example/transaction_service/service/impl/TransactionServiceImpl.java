@@ -566,7 +566,7 @@ public class TransactionServiceImpl implements TransactionService{
                     .build();
             streamBridge.send("mail-out-0", mailMessage);
             log.info("[RESEND_OTP] Đã gửi lại OTP cho account: {}", resendOtpRequest.getAccountNumberRecipient());
-            System.out.println(otp);
+
         } catch (Exception ex) {
             log.error("[RESEND_OTP] Lỗi khi gửi lại OTP | ReferenceCode: {} | Lý do: {}", resendOtpRequest.getReferenceCode(), ex.getMessage(), ex);
             throw ex;
@@ -903,12 +903,6 @@ public class TransactionServiceImpl implements TransactionService{
                     fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
                 throw new AppException(ErrorCode.INVALID_ACCOUNT);
             }
-        }else if (EnumSet.of(TransactionType.DEPOSIT,
-                TransactionType.DISBURSEMENT).contains(transaction.getType())) {
-            if(!accountQueryService.existsAccountByAccountNumberAndCifCode(
-                    toAccount.getAccountNumber(),currentCustomer.getCifCode())){
-                throw new AppException(ErrorCode.INVALID_ACCOUNT);
-            }
         }
 
 
@@ -998,6 +992,7 @@ public class TransactionServiceImpl implements TransactionService{
         if (transaction.getCurrency() == null) {
             transaction.setCurrency(CurrencyType.VND);
         }
+
         if (transaction.getReferenceCode() == null) {
             String uniqueSuffix = UUID.randomUUID().toString().substring(0, 8);
             String dateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -1013,6 +1008,7 @@ public class TransactionServiceImpl implements TransactionService{
         redisTemplate.opsForValue().set(keyOTP,otp, Duration.ofSeconds(60));
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(accountNumberRecipient);
         CustomerDTO fromCustomer = customerQueryService.getCustomerByCifCode(fromAccount.getCifCode());
+        System.out.println("Mã OTP: "+ otp);
         MailMessageDTO mailMessage = MailMessageDTO.builder()
                 .subject("Xác nhận OTP ")
                 .body(otp)
@@ -1023,10 +1019,16 @@ public class TransactionServiceImpl implements TransactionService{
     }
     private void processTransaction(Transaction transaction) {
         try {
+            BigDecimal amountTransaction = BigDecimal.ZERO;
+            if(transaction.getCurrency().equals(CurrencyType.USD)){
+                amountTransaction = transaction.getAmount().multiply(BigDecimal.valueOf(26145.02));
+            }else if(transaction.getCurrency().equals(CurrencyType.EUR)){
+                amountTransaction = transaction.getAmount().multiply(BigDecimal.valueOf(30830));
+            }
             TransactionRequest request = TransactionRequest.builder()
                     .fromAccountNumber(transaction.getFromAccountNumber())
                     .toAccountNumber(transaction.getToAccountNumber())
-                    .amount(transaction.getAmount())
+                    .amount(amountTransaction)
                     .description(transaction.getDescription())
                     .status(transaction.getStatus().name())
                     .timestamp(transaction.getTimestamp())

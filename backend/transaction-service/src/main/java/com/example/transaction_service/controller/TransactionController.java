@@ -114,6 +114,7 @@ public class TransactionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu không hợp lệ")
     })
     @PostMapping("/deposit")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TransactionDTO> deposit(@RequestBody @Valid DepositRequest request) {
         return ApiResponse.<TransactionDTO>builder()
                 .code(200)
