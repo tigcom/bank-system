@@ -13,6 +13,8 @@ import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CreditAccountResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -47,4 +49,8 @@ public interface AccountService {
 
 
     BigDecimal getBalanceFromCorebanking(String accountNumber);
+
+    Page<CreditRequestReponse> getAllCreditRequestPendingPaginated(Pageable pageable);
+
+
 }

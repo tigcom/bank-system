@@ -30,7 +30,7 @@ public enum ErrorCode {
     INVALID_OTP(1025, "otp.invalid"),
     UNAUTHORIZATED(401, "error.unauthorizated"),
     SAVING_REQUEST_INVALID_STATUS(1026, "saving.request.invalid.status"),
-
+    
     // New error codes for better validation
     INVALID_REQUEST(1027, "request.invalid"),
     TERM_NOT_FOUND(1027, "uncategorized.error"),
@@ -43,7 +43,9 @@ public enum ErrorCode {
     ACCOUNT_NOT_ACTIVE(1033, "account.not.active"),
     TRANSACTION_FAILED(1034, "transaction.failed"),
     KYC_INVALID(1035, "kyc.invalid"),
-    ACCOUNT_NUMBER_EXISTED(1036, "account.number.existed"),;
+    ACCOUNT_NUMBER_EXISTED(1036, "account.number.existed"),
+    CIC_SERVICE_ERROR(1037, "CIC.service_error");
+
 
 
 

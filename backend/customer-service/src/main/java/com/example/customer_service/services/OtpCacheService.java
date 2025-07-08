@@ -29,7 +29,7 @@ public class OtpCacheService {
     public void saveOtp(String email, String otp, RegisterCustomerDTO request) {
         String requestId = UUID.randomUUID().toString();
         log.info("SAVE_OTP - RequestId: {}, Email: {}", requestId, email);
-        
+        log.info("OTP: {}",otp);
         try {
             String hashedOtp = passwordEncoder.encode(otp);
             redisTemplate.opsForValue().set("otp:" + email, hashedOtp, ttl);

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Cấu hình pattern để định dạng log với Trace ID và Span ID -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X{trace_id:-},%X{span_id:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Access Log for Master Service -->
+    <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>backend/master-service/logs/access_log.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>backend/master-service/logs/access_log.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X{trace_id:-},%X{span_id:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Cấu hình appender ghi vào file log chính -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>backend/master-service/logs/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>backend/master-service/logs/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X{trace_id:-},%X{span_id:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Resilience4j Retry Log -->
+    <appender name="RETRY_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>backend/master-service/logs/retry.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>backend/master-service/logs/retry.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X{trace_id:-},%X{span_id:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Master API Calls Log -->
+    <appender name="MASTER_API_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>backend/master-service/logs/master_api.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>backend/master-service/logs/master_api.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X{trace_id:-},%X{span_id:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Định nghĩa appender để ghi log của Spring Security -->
+    <appender name="SECURITY" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>backend/master-service/logs/security.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>backend/master-service/logs/security.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X{trace_id:-},%X{span_id:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <!-- Master Service Package Logging -->
+    <logger name="com.master.masterservice" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="MASTER_API_LOG" />
+    </logger>
+
+    <!-- Resilience4j Retry Logging -->
+    <logger name="io.github.resilience4j.retry" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="RETRY_LOG" />
+    </logger>
+
+    <!-- Resilience4j CircuitBreaker Logging -->
+    <logger name="io.github.resilience4j.circuitbreaker" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="RETRY_LOG" />
+    </logger>
+
+    <!-- Log cho Spring Security -->
+    <logger name="org.springframework.security" level="DEBUG" additivity="false">
+        <appender-ref ref="SECURITY" />
+    </logger>
+
+    <!-- Access Logger -->
+    <logger name="ACCESS_LOGGER" level="DEBUG" additivity="false">
+        <appender-ref ref="ACCESS_LOG" />
+    </logger>
+
+    <!-- RestTemplate Logging for debugging API calls -->
+    <logger name="org.springframework.web.client.RestTemplate" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="MASTER_API_LOG" />
+    </logger>
+
+</configuration>

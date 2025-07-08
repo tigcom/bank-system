@@ -1,4 +1,4 @@
-package com.example.corebanking_service.Controller;
+package com.example.corebanking_service.controller;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.response.*;
@@ -17,6 +17,10 @@ public class CoreAccountController {
     @PostMapping("/save-account")
     public void createAccount(@RequestBody CoreAccountRequest accountRequest) {
         coreAccountService.createCoreAccount(accountRequest);
+    }
+    @PostMapping("/update-account-status")
+    public void updateStatus(@RequestBody CoreAccountUpdateStatusRequest statusRequest) {
+        coreAccountService.updateStatus(statusRequest);
     }
     @GetMapping("/get-balance-by-accountNumber/{accountNumber}")
     public BalanceResponse getBalanceByAccountNumber(@PathVariable String accountNumber) {

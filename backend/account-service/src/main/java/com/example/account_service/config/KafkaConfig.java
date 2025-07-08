@@ -62,4 +62,4 @@ public class KafkaConfig {
         factory.setConsumerFactory(cardRegistrationConsumerFactory());
         return factory;
     }
-}
+} 

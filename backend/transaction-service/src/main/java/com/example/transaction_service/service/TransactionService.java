@@ -1,5 +1,7 @@
 package com.example.transaction_service.service;
 
+
+import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.PayInterestRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
@@ -7,6 +9,7 @@ import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
 import com.example.transaction_service.dto.response.*;
 import com.example.transaction_service.entity.Transaction;
+import com.example.transaction_service.enums.TransactionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,7 +34,7 @@ public interface TransactionService {
     TransactionDTO transferToExternalBank(ExternalTransferRequest externalTransferRequest);
     void resendOtp(ResendOtpRequest resendOtpRequest);
     TransactionDTO getTransactionById(String transactionId);
-    List<TransactionDTO> getAccountTransactions(String accountNumber);
+    Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable);
     TransactionDTO getTransactionByTransactionCode(String referenceCode);
 
     List<InforTransactionLatestResponse> getListToAccountNumberLatest(String fromAccountNumber);
@@ -41,8 +44,6 @@ public interface TransactionService {
     FilterMetadataResponse getFilterMetadata();
 
     NapasInquiryResponse checkDestinationAccount(NapasInquiryRequest request);
-
-    Page<TransactionDTO> getAccountTransactions(String accountNumber, Pageable pageable);
 
     TransactionDTO payInterest(PayInterestRequest request);
 }

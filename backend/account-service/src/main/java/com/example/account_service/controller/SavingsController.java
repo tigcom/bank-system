@@ -1,10 +1,8 @@
 package com.example.account_service.controller;
 
 import com.example.account_service.dto.request.ConfirmRequestDTO;
-import com.example.account_service.dto.request.CreditRequestCreateDTO;
 import com.example.account_service.dto.request.SavingRequestCreateDTO;
 import com.example.account_service.dto.response.ApiResponseWrapper;
-import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.dto.response.SavingsRequestResponse;
 import com.example.account_service.dto.response.withdrawSavingResponse;
 import com.example.account_service.service.AccountService;

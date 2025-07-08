@@ -18,4 +18,5 @@ public class CardRegistrationMessage {
     private String accountNumber;
     private BigDecimal creditLimit;
     private String cardType;
+    private String customerName;
 }

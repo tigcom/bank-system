@@ -4,7 +4,12 @@ import com.example.Notification_service.service.NotificationService;
 import com.example.Notification_service.service.ConnectionHealthService;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.CreditNotificationDTO;
+import com.example.common_service.dto.MailTransactionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Base64;
+
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +17,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -25,58 +27,187 @@ import java.util.UUID;
 public class NotificationServiceImpl implements NotificationService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-    private final ObjectMapper objectMapper;
     private final ConnectionHealthService connectionHealthService;
-
+    
     @Override
-    @KafkaListener(topics = "send-mail-raw", groupId = "mail-raw-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendNotification(Message<byte[]> messagee) {
-        String requestId = UUID.randomUUID().toString();
+    @KafkaListener(topics = "send-mail-raw", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendNotification(byte[] payload) {
         try {
+            String payloadStr = new String(payload);
             ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailMessageDTO.class);
-            log.info("SEND_RAW_EMAIL_REQUEST - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
-            Context context = new Context();
-            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "bạn");
-            context.setVariable("content", mailMessage.getBody());
-
-            String htmlContent = templateEngine.process("noti-template", context);
-
-            // Retry mechanism for email sending
-            sendEmailWithRetry(mailMessage, htmlContent, 3,requestId);
-            log.info("SEND_RAW_EMAIL_SUCCESS - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
+            MailMessageDTO mailMessage;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                // Strip quotes if present
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                // Fallback to direct JSON parsing
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+            log.info("Sending raw email to: {}", mailMessage.getRecipient());
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
+            helper.setReplyTo("nguyenhoainam29.08.01@gmail.com");
+            helper.setTo(mailMessage.getRecipient());
+            helper.setSubject(mailMessage.getSubject());
+            helper.setText(mailMessage.getBody(), true);
+            
+            mailSender.send(message);
+            log.info("Email sent successfully to: {}", mailMessage.getRecipient());
         } catch (Exception e) {
-            log.error("SEND_RAW_EMAIL_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
+            log.error("Lỗi khi xử lý message: {}", e.getMessage(), e);
         }
     }
-
+    
     @Override
     @KafkaListener(topics = "send-mail-html", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendDTO(Message<byte[]> messagee) {
-        String requestId = UUID.randomUUID().toString();
+    public void sendDTO(byte[] payload) {
         try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received: {}", payloadStr);
+            
             ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailMessageDTO.class);
-            log.info("SEND_HTML_EMAIL_REQUEST - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
+            MailMessageDTO mailMessage;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                log.info("Attempting Base64 decode...");
+                // Strip quotes if present
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                    log.info("Stripped quotes, clean Base64: {}", base64Str);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                String decodedJson = new String(decodedBytes);
+                log.info("Successfully decoded JSON: {}", decodedJson);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                // Fallback to direct JSON parsing
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+            log.info("Sending HTML email to: {}", mailMessage.getRecipient());
 
             Context context = new Context();
-            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "you");
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "bạn");
             context.setVariable("content", mailMessage.getBody());
 
             String htmlContent = templateEngine.process("otp-template", context);
 
             // Retry mechanism for email sending
-            sendEmailWithRetry(mailMessage, htmlContent, 3, requestId);
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
 
         } catch (Exception e) {
-            log.error("SEND_HTML_EMAIL_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
+            log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
         }
     }
 
-    private void sendEmailWithRetry(MailMessageDTO mailMessage, String htmlContent, int maxRetries, String requestId) {
+    @Override
+    @KafkaListener(topics = "sentOtpRegister", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendOtpRegister(byte[] payload) {
+        try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received for OTP Register: {}", payloadStr);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage;
+
+            // Giải mã Base64 trước
+            try {
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                    log.info("Stripped quotes, clean Base64: {}", base64Str);
+                }
+
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                String decodedJson = new String(decodedBytes);
+                log.info("Successfully decoded OTP JSON: {}", decodedJson);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+
+            log.info("Đã nhận yêu cầu gửi email OTP đăng ký tới: {}", mailMessage.getRecipient());
+
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
+            context.setVariable("request", "đăng ký tài khoản");
+            context.setVariable("otp", mailMessage.getBody());
+            context.setVariable("ttl", 5); // TTL = 5 phút
+
+            String htmlContent = templateEngine.process("otp-register-template", context);
+
+            // Retry nếu gặp lỗi khi gửi
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
+
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý gửi email OTP đăng ký: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email OTP đăng ký: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @KafkaListener(topics = "sentOtpForgotPassword", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendOtpForgotPassword(byte[] payload) {
+        try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received for Forgot Password: {}", payloadStr);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage;
+
+            // Giải mã Base64 trước
+            try {
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                    log.info("Stripped quotes, clean Base64: {}", base64Str);
+                }
+
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                String decodedJson = new String(decodedBytes);
+                log.info("Successfully decoded Forgot Password JSON: {}", decodedJson);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+
+            log.info("Đã nhận yêu cầu gửi email khôi phục mật khẩu tới: {}", mailMessage.getRecipient());
+
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "Bạn");
+            context.setVariable("resetLink", mailMessage.getBody());
+
+            String htmlContent = templateEngine.process("reset-password-template", context);
+
+            // Retry nếu gặp lỗi khi gửi
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
+
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý gửi email khôi phục mật khẩu: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể gửi email khôi phục mật khẩu: " + e.getMessage(), e);
+        }
+    }
+
+    private void sendEmailWithRetry(MailMessageDTO mailMessage, String htmlContent, int maxRetries) {
         // Check connection health before attempting to send
         if (!connectionHealthService.checkGmailConnection()) {
-            log.error("GMAIL_SMTP_UNREACHABLE - RequestId: {}. Running diagnostics...", requestId);
+            log.error("Gmail SMTP not reachable. Running diagnostics...");
             connectionHealthService.logNetworkDiagnostics();
             throw new RuntimeException("Gmail SMTP server not reachable");
         }
@@ -91,21 +222,20 @@ public class NotificationServiceImpl implements NotificationService {
                 helper.setText(htmlContent, true);
 
                 mailSender.send(message);
-                log.info("SEND_HTML_EMAIL_SUCCESS - RequestId: {}, Recipient: {}, Attempt: {}", requestId, mailMessage.getRecipient(), attempt);
+                log.info("HTML email sent successfully to: {} (attempt {})", mailMessage.getRecipient(), attempt);
                 return; // Success, exit retry loop
-
             } catch (Exception e) {
-                log.warn("SEND_HTML_EMAIL_ATTEMPT_FAILED - RequestId: {}, Attempt: {}, Recipient: {}, Error: {}", requestId, attempt, mailMessage.getRecipient(), e.getMessage());
+                log.warn("Email send attempt {} failed for {}: {}", attempt, mailMessage.getRecipient(), e.getMessage());
 
                 // If it's a connection reset, check connectivity again
                 if (e.getMessage().contains("Connection reset")) {
-                    log.warn("CONNECTION_RESET_DETECTED - RequestId: {}. Checking Gmail connectivity...", requestId);
+                    log.warn("Connection reset detected, checking Gmail connectivity...");
                     boolean connected = connectionHealthService.checkGmailConnection();
-                    log.info("GMAIL_CONNECTIVITY_CHECK_RESULT - RequestId: {}, Connected: {}", requestId, connected);
+                    log.info("Gmail connectivity check result: {}", connected);
                 }
 
                 if (attempt == maxRetries) {
-                    log.error("SEND_HTML_EMAIL_MAX_ATTEMPTS_FAILED - RequestId: {}, Recipient: {}, MaxRetries: {}", requestId, mailMessage.getRecipient(), maxRetries, e);
+                    log.error("Failed to send email to {} after {} attempts", mailMessage.getRecipient(), maxRetries, e);
                     connectionHealthService.logNetworkDiagnostics();
                     throw new RuntimeException("Email sending failed after " + maxRetries + " attempts", e);
                 }
@@ -122,17 +252,33 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @KafkaListener(topics = "send-credit-notification", groupId = "credit-notification-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendCreditNotification(Message<byte[]> message) {
-        String requestId = UUID.randomUUID().toString();
+    public void sendCreditNotification(byte[] payload) {
         try {
+            String payloadStr = new String(payload);
             ObjectMapper objectMapper = new ObjectMapper();
-            CreditNotificationDTO notification = objectMapper.readValue(message.getPayload(), CreditNotificationDTO.class);
-            log.info("SEND_CREDIT_NOTIFICATION_REQUEST - RequestId: {}, Recipient: {}", requestId, notification.getCustomerEmail());
+            CreditNotificationDTO notification;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                // Strip quotes if present
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                notification = objectMapper.readValue(decodedBytes, CreditNotificationDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                // Fallback to direct JSON parsing
+                notification = objectMapper.readValue(payload, CreditNotificationDTO.class);
+            }
+            log.info("Sending credit notification email to: {}", notification.getCustomerEmail());
 
             Context context = new Context();
             context.setVariable("customerName", notification.getCustomerName());
             context.setVariable("cardType", notification.getCardType());
-
+            
             String templateName;
             if ("approval".equals(notification.getTemplateType())) {
                 context.setVariable("accountNumber", notification.getAccountNumber());
@@ -152,146 +298,87 @@ public class NotificationServiceImpl implements NotificationService {
             helper.setText(htmlContent, true);
 
             mailSender.send(mimeMessage);
-
-            log.info("SEND_CREDIT_NOTIFICATION_SUCCESS - RequestId: {}, Recipient: {}", requestId, notification.getCustomerEmail());
+            
+            log.info("Đã gửi email thông báo credit request cho: {}", notification.getCustomerEmail());
 
         } catch (Exception e) {
-            log.error("SEND_CREDIT_NOTIFICATION_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
+            log.error("Lỗi khi gửi email credit notification: {}", e.getMessage(), e);
         }
+
     }
 
     @Override
-    @KafkaListener(topics = "sentOtpRegister", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendOtpRegister(Message<byte[]> message) {
-        String requestId = UUID.randomUUID().toString();
+    @KafkaListener(topics = "send-mail-transaction", groupId = "mail-transaction-group", containerFactory = "kafkaListenerContainerFactory")
+    public void notificationTransaction(Message<byte[]> messagee) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
-            log.info("SEND_OTP_REGISTER_REQUEST - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
+            ObjectMapper objectMapper = new ObjectMapper()
+                    .registerModule(new JavaTimeModule())
+                    .disable(SerializationFeature
+                            .WRITE_DATES_AS_TIMESTAMPS);
+            MailTransactionDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailTransactionDTO.class);
+            log.info("Sending HTML email to: {}", mailMessage.getName());
+            System.out.println("Gửi mail tới:"+mailMessage.getRecipientMail());
             Context context = new Context();
-            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "You");
-            context.setVariable("request", "register account");
-            context.setVariable("otp", mailMessage.getBody());
-            context.setVariable("ttl", 5);
+            context.setVariable("name", mailMessage.getName() != null ? mailMessage.getName() : "bạn");
+            context.setVariable("amount", mailMessage.getAmount());
+            context.setVariable("referenceCode", mailMessage.getReferenceCode());
+            context.setVariable("toAccountNumber", mailMessage.getToAccountNumber());
+            context.setVariable("toCustomerName", mailMessage.getToCustomerName());
+            context.setVariable("timestamp", mailMessage.getTimestamp());
+            context.setVariable("description", mailMessage.getDescription());
 
-            String htmlContent = templateEngine.process("otp-register-template", context);
+            String htmlContent = templateEngine.process("notification-transaction", context);
+            // Retry mechanism for email sending
+            sendTransactionEmailWithRetry(mailMessage, htmlContent, 3);
 
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
-            helper.setTo(mailMessage.getRecipient());
-            helper.setSubject(mailMessage.getSubject());
-            helper.setText(htmlContent, true);
-            mailSender.send(mimeMessage);
-            log.info("SEND_OTP_REGISTER_SUCCESS - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
         } catch (Exception e) {
-            log.error("SEND_OTP_REGISTER_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
-            throw new RuntimeException("Unable to send OTP register email: " + e.getMessage(), e);
+            log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
         }
     }
-
-    @Override
-    @KafkaListener(topics = "sentOtpForgotPassword", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendOtpForgotPassword(Message<byte[]> message) {
-        String requestId = UUID.randomUUID().toString();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
-            log.info("SEND_OTP_FORGOT_PASSWORD_REQUEST - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
-
-            // Create context for Thymeleaf template
-            Context context = new Context();
-            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "You");
-            context.setVariable("resetLink", mailMessage.getBody());
-
-            // Process HTML email template
-            String htmlContent = templateEngine.process("reset-password-template", context);
-
-            // Create email
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
-            helper.setTo(mailMessage.getRecipient());
-            helper.setSubject(mailMessage.getSubject());
-            helper.setText(htmlContent, true); // true => HTML
-
-            // Send email
-            mailSender.send(mimeMessage);
-            log.info("SEND_OTP_FORGOT_PASSWORD_SUCCESS - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
-
-        } catch (Exception e) {
-            log.error("SEND_OTP_FORGOT_PASSWORD_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
-            throw new RuntimeException("Unable to send forgot password email: " + e.getMessage(), e);
+    private void sendTransactionEmailWithRetry(MailTransactionDTO mailMessage, String htmlContent, int maxRetries) {
+        // Check connection health before attempting to send
+        if (!connectionHealthService.checkGmailConnection()) {
+            log.error("Gmail SMTP not reachable. Running diagnostics...");
+            connectionHealthService.logNetworkDiagnostics();
+            throw new RuntimeException("Gmail SMTP server not reachable");
         }
-    }
 
-    @Override
-    @KafkaListener(topics = "sentMailNotificationKyc", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendNotificationKyc(Message<byte[]> message) {
-        String requestId = UUID.randomUUID().toString();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
-            log.info("SEND_NOTIFICATION_KYC_REQUEST - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+                helper.setFrom("nguyenhoainam29.08.01@gmail.com");
+                System.out.println("Mail nhận:"+(mailMessage.getRecipientMail()));
+                helper.setTo(mailMessage.getRecipientMail());
+                helper.setSubject(mailMessage.getSubject());
+                helper.setText(htmlContent, true);
 
-            // Create context for Thymeleaf template
-            Context context = new Context();
-            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "You");
-            context.setVariable("body", mailMessage.getBody());
+                mailSender.send(message);
+                return; // Success, exit retry loop
 
-            // Process HTML email template
-            String htmlContent = templateEngine.process("notification-kyc", context);
+            } catch (Exception e) {
 
-            // Create email
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
-            helper.setTo(mailMessage.getRecipient());
-            helper.setSubject(mailMessage.getSubject());
-            helper.setText(htmlContent, true); // true => HTML
+                // If it's a connection reset, check connectivity again
+                if (e.getMessage().contains("Connection reset")) {
+                    log.warn("Connection reset detected, checking Gmail connectivity...");
+                    boolean connected = connectionHealthService.checkGmailConnection();
+                    log.info("Gmail connectivity check result: {}", connected);
+                }
 
-            // Send email
-            mailSender.send(mimeMessage);
-            log.info("SEND_NOTIFICATION_KYC_SUCCESS - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
+                if (attempt == maxRetries) {
 
-        } catch (Exception e) {
-            log.error("SEND_NOTIFICATION_KYC_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
-            throw new RuntimeException("Unable to send KYC notification email: " + e.getMessage(), e);
-        }
-    }
+                    connectionHealthService.logNetworkDiagnostics();
+                    throw new RuntimeException("Email sending failed after " + maxRetries + " attempts", e);
+                }
 
-    @Override
-    @KafkaListener(topics = "sentMailNotificationKycResult", groupId = "mail-group", containerFactory = "kafkaListenerContainerFactory")
-    public void sendNotificationKycResult(Message<byte[]> message) {
-        String requestId = UUID.randomUUID().toString();
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            MailMessageDTO mailMessage = objectMapper.readValue(message.getPayload(), MailMessageDTO.class);
-            log.info("SEND_NOTIFICATION_KYC_RESULT_REQUEST - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
-
-            // Create context for Thymeleaf template
-            Context context = new Context();
-            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "You");
-            context.setVariable("body", mailMessage.getBody());
-
-            // Process HTML email template
-            String htmlContent = templateEngine.process("notification-kyc", context);
-
-            // Create email
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom("nguyenhoainam29.08.01@gmail.com");
-            helper.setTo(mailMessage.getRecipient());
-            helper.setSubject(mailMessage.getSubject());
-            helper.setText(htmlContent, true); // true => HTML
-
-            // Send email
-            mailSender.send(mimeMessage);
-            log.info("SEND_NOTIFICATION_KYC_RESULT_SUCCESS - RequestId: {}, Recipient: {}", requestId, mailMessage.getRecipient());
-
-        } catch (Exception e) {
-            log.error("SEND_NOTIFICATION_KYC_RESULT_FAILED - RequestId: {}, Error: {}", requestId, e.getMessage(), e);
-            throw new RuntimeException("Unable to send KYC result notification email: " + e.getMessage(), e);
+                // Wait before retry with exponential backoff
+                try {
+                    Thread.sleep(2000 * attempt);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
         }
     }
 }
