@@ -78,6 +78,7 @@ public class CommonServiceImpl implements CommonService {
                 .dateOfBirth(customer.getDateOfBirth())
                 .identityNumber(customer.getIdentityNumber())
                 .kycVerified(isKycVerified)
+                .phoneNumber(customer.getPhoneNumber())
                 .build();
     }
 

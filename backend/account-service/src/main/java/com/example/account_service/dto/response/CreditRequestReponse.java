@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -35,7 +36,10 @@ public class CreditRequestReponse {
     private CreditRequestStatus status;
     private String fullname;
     private String email;
+    private String phoneNumber;
     private String reason;
     private String accountNumber;
+    private String identityNumber;
+    private LocalDate dateOfBirth;
 
 }

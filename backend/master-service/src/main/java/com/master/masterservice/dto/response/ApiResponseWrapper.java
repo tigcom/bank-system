@@ -5,28 +5,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ApiResponseWrapper<T> {
-    private T data;
+@NoArgsConstructor
+@Builder
+public class ApiResponseWrapper<T> implements Serializable {
+
+    private int status;
     private String message;
-    private String status;
-    private String errorCode;
-    
-    public static <T> ApiResponseWrapper<T> success(T data) {
-        return ApiResponseWrapper.<T>builder()
-                .data(data)
-                .status("SUCCESS")
-                .build();
+    private T data;
+
+
+    public static <T> ApiResponseWrapper<T> success(int status,String message, T data) {
+        return new ApiResponseWrapper<>(status, message, data);
     }
-    
-    public static <T> ApiResponseWrapper<T> error(String message, String errorCode) {
-        return ApiResponseWrapper.<T>builder()
-                .message(message)
-                .status("ERROR")
-                .errorCode(errorCode)
-                .build();
+
+    public static <T> ApiResponseWrapper<T> error(int status, String message) {
+        return new ApiResponseWrapper<>(status, message, null);
     }
+
+
 }

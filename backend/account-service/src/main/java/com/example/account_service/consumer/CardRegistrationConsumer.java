@@ -44,8 +44,8 @@ import java.math.BigDecimal;
 public class CardRegistrationConsumer {
     private final CreditRequestRepository creditRequestRepository;
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
-        private String coreBankingBaseUrl;
-       private final CreditAccountRepository creditAccountRepository;
+    private String coreBankingBaseUrl;
+    private final CreditAccountRepository creditAccountRepository;
     @Autowired
     @Qualifier("coreBankingRestTemplate")
     private RestTemplate coreBankingRestTemplate;
@@ -62,47 +62,47 @@ public class CardRegistrationConsumer {
     private String masterServiceUrl;
 
     @KafkaListener(topics = "card-registration-topic", groupId = "card-registration-consumer",
-                   containerFactory = "cardRegistrationKafkaListenerContainerFactory")
+            containerFactory = "cardRegistrationKafkaListenerContainerFactory")
     public void handleCardRegistration(CardRegistrationMessage message) {
-         log.info("Received Card Registration message: {}", message);
+        log.info("Received Card Registration message: {}", message);
 
-         try {
-             // Gọi API tổ chức dựa trên loại thẻ với Resilience4j
-             if ("VISA".equals(message.getCardType())) {
-                 handleVisaRegistrationWithResilience4j(message);
-             } else if ("MASTER".equals(message.getCardType())) {
-                 handleMasterRegistrationWithResilience4j(message);
-                } else {
-                    log.warn("Unknown card type: {}", message.getCardType());
-                    updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_FAILED);
+        try {
+            // Gọi API tổ chức dựa trên loại thẻ với Resilience4j
+            if ("VISA".equals(message.getCardType())) {
+                handleVisaRegistrationWithResilience4j(message);
+            } else if ("MASTER".equals(message.getCardType())) {
+                handleMasterRegistrationWithResilience4j(message);
+            } else {
+                log.warn("Unknown card type: {}", message.getCardType());
+                updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_FAILED);
 
-                    }
-                    } catch (Exception e) {
-                    log.error("Error processing card registration message: {}", e.getMessage(), e);
-                    updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_ERROR);
+            }
+        } catch (Exception e) {
+            log.error("Error processing card registration message: {}", e.getMessage(), e);
+            updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_ERROR);
 
-                    }
-                    }
+        }
+    }
 
-private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage message) {
+    private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage message) {
         log.info("Processing VISA card registration with Resilience4j for account: {}", message.getAccountNumber());
 
         try {
             // Create request for VISA service
             CardRegistrationRequest request = CardRegistrationRequest.builder()
-                .accountNumber(message.getAccountNumber())
-                .cifCode(message.getCifCode())
-                .cardType(message.getCardType())
-                .customerName(message.getCustomerName())
-                .build();
+                    .accountNumber(message.getAccountNumber())
+                    .cifCode(message.getCifCode())
+                    .cardType(message.getCardType())
+                    .customerName(message.getCustomerName())
+                    .build();
 
             // Call VISA service directly
-                ResponseEntity<ApiResponseWrapper<VisaCardResponse>> responseEntity = interServiceRestTemplate.exchange(
+            ResponseEntity<ApiResponseWrapper<VisaCardResponse>> responseEntity = interServiceRestTemplate.exchange(
                     visaServiceUrl + "/api/visa-service/registration",
                     HttpMethod.POST,
                     new HttpEntity<>(request),
                     new ParameterizedTypeReference<ApiResponseWrapper<VisaCardResponse>>() {}
-                );
+            );
 
             ApiResponseWrapper<VisaCardResponse> wrapper = responseEntity.getBody();
             if (wrapper != null && wrapper.getData() != null) {
@@ -111,7 +111,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
                 switch (response.getStatus()) {
                     case "SUCCESS":
                         log.info("VISA registration successful for account: {}. Message: {}",
-                               message.getAccountNumber(), response.getMessage());
+                                message.getAccountNumber(), response.getMessage());
                         CreditAccount account = updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.ACTIVE);
                         createCoreBankingCreditAccount(message.getAccountNumber());
                         updateCardDetails(message.getAccountNumber(), response);
@@ -121,7 +121,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
 
                     case "FAILED":
                         log.warn("VISA registration failed for account: {}. Error Code: {}, Reason: {}",
-                               message.getAccountNumber(), response.getErrorCode(), response.getMessage());
+                                message.getAccountNumber(), response.getErrorCode(), response.getMessage());
                         updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_FAILED);
                         updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.FAILED, response.getMessage(), message.getAccountNumber());
                         break;
@@ -135,7 +135,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
 
                     default:
                         log.warn("Unknown VISA response status for account: {}. Status: {}",
-                               message.getAccountNumber(), response.getStatus());
+                                message.getAccountNumber(), response.getStatus());
                         updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_FAILED);
                         updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.FAILED, response.getMessage(), message.getAccountNumber());
                 }
@@ -146,7 +146,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
             }
         } catch (Exception e) {
             log.error("Unexpected error in VISA registration with Resilience4j for account: {}. Error: {}",
-                     message.getAccountNumber(), e.getMessage(), e);
+                    message.getAccountNumber(), e.getMessage(), e);
             updateCreditAccountStatus(message.getAccountNumber(), AccountStatus.REGISTRATION_ERROR);
             updateCreditRequestStatus(message.getIdRequest(), CreditRequestStatus.ERROR, e.getMessage(), message.getAccountNumber());
         }
@@ -158,18 +158,18 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
         try {
             // Create request for Master service
             CardRegistrationRequest request = CardRegistrationRequest.builder()
-                .accountNumber(message.getAccountNumber())
-                .cifCode(message.getCifCode())
-                .cardType(message.getCardType())
-                .customerName(message.getCustomerName())
-                .build();
+                    .accountNumber(message.getAccountNumber())
+                    .cifCode(message.getCifCode())
+                    .cardType(message.getCardType())
+                    .customerName(message.getCustomerName())
+                    .build();
 
             // Call Master service directly
             ResponseEntity<ApiResponseWrapper<MasterCardResponse>> responseEntity = interServiceRestTemplate.exchange(
-                masterServiceUrl + "/api/master-service/registration",
-                HttpMethod.POST,
-                new HttpEntity<>(request),
-                new ParameterizedTypeReference<ApiResponseWrapper<MasterCardResponse>>() {}
+                    masterServiceUrl + "/api/master-service/registration",
+                    HttpMethod.POST,
+                    new HttpEntity<>(request),
+                    new ParameterizedTypeReference<ApiResponseWrapper<MasterCardResponse>>() {}
             );
 
             ApiResponseWrapper<MasterCardResponse> wrapper = responseEntity.getBody();
@@ -220,7 +220,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
     }
     private void updateCreditRequestStatus(String id, CreditRequestStatus status,String reson, String accountNumber) {
         CreditRequest creditRequestStatus = creditRequestRepository.findById(id).orElseThrow(() ->
-                 new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED));
+                new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED));
         creditRequestStatus.setStatus(status);
         creditRequestStatus.setReason(reson);
         creditRequestStatus.setAccountNumber(accountNumber);
@@ -238,8 +238,8 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
             }
             return account;
         } catch (Exception e) {
-            log.error("Error updating credit account status for account: {}. Error: {}", 
-                     accountNumber, e.getMessage(), e);
+            log.error("Error updating credit account status for account: {}. Error: {}",
+                    accountNumber, e.getMessage(), e);
             throw new AppException(ErrorCode.UNCATERROR_ERROR);
         }
     }
@@ -267,7 +267,7 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
             throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);
         }
     }
-    
+
     private void updateCardDetails(String accountNumber, VisaCardResponse response) {
         try {
             CreditAccount account = creditAccountRepository.findByAccountNumber(accountNumber);
@@ -291,8 +291,8 @@ private void handleVisaRegistrationWithResilience4j(CardRegistrationMessage mess
                 log.warn("Credit account not found for updating card details: {}", accountNumber);
             }
         } catch (Exception e) {
-            log.error("Error updating card details for account: {}. Error: {}", 
-                     accountNumber, e.getMessage(), e);
+            log.error("Error updating card details for account: {}. Error: {}",
+                    accountNumber, e.getMessage(), e);
         }
     }
     private void updateCardDetails(String accountNumber, MasterCardResponse response) {

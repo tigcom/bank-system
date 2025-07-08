@@ -2,6 +2,8 @@ package com.example.account_service.repository;
 
 import com.example.account_service.entity.Account;
 import com.example.account_service.entity.CreditRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -13,4 +15,7 @@ public interface CreditRequestRepository extends JpaRepository<CreditRequest, St
 
     @Query("SELECT c FROM CreditRequest c WHERE  c.status != 'APPROVED' AND c.status!='REJECTED' ")
     List<CreditRequest> findAllByStatus();
+    
+    @Query("SELECT c FROM CreditRequest c WHERE c.status != 'APPROVED' AND c.status != 'REJECTED' ORDER BY c.createdDate DESC")
+    Page<CreditRequest> findAllByStatusWithPagination(Pageable pageable);
 }

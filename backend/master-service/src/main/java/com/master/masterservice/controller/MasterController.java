@@ -23,7 +23,9 @@ public class MasterController {
     public ResponseEntity<ApiResponseWrapper<MasterCardResponse>> registerCard(@RequestBody CardRegistrationRequest request) {
         log.info("Received Master card registration request: {}", request);
         MasterCardResponse response = masterService.registerCard(request);
-        return ResponseEntity.ok(ApiResponseWrapper.success(response));
+        return ResponseEntity.ok(ApiResponseWrapper.<MasterCardResponse>builder()
+                .data(response)
+                .build());
     }
 
     @PostMapping("/test-retry")

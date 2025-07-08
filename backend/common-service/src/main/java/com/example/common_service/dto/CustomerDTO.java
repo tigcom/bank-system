@@ -23,4 +23,6 @@ public class CustomerDTO implements  Serializable {
     private CustomerStatus status;
     private String identityNumber;
     private boolean kycVerified;
+    private String accountNumber;
+    private String phoneNumber;
 }

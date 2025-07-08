@@ -27,6 +27,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
@@ -180,7 +183,7 @@ public class AccountServiceImpl implements AccountService {
                     userId, currentCustomer.getCifCode(), currentCustomer.getStatus());
             
             // check trang thai cua Customer trươc
-            if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            if (currentCustomer.getStatus().equals(CustomerStatus.CLOSED)) {
                 log.warn("GET_PAYMENT_ACCOUNTS_FAILED - UserId: {}, CifCode: {}, Reason: CUSTOMER_NOT_ACTIVE",
                         userId, currentCustomer.getCifCode());
                 throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
@@ -281,6 +284,9 @@ public class AccountServiceImpl implements AccountService {
             log.info("CUSTOMER_INFO_RETRIEVED - UserId: {}, CifCode: {}, CustomerStatus: {}",
                     userId, cifCode, currentCustomer.getStatus());
 
+            if (currentCustomer.getStatus().equals(CustomerStatus.CLOSED)) {
+                throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+            }
             // Lấy Savings Accounts từ local database
             List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
 
@@ -329,7 +335,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("User id: " + userId);
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+        if (currentCustomer.getStatus().equals(CustomerStatus.CLOSED)) {
             throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
         String cifCode = currentCustomer.getCifCode();
@@ -517,12 +523,62 @@ public class AccountServiceImpl implements AccountService {
         // Thêm thông tin khách hàng nếu có
         if (customer != null) {
             builder.fullname(customer.getFullName())
-                   .email(customer.getEmail());
+                   .email(customer.getEmail())
+                    .dateOfBirth(customer.getDateOfBirth())
+                    .identityNumber(customer.getIdentityNumber())
+                    .phoneNumber(customer.getPhoneNumber());
+                    ;
         }
         
         return builder.build();
     }
 
+    @Override
+    public Page<CreditRequestReponse> getAllCreditRequestPendingPaginated(Pageable pageable) {
+        log.info("GET_ALL_CREDIT_REQUEST_PENDING_PAGINATED_START - Page: {}, Size: {}", 
+                pageable.getPageNumber(), pageable.getPageSize());
+
+        try {
+            Page<CreditRequest> creditRequestPage = creditRequestRepository.findAllByStatusWithPagination(pageable);
+            
+            log.info("CREDIT_REQUESTS_FOUND_PAGINATED - TotalElements: {}, TotalPages: {}, CurrentPage: {}", 
+                    creditRequestPage.getTotalElements(), 
+                    creditRequestPage.getTotalPages(), 
+                    creditRequestPage.getNumber());
+
+            List<CreditRequestReponse> responseList = creditRequestPage.getContent().stream()
+                    .map(creditRequest -> {
+                        try {
+                            // Lấy thông tin khách hàng qua Dubbo service
+                            CustomerDTO customer = commonService.getCustomerByCifCode(creditRequest.getCifCode());
+                            return maptoCreditRequestReponse(creditRequest, customer);
+                        } catch (Exception e) {
+                            log.warn("CUSTOMER_INFO_NOT_FOUND_PAGINATED - CifCode: {}, Error: {}", 
+                                    creditRequest.getCifCode(), e.getMessage());
+                            // Nếu không lấy được thông tin customer, vẫn trả về response nhưng không có fullname và email
+                            return maptoCreditRequestReponse(creditRequest, null);
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+            Page<CreditRequestReponse> result = new PageImpl<>(
+                    responseList, 
+                    pageable, 
+                    creditRequestPage.getTotalElements()
+            );
+
+            log.info("GET_ALL_CREDIT_REQUEST_PENDING_PAGINATED_SUCCESS - TotalElements: {}, TotalPages: {}, CurrentPage: {}, ContentSize: {}", 
+                    result.getTotalElements(), 
+                    result.getTotalPages(), 
+                    result.getNumber(),
+                    result.getContent().size());
+
+            return result;
+        } catch (Exception e) {
+            log.error("GET_ALL_CREDIT_REQUEST_PENDING_PAGINATED_ERROR - Error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
 
     @Override
     public PaymentRequestResponse createPaymentRequest(String cifCode) {
