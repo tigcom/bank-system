@@ -42,4 +42,7 @@ public class CreditRequestReponse {
     private String identityNumber;
     private LocalDate dateOfBirth;
 
+    private String reason;
+    private String accountNumber;
+
 }
