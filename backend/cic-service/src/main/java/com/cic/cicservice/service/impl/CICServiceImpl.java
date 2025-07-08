@@ -63,7 +63,6 @@ public class CICServiceImpl implements CICService {
                                 cicRequest.getIdNumber(), responseBody.getStatus());
                         return responseBody; // Return as-is, don't throw exception to avoid retry
                     }
-                    log.info("225721 {}",responseBody);
                     return responseBody;
                 } else {
                     log.error("CIC API returned null body for ID: {}", cicRequest.getIdNumber());

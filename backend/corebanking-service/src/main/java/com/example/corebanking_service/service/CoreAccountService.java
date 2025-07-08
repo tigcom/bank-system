@@ -9,4 +9,6 @@ public interface CoreAccountService {
     AccountSavingUpdateResponse updateBalanceSaving(String accountNumber, SavingUpdateRequest request);
 
     BalanceResponse getBalanceByAccountNumber(String accountNumber);
+
+    void updateStatus(CoreAccountUpdateStatusRequest statusRequest);
 }

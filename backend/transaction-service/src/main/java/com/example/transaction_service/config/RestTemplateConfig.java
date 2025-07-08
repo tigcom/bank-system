@@ -1,38 +1,28 @@
 package com.example.transaction_service.config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
 
 @Configuration
 public class RestTemplateConfig {
-
-    @Value("${core-banking.api-key}")
-    private String CORE_BANK_API_KEY;
-
-    @Value("${mock-server-api-key}")
-    private String MOCK_SERVER_API_KEY;
-
+    @Value("${core-banking.api.key}")
+    private String apiKey;
     @Bean
-    @Qualifier("coreBankRestTemplate")
-    public RestTemplate coreBankRestTemplate() {
-        return buildRestTemplateWithKey(CORE_BANK_API_KEY);
-    }
+    public RestTemplate restTemplate() {
 
-    @Bean
-    @Qualifier("mockServerRestTemplate")
-    public RestTemplate mockServerRestTemplate() {
-        return buildRestTemplateWithKey(MOCK_SERVER_API_KEY);
-    }
-
-    private RestTemplate buildRestTemplateWithKey(String apiKey) {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getInterceptors().add((request, body, execution) -> {
-            request.getHeaders().add("X-API-KEY", apiKey);
+        // Interceptor thêm API Key vào header
+        ClientHttpRequestInterceptor apiKeyInterceptor = (request, body, execution) -> {
+            request.getHeaders().add("X-API-Key", apiKey); // tuỳ hệ thống có thể là "x-api-key", "Authorization", v.v.
             return execution.execute(request, body);
-        });
+        };
+        restTemplate.setInterceptors(Collections.singletonList(apiKeyInterceptor));
         return restTemplate;
     }
-}
+    }
+

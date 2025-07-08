@@ -14,15 +14,18 @@
         <option value="$PROJECT_DIR$/backend/common-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/notification-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/mock-provider-server/pom.xml" />
+        <option value="$PROJECT_DIR$/cic-service/pom.xml" />
+        <option value="$PROJECT_DIR$/visa-service/pom.xml" />
+        <option value="$PROJECT_DIR$/master-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/visa-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/master-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/cic-service/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/opening-banking-service/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/banking/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/openingbanking-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/backend/opening-banking-service/pom.xml" />
+        <option value="$PROJECT_DIR$/master-service/pom.xml" />
+        <option value="$PROJECT_DIR$/visa-service/pom.xml" />
       </set>
     </option>
   </component>

@@ -12,17 +12,24 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction,String>, JpaSpecificationExecutor<Transaction> {
+public interface TransactionRepository extends JpaRepository<Transaction,String> , JpaSpecificationExecutor<Transaction> {
     Transaction findByReferenceCode(String referenceCode);
     @Query(value = "SELECT * FROM tbl_transaction " +
-            "WHERE from_account_number = :accountNumber OR to_account_number = :accountNumber",
+            "WHERE from_account_number = :accountNumber OR to_account_number = :accountNumber "
+            + "ORDER BY timestamp DESC",
             nativeQuery = true)
     List<Transaction> getAccountTransactions(@Param("accountNumber") String accountNumber);
 
     List<Transaction> findAllByStatusAndTimestampBefore(TransactionStatus status, LocalDateTime beforeTime);
 
+    @Query(value = "SELECT * FROM tbl_transaction " +
+            "WHERE (from_account_number = :accountNumber OR to_account_number = :accountNumber) " +
+            "ORDER BY timestamp DESC",
+            nativeQuery = true)
+    Page<Transaction> findByAccountNumber(@Param("accountNumber") String accountNumber, Pageable pageable);
     @Query(value = "SELECT t.to_account_number\n" +
             "FROM tbl_transaction t\n" +
             "JOIN (\n" +
@@ -46,11 +53,4 @@ public interface TransactionRepository extends JpaRepository<Transaction,String>
             nativeQuery = true)
     List<Transaction> getDailyPaymentTransaction(@Param("startOfDay") LocalDateTime startOfDay,
                                                  @Param("endOfDay") LocalDateTime endOfDay);
-
-    @Query(value = "SELECT * FROM tbl_transaction " +
-            "WHERE (from_account_number = :accountNumber OR to_account_number = :accountNumber) " +
-            "ORDER BY timestamp DESC",
-            nativeQuery = true)
-    Page<Transaction> findByAccountNumber(@Param("accountNumber") String accountNumber, Pageable pageable);
-
 }

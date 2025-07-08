@@ -1,9 +1,7 @@
 package com.example.customer_service.responses;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -14,6 +12,7 @@ public class ApiResponseWrapper<T> {
     private int status;
     private String message;
     private T data;
+
     public static <T> ApiResponseWrapper<T> success(String message, T data) {
         return new ApiResponseWrapper<>(HttpStatus.OK.value(), message, data);
     }
@@ -22,4 +21,3 @@ public class ApiResponseWrapper<T> {
         return new ApiResponseWrapper<>(HttpStatus.BAD_REQUEST.value(), message, null);
     }
 }
-

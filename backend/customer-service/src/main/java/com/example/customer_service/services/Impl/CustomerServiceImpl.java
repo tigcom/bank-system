@@ -133,6 +133,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
         registrationCacheService.updateRegistrationWithKyc(email, kycRequest);
         String otp = String.format("%06d", new Random().nextInt(1000000));
+        log.info("OTP: " + otp);
         otpCacheService.saveOtp(email, otp, registerData);
         try {
             MailMessageDTO mailMessage = new MailMessageDTO();
