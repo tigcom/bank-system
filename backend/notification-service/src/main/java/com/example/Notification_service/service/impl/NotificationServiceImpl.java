@@ -2,9 +2,13 @@ package com.example.Notification_service.service.impl;
 
 import com.example.Notification_service.service.NotificationService;
 import com.example.Notification_service.service.ConnectionHealthService;
+import com.example.common_service.dto.CommonTransactionDTO;
 import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.CreditNotificationDTO;
+import com.example.common_service.dto.MailTransactionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +69,35 @@ public class NotificationServiceImpl implements NotificationService {
 
             // Retry mechanism for email sending
             sendEmailWithRetry(mailMessage, htmlContent, 3);
+
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @KafkaListener(topics = "send-mail-transaction", groupId = "mail-transaction-group", containerFactory = "kafkaListenerContainerFactory")
+    public void notificationTransaction(Message<byte[]> messagee) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper()
+                    .registerModule(new JavaTimeModule())
+                    .disable(SerializationFeature
+                            .WRITE_DATES_AS_TIMESTAMPS);
+            MailTransactionDTO mailMessage = objectMapper.readValue(messagee.getPayload(), MailTransactionDTO.class);
+            log.info("Sending HTML email to: {}", mailMessage.getName());
+            System.out.println("Gửi mail tới:"+mailMessage.getRecipientMail());
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getName() != null ? mailMessage.getName() : "bạn");
+            context.setVariable("amount", mailMessage.getAmount());
+            context.setVariable("referenceCode", mailMessage.getReferenceCode());
+            context.setVariable("toAccountNumber", mailMessage.getToAccountNumber());
+            context.setVariable("toCustomerName", mailMessage.getToCustomerName());
+            context.setVariable("timestamp", mailMessage.getTimestamp());
+            context.setVariable("description", mailMessage.getDescription());
+
+            String htmlContent = templateEngine.process("notification-transaction", context);
+            // Retry mechanism for email sending
+            sendTransactionEmailWithRetry(mailMessage, htmlContent, 3);
 
         } catch (Exception e) {
             log.error("Lỗi khi xử lý HTML message: {}", e.getMessage(), e);
@@ -219,6 +252,52 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (Exception e) {
             log.error("Lỗi khi gửi email khôi phục mật khẩu: {}", e.getMessage(), e);
             throw new RuntimeException("Không thể gửi email khôi phục mật khẩu: " + e.getMessage(), e);
+        }
+    }
+    private void sendTransactionEmailWithRetry(MailTransactionDTO mailMessage, String htmlContent, int maxRetries) {
+        // Check connection health before attempting to send
+        if (!connectionHealthService.checkGmailConnection()) {
+            log.error("Gmail SMTP not reachable. Running diagnostics...");
+            connectionHealthService.logNetworkDiagnostics();
+            throw new RuntimeException("Gmail SMTP server not reachable");
+        }
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+                helper.setFrom("nguyenhoainam29.08.01@gmail.com");
+                System.out.println("Mail nhận:"+(mailMessage.getRecipientMail()));
+                helper.setTo(mailMessage.getRecipientMail());
+                helper.setSubject(mailMessage.getSubject());
+                helper.setText(htmlContent, true);
+
+                mailSender.send(message);
+                return; // Success, exit retry loop
+
+            } catch (Exception e) {
+
+                // If it's a connection reset, check connectivity again
+                if (e.getMessage().contains("Connection reset")) {
+                    log.warn("Connection reset detected, checking Gmail connectivity...");
+                    boolean connected = connectionHealthService.checkGmailConnection();
+                    log.info("Gmail connectivity check result: {}", connected);
+                }
+
+                if (attempt == maxRetries) {
+
+                    connectionHealthService.logNetworkDiagnostics();
+                    throw new RuntimeException("Email sending failed after " + maxRetries + " attempts", e);
+                }
+
+                // Wait before retry with exponential backoff
+                try {
+                    Thread.sleep(2000 * attempt);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
         }
     }
 

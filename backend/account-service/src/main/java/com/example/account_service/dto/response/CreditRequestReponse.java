@@ -34,4 +34,7 @@ public class CreditRequestReponse {
     @Schema(description = "Trạng thái yêu cầu tín dụng", example = "PENDING")
     private CreditRequestStatus status;
 
+    private String reason;
+    private String accountNumber;
+
 }
