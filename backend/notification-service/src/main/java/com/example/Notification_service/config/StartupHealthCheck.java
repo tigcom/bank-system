@@ -31,7 +31,7 @@ public class StartupHealthCheck implements CommandLineRunner {
             log.warn("3. Corporate network restrictions");
             log.warn("4. App password validity");
         } else {
-            log.info("✅ Gmail SMTP connectivity verified");
+            log.info(" Gmail SMTP connectivity verified");
         }
         
         log.info("=== STARTUP HEALTH CHECK COMPLETE ===");

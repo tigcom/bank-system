@@ -13,6 +13,8 @@ public class MessageKeys {
     public static final String INVALID_CURRENT_PASSWORD = "password.current.invalid";
     public static final String PASSWORD_VERIFICATION_FAILED = "password.verification.failed";
 
+    public static final String KYC_NOT_PENDING = "user.kyc.kyc_not_pending";
+
     // Register-related messages
     public static final String REGISTER_FAILED = "user.register.register_failed";
     public static final String REGISTER_DATA_SAVED = "user.register.register_data_saved";
@@ -112,4 +114,14 @@ public class MessageKeys {
     public static final String KEYCLOAK_TEMPORARY_FAILURE = "msg.keycloak.temporary.error";
     public static final String KYC_TEMPORARY_FAILURE = "msg.kyc.temporary.error";
     public static final String CORE_BANKING_TEMPORARY_FAILURE = "msg.core.banking.temporary.error";
+
+    // MessageKeys.java
+    public static final String KYC_SUBMISSION_SUCCESS = "KYC_SUBMISSION_SUCCESS";
+    public static final String KYC_ALREADY_SUBMITTED = "KYC_ALREADY_SUBMITTED";
+    public static final String SUCCESS_GET_KYC_LIST = "SUCCESS_GET_KYC_LIST";
+    public static final String KYC_APPROVAL_SUCCESS = "KYC_APPROVAL_SUCCESS";
+    public static final String SUCCESS_GET_KYC_STATISTICS = "SUCCESS_GET_KYC_STATISTICS";
+    public static final String SUCCESS_GET_CUSTOMER_GROWTH = "SUCCESS_GET_CUSTOMER_GROWTH";
+    public static final String SUCCESS_GET_ACCOUNTS = "SUCCESS_GET_ACCOUNTS";
+    public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
 }

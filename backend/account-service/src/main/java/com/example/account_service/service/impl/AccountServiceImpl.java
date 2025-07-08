@@ -19,27 +19,21 @@ import com.example.common_service.dto.*;
 import com.example.common_service.dto.response.*;
 import com.example.common_service.services.CommonService;
 import com.example.common_service.services.customer.CustomerQueryService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.rpc.RpcContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -62,8 +56,6 @@ public class AccountServiceImpl implements AccountService {
     private final CreditAccountRepository creditAccountRepository;
     private final CreditCardTypeRepository creditCardTypeRepository;
     private final CreditRequestRepository creditRequestRepository;
-    private final JwtDecoder jwtDecoder;
-    private final JwtAuthenticationConverter authConverter;
 
     @DubboReference(timeout = 5000)
     private CommonService commonService;
@@ -178,31 +170,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountPaymentResponse> getAllPaymentAccountsbyCifCode() {
-        String tokenValue = "";
-
-        try {
-            Object authObject = RpcContext.getContext().getObjectAttachment("security_authentication_context");
-            if (authObject != null) {
-                String authJson = authObject.toString();
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(authJson);
-                tokenValue = root.path("token").path("tokenValue").asText();
-            }
-        } catch (JsonProcessingException e) {
-            throw new SecurityException("Lỗi khi parse JSON token từ RpcContext", e);
-        }
-
-        if (tokenValue != null && !tokenValue.isEmpty()) {
-            Jwt jwt = jwtDecoder.decode(tokenValue);
-            AbstractAuthenticationToken tokenAuth = authConverter.convert(jwt);
-
-            if (!(tokenAuth instanceof JwtAuthenticationToken)) {
-                throw new SecurityException("Expected JwtAuthenticationToken but got "
-                        + tokenAuth.getClass().getName());
-            }
-
-            SecurityContextHolder.getContext().setAuthentication(tokenAuth);
-        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         
@@ -216,7 +183,7 @@ public class AccountServiceImpl implements AccountService {
                     userId, currentCustomer.getCifCode(), currentCustomer.getStatus());
             
             // check trang thai cua Customer trươc
-            if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+            if (currentCustomer.getStatus().equals(CustomerStatus.CLOSED)) {
                 log.warn("GET_PAYMENT_ACCOUNTS_FAILED - UserId: {}, CifCode: {}, Reason: CUSTOMER_NOT_ACTIVE",
                         userId, currentCustomer.getCifCode());
                 throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
@@ -317,6 +284,9 @@ public class AccountServiceImpl implements AccountService {
             log.info("CUSTOMER_INFO_RETRIEVED - UserId: {}, CifCode: {}, CustomerStatus: {}",
                     userId, cifCode, currentCustomer.getStatus());
 
+            if (currentCustomer.getStatus().equals(CustomerStatus.CLOSED)) {
+                throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
+            }
             // Lấy Savings Accounts từ local database
             List<SavingsAccount> savingsAccounts = savingsAccountRepository.findActiveSavingsAccountsByCifCode(cifCode);
 
@@ -334,7 +304,7 @@ public class AccountServiceImpl implements AccountService {
                                 .accountNumber(account.getAccountNumber())
                                 .cifCode(account.getCifCode())
                                 .accountType(account.getAccountType().name())
-                                .balance(balance)   
+                                .balance(balance)
                                 .initialDeposit(account.getInitialDeposit())
                                 .termValueMonths(account.getTerm().getTermValueMonths())
                                 .interestRate(account.getTerm().getInterestRate())
@@ -342,7 +312,7 @@ public class AccountServiceImpl implements AccountService {
                                 .maturityDate(account.getMaturityDate())
                                 .interestPaymentType(account.getInterestPaymentType())
                                 .renewOption(account.getRenewOption())
-                                .accountNumberSrc(account.getAccountNumber())
+                                .accountNumberSrc(account.getAccountNumberSrc())
                                 .build();
                     })
                     .collect(Collectors.toList());
@@ -365,7 +335,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("User id: " + userId);
         // Lấy thông tin khách hàng hiện tại
         CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
-        if (!currentCustomer.getStatus().equals(CustomerStatus.ACTIVE)) {
+        if (currentCustomer.getStatus().equals(CustomerStatus.CLOSED)) {
             throw  new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
         String cifCode = currentCustomer.getCifCode();
@@ -512,14 +482,35 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<CreditRequestReponse> getAllCreditRequestPending() {
-        List<CreditRequest> list = creditRequestRepository.findAllByStatus();
+        log.info("GET_ALL_CREDIT_REQUEST_PENDING_START");
 
-        return list.stream()
-                .map(this::maptoCreditRequestReponse)
-                .collect(Collectors.toList());
+        try {
+            List<CreditRequest> list = creditRequestRepository.findAllByStatus();
+            
+            log.info("CREDIT_REQUESTS_FOUND - Count: {}", list.size());
+
+            return list.stream()
+                    .map(creditRequest -> {
+                        try {
+                            // Lấy thông tin khách hàng qua Dubbo service
+                            CustomerDTO customer = commonService.getCustomerByCifCode(creditRequest.getCifCode());
+                            return maptoCreditRequestReponse(creditRequest, customer);
+                        } catch (Exception e) {
+                            log.warn("CUSTOMER_INFO_NOT_FOUND - CifCode: {}, Error: {}", 
+                                    creditRequest.getCifCode(), e.getMessage());
+                            // Nếu không lấy được thông tin customer, vẫn trả về response nhưng không có fullname và email
+                            return maptoCreditRequestReponse(creditRequest, null);
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("GET_ALL_CREDIT_REQUEST_PENDING_ERROR - Error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
-    private CreditRequestReponse maptoCreditRequestReponse(CreditRequest creditRequest) {
-        CreditRequestReponse creditRequestReponse = CreditRequestReponse.builder()
+    
+    private CreditRequestReponse maptoCreditRequestReponse(CreditRequest creditRequest, CustomerDTO customer) {
+        CreditRequestReponse.CreditRequestReponseBuilder builder = CreditRequestReponse.builder()
                 .id(creditRequest.getId())
                 .status(creditRequest.getStatus())
                 .cartTypeId(creditRequest.getCartTypeId())
@@ -527,11 +518,67 @@ public class AccountServiceImpl implements AccountService {
                 .occupation(creditRequest.getOccupation())
                 .cifCode(creditRequest.getCifCode())
                 .reason(creditRequest.getReason())
-                .accountNumber(creditRequest.getAccountNumber())
-                .build();
-        return creditRequestReponse;
+                .accountNumber(creditRequest.getAccountNumber());
+        
+        // Thêm thông tin khách hàng nếu có
+        if (customer != null) {
+            builder.fullname(customer.getFullName())
+                   .email(customer.getEmail())
+                    .dateOfBirth(customer.getDateOfBirth())
+                    .identityNumber(customer.getIdentityNumber())
+                    .phoneNumber(customer.getPhoneNumber());
+                    ;
+        }
+        
+        return builder.build();
     }
 
+    @Override
+    public Page<CreditRequestReponse> getAllCreditRequestPendingPaginated(Pageable pageable) {
+        log.info("GET_ALL_CREDIT_REQUEST_PENDING_PAGINATED_START - Page: {}, Size: {}", 
+                pageable.getPageNumber(), pageable.getPageSize());
+
+        try {
+            Page<CreditRequest> creditRequestPage = creditRequestRepository.findAllByStatusWithPagination(pageable);
+            
+            log.info("CREDIT_REQUESTS_FOUND_PAGINATED - TotalElements: {}, TotalPages: {}, CurrentPage: {}", 
+                    creditRequestPage.getTotalElements(), 
+                    creditRequestPage.getTotalPages(), 
+                    creditRequestPage.getNumber());
+
+            List<CreditRequestReponse> responseList = creditRequestPage.getContent().stream()
+                    .map(creditRequest -> {
+                        try {
+                            // Lấy thông tin khách hàng qua Dubbo service
+                            CustomerDTO customer = commonService.getCustomerByCifCode(creditRequest.getCifCode());
+                            return maptoCreditRequestReponse(creditRequest, customer);
+                        } catch (Exception e) {
+                            log.warn("CUSTOMER_INFO_NOT_FOUND_PAGINATED - CifCode: {}, Error: {}", 
+                                    creditRequest.getCifCode(), e.getMessage());
+                            // Nếu không lấy được thông tin customer, vẫn trả về response nhưng không có fullname và email
+                            return maptoCreditRequestReponse(creditRequest, null);
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+            Page<CreditRequestReponse> result = new PageImpl<>(
+                    responseList, 
+                    pageable, 
+                    creditRequestPage.getTotalElements()
+            );
+
+            log.info("GET_ALL_CREDIT_REQUEST_PENDING_PAGINATED_SUCCESS - TotalElements: {}, TotalPages: {}, CurrentPage: {}, ContentSize: {}", 
+                    result.getTotalElements(), 
+                    result.getTotalPages(), 
+                    result.getNumber(),
+                    result.getContent().size());
+
+            return result;
+        } catch (Exception e) {
+            log.error("GET_ALL_CREDIT_REQUEST_PENDING_PAGINATED_ERROR - Error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
 
     @Override
     public PaymentRequestResponse createPaymentRequest(String cifCode) {
@@ -554,19 +601,8 @@ public class AccountServiceImpl implements AccountService {
                 throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
             }
 
-            //check kyc cua khach hang
-            String KYCurl = "http://localhost:8080/api/customers/status";
-            
-            log.info("KYC_CHECK_START - CifCode: {}, KycUrl: {}", cifCode, KYCurl);
-            
-            ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
-                    KYCurl,
-                    HttpMethod.GET, 
-                    null,
-                    new ParameterizedTypeReference<KycResponse>() {}
-            );
-            
-            if (!response.getBody().isVerified()) {
+            // Check KYC status from CustomerDTO
+            if (!customer.isKycVerified()) {
                 log.warn("CREATE_PAYMENT_REQUEST_FAILED - CifCode: {}, Reason: KYC_NOT_VERIFIED", cifCode);
                 throw new AppException(ErrorCode.KYC_INVALID);
             }
@@ -665,6 +701,7 @@ public class AccountServiceImpl implements AccountService {
             throw e;
         }
     }
+
 
     private PaymentRequestResponse createPaymentAccountDirectly(String cifCode) {
         log.info("CREATE_PAYMENT_ACCOUNT_DIRECTLY_START - CifCode: {}", cifCode);

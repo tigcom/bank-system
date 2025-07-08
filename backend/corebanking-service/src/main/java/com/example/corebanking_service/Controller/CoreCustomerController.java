@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/core/customers")
 @RequiredArgsConstructor
@@ -21,9 +23,10 @@ public class CoreCustomerController {
 
     @PostMapping("/sync")
     public ResponseEntity<CoreResponse> syncCoreCustomer(@RequestBody CoreCustomerDTO dto) {
-        log.info("Nhận dữ liệu từ customer-service: {}", dto);
+        String requestId = UUID.randomUUID().toString();
+        log.info("SYNC_CORE_CUSTOMER_REQUEST - RequestId: {}, CifCode: {}, Status: {}", requestId, dto.getCifCode(), dto.getStatus());
         CoreResponse response = coreCustomerService.syncCoreCustomer(dto);
-        log.info("Đã đồng bộ: {}", response);
+        log.info("SYNC_CORE_CUSTOMER_RESPONSE - RequestId: {}, CifCode: {}, Success: {}, Message: {}", requestId, dto.getCifCode(), response.isSuccess(), response.getMessage());
         return ResponseEntity.ok(response);
     }
 }

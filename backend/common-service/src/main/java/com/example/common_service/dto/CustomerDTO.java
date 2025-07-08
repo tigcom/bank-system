@@ -22,4 +22,7 @@ public class CustomerDTO implements  Serializable {
     private LocalDate dateOfBirth;
     private CustomerStatus status;
     private String identityNumber;
+    private boolean kycVerified;
+    private String accountNumber;
+    private String phoneNumber;
 }

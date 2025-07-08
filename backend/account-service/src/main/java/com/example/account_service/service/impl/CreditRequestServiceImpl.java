@@ -4,10 +4,8 @@ import com.example.account_service.dto.kafkaMessage.CardRegistrationMessage;
 import com.example.account_service.dto.request.CreditRequestCreateDTO;
 import com.example.account_service.dto.request.CreditRequestConfirmDTO;
 import com.example.account_service.dto.request.CreditSensitiveConfirmDTO;
-import com.example.account_service.dto.response.AccountCreateReponse;
-import com.example.account_service.dto.response.CicResponse;
-import com.example.account_service.dto.response.CreditRequestReponse;
-import com.example.account_service.dto.response.CreditSensitiveReponse;
+import com.example.account_service.dto.response.*;
+import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.entity.Account;
 import com.example.account_service.entity.CreditAccount;
 import com.example.account_service.entity.CreditCardType;
@@ -25,6 +23,7 @@ import com.example.common_service.constant.AccountType;
 import com.example.common_service.constant.CreditRequestStatus;
 import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.*;
+import com.example.common_service.dto.request.CICRequest;
 import com.example.common_service.dto.response.KycResponse;
 import com.example.common_service.services.CommonService;
 import lombok.RequiredArgsConstructor;
@@ -58,10 +57,8 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private final AccountRepository accountRepository;
     private final CreditAccountRepository creditAccountRepository;
     private final CreditCardTypeRepository creditCardTypeRepository;
-    @Autowired
     @Qualifier("cardRegistrationKafkaTemplate")
-    private KafkaTemplate<String, CardRegistrationMessage> kafkaTemplate;
-
+    private final KafkaTemplate<String, CardRegistrationMessage> kafkaTemplate;
     @DubboReference(timeout = 5000)
     private final CommonService commonService;
 
@@ -70,14 +67,11 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
     private final AccountNumberUtils    accountNumberUtils;
     @Autowired
-    @Qualifier("restTemplateInternal")
-    private RestTemplate restTemplateInternal;
-    @Autowired
     @Qualifier("coreBankingRestTemplate")
     private RestTemplate coreBankingRestTemplate;
     @Autowired
-    @Qualifier("MockServerRestTemplate")
-    private  RestTemplate mockServerTemplate;
+    @Qualifier("interServiceRestTemplate")
+    private RestTemplate interServiceRestTemplate;
 
 
     private final StreamBridge streamBridge;
@@ -85,6 +79,9 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private static final String[] STABLE_OCCUPATIONS = {"Engineer", "Doctor", "Teacher", "Government Employee"};
     @Value("${core-banking.base-url:http://localhost:8083/corebanking}")
     private String coreBankingBaseUrl;
+
+    @Value("${cic-service.base-url:http://localhost:8085}")
+    private String cicServiceBaseUrl;
 
     @Override
     public CreditRequestReponse createCreditRequest(CreditRequestCreateDTO creditRequestCreateDTO) {
@@ -108,6 +105,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
         // Tạo và gửi OTP
         String otp = generateAndStoreOTP(tempRequestKey);
+        log.info("OTP: {}",otp);
         sendOTPEmail(currentCustomer, otp);
 
         log.info("OTP sent for credit request creation. Temp key: {}", tempRequestKey);
@@ -160,7 +158,6 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         log.info("Cif Code : {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
         /// Check CIC Gia Lap
-        log.info("CCCD: " +customerDTO.getIdentityNumber());
         CicResponse cicResponse = checkCIC(customerDTO.getIdentityNumber());
         // Tính điểm tín dụng tổng hợp
         int finalScore = calculateCreditScore(tempRequest.getMonthlyIncome(), tempRequest.getOccupation(), cicResponse.getCreditScore());
@@ -177,36 +174,35 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             return autoRejectCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
         }
         if (finalScore >= 80) {
-            // cap nhat trang thai Approved va send email duyet the  -->>
+                   creditRequest.setStatus(CreditRequestStatus.PENDING);
+                   creditRequestRepository.save(creditRequest);
             return   autoApproveCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
 
         }
-        else if (finalScore >= 50) {
+     else if (finalScore >= 50) {
             // cap nhat trang thai Pending voi cac truong hop dac biet va chuyen  sang admin duyệt -->>
             creditRequest.setStatus(CreditRequestStatus.PENDING);
             creditRequestRepository.save(creditRequest);
             redisTemplate.delete(creditRequestConfirmDTO.getCreditRequestId());
             redisTemplate.delete("OTP:CREDIT:" + creditRequestConfirmDTO.getCreditRequestId());
-            return mapToDto(creditRequest);
-        } else {
-            return autoRejectCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
-        }
+        return mapToDto(creditRequest);
+    } else {
+             return autoRejectCreditRequest(creditRequest,creditRequestConfirmDTO.getCreditRequestId());
+    }
     }
 
     private CreditRequestReponse autoApproveCreditRequest(CreditRequest creditRequest,  String creditRequestId) {
 
         // tao local credit
         CreditAccount account = createCreditAccount(creditRequest);
-        creditRequest.setStatus(CreditRequestStatus.APPROVED);
-        creditRequestRepository.save(creditRequest);
+
         redisTemplate.delete(creditRequestId);
         redisTemplate.delete("OTP:CREDIT:" + creditRequestId);
-        log.info("Credit request approved and account created: {}", account.getAccountNumber());
 
         // send message gọi api tổ chức thẻ
         CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
                 .accountNumber(account.getAccountNumber())
-                .cardType(account.getCreditCardType().getTypeName())
+                .cardType(account.getCreditCardType().getCardType())
                 .cifCode(account.getCifCode())
                 .creditLimit(account.getCreditLimit())
                 .idRequest(creditRequest.getId())
@@ -254,24 +250,40 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     }
 
     private CicResponse checkCIC(String idNumber) {
-        String url = "http://localhost:8089/api/cic/check";
+        String url = cicServiceBaseUrl + "/api/cic-servive/check-cic";
 
-        Map<String, String> request = new HashMap<>();
-        request.put("idNumber", idNumber);
-        request.put("name", "Nguyen Van A");
+        CICRequest cicRequest = CICRequest.builder()
+                .idNumber(idNumber)
+                .build();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(request, headers);
+        HttpEntity<CICRequest> entity = new HttpEntity<>(cicRequest, headers);
 
         try {
-            ResponseEntity<CicResponse> response = mockServerTemplate.postForEntity(url, entity, CicResponse.class);
-            log.info("Response from CIC : " + response.getBody());
-            return response.getBody();
+            ResponseEntity<ApiResponseWrapper<CicResponse>> response = interServiceRestTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<ApiResponseWrapper<CicResponse>>() {}
+            );
+            
+            if (response.getBody() != null && response.getBody().getData() != null) {
+                log.info("CIC check successful for ID: ***{}, Score: {}, DebtGroup: {}", 
+                    idNumber.substring(Math.max(0, idNumber.length() - 3)),
+                    response.getBody().getData().getCreditScore(),
+                    response.getBody().getData().getDebtGroup());
+                return response.getBody().getData();
+            }
+            
+            log.error("CIC service returned empty response for ID: ***{}", 
+                idNumber.substring(Math.max(0, idNumber.length() - 3)));
+            throw new AppException(ErrorCode.CIC_SERVICE_ERROR);
         } catch (RestClientException e) {
-            log.info(e.getMessage());
-            return null;
+            log.error("CIC service call failed for ID: ***{}, Error: {}", 
+                idNumber.substring(Math.max(0, idNumber.length() - 3)), e.getMessage());
+            throw new AppException(ErrorCode.CIC_SERVICE_ERROR);
         }
     }
     @Override
@@ -282,14 +294,15 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         validateCreditRequestStatus(creditRequest);
         if (creditRequest.getStatus().equals(CreditRequestStatus.PENDING)) {
             CreditAccount account = createCreditAccount(creditRequest);
-            // Update status
-            creditRequest.setStatus(CreditRequestStatus.APPROVED);
-            creditRequestRepository.save(creditRequest);
+//            // Update status
+//            creditRequest.setStatus(CreditRequestStatus.APPROVED);
+//            creditRequestRepository.save(creditRequest);
             CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
                     .accountNumber(account.getAccountNumber())
-                    .cardType(account.getCreditCardType().getTypeName())
+                    .cardType(account.getCreditCardType().getCardType())
                     .cifCode(account.getCifCode())
                     .creditLimit(account.getCreditLimit())
+                    .idRequest(creditRequest.getId())
                     .build();
             kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
             log.info("Credit request approved and account created: {}", account.getAccountNumber());
@@ -302,9 +315,10 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             {
                 CardRegistrationMessage cardRegistrationMessage = CardRegistrationMessage.builder()
                         .accountNumber(account.getAccountNumber())
-                        .cardType(account.getCreditCardType().getTypeName())
+                        .cardType(account.getCreditCardType().getCardType())
                         .cifCode(account.getCifCode())
                         .creditLimit(account.getCreditLimit())
+                        .idRequest(creditRequest.getId())
                         .build();
                 kafkaTemplate.send("card-registration-topic",cardRegistrationMessage );
                 log.info("Credit request approved and account created: {}", account.getAccountNumber());
@@ -500,19 +514,14 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             log.warn("Customer status is not ACTIVE: {}", customer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-        ///  check KYC status cua khach hang
-        /// goi 1 rest toi customer to check KYC  status
-        String KYCurl = "http://localhost:8080/api/customers/status";
-        ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
-                KYCurl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<KycResponse>() {}
-        );
-        if (!response.getBody().isVerified()) {
+        
+        // Check KYC status from CustomerDTO
+        if (!customer.isKycVerified()) {
+            log.warn("Customer KYC is not verified: {}", customer.getCifCode());
             throw new AppException(ErrorCode.KYC_INVALID);
         }
-        log.info("Kyc verified successfully");
+        log.info("Customer KYC verified successfully for CIF: {}", customer.getCifCode());
+        
         int age = Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears();
         log.info("Customer age: {} years", age);
         if (age < 21) {
@@ -606,7 +615,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         do {
             number = accountNumberUtils.generateAccountNumber(creditAccount);
         } while (accountRepository.existsAccountsByAccountNumber(number));
-        creditAccount.setAccountNumber(number);
+       creditAccount.setAccountNumber(number);
 
         // Save credit account (Account will be saved automatically due to inheritance)
         CreditAccount savedAccount = creditAccountRepository.save(creditAccount);
@@ -681,25 +690,25 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     @Override
     public String sendOTPForSensitiveInfo(String accountNumber) {
         log.info("Sending OTP for sensitive info access. Account: {}", accountNumber);
-
+        
         // Validate account exists and belongs to current user
         CreditAccount account = validateCreditAccountAccess(accountNumber);
-
+        
         // Get current customer
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
-
+        
         // Generate temp key for sensitive info request
         String tempRequestKey = "TEMP_SENSITIVE_INFO:" + accountNumber + ":" + System.currentTimeMillis();
-
+        
         // Store account number in Redis for validation later
         redisTemplate.opsForValue().set(tempRequestKey, accountNumber, Duration.ofMinutes(10));
-
+        
         // Generate and store OTP
         String otp = generateAndStoreOTPForSensitiveInfo(tempRequestKey);
-
+        
         // Send OTP email
         sendSensitiveInfoOTPEmail(currentCustomer, otp);
-
+        
         log.info("OTP sent for sensitive info access. Temp key: {}", tempRequestKey);
         return tempRequestKey;
     }
@@ -707,23 +716,23 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     @Override
     public CreditSensitiveReponse confirmOTPAndGetSensitiveInfo(CreditSensitiveConfirmDTO confirmDTO) {
         log.info("Confirming OTP for sensitive info: {}", confirmDTO.getTempRequestKey());
-
+        
         // Validate OTP
         String storedAccountNumber = validateOTPForSensitiveInfo(confirmDTO);
-
+        
         // Verify account number matches
         if (!storedAccountNumber.equals(confirmDTO.getAccountNumber())) {
-            log.error("Account number mismatch. Stored: {}, Provided: {}",
-                    storedAccountNumber, confirmDTO.getAccountNumber());
+            log.error("Account number mismatch. Stored: {}, Provided: {}", 
+                     storedAccountNumber, confirmDTO.getAccountNumber());
             throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
-
+        
         // Get sensitive information
         CreditSensitiveReponse response = getCreditSensitiveResponse(confirmDTO.getAccountNumber());
-
+        
         // Cleanup temp data
         cleanupSensitiveInfoTempData(confirmDTO.getTempRequestKey());
-
+        
         log.info("Sensitive info retrieved successfully for account: {}", confirmDTO.getAccountNumber());
         return response;
     }
@@ -731,25 +740,25 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     @Override
     public void resendSensitiveInfoOtp(String tempRequestKey) {
         log.info("Resending OTP for sensitive info. Temp key: {}", tempRequestKey);
-
+        
         // Check if temp request exists
         String accountNumber = (String) redisTemplate.opsForValue().get(tempRequestKey);
         if (accountNumber == null) {
             throw new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED);
         }
-
+        
         // Get current customer
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
-
+        
         // Validate account still belongs to current user
         validateCreditAccountAccess(accountNumber);
-
+        
         // Generate new OTP
         String otp = generateAndStoreOTPForSensitiveInfo(tempRequestKey);
-
+        
         // Send OTP email
         sendSensitiveInfoOTPEmail(currentCustomer, otp);
-
+        
         log.info("OTP resent successfully for sensitive info: {}", tempRequestKey);
     }
 
@@ -760,21 +769,21 @@ public class CreditRequestServiceImpl implements CreditRequestService {
             log.error("Credit account not found: {}", accountNumber);
             throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
-
+        
         // Validate account belongs to current user
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
         if (!account.getCifCode().equals(currentCustomer.getCifCode())) {
-            log.error("Account access denied. Account: {} does not belong to user: {}",
-                    accountNumber, currentCustomer.getCifCode());
+            log.error("Account access denied. Account: {} does not belong to user: {}", 
+                     accountNumber, currentCustomer.getCifCode());
             throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
-
+        
         // Validate account is active
         if (account.getStatus() != AccountStatus.ACTIVE) {
             log.error("Account is not active: {} - Status: {}", accountNumber, account.getStatus());
             throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVE);
         }
-
+        
         return account;
     }
 
@@ -800,24 +809,24 @@ public class CreditRequestServiceImpl implements CreditRequestService {
     private String validateOTPForSensitiveInfo(CreditSensitiveConfirmDTO confirmDTO) {
         String keyOTP = "OTP:SENSITIVE:" + confirmDTO.getTempRequestKey();
         String storedOtp = (String) redisTemplate.opsForValue().get(keyOTP);
-
+        
         if (storedOtp == null) {
             log.error("OTP expired for sensitive info request: {}", confirmDTO.getTempRequestKey());
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
-
+        
         if (!storedOtp.equals(confirmDTO.getOtpCode())) {
             handleSensitiveInfoOTPFailure(confirmDTO.getTempRequestKey());
             throw new AppException(ErrorCode.INVALID_OTP);
         }
-
+        
         // Get stored account number
         String accountNumber = (String) redisTemplate.opsForValue().get(confirmDTO.getTempRequestKey());
         if (accountNumber == null) {
             log.error("Temp request expired for sensitive info: {}", confirmDTO.getTempRequestKey());
             throw new AppException(ErrorCode.CREDIT_REQUEST_NOTEXISTED);
         }
-
+        
         log.info("OTP validated successfully for sensitive info request: {}", confirmDTO.getTempRequestKey());
         return accountNumber;
     }
@@ -826,10 +835,10 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         String keyFailCount = "OTP_FAIL_COUNT:SENSITIVE:" + tempRequestKey;
         String failStr = (String) redisTemplate.opsForValue().get(keyFailCount);
         int failCount = (failStr == null) ? 0 : Integer.parseInt(failStr);
-
+        
         failCount++;
         redisTemplate.opsForValue().set(keyFailCount, String.valueOf(failCount), Duration.ofMinutes(5));
-
+        
         if (failCount >= 3) {
             // Clean up temp data after 3 failed attempts
             cleanupSensitiveInfoTempData(tempRequestKey);
@@ -845,3 +854,4 @@ public class CreditRequestServiceImpl implements CreditRequestService {
         log.info("Cleaned up sensitive info temp data for key: {}", tempRequestKey);
     }
 }
+

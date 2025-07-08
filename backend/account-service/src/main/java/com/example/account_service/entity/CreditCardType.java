@@ -43,6 +43,9 @@ public class CreditCardType {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "type_Card")
+    private String cardType;
+
 //    @ElementCollection
 //    @CollectionTable(name = "credit_card_type_conditions", joinColumns = @JoinColumn(name = "card_type_id"))
 //    @Column(name = "condition_text")

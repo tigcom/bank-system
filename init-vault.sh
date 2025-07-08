@@ -1,11 +1,20 @@
+#!/bin/sh
 
-export VAULT_TOKEN="myroot"
-export VAULT_ADDR="http://host.docker.internal:8200"
+export VAULT_ADDR=http://localhost:8200
+export VAULT_TOKEN=myroot
 
-vault kv put secret/customer-service \
-  db_username="root" \
-  db_password="123456" \
-  idp_realm="myrealm" \
-  idp_client_id="customer-service" \
-  idp_client_secret="vF8VYOn3m3g63csOanjpBqG9AxQNUEQX" \
-  redis_password="123"
+sleep 10
+
+# Enable kv-v2 (only once)
+vault secrets enable -path=secret kv-v2 || true
+
+# Put secrets
+vault kv put secret/myapp \
+  username_transaction_DB=root \
+  password_transaction_DB=0986341885dai \
+  masterAccount=97045201999010381 \
+  provider.api.electricity.url=http://localhost:8089/mock-api/electricity \
+  provider.api.telephone.url=http://localhost:8089/mock-api/telephone \
+  core-banking.api.url=http://localhost:8083/corebanking/api/core-bank \
+  mock-provider-api=http://localhost:8089/mock-api \
+  mock-napas-api=http://localhost:8089/mock-napas

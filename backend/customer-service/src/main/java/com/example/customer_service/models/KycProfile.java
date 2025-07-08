@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "kyc")
+@Table(name = "kyc_profiles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,6 +47,8 @@ public class KycProfile {
 
     @Column(name = "gender", nullable = false, length = 10)
     private String gender;
+
+    private String reason;
 
     @CreatedDate
     @Column(name = "verified_at")

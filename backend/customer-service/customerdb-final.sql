@@ -2,6 +2,7 @@ CREATE DATABASE customerdb;
 CREATE DATABASE transaction_service;
 CREATE DATABASE accountdb;
 CREATE DATABASE coredb;
+CREATE DATABASE loan_service_db;
 USE customerdb;
 
 CREATE TABLE customers (
@@ -17,11 +18,13 @@ CREATE TABLE customers (
     email VARCHAR(100) UNIQUE NOT NULL,
     phone_number VARCHAR(15) UNIQUE,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'SUSPENDED', 'CLOSED')),
+    reset_token VARCHAR(100),
+    reset_token_expiry DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE kyc (
+CREATE TABLE kyc_profiles (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     customer_id BIGINT NOT NULL,
     identity_number VARCHAR(50) NOT NULL,
@@ -29,11 +32,27 @@ CREATE TABLE kyc (
     date_of_birth DATE NOT NULL,
     gender VARCHAR(10) NOT NULL CHECK (gender IN ('male', 'female', 'other')),
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('PENDING', 'VERIFIED', 'REJECTED')),
+    reason VARCHAR(200),
     verified_at DATETIME,
     verified_by VARCHAR(100),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_kyc_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- Bảng kyc_history
+CREATE TABLE kyc_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id BIGINT NOT NULL,
+    cif_code VARCHAR(20) NOT NULL,
+    identity_number VARCHAR(50) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    gender VARCHAR(10) NOT NULL CHECK (gender IN ('male', 'female', 'other')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('PENDING', 'VERIFIED', 'REJECTED')),
+    reason VARCHAR(200),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_kyc_history_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
 
 -- Chỉ số phục vụ truy vấn nhanh
@@ -42,6 +61,11 @@ CREATE INDEX idx_customers_identity_number ON customers(identity_number);
 CREATE INDEX idx_customers_email ON customers(email);
 CREATE INDEX idx_customers_phone_number ON customers(phone_number);
 CREATE INDEX idx_customers_user_id ON customers(user_id);
+CREATE INDEX idx_customers_reset_token ON customers(reset_token);
+CREATE INDEX idx_kyc_profiles_customer_id ON kyc_profiles(customer_id);
+CREATE INDEX idx_kyc_profiles_status ON kyc_profiles(status);
+CREATE INDEX idx_kyc_history_status ON kyc_history(status);
+CREATE INDEX idx_kyc_history_created_at ON kyc_history(created_at);
 
 
 INSERT INTO customers (
@@ -73,5 +97,7 @@ INSERT INTO kyc (
 );
 
 select * from customers;
-select * from kyc;
+select * from kyc_profiles;
 SELECT customer_id FROM customers WHERE user_id = 'c6a123bc-456d-78ef-90gh-ijklmnopqrst';
+
+SELECT * FROM kyc_profiles WHERE customer_id = 58;
