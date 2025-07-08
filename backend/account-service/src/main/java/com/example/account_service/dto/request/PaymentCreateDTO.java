@@ -17,8 +17,6 @@ import java.io.Serializable;
 @Builder
 public class PaymentCreateDTO  implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final com.example.common_service.constant.AccountType accountType = com.example.common_service.constant.AccountType.PAYMENT;
-    
     @NotBlank(message = "CIF code is required")
     private String cifCode;
 

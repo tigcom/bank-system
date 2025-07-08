@@ -11,7 +11,7 @@ import java.util.Collections;
 @Configuration
 public class RestTemplateConfig {
 
-    @Value("${corebanking.api-key}")
+    @Value("${core-banking.api.key}")
     private String apiKey;
 
     @Bean

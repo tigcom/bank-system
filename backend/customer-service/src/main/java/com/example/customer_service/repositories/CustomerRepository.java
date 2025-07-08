@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -39,9 +40,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             "LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.cifCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Customer> searchCustomers(@Param("keyword") String keyword, Pageable pageable);
 
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
+    Boolean existsByCifCode(String cifCode);
 }

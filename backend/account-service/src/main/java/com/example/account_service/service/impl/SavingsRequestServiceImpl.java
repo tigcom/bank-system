@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class SavingsRequestServiceImpl implements SavingRequestService {
-
+    
     private final AccountRepository accountRepository;
     private final SavingsAccountRepository savingsAccountRepository;
     private final TermRepository termRepository;
@@ -63,10 +63,6 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
 
     private final CreditRequestRepository creditRequestRepository;
     private final AccountNumberUtils accountNumberUtils;
-    @Autowired
-    @Qualifier("restTemplateInternal")
-    private final RestTemplate restTemplateInternal;
-
     private final SavingsRequestRepository savingsRequestRepository;
     private final StreamBridge streamBridge;
     private final RedisTemplate<Object, Object> redisTemplate;
@@ -151,8 +147,8 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         String requestType = tempRequestKey.contains("SAVING_REQUEST") ? "SAVING" : "WITHDRAW";
         String otp = generateAndStoreOTP(tempRequestKey, requestType);
         String emailSubject = requestType.equals("SAVING") ?
-                "Xác thực OTP - Tạo tài khoản tiết kiệm" :
-                "Xác thực OTP - Yêu cầu rút tiền tiết kiệm";
+            "Xác thực OTP - Tạo tài khoản tiết kiệm" :
+            "Xác thực OTP - Yêu cầu rút tiền tiết kiệm";
 
         MailMessageDTO mailMessageDTO = MailMessageDTO.builder()
                 .recipientName(customerDTO.getFullName())
@@ -205,9 +201,10 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         log.info("Starting create withdraw from Saving with input: {}", request);
 
         // Validate input
-        validatewithdrawSavingRequest(request);
+
         // Get and validate customer
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
+        validatewithdrawSavingRequest(request);
         // Tạo temporary key để lưu thông tin request trước khi verify OTP
         String tempRequestKey = "TEMP_WITHDRAW_REQUEST:" + currentCustomer.getCifCode() + ":" + System.currentTimeMillis();
 
@@ -289,20 +286,19 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         {
             log.info("Withdraw all monney from saving", request.getWithdrawType());
             processTransaction(request);
-            //chuyen tien  thanh cong se update account local , va core banking sang closed
-            //update account saving local
             Account account = accountRepository.findByAccountNumber(request.getSavingsAccountNumber());
             if (account == null) {
                 throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
             }
             account.setStatus(AccountStatus.CLOSED);
             accountRepository.save(account);
-            // tạo Request Update
             SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
                     .balance(BigDecimal.ZERO)
                     .status(AccountStatus.CLOSED)
                     .build();
             log.info("Saving update: {}", savingUpdateRequest);
+
+
             String urlUpdate = coreBankingBaseUrl +"/update-balance-account-saving/" + request.getSavingsAccountNumber();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -316,31 +312,46 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         }
         else
         {
-            log.info("Withdraw a part of  monney from saving" + request.getWithdrawType());
-            processTransaction(request);
-            // neu chuyen tien thanh cong thi update
-            // Get current balance của tải khoản hiên tại
             BigDecimal currentBalance = getBalanceFromCorebanking(request.getSavingsAccountNumber());
-            //update account core
             BigDecimal newBalance = currentBalance.subtract(request.getAmountOriginal());
-            SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
-                    .balance(newBalance)
-                    .status(AccountStatus.ACTIVE)
-                    .build();
-            log.info("Saving update: {}", savingUpdateRequest);
-            String urlUpdate = coreBankingBaseUrl +"/update-balance-account-saving/" + request.getSavingsAccountNumber();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
-            ResponseEntity<AccountSavingUpdateResponse> newresponse = coreBankingRestTemplate.exchange(
-                    urlUpdate,
-                    HttpMethod.PUT,
-                    entity,
-                    new ParameterizedTypeReference<AccountSavingUpdateResponse>() {}
-            );
+            try{
+                SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
+                        .balance(newBalance)
+                        .status(AccountStatus.ACTIVE)
+                        .build();
+                UpdateBalance(savingUpdateRequest,request.getSavingsAccountNumber());
+            }catch (Exception e){
+                throw new AppException(ErrorCode.CORE_BANKING_SERVICE_ERROR);
+            };
+            try
+                {
+                    processTransaction(request);
+                } catch (Exception e) {
+                SavingUpdateRequest  savingUpdateRequest = SavingUpdateRequest.builder()
+                        .balance(currentBalance)
+                        .status(AccountStatus.ACTIVE)
+                        .build();
+                UpdateBalance(savingUpdateRequest,request.getSavingsAccountNumber());
+                throw new AppException(ErrorCode.TRANSACTION_FAILED);
+            }
         }
 
+    }
+
+
+    private void UpdateBalance(SavingUpdateRequest savingUpdateRequest,String savingAccountNumber)
+    {
+        String urlUpdate = coreBankingBaseUrl +"/update-balance-account-saving/" + savingAccountNumber;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<SavingUpdateRequest> entity = new HttpEntity<>(savingUpdateRequest, headers);
+        ResponseEntity<AccountSavingUpdateResponse> newresponse = coreBankingRestTemplate.exchange(
+                urlUpdate,
+                HttpMethod.PUT,
+                entity,
+                new ParameterizedTypeReference<AccountSavingUpdateResponse>() {}
+        );
     }
 
     private void processTransaction(WithdrawSavingDTO request) {
@@ -540,18 +551,13 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
             log.warn("Customer status is not ACTIVE: {}", currentCustomer.getStatus());
             throw new AppException(ErrorCode.CUSTOMER_NOTACTIVE);
         }
-        // Check kyc cua user
-        String KYCurl = "http://localhost:8080/api/customers/status";
-        ResponseEntity<KycResponse> response = restTemplateInternal.exchange(
-                KYCurl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<KycResponse>() {}
-        );
-        if (!response.getBody().isVerified()) {
+        
+        // Check KYC status from CustomerDTO
+        if (!currentCustomer.isKycVerified()) {
+            log.warn("Customer KYC is not verified: {}", currentCustomer.getCifCode());
             throw new AppException(ErrorCode.KYC_INVALID);
         }
-        log.info("Kyc verified successfully");
+        log.info("Customer KYC verified successfully for CIF: {}", currentCustomer.getCifCode());
 
         return currentCustomer;
     }
@@ -722,3 +728,4 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
         log.info("OTP email sent to: {}", customer.getEmail());
     }
 }
+

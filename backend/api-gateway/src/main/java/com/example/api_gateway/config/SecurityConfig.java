@@ -37,6 +37,7 @@ public class SecurityConfig {
                                 "/account/api/v1/create-initial-payment-account",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/account/api/v1/create-initial-payment-account",
                                 "/swagger-ui.html"
                         ).permitAll()
                         .anyExchange().authenticated()

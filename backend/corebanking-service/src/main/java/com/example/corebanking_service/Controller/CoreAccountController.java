@@ -18,6 +18,10 @@ public class CoreAccountController {
     public void createAccount(@RequestBody CoreAccountRequest accountRequest) {
         coreAccountService.createCoreAccount(accountRequest);
     }
+    @PostMapping("/update-account-status")
+    public void updateStatus(@RequestBody CoreAccountUpdateStatusRequest statusRequest) {
+        coreAccountService.updateStatus(statusRequest);
+    }
     @GetMapping("/get-balance-by-accountNumber/{accountNumber}")
     public BalanceResponse getBalanceByAccountNumber(@PathVariable String accountNumber) {
         return coreAccountService.getBalanceByAccountNumber(accountNumber);

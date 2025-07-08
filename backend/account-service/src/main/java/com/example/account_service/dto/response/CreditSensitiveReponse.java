@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Builder
 public class CreditSensitiveReponse {
 
-    private String cardNumber;
-    private String cardHolderName;
-    private LocalDate cardExpiryDate;
+   private String cardNumber;
+   private String cardHolderName;
+   private LocalDate cardExpiryDate;
 }
