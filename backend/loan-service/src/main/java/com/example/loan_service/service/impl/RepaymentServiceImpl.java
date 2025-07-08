@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -300,5 +298,60 @@ public class RepaymentServiceImpl implements RepaymentService {
                     loan.getLoanId(), periodIndex, e.getMessage(), e);
             throw e;
         }
+    }
+
+    @Override
+    public java.math.BigDecimal getTotalCollectedSystem() {
+        List<Repayment> all = repaymentRepository.findAll();
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        for (Repayment r : all) {
+            if (r.getStatus() == RepaymentStatus.PAID || r.getStatus() == RepaymentStatus.PARTIAL) {
+                total = total.add(r.getPaidAmount());
+            }
+        }
+        return total;
+    }
+
+    @Override
+    public BigDecimal getTotalProfitSystem() {
+        BigDecimal totalProfit = BigDecimal.ZERO;
+        List<Repayment> list = repaymentRepository.findAll().stream()
+                .filter(r -> r.getStatus() == RepaymentStatus.PAID
+                        || r.getStatus() == RepaymentStatus.PARTIAL)
+                .toList();
+        for (Repayment r : list) {
+            BigDecimal interest = r.getInterest();
+            BigDecimal paid    = r.getPaidAmount();
+            if (r.getStatus() == RepaymentStatus.PAID) {
+                totalProfit = totalProfit.add(interest);
+            } else {
+                if (paid.compareTo(interest) >= 0) {
+                    totalProfit = totalProfit.add(interest);
+                } else {
+                    totalProfit = totalProfit.add(paid);
+                }
+            }
+        }
+        return totalProfit;
+    }
+    @Override
+    public Map<String, Long> getRepaymentStats() {
+        List<Repayment> all = repaymentRepository.findAll();
+        long paidCount = all.stream()
+                .filter(r -> r.getStatus() == RepaymentStatus.PAID
+                        || r.getStatus() == RepaymentStatus.PARTIAL)
+                .count();
+        long unpaidCount = all.stream()
+                .filter(r -> r.getStatus() == RepaymentStatus.UNPAID)
+                .count();
+        long lateCount = all.stream()
+                .filter(r -> r.getStatus() == RepaymentStatus.LATE)
+                .count();
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("paid",    paidCount);
+        stats.put("unpaid",  unpaidCount);
+        stats.put("late",    lateCount);
+        return stats;
     }
 }

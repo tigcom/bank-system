@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="TransactionServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="2" nameIsGenerated="true">
-    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+  <configuration default="false" name="TransactionServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="2">
     <module name="transaction-service" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.transaction_service.TransactionServiceApplication" />
+    <option name="VM_PARAMETERS" value="-javaagent:D:\java-banking-phase2\telemetry\opentelemetry-javaagent.jar -Dotel.service.name=transaction-service -Dotel.traces.exporter=zipkin -Dotel.exporter.zipkin.endpoint=http://localhost:9411/api/v2/spans -Dotel.metrics.exporter=none -Dotel.logs.exporter=none -Dotel.instrumentation.logback-appender.enabled=true -Dotel.instrumentation.logback-mdc.add-baggage=true -Dotel.propagators=tracecontext,baggage,b3 -Dotel.resource.attributes=service.name=transaction-service,service.version=1.0.0 -Dotel.instrumentation.spring-webmvc.enabled=true -Dotel.instrumentation.spring-web.enabled=true -Dotel.instrumentation.jdbc.enabled=true -Dotel.instrumentation.http.enabled=true" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

@@ -4,10 +4,12 @@ import com.example.loan_service.entity.InfoIncome;
 import com.example.loan_service.repository.InfoIncomeRepository;
 import com.example.loan_service.service.InfoIncomeService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -53,9 +55,9 @@ public class InfoIncomeServiceImpl implements InfoIncomeService {
     }
 
     @Override
-    public Optional<InfoIncome> getByLoanId(Long loanId) {
+    public List<InfoIncome> getByLoanId(Long loanId) {
         log.info("GET_INFO_INCOME_BY_LOAN_ID - loanId: {}", loanId);
-        return repo.findByLoan_LoanId(loanId);
+        return repo.findAllByLoan_LoanId(loanId);
     }
 
     @Override
@@ -64,7 +66,8 @@ public class InfoIncomeServiceImpl implements InfoIncomeService {
         InfoIncome info = repo.findById(infoId)
                 .orElseThrow(() -> new EntityNotFoundException("InfoIncome not found: " + infoId));
         try {
-            repo.delete(info);
+            log.info("incomeINFO : {}", info.getDeclaredIncome());
+            repo.deleteById(info.getInfoId());
             log.info("DELETE_INFO_INCOME_SUCCESS - infoId: {}", infoId);
         } catch (Exception e) {
             log.error("DELETE_INFO_INCOME_ERROR - infoId: {}, error: {}", infoId, e.getMessage(), e);

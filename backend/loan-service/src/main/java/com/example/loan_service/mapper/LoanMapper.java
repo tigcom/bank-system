@@ -20,8 +20,7 @@ public interface LoanMapper {
             @Mapping(target = "termMonths",    source = "termMonths"),
             @Mapping(target = "status",        source = "status"),
             @Mapping(target = "createdAt",     source = "createdAt"),
-            @Mapping(target = "approvedAt",    source = "approvedAt"),
-            @Mapping(target = "infoIncome",    source = "infoIncome")
+            @Mapping(target = "approvedAt",    source = "approvedAt")
     })
     Loan toEntity(LoanRequestDTO dto);
 
@@ -34,7 +33,6 @@ public interface LoanMapper {
             @Mapping(target = "interestRate",   source = "interestRate"),
             @Mapping(target = "termMonths",     source = "termMonths"),
             @Mapping(target = "startDate",      source = "createdAt"),                       // LocalDateTime → LocalDate
-            @Mapping(target = "infoIncome", source = "infoIncome"),      // từ nested InfoIncome
             @Mapping(target = "status",         source = "status"),
             @Mapping(target = "createdAt",      source = "createdAt"),
             @Mapping(target = "approvedAt",     source = "approvedAt")
@@ -51,8 +49,7 @@ public interface LoanMapper {
             @Mapping(target = "customerId",    source = "customerId"),
             @Mapping(target = "createdAt",     source = "createdAt"),
             @Mapping(target = "approvedAt",    source = "approvedAt"),
-            @Mapping(target = "status",        source = "status"),
-            @Mapping(target = "infoIncome",    source = "infoIncome")
+            @Mapping(target = "status",        source = "status")
     })
     LoanRequestDTO toRequestDTO(Loan loan);
 
@@ -67,8 +64,7 @@ public interface LoanMapper {
             @Mapping(target = "startDate",      source = "createdAt"),
             @Mapping(target = "status",         source = "status"),
             @Mapping(target = "createdAt",      source = "createdAt"),
-            @Mapping(target = "approvedAt",     source = "approvedAt"),
-            @Mapping(target = "infoIncome", source = "infoIncome")
+            @Mapping(target = "approvedAt",     source = "approvedAt")
     })
     LoanResponseDTO toResponseDTO(LoanRequestDTO dto);
 }

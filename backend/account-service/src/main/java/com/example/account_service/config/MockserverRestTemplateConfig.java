@@ -16,9 +16,8 @@ public class MockserverRestTemplateConfig {
     @Bean(name = "MockServerRestTemplate")
     public RestTemplate mockRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
-        // Interceptor thêm API Key vào header
         ClientHttpRequestInterceptor apiKeyInterceptor = (request, body, execution) -> {
-            request.getHeaders().add("Mock-API-Key", mockAPIKey); // tuỳ hệ thống có thể là "x-api-key", "Authorization", v.v.
+            request.getHeaders().add("Mock-API-Key", mockAPIKey);
             return execution.execute(request, body);
         };
         restTemplate.setInterceptors(Collections.singletonList(apiKeyInterceptor));

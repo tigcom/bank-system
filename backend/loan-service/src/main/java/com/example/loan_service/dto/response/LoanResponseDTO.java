@@ -1,6 +1,5 @@
 package com.example.loan_service.dto.response;
 
-
 import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +9,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -25,5 +26,4 @@ public class LoanResponseDTO {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
-    private InfoIncomeRequestDto infoIncome;
 }

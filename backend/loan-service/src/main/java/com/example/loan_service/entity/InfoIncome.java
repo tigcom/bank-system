@@ -19,7 +19,7 @@ public class InfoIncome {
     @Column(name = "info_id")
     private Long infoId;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loan_id", nullable = false)
     @JsonBackReference
     private Loan loan;

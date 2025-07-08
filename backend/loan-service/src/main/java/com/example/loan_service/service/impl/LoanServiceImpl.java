@@ -207,4 +207,14 @@ public class LoanServiceImpl implements LoanService {
             throw e;
         }
     }
+
+    @Override
+    public java.math.BigDecimal getTotalDisbursedSystem() {
+        List<Loan> approved = loanRepository.findAllByStatusIs(com.example.loan_service.models.LoanStatus.APPROVED);
+        List<Loan> closed = loanRepository.findAllByStatusIs(com.example.loan_service.models.LoanStatus.CLOSED);
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        for (Loan l : approved) total = total.add(l.getAmount());
+        for (Loan l : closed) total = total.add(l.getAmount());
+        return total;
+    }
 }

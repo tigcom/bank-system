@@ -55,8 +55,9 @@ public class Loan {
     @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<LoanRejectionReason> rejectionReasons;
-    @OneToOne(mappedBy = "loan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private InfoIncome infoIncome;
+    private List<InfoIncome> infoIncomes;
 
 }

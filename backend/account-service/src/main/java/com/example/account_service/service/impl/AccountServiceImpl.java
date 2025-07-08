@@ -61,7 +61,6 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     @Qualifier("restTemplateInternal")
     private  RestTemplate restTemplateInternal;
-
     @Autowired
     @Qualifier("coreBankingRestTemplate")
     private RestTemplate coreBankingRestTemplate;

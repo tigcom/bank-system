@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -230,4 +231,24 @@ public class RepaymentController {
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseWrapper<Map<String, Long>>> getRepaymentStats() {
+        log.info("GET_REPAYMENT_STATS_START");
+        ApiResponseWrapper<Map<String, Long>> response = new ApiResponseWrapper<>();
+        try {
+            Map<String, Long> stats = loanHandler.getRepaymentStats();
+            response.setData(stats);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Repayment stats retrieved successfully");
+            log.info("GET_REPAYMENT_STATS_SUCCESS - {}", stats);
+        } catch (Exception e) {
+            log.error("GET_REPAYMENT_STATS_ERROR - {}", e.getMessage(), e);
+            response.setData(null);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to get repayment stats: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
 }

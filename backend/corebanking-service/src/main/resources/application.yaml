@@ -8,11 +8,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/coredb
     username: root
-<<<<<<< HEAD
     password: 22572
-=======
-    password: 123456
->>>>>>> nam
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

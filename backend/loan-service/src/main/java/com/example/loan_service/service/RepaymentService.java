@@ -6,6 +6,7 @@ import com.example.loan_service.models.RepaymentStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface RepaymentService {
@@ -22,4 +23,10 @@ public interface RepaymentService {
     List<Repayment> getHistoryRepayment(Long loanId);
 
     Boolean checkLastMonthRepayment(Repayment repayment);
+
+    java.math.BigDecimal getTotalCollectedSystem();
+
+    java.math.BigDecimal getTotalProfitSystem();
+
+    Map<String, Long> getRepaymentStats();
 }
