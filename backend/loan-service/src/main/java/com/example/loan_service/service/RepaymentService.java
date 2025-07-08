@@ -21,7 +21,8 @@ public interface RepaymentService {
     Repayment getCurrentRepayment(Long customerId);
     Repayment getCurrentRepaymentbyLoanId(Long loanId);
     List<Repayment> getHistoryRepayment(Long loanId);
-
+    List<Repayment> getOverdueRepayments(Long loanId);
+    List<Repayment> getUpcomingRepayments(Long loanId);
     Boolean checkLastMonthRepayment(Repayment repayment);
 
     java.math.BigDecimal getTotalCollectedSystem();

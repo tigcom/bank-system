@@ -79,7 +79,15 @@ public class RepaymentServiceImpl implements RepaymentService {
             throw e;
         }
     }
+    @Override
+    public List<Repayment> getOverdueRepayments(Long loanId) {
+        return repaymentRepository.findOverdueByLoanId(loanId, RepaymentStatus.LATE);
+    }
 
+    @Override
+    public List<Repayment> getUpcomingRepayments(Long loanId) {
+        return repaymentRepository.findUpcomingByLoanId(loanId);
+    }
     @Override
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
         log.info("GET_REPAYMENTS_BY_LOAN_START - loanId: {}", loanId);
@@ -314,44 +322,25 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Override
     public BigDecimal getTotalProfitSystem() {
-        BigDecimal totalProfit = BigDecimal.ZERO;
-        List<Repayment> list = repaymentRepository.findAll().stream()
-                .filter(r -> r.getStatus() == RepaymentStatus.PAID
-                        || r.getStatus() == RepaymentStatus.PARTIAL)
-                .toList();
-        for (Repayment r : list) {
-            BigDecimal interest = r.getInterest();
-            BigDecimal paid    = r.getPaidAmount();
-            if (r.getStatus() == RepaymentStatus.PAID) {
-                totalProfit = totalProfit.add(interest);
-            } else {
-                if (paid.compareTo(interest) >= 0) {
-                    totalProfit = totalProfit.add(interest);
-                } else {
-                    totalProfit = totalProfit.add(paid);
-                }
-            }
-        }
-        return totalProfit;
+        // 1 query tính tổng profit
+        return repaymentRepository.sumProfit();
     }
+
     @Override
     public Map<String, Long> getRepaymentStats() {
-        List<Repayment> all = repaymentRepository.findAll();
-        long paidCount = all.stream()
-                .filter(r -> r.getStatus() == RepaymentStatus.PAID
-                        || r.getStatus() == RepaymentStatus.PARTIAL)
-                .count();
-        long unpaidCount = all.stream()
-                .filter(r -> r.getStatus() == RepaymentStatus.UNPAID)
-                .count();
-        long lateCount = all.stream()
-                .filter(r -> r.getStatus() == RepaymentStatus.LATE)
-                .count();
-
+        List<Object[]> rows = repaymentRepository.countByStatus();
+        // khởi map với 0 cho mọi trạng thái
         Map<String, Long> stats = new HashMap<>();
-        stats.put("paid",    paidCount);
-        stats.put("unpaid",  unpaidCount);
-        stats.put("late",    lateCount);
+        stats.put("paid",    0L);
+        stats.put("partial", 0L);
+        stats.put("unpaid",  0L);
+        stats.put("late",    0L);
+
+        for (Object[] row : rows) {
+            RepaymentStatus status = (RepaymentStatus) row[0];
+            Long count             = (Long) row[1];
+            stats.put(status.name().toLowerCase(), count);
+        }
         return stats;
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
@@ -24,5 +25,50 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
     List<Repayment> findPaidOrPartialByLoanId(@Param("customerId") Long customerId);
 
     List<Repayment> findAllByLoan_LoanIdOrderByDueDateAsc(Long loanId);
+    @Query("""
+       SELECT r FROM Repayment r
+        WHERE r.loan.loanId = :loanId
+          AND r.status <> :late
+          AND r.dueDate < CURRENT_DATE
+        ORDER BY r.dueDate ASC
+    """)
+    List<Repayment> findOverdueByLoanId(
+            @Param("loanId") Long loanId,
+            @Param("late") RepaymentStatus late
+    );
 
+    @Query("""
+       SELECT r FROM Repayment r
+        WHERE r.loan.loanId = :loanId
+          AND r.status = com.example.loan_service.models.RepaymentStatus.UNPAID
+          AND r.dueDate BETWEEN CURRENT_DATE AND CURRENT_DATE + 3
+        ORDER BY r.dueDate ASC
+    """)
+    List<Repayment> findUpcomingByLoanId(
+            @Param("loanId") Long loanId
+    );
+
+    @Query("""
+      SELECT COALESCE(
+        SUM(
+          CASE
+            WHEN r.status = com.example.loan_service.models.RepaymentStatus.PAID THEN r.interest
+            WHEN r.status = com.example.loan_service.models.RepaymentStatus.PARTIAL
+              THEN CASE
+                     WHEN r.paidAmount <= r.interest THEN r.paidAmount
+                     ELSE r.interest
+                   END
+            ELSE 0
+          END
+        ), 0)
+      FROM Repayment r
+    """)
+    BigDecimal sumProfit();
+
+    @Query("""
+      SELECT r.status, COUNT(r)
+      FROM Repayment r
+      GROUP BY r.status
+    """)
+    List<Object[]> countByStatus();
 }

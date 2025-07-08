@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -209,12 +210,9 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public java.math.BigDecimal getTotalDisbursedSystem() {
-        List<Loan> approved = loanRepository.findAllByStatusIs(com.example.loan_service.models.LoanStatus.APPROVED);
-        List<Loan> closed = loanRepository.findAllByStatusIs(com.example.loan_service.models.LoanStatus.CLOSED);
-        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
-        for (Loan l : approved) total = total.add(l.getAmount());
-        for (Loan l : closed) total = total.add(l.getAmount());
-        return total;
+    public BigDecimal getTotalDisbursedSystem() {
+        return loanRepository.sumAmountByStatuses(
+                List.of(LoanStatus.APPROVED, LoanStatus.CLOSED)
+        );
     }
 }
