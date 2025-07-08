@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,5 +39,4 @@ public class LoanRequestDTO {
     private LocalDateTime approvedAt;
     @Enumerated(EnumType.STRING)
     private LoanStatus status;
-    private InfoIncomeRequestDto infoIncome;
 }

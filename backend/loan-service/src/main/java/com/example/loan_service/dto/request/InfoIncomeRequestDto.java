@@ -14,4 +14,5 @@ public class InfoIncomeRequestDto {
     private String accountNumber;
     private String bankName;
     private BigDecimal declaredIncome;
+    private Long loanId;
 }

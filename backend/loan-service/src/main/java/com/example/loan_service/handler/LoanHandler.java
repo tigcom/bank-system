@@ -40,9 +40,11 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -93,7 +95,7 @@ public class LoanHandler {
             CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
             MailMessageDTO mail = new MailMessageDTO();
             mail.setSubject("KÍCH HOẠT KHOẢN VAY");
-            mail.setRecipient(customer.getEmail());
+            mail.setRecipient("phanhuynhphuckhang12c8@gmail.com");
             mail.setBody("Khoản vay đã duyệt và giải ngân tài khoản: " + loan.getAccountNumber());
             mail.setRecipientName(customer.getFullName());
             streamBridge.send("mail-out-0", mail);
@@ -109,23 +111,19 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Loan createLoan(LoanRequestDTO dto) throws Exception {
         log.info("CREATE_LOAN_HANDLER_START - request: {}", dto);
         try {
             Long customerId = getCustomerId();
             log.debug("CUSTOMER_ID_FETCHED - {}", customerId);
-
             CustomerResponseDTO customer = customerQueryService.getCustomerById(customerId);
             log.info("CUSTOMER_INFO - idNumber={}, status={}", customer.getIdentityNumber(), customer.getStatus());
-
             AccountDTO account = accountQueryService.getAccountByAccountNumber(dto.getAccountNumber());
             log.info("ACCOUNT_INFO - accountNumber={}, status={}", dto.getAccountNumber(), account.getStatus());
             CICRequest cicRequest = new CICRequest();
             cicRequest.setIdNumber(customer.getIdentityNumber());
             cicRequest.setName(customer.getFullName());
             log.info("CALLING_CIC - CICRequest: {}", cicRequest);
-
             CicResponse cicResponse = cicClient.checkCIC(cicRequest);
             log.info("CIC_RESPONSE - status={}, creditScore={}, overdue={}, debtGroup={}, errorCode={}, message={}",
                     cicResponse.getStatus(),
@@ -150,16 +148,10 @@ public class LoanHandler {
             coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
             Loan l = loanMapper.toEntity(dto);
             l.setCustomerId(customerId);
-            InfoIncome income = infoIncomeMapper.toEntity(dto.getInfoIncome());
-            income.setLoan(l);
-            l.setInfoIncome(income);
-            Loan created = loanService.createLoan(l);
-
-
-
-
-            log.info("CREATE_LOAN_HANDLER_SUCCESS - loanId: {}", created.getLoanId());
-            return created;
+            l.setCreatedAt(LocalDateTime.now());
+            Loan r = loanService.updateLoan(l);
+            log.info("CREATE_LOAN_HANDLER_SUCCESS - loanId: {}", l.getLoanId());
+            return r;
         } catch (IllegalArgumentException e) {
             log.error("CREATE_LOAN_HANDLER_INVALID - dto={}, error: {}", dto, e.getMessage());
             throw e;
@@ -168,22 +160,20 @@ public class LoanHandler {
             throw e;
         }
     }
-
-
     public Loan updateLoan(LoanRequestDTO dto) {
         log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
         try {
-            Loan updated = loanService.updateLoan(loanMapper.toEntity(dto));
-            infoIncomeService.updateInfoIncome(infoIncomeMapper.toEntity(dto.getInfoIncome()));
+            Loan loan = loanMapper.toEntity(dto);
+            loan.setInfoIncomes(null);
+            Loan updatedLoan = loanService.updateLoan(loan);
             coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
-            log.info("UPDATE_LOAN_HANDLER_SUCCESS - loanId: {}", updated.getLoanId());
-            return updated;
+            log.info("UPDATE_LOAN_HANDLER_SUCCESS - loanId: {}", updatedLoan.getLoanId());
+            return updatedLoan;
         } catch (Exception e) {
             log.error("UPDATE_LOAN_HANDLER_ERROR - error: {}", e.getMessage(), e);
             throw e;
         }
     }
-
     public Optional<Loan> getLoanById(Long loanId) {
         log.info("GET_LOAN_BY_ID_HANDLER_START - loanId: {}", loanId);
         try {
@@ -195,7 +185,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public List<Loan> getLoansByCustomerId() {
         log.info("GET_LOANS_BY_CUSTOMER_HANDLER_START");
         try {
@@ -208,7 +197,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Loan closedLoan(Long loanId) {
         log.info("CLOSE_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
@@ -221,7 +209,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Loan rejectedLoan(Long loanId, LoanRejectionReasonRequestDTO req) {
         log.info("REJECT_LOAN_HANDLER_START - loanId: {}, reason: {}", loanId, req.getReason());
         try {
@@ -238,7 +225,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public List<Loan> findall() {
         log.info("FIND_ALL_LOANS_HANDLER_START");
         try {
@@ -257,7 +243,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public void deleteLoan(Long loanId) {
         log.info("DELETE_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
@@ -269,7 +254,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
         log.info("GET_REPAYMENTS_BY_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
@@ -281,7 +265,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber) {
         log.info("MAKE_REPAYMENT_HANDLER_START - repaymentId: {}, amount: {}, account: {}", repaymentId, amount, accountNumber);
         try {
@@ -306,7 +289,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Repayment confirmRepayment(Long repaymentId, BigDecimal amount, String otpCode, String referenceCode) {
         log.info("CONFIRM_REPAYMENT_HANDLER_START - repaymentId: {}, referenceCode: {}", repaymentId, referenceCode);
         try {
@@ -331,7 +313,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public List<Repayment> getHistory() {
         log.info("GET_HISTORY_HANDLER_START");
         try {
@@ -344,7 +325,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Repayment getCurrentRepayment() {
         log.info("GET_CURRENT_REPAYMENT_HANDLER_START");
         try {
@@ -357,7 +337,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Optional<Repayment> getRepaymentById(Long repaymentId) {
         log.info("GET_REPAYMENT_BY_ID_HANDLER_START - repaymentId: {}", repaymentId);
         try {
@@ -369,7 +348,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Repayment unpaidRepayment(Long repaymentId) {
         log.info("UNPAID_REPAYMENT_HANDLER_START - repaymentId: {}", repaymentId);
         try {
@@ -381,7 +359,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Repayment lateRepayment(Long repaymentId) {
         log.info("LATE_REPAYMENT_HANDLER_START - repaymentId: {}", repaymentId);
         try {
@@ -393,7 +370,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public BigDecimal getTotalBorrowed() {
         log.info("GET_TOTAL_BORROWED_HANDLER_START");
         try {
@@ -407,7 +383,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public BigDecimal getTotalOutstanding() {
         log.info("GET_TOTAL_OUTSTANDING_HANDLER_START");
         try {
@@ -423,7 +398,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public Long getCustomerId() {
         log.info("GET_CUSTOMER_ID_HANDLER_START");
         try {
@@ -438,7 +412,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public void deleteRepaymentsByLoanId(Long loanId) {
         log.info("DELETE_REPAYMENTS_BY_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
@@ -449,7 +422,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
     public CustomerResponseDTO getCustomerDetailById(Long id) {
         try {
             log.debug("CUSTOMER_ID_FETCHED - {}", id);
@@ -501,4 +473,16 @@ public class LoanHandler {
         }
     }
 
+    public java.math.BigDecimal getTotalDisbursedSystem() {
+        return loanService.getTotalDisbursedSystem();
+    }
+    public java.math.BigDecimal getTotalCollectedSystem() {
+        return repaymentService.getTotalCollectedSystem();
+    }
+    public java.math.BigDecimal getTotalProfitSystem() {
+        return repaymentService.getTotalProfitSystem();
+    }
+    public Map<String, Long> getRepaymentStats() {
+        return repaymentService.getRepaymentStats();
+    }
 }

@@ -21,4 +21,5 @@ public interface LoanService {
     Loan closedLoan(Long loanId);
 
     void deleteLoan(Long loanId);
+    java.math.BigDecimal getTotalDisbursedSystem();
 }

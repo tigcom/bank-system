@@ -17,6 +17,8 @@ import com.example.common_service.dto.CoreAccountRequest;
 import com.example.common_service.dto.PaymentCreateDTO;
 import com.example.common_service.dto.response.PaymentRequestResponse;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,7 +36,9 @@ public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
     private final AccountService accountService;
     @DubboReference(timeout = 5000)
     private CommonService commonService;
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate restTemplate;
     @Override
     public List<AccountDTO> getAccountsByCifCode(String cifCode) {
         String requestId = UUID.randomUUID().toString();

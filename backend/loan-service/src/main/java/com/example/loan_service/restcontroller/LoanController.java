@@ -353,4 +353,61 @@ public class LoanController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/total-disbursed")
+    public ResponseEntity<ApiResponseWrapper<BigDecimal>> getTotalDisbursedSystem() {
+        log.info("GET_TOTAL_DISBURSED_SYSTEM_START");
+        ApiResponseWrapper<BigDecimal> response = new ApiResponseWrapper<>();
+        try {
+            BigDecimal total = loanHandler.getTotalDisbursedSystem();
+            response.setData(total);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Total disbursed amount (system-wide) retrieved");
+            log.info("GET_TOTAL_DISBURSED_SYSTEM_SUCCESS - total: {}", total);
+        } catch (Exception e) {
+            log.error("GET_TOTAL_DISBURSED_SYSTEM_ERROR - error: {}", e.getMessage(), e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to get total disbursed: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/total-collected")
+    public ResponseEntity<ApiResponseWrapper<BigDecimal>> getTotalCollectedSystem() {
+        log.info("GET_TOTAL_COLLECTED_SYSTEM_START");
+        ApiResponseWrapper<BigDecimal> response = new ApiResponseWrapper<>();
+        try {
+            BigDecimal total = loanHandler.getTotalCollectedSystem();
+            response.setData(total);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Total collected amount (system-wide) retrieved");
+            log.info("GET_TOTAL_COLLECTED_SYSTEM_SUCCESS - total: {}", total);
+        } catch (Exception e) {
+            log.error("GET_TOTAL_COLLECTED_SYSTEM_ERROR - error: {}", e.getMessage(), e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to get total collected: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/total-profit")
+    public ResponseEntity<ApiResponseWrapper<BigDecimal>> getTotalProfitSystem() {
+        log.info("GET_TOTAL_PROFIT_SYSTEM_START");
+        ApiResponseWrapper<BigDecimal> response = new ApiResponseWrapper<>();
+        try {
+            BigDecimal total = loanHandler.getTotalProfitSystem();
+            response.setData(total);
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Total profit (system-wide) retrieved");
+            log.info("GET_TOTAL_PROFIT_SYSTEM_SUCCESS - total: {}", total);
+        } catch (Exception e) {
+            log.error("GET_TOTAL_PROFIT_SYSTEM_ERROR - error: {}", e.getMessage(), e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to get total profit: " + e.getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
 }

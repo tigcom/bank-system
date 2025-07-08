@@ -13,10 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-<<<<<<< HEAD
-=======
-import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> nam
+
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.ArrayList;
@@ -29,30 +26,19 @@ import java.util.Map;
 @EnableWebSecurity
 public class SecurityConfig {
 
-<<<<<<< HEAD
     private final ApiKeyFilter apiKeyFilter;
-=======
-    @Autowired
-    private ApiKeyFilter apiKeyFilter;
->>>>>>> nam
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-<<<<<<< HEAD
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-=======
->>>>>>> nam
                 .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> nam
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

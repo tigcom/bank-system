@@ -96,7 +96,7 @@ public class RepaymentCheckScherduler {
                         CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
                         MailMessageDTO mail = new MailMessageDTO();
                         mail.setSubject("THÔNG BÁO TRẢ TRỄ VAY");
-                        mail.setRecipient(customer.getEmail());
+                        mail.setRecipient("phanhuynhphuckhang12c8@gmail.com");
                         String body = String.format(
                             "Kính chào %s,%n%n" +
                             "Khoản vay ID: %s (TK: %s) quá hạn từ %s.%n" +
@@ -142,7 +142,7 @@ public class RepaymentCheckScherduler {
                         CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
                         MailMessageDTO mail = new MailMessageDTO();
                         mail.setSubject("NHẮC NỢ ĐỊNH KỲ");
-                        mail.setRecipient(customer.getEmail());
+                        mail.setRecipient("phanhuynhphuckhang12c8@gmail.com");
                         mail.setBody(String.format(
                             "Kính chào %s,%n%n" +
                             "Bạn còn %d ngày đến kỳ thanh toán khoản vay ID: %s với tổng số tiền %s VND.%n%n" +
