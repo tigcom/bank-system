@@ -15,6 +15,7 @@ spring:
       ddl-auto: update
     show-sql: true
 
+<<<<<<< HEAD
 #Dubbo
 dubbo:
   application:
@@ -29,3 +30,8 @@ dubbo:
 core-banking:
   api:
     key: asdfghjkl
+=======
+
+api-key: a5dde333-b181-406d-8b41-5ae960579488
+mock-napas-api-key: 961a800c-9839-4140-9bf3-f4208fe61ab2
+>>>>>>> 15e536bc976093c4e921fde702250bbcb4776b94

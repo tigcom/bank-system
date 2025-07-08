@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @Table(name = "savings_accounts")
 public class SavingsAccount extends Account {
-    
+
     @Column(name = "initial_deposit", nullable = false, precision = 19, scale = 2)
     private BigDecimal initialDeposit;
 

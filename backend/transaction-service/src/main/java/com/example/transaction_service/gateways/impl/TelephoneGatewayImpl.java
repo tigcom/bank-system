@@ -8,6 +8,7 @@ import com.example.transaction_service.exception.AppException;
 import com.example.transaction_service.exception.ErrorCode;
 import com.example.transaction_service.gateways.ProviderGateway;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -18,7 +19,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,45 +26,41 @@ import java.util.Map;
 @Slf4j
 public class TelephoneGatewayImpl implements ProviderGateway {
 
-    private final RestTemplate restTemplate;
+
+    private final RestTemplate mockServerRestTemplate;
     private final String apiUrl;
 
-    public TelephoneGatewayImpl(RestTemplate restTemplate, @Value("${provider.api.telephone.url}") String apiUrl) {
-        this.restTemplate = restTemplate;
+    public TelephoneGatewayImpl(@Qualifier("mockServerRestTemplate") RestTemplate restTemplate
+                                , @Value("${provider.api.telephone.url}") String apiUrl) {
+        this.mockServerRestTemplate = restTemplate;
         this.apiUrl = apiUrl;
     }
 
     @Override
     public BillDetailsResponse checkBill(String customerCode, String provider) {
-        // Giả sử endpoint của nhà cung cấp điện thoại là /query
         String fullUrl = this.apiUrl + "/query";
+        log.info("[TELEPHONE][checkBill] Gọi kiểm tra hóa đơn | customerCode: {} | provider: {} | endpoint: {}", customerCode, provider, fullUrl);
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("customerCode", customerCode);
         requestBody.put("provider", provider);
         HttpEntity<Object> entity = new HttpEntity<>(requestBody);
-
         try {
-
             ParameterizedTypeReference<ApiResponse<BillDetailsResponse>> responseType =
                     new ParameterizedTypeReference<>() {};
-
             ResponseEntity<ApiResponse<BillDetailsResponse>> responseEntity =
-                    restTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
-
+                    mockServerRestTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
             ApiResponse<BillDetailsResponse> apiResponse = responseEntity.getBody();
-
-
             if (apiResponse == null) {
-                // Xử lý trường hợp body rỗng dù response là 200 OK
+                log.warn("[TELEPHONE][checkBill] Không có dữ liệu trả về từ provider | customerCode: {} | provider: {}", customerCode, provider);
                 throw new AppException(ErrorCode.BILL_NOT_FOUND);
             }
-
+            log.info("[TELEPHONE][checkBill] Kết quả trả về: {}", apiResponse);
             return apiResponse.getResult();
-
         } catch (HttpClientErrorException e) {
+            log.error("[TELEPHONE][checkBill] Lỗi client khi gọi API: {}", e.getResponseBodyAsString());
             throw new AppException(ErrorCode.BILL_NOT_FOUND);
         } catch (RestClientException e) {
-            // Bắt lỗi 5xx hoặc lỗi mạng và trả về lỗi server của nhà cung cấp
+            log.error("[TELEPHONE][checkBill] Lỗi server/provider: {}", e.getMessage());
             throw new AppException(ErrorCode.PROVIDER_SERVER_ERROR);
         }
     }
@@ -72,44 +68,36 @@ public class TelephoneGatewayImpl implements ProviderGateway {
     @Override
     public ProviderPaymentResponse payBill(ProviderPaymentRequest request) {
         String fullUrl = this.apiUrl + "/pay";
-        log.info("Gọi đến nhà cung cấp điện thoại để xác nhận thanh toán: {}", fullUrl);
+        log.info("[TELEPHONE][payBill] Gọi xác nhận thanh toán | endpoint: {} | request: {}", fullUrl, request);
         HttpEntity<ProviderPaymentRequest> entity = new HttpEntity<>(request);
-
         try {
-            // Định nghĩa kiểu dữ liệu trả về mong muốn: ApiResponse chứa ProviderPaymentResult
             ParameterizedTypeReference<ApiResponse<ProviderPaymentResponse>> responseType =
                     new ParameterizedTypeReference<>() {};
-
-            // Dùng exchange để gọi API
             ResponseEntity<ApiResponse<ProviderPaymentResponse>> responseEntity =
-                    restTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
-
+                    mockServerRestTemplate.exchange(fullUrl, HttpMethod.POST, entity, responseType);
             ApiResponse<ProviderPaymentResponse> apiResponse = responseEntity.getBody();
-
             if (apiResponse == null || apiResponse.getCode() != 200 || apiResponse.getResult() == null) {
-                if(apiResponse.getCode()==404) throw new AppException(ErrorCode.BILL_NOT_FOUND);
-                else if (apiResponse.getCode()==409) {
+                log.warn("[TELEPHONE][payBill] Provider trả về lỗi | code: {} | message: {}", apiResponse != null ? apiResponse.getCode() : null, apiResponse != null ? apiResponse.getMessage() : null);
+                if(apiResponse != null && apiResponse.getCode()==404) throw new AppException(ErrorCode.BILL_NOT_FOUND);
+                else if (apiResponse != null && apiResponse.getCode()==409) {
                     throw new AppException(ErrorCode.BILL_PAID);
                 }
                 throw new AppException(ErrorCode.PROVIDER_PAYMENT_FAILED);
             }
-
-            // Nếu thành công, trả về đối tượng ProviderPaymentResult
+            log.info("[TELEPHONE][payBill] Thanh toán thành công | providerTransactionId: {}", apiResponse.getResult().getProviderTransactionId());
             return apiResponse.getResult();
-
         } catch (HttpClientErrorException e) {
-            log.error("Lỗi client khi gọi API payBill của nhà cung cấp điện: {}", e.getResponseBodyAsString());
+            log.error("[TELEPHONE][payBill] Lỗi client khi gọi API: {}", e.getResponseBodyAsString());
             throw new AppException(ErrorCode.PROVIDER_PAYMENT_FAILED);
-
         } catch (RestClientException e) {
-            // Bắt lỗi 5xx hoặc lỗi kết nối
-            log.error("Lỗi server khi gọi API payBill của nhà cung cấp điện: {}", e.getMessage());
+            log.error("[TELEPHONE][payBill] Lỗi server/provider: {}", e.getMessage());
             throw new AppException(ErrorCode.PROVIDER_SERVER_ERROR);
         }
     }
 
     @Override
     public String getProviderType() {
+        log.info("[TELEPHONE][getProviderType] Được gọi");
         return "TELEPHONE";
     }
 }
