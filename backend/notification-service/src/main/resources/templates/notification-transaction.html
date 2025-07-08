@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Thông báo Giao dịch Thành công - Ngân hàng ABC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+
+        .banner {
+            background: linear-gradient(to right, #1f4037, #99f2c8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #00c9a7;
+        }
+
+        .banner-logo {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .banner-logo svg {
+            height: 50px;
+            width: 50px;
+        }
+
+        .banner-title {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            vertical-align: middle;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #1a1a2e;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        h2 {
+            color: #00ffe7;
+            text-transform: uppercase;
+        }
+
+        /* Vùng hiển thị chi tiết giao dịch */
+        .transaction-details {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid rgba(0, 255, 224, 0.2);
+        }
+
+        .transaction-details .amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #99f2c8; /* Màu xanh lá cho sự thành công */
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .transaction-details p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #d0d0d0;
+            text-align: left;
+            margin: 10px 0;
+        }
+
+        .transaction-details p strong {
+            color: #00ffe7;
+            min-width: 120px;
+            display: inline-block;
+        }
+
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #d0d0d0;
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: #777;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="banner">
+    <div class="banner-logo">
+        <svg viewBox="0 0 64 64" fill="#00ffe7" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="30" stroke="#00ffe7" stroke-width="4" fill="none"/>
+            <path d="M32 12 L42 32 L32 52 L22 32 Z" fill="#00ffe7"/>
+        </svg>
+    </div>
+    <div class="banner-title">Ngân hàng ABC</div>
+</div>
+
+<div class="container">
+    <h2>Giao dịch thành công</h2>
+    <p>Xin chào <strong th:text="${name}"></strong>, Ngân hàng ABC xin thông báo giao dịch của bạn đã được thực hiện thành công.</p>
+
+    <div class="transaction-details">
+        <div class="amount" th:text="${amount}">- 1,500,000 VND</div>
+        <p><strong>Mã giao dịch:</strong> <span th:text="${referenceCode}">FT25062612345</span></p>
+        <p><strong>Tài khoản thụ hưởng:</strong> <span th:text="${toAccountNumber}">123456789</span></p>
+        <p><strong>Người thụ hưởng:</strong> <span th:text="${toCustomerName}">NGUYEN VAN A</span></p>
+        <p><strong>Thời gian:</strong> <span th:text="${timestamp}">26/06/2025 09:30:15</span></p>
+        <p><strong>Nội dung:</strong> <span th:text="${description}">Chuyen tien mua hang</span></p>
+    </div>
+
+    <p>Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi.</p>
+    <p>Nếu bạn không thực hiện giao dịch này, vui lòng liên hệ bộ phận hỗ trợ ngay lập tức để được trợ giúp.</p>
+
+    <div class="footer">
+        © 2025 Ngân hàng ABC
+    </div>
+</div>
+
+</body>
+</html>

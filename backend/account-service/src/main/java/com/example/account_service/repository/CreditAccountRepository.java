@@ -17,4 +17,7 @@ public interface CreditAccountRepository extends JpaRepository<CreditAccount, St
     List<CreditAccount> findActiveCreditAccountsByCifCode(@Param("cifCode") String cifCode);
     
     List<CreditAccount> findByCifCode(String cifCode);
+
+    @Query("SELECT c FROM CreditAccount c WHERE c.cifCode = :cifCode")
+    List<CreditAccount> findCreditAccountsByCifCode(String cifCode);
 } 

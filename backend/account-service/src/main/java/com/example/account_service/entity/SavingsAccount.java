@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @Table(name = "savings_accounts")
 public class SavingsAccount extends Account {
-    
+
     @Column(name = "initial_deposit", nullable = false, precision = 19, scale = 2)
     private BigDecimal initialDeposit;
 
@@ -38,6 +38,9 @@ public class SavingsAccount extends Account {
     @Enumerated(EnumType.STRING)
     @Column(name = "renew_option", nullable = false)
     private RenewOption renewOption;
+
+    @Column(name="accountnumber_src")
+    private String accountNumberSrc;
 
     @Override
     public AccountType getAccountType() {

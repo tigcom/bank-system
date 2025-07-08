@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -27,6 +28,17 @@ public class CreditAccount extends Account {
     @JoinColumn(name = "card_type_id", nullable = false)
     private CreditCardType creditCardType;
 
+    @Column(name="expiry_Date")
+    private LocalDate expiryDate; // Ngày hết hạn thẻ
+
+    @Column(name="card_Token")
+    private String cardToken; // Token thẻ cho giao dịch
+
+    @Column(name="card_number")
+    private String cardNumber;
+
+    @Column(name="card_holder_name")
+    private String cardHolderName;
     @PostLoad
     @PrePersist
     private void initDefaults() {

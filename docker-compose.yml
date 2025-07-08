@@ -13,23 +13,42 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-
   vault-server:
-    image: hashicorp/vault:latest
+    image: hashicorp/vault
     container_name: Vault
     ports:
       - "8200:8200"
     volumes:
-      - ./init-vault.sh:/init-vault.sh
-    cap_add:
-      - IPC_LOCK
-    command: >
-      sh -c "vault server -dev -dev-listen-address=0.0.0.0:8200 &
-             sleep 2 && /init-vault.sh &&
-             tail -f /dev/null"
+      - vault-data:/vault/data
     environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=myroot
-      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: "myroot"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    restart: always
+  init-vault:
+    image: hashicorp/vault
+    depends_on:
+      - vault-server
+    command: >
+      sh -c "
+      sleep 15;
+      export VAULT_ADDR=http://vault-server:8200;
+      export VAULT_TOKEN=myroot;
+      vault secrets enable -path=secret kv-v2 || true;
+      vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=970452999999999
+      provider.api.electricity.url=http://localhost:8089/mock-api/electricity provider.api.telephone.url=http://localhost:8089/mock-api/telephone
+      core-banking.api.url=http://localhost:8083/corebanking/api/core-bank mock-provider-api=http://localhost:8089/mock-api
+      mock-napas-api=http://localhost:8089/mock-napas core-banking.api-key=a5dde333-b181-406d-8b41-5ae960579488
+      mock-server-api-key=961a800c-9839-4140-9bf3-f4208fe61ab2;
+      "
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
 
   zookeeper:
     image: zookeeper:latest
@@ -42,16 +61,15 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
-
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.0
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KC_DB=mysql
-      - KC_DB_URL=jdbc:mysql://host.docker.internal:3306/keycloak?useSSL=false&serverTimezone=UTC
+      - KC_DB_URL=jdbc:mysql://host.docker.internal:3307/keycloak?useSSL=false&serverTimezone=UTC
       - KC_DB_USERNAME=root
-      - KC_DB_PASSWORD=123456
+      - KC_DB_PASSWORD=0986341885dai
       - KC_HOSTNAME=localhost
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_STRICT=false
@@ -60,21 +78,18 @@ services:
       - "8081:8080"
     command:
       - start-dev
-
-  redis:
-    container_name: redis
-    image: redis:latest
-    restart: always
+  zipkin:
+    image: openzipkin/zipkin:2.24
+    container_name: zipkin-server
+    hostname: zipkin
     ports:
-      - "6379:6379"
-    command: [ "bash", "-c", "redis-server --appendonly yes --requirepass 123" ]
-    volumes:
-      - cache:/data
-
+      - "9411:9411"
+    environment:
+      - JAVA_OPTS=-DQUERY_PORT=9411 -DCOLLECTOR_PORT=9411
+    restart: always
 volumes:
-  cache:
-    driver: local
   vault-data:
+  redis-data:
   #networks:
   #  temporal-network:
   #    driver: bridge

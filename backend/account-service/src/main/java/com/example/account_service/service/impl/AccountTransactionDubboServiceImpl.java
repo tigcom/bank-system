@@ -5,7 +5,8 @@ import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerDTO;
-import com.example.common_service.dto.response.AccountSummaryDTO;
+import com.example.common_service.dto.response.AccountPaymentResponse;
+import com.example.common_service.dto.response.BalanceResponse;
 import com.example.common_service.services.account.AccountQueryService;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -22,10 +23,7 @@ public class AccountTransactionDubboServiceImpl implements AccountQueryService {
     @Override
     public AccountDTO getAccountByAccountNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber);
-        System.out.println("=====================");
-//        System.out.println(account.getAccountNumber());
-//        System.out.println(account.getStatus());
-        System.out.println("=====================");
+
         if(account!=null){
             AccountDTO accountDTO = AccountDTO.builder()
                     .accountNumber(account.getAccountNumber())
@@ -44,9 +42,16 @@ public class AccountTransactionDubboServiceImpl implements AccountQueryService {
     }
 
     @Override
+    public List<AccountPaymentResponse> getAllAccountPaymentForCurrentCustomer() {
+        return accountService.getAllPaymentAccountsbyCifCode();
+    }
+
+    @Override
     public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
         return accountService.getCustomerByAccountNumber(accountNumber);
     }
+
+
 
 
 }
