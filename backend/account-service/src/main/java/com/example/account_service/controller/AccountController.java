@@ -21,6 +21,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -190,6 +194,30 @@ public class AccountController {
                 HttpStatus.OK.value(),
                 messageUtils.getMessage("account.getAll-Credit-request.pending"),
                 list
+        );
+        return response;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("admin/get-all-credit-crequest-paginated")
+    public ApiResponseWrapper<Page<CreditRequestReponse>> getAllCreditRequesstPendingPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+                Sort.by(sortBy).ascending() : 
+                Sort.by(sortBy).descending();
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<CreditRequestReponse> resultPage = accountService.getAllCreditRequestPendingPaginated(pageable);
+        
+        ApiResponseWrapper<Page<CreditRequestReponse>> response = new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.getAll-Credit-request.pending"),
+                resultPage
         );
         return response;
     }

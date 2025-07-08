@@ -35,29 +35,50 @@ public class StatisticServiceImpl {
     private final SavingsAccountRepository savingsAccountRepository;
     private final CreditRequestRepository creditRequestRepository;
 
+    /**
+     * Helper method để lọc bỏ tài khoản admin và master từ thống kê
+     */
+    private List<Account> filterExcludeAdminAndMasterAccounts(List<Account> accounts) {
+        return accounts.stream()
+                .filter(account -> account.getAccountType() != AccountType.MASTER)
+                .filter(account -> !isAdminAccount(account.getCifCode()))
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Kiểm tra xem CIF code có phải là tài khoản admin không
+     */
+    private boolean isAdminAccount(String cifCode) {
+        if (cifCode == null) return false;
+        String upperCifCode = cifCode.toUpperCase();
+        return upperCifCode.startsWith("ADMIN") || upperCifCode.startsWith("ADM");
+    }
+
     public AccountStatisticResponse getAccountStatistics() {
         List<Account> allAccounts = accountRepository.findAll();
+        // Lọc bỏ tài khoản admin và master
+        List<Account> filteredAccounts = filterExcludeAdminAndMasterAccounts(allAccounts);
         
-        Map<String, Long> accountsByType = allAccounts.stream()
+        Map<String, Long> accountsByType = filteredAccounts.stream()
                 .collect(Collectors.groupingBy(
                         account -> account.getAccountType().name(),
                         Collectors.counting()
                 ));
         
-        Map<String, Long> accountsByStatus = allAccounts.stream()
+        Map<String, Long> accountsByStatus = filteredAccounts.stream()
                 .collect(Collectors.groupingBy(
                         account -> account.getStatus().name(),
                         Collectors.counting()
                 ));
         
-        long activeAccounts = allAccounts.stream()
+        long activeAccounts = filteredAccounts.stream()
                 .filter(account -> account.getStatus() == AccountStatus.ACTIVE)
                 .count();
         
-        long inactiveAccounts = allAccounts.size() - activeAccounts;
+        long inactiveAccounts = filteredAccounts.size() - activeAccounts;
         
         return AccountStatisticResponse.builder()
-                .totalAccounts((long) allAccounts.size())
+                .totalAccounts((long) filteredAccounts.size())
                 .accountsByType(accountsByType)
                 .accountsByStatus(accountsByStatus)
                 .activeAccounts(activeAccounts)
@@ -86,11 +107,14 @@ public class StatisticServiceImpl {
         LocalDateTime fromDateTime = fromDate.atStartOfDay();
         LocalDateTime toDateTime = toDate.atTime(23, 59, 59);
         
-        List<Account> accountsInPeriod = accountRepository.findAll().stream()
+        List<Account> allAccountsInPeriod = accountRepository.findAll().stream()
                 .filter(account -> account.getCreatedDate() != null &&
                         !account.getCreatedDate().isBefore(fromDateTime) &&
                         !account.getCreatedDate().isAfter(toDateTime))
                 .collect(Collectors.toList());
+        
+        // Lọc bỏ tài khoản admin và master
+        List<Account> accountsInPeriod = filterExcludeAdminAndMasterAccounts(allAccountsInPeriod);
         
         Map<LocalDate, Long> dailyAccountCreation = accountsInPeriod.stream()
                 .collect(Collectors.groupingBy(
@@ -100,13 +124,15 @@ public class StatisticServiceImpl {
         
         Map<String, Map<LocalDate, Long>> growthByAccountType = new HashMap<>();
         for (AccountType type : AccountType.values()) {
-            Map<LocalDate, Long> typeGrowth = accountsInPeriod.stream()
-                    .filter(account -> account.getAccountType() == type)
-                    .collect(Collectors.groupingBy(
-                            account -> account.getCreatedDate().toLocalDate(),
-                            Collectors.counting()
-                    ));
-            growthByAccountType.put(type.name(), typeGrowth);
+            if (type != AccountType.MASTER) { // Loại bỏ MASTER khỏi thống kê
+                Map<LocalDate, Long> typeGrowth = accountsInPeriod.stream()
+                        .filter(account -> account.getAccountType() == type)
+                        .collect(Collectors.groupingBy(
+                                account -> account.getCreatedDate().toLocalDate(),
+                                Collectors.counting()
+                        ));
+                growthByAccountType.put(type.name(), typeGrowth);
+            }
         }
         
         // Tính growth rate so với kỳ trước (cùng số ngày trước đó)
@@ -116,11 +142,15 @@ public class StatisticServiceImpl {
         LocalDateTime previousFromDateTime = previousPeriodStart.atStartOfDay();
         LocalDateTime previousToDateTime = previousPeriodEnd.atTime(23, 59, 59);
         
-        long previousPeriodCount = accountRepository.findAll().stream()
+        List<Account> allPreviousPeriodAccounts = accountRepository.findAll().stream()
                 .filter(account -> account.getCreatedDate() != null &&
                         !account.getCreatedDate().isBefore(previousFromDateTime) &&
                         !account.getCreatedDate().isAfter(previousToDateTime))
-                .count();
+                .collect(Collectors.toList());
+        
+        // Lọc bỏ tài khoản admin và master khỏi kỳ trước
+        List<Account> previousPeriodAccounts = filterExcludeAdminAndMasterAccounts(allPreviousPeriodAccounts);
+        long previousPeriodCount = previousPeriodAccounts.size();
         
         double growthRate = previousPeriodCount > 0 ? 
                 ((double) (accountsInPeriod.size() - previousPeriodCount) / previousPeriodCount) * 100 : 0;
@@ -176,25 +206,29 @@ public class StatisticServiceImpl {
 
     public SavingsStatisticResponse getSavingsStatistics() {
         List<SavingsAccount> allSavingsAccounts = savingsAccountRepository.findAll();
+        // Lọc bỏ tài khoản admin và master từ savings accounts
+        List<SavingsAccount> filteredSavingsAccounts = allSavingsAccounts.stream()
+                .filter(savingsAccount -> !isAdminAccount(savingsAccount.getCifCode()))
+                .collect(Collectors.toList());
         
-        BigDecimal totalBalance = allSavingsAccounts.stream()
+        BigDecimal totalBalance = filteredSavingsAccounts.stream()
                 .map(SavingsAccount::getInitialDeposit)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
-        Map<Integer, Long> accountsByTerm = allSavingsAccounts.stream()
+        Map<Integer, Long> accountsByTerm = filteredSavingsAccounts.stream()
                 .filter(account -> account.getTerm() != null)
                 .collect(Collectors.groupingBy(
                         account -> account.getTerm().getTermValueMonths(),
                         Collectors.counting()
                 ));
         
-        Map<String, Long> accountsByInterestPaymentType = allSavingsAccounts.stream()
+        Map<String, Long> accountsByInterestPaymentType = filteredSavingsAccounts.stream()
                 .collect(Collectors.groupingBy(
                         account -> account.getInterestPaymentType().name(),
                         Collectors.counting()
                 ));
         
-        Map<String, Long> accountsByRenewOption = allSavingsAccounts.stream()
+        Map<String, Long> accountsByRenewOption = filteredSavingsAccounts.stream()
                 .collect(Collectors.groupingBy(
                         account -> account.getRenewOption().name(),
                         Collectors.counting()
@@ -202,17 +236,17 @@ public class StatisticServiceImpl {
         
         // Tài khoản sắp đến hạn trong 30 ngày
         LocalDateTime thirtyDaysFromNow = LocalDateTime.now().plusDays(30);
-        long accountsNearMaturity = allSavingsAccounts.stream()
+        long accountsNearMaturity = filteredSavingsAccounts.stream()
                 .filter(account -> account.getMaturityDate() != null &&
                         account.getMaturityDate().isBefore(thirtyDaysFromNow) &&
                         account.getStatus() == AccountStatus.ACTIVE)
                 .count();
         
-        BigDecimal averageBalance = allSavingsAccounts.isEmpty() ? BigDecimal.ZERO :
-                totalBalance.divide(BigDecimal.valueOf(allSavingsAccounts.size()), 2, RoundingMode.HALF_UP);
+        BigDecimal averageBalance = filteredSavingsAccounts.isEmpty() ? BigDecimal.ZERO :
+                totalBalance.divide(BigDecimal.valueOf(filteredSavingsAccounts.size()), 2, RoundingMode.HALF_UP);
         
         return SavingsStatisticResponse.builder()
-                .totalSavingsAccounts((long) allSavingsAccounts.size())
+                .totalSavingsAccounts((long) filteredSavingsAccounts.size())
                 .totalSavingsBalance(totalBalance)
                 .accountsByTerm(accountsByTerm)
                 .accountsByInterestPaymentType(accountsByInterestPaymentType)
@@ -231,40 +265,45 @@ public class StatisticServiceImpl {
                         account.getMaturityDate().isAfter(fromDateTime) &&
                         account.getMaturityDate().isBefore(toDateTime) &&
                         account.getStatus() == AccountStatus.ACTIVE)
+                .filter(account -> !isAdminAccount(account.getCifCode())) // Lọc bỏ admin accounts
                 .collect(Collectors.toList());
     }
 
     public CreditRequestStatisticResponse getCreditRequestStatistics() {
         List<CreditRequest> allCreditRequests = creditRequestRepository.findAll();
+        // Lọc bỏ các credit request từ admin accounts
+        List<CreditRequest> filteredCreditRequests = allCreditRequests.stream()
+                .filter(request -> !isAdminAccount(request.getCifCode()))
+                .collect(Collectors.toList());
         
-        Map<String, Long> requestsByStatus = allCreditRequests.stream()
+        Map<String, Long> requestsByStatus = filteredCreditRequests.stream()
                 .collect(Collectors.groupingBy(
                         request -> request.getStatus().name(),
                         Collectors.counting()
                 ));
         
-        long pendingRequests = allCreditRequests.stream()
+        long pendingRequests = filteredCreditRequests.stream()
                 .filter(request -> request.getStatus() == CreditRequestStatus.PENDING)
                 .count();
         
-        long approvedRequests = allCreditRequests.stream()
+        long approvedRequests = filteredCreditRequests.stream()
                 .filter(request -> request.getStatus() == CreditRequestStatus.APPROVED)
                 .count();
         
-        long rejectedRequests = allCreditRequests.stream()
+        long rejectedRequests = filteredCreditRequests.stream()
                 .filter(request -> request.getStatus() == CreditRequestStatus.REJECTED)
                 .count();
         
         double approvalRate = (approvedRequests + rejectedRequests) > 0 ?
                 ((double) approvedRequests / (approvedRequests + rejectedRequests)) * 100 : 0;
         
-        BigDecimal averageIncome = allCreditRequests.stream()
+        BigDecimal averageIncome = filteredCreditRequests.stream()
                 .filter(request -> request.getMonthlyIncome() != null)
                 .map(CreditRequest::getMonthlyIncome)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(Math.max(1, allCreditRequests.size())), 2, RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(Math.max(1, filteredCreditRequests.size())), 2, RoundingMode.HALF_UP);
         
-        Map<String, Long> requestsByCardType = allCreditRequests.stream()
+        Map<String, Long> requestsByCardType = filteredCreditRequests.stream()
                 .filter(request -> request.getCartTypeId() != null)
                 .collect(Collectors.groupingBy(
                         CreditRequest::getCartTypeId,
@@ -272,7 +311,7 @@ public class StatisticServiceImpl {
                 ));
         
         return CreditRequestStatisticResponse.builder()
-                .totalCreditRequests((long) allCreditRequests.size())
+                .totalCreditRequests((long) filteredCreditRequests.size())
                 .requestsByStatus(requestsByStatus)
                 .pendingRequests(pendingRequests)
                 .approvedRequests(approvedRequests)
@@ -316,22 +355,35 @@ public class StatisticServiceImpl {
         LocalDateTime startOfMonth = month.withDayOfMonth(1).atStartOfDay();
         LocalDateTime endOfMonth = month.withDayOfMonth(month.lengthOfMonth()).atTime(23, 59, 59);
         
-        return accountRepository.findAll().stream()
+        List<Account> monthlyAccounts = accountRepository.findAll().stream()
                 .filter(account -> account.getCreatedDate() != null &&
                         account.getCreatedDate().isAfter(startOfMonth) &&
                         account.getCreatedDate().isBefore(endOfMonth))
-                .count();
+                .collect(Collectors.toList());
+        
+        // Lọc bỏ tài khoản admin và master
+        List<Account> filteredMonthlyAccounts = filterExcludeAdminAndMasterAccounts(monthlyAccounts);
+        
+        return (long) filteredMonthlyAccounts.size();
     }
     
     private Long getTotalUniqueCustomers() {
-        return accountRepository.findAll().stream()
+        List<Account> allAccounts = accountRepository.findAll();
+        // Lọc bỏ tài khoản admin và master
+        List<Account> filteredAccounts = filterExcludeAdminAndMasterAccounts(allAccounts);
+        
+        return filteredAccounts.stream()
                 .map(Account::getCifCode)
                 .distinct()
                 .count();
     }
     
     private List<DashboardStatisticResponse.TopPerformingProduct> getTopPerformingProducts() {
-        Map<String, Long> productCounts = accountRepository.findAll().stream()
+        List<Account> allAccounts = accountRepository.findAll();
+        // Lọc bỏ tài khoản admin và master
+        List<Account> filteredAccounts = filterExcludeAdminAndMasterAccounts(allAccounts);
+        
+        Map<String, Long> productCounts = filteredAccounts.stream()
                 .collect(Collectors.groupingBy(
                         account -> account.getAccountType().name(),
                         Collectors.counting()
@@ -353,11 +405,14 @@ public class StatisticServiceImpl {
         // Simplified recent activities - có thể mở rộng thêm
         List<DashboardStatisticResponse.RecentActivity> activities = new ArrayList<>();
         
-        // Recent account creations
-        long recentAccounts = accountRepository.findAll().stream()
+        // Recent account creations (lọc bỏ admin và master)
+        List<Account> recentAccountsList = accountRepository.findAll().stream()
                 .filter(account -> account.getCreatedDate() != null &&
                         account.getCreatedDate().isAfter(LocalDateTime.now().minusDays(1)))
-                .count();
+                .collect(Collectors.toList());
+        
+        List<Account> filteredRecentAccounts = filterExcludeAdminAndMasterAccounts(recentAccountsList);
+        long recentAccounts = filteredRecentAccounts.size();
         
         if (recentAccounts > 0) {
             activities.add(DashboardStatisticResponse.RecentActivity.builder()
@@ -368,10 +423,11 @@ public class StatisticServiceImpl {
                     .build());
         }
         
-        // Recent credit requests
+        // Recent credit requests (lọc bỏ admin)
         long recentCreditRequests = creditRequestRepository.findAll().stream()
                 .filter(request -> request.getCreatedDate() != null &&
                         request.getCreatedDate().isAfter(LocalDateTime.now().minusDays(1)))
+                .filter(request -> !isAdminAccount(request.getCifCode()))
                 .count();
         
         if (recentCreditRequests > 0) {

@@ -13,6 +13,8 @@ import com.example.common_service.services.customer.CustomerCommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,7 +30,9 @@ import java.util.stream.Collectors;
 public class AccountCustomerDubboServiceImpl implements CustomerCommonService {
 
     private final AccountRepository accountRepository;
-    private final RestTemplate restTemplate;
+    @Autowired
+    @Qualifier("coreBankingRestTemplate")
+    private RestTemplate   restTemplate;
 
     @Override
     public List<AccountDTO> getAccountsByCifCode(String cifCode) {

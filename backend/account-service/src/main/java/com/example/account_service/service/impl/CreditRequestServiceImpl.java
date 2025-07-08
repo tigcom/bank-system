@@ -105,6 +105,7 @@ public class CreditRequestServiceImpl implements CreditRequestService {
 
         // Tạo và gửi OTP
         String otp = generateAndStoreOTP(tempRequestKey);
+        log.info("OTP: {}",otp);
         sendOTPEmail(currentCustomer, otp);
 
         log.info("OTP sent for credit request creation. Temp key: {}", tempRequestKey);

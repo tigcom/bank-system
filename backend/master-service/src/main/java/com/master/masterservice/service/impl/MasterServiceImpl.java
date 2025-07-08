@@ -118,8 +118,7 @@ public class MasterServiceImpl implements MasterService {
         return MasterCardResponse.builder()
                 .status("ERROR")
                 .errorCode("MASTER_SERVICE_ERROR")
-                .message("Master service is currently unavailable after " + 
-                        " retry attempts. Error: " + e.getMessage())
+                .message("Error: Master Card System has error" )
                 .build();
     }
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export VAULT_ADDR=http://vault-server:8200
+export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=myroot
 
 sleep 10

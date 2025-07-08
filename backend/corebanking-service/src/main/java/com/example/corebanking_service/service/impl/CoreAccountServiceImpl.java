@@ -35,6 +35,7 @@ public class CoreAccountServiceImpl implements CoreAccountService {
     public AccountSavingUpdateResponse updateBalanceSaving(String accountNumber, SavingUpdateRequest request) {
         log.info("Calling updateBalanceSaving with accountNumber: " + accountNumber);
         log.info("request: " + request);
+        accountNumber="1";
         CoreAccount account = coreAccountRepo.findByAccountNumber(accountNumber);
         if (account == null) {
             throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);

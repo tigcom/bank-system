@@ -44,4 +44,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Page<Customer> searchCustomers(@Param("keyword") String keyword, Pageable pageable);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    Boolean existsByCifCode(String cifCode);
 }

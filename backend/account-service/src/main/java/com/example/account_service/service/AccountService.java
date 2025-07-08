@@ -13,6 +13,8 @@ import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CreditAccountResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -43,6 +45,8 @@ public interface AccountService {
 
 
     List<CreditRequestReponse> getAllCreditRequestPending();
+    
+    Page<CreditRequestReponse> getAllCreditRequestPendingPaginated(Pageable pageable);
 
 
 }
