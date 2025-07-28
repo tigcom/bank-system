@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
@@ -40,12 +41,14 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
     @Query("""
        SELECT r FROM Repayment r
         WHERE r.loan.loanId = :loanId
-          AND r.status = com.example.loan_service.models.RepaymentStatus.UNPAID
-          AND r.dueDate BETWEEN CURRENT_DATE AND CURRENT_DATE + 3
+          AND r.status = RepaymentStatus.UNPAID
+          AND r.dueDate BETWEEN :today AND :threeDaysLater
         ORDER BY r.dueDate ASC
     """)
     List<Repayment> findUpcomingByLoanId(
-            @Param("loanId") Long loanId
+            @Param("loanId") Long loanId,
+            @Param("today") LocalDate today,
+            @Param("threeDaysLater") LocalDate threeDaysLater
     );
 
     @Query("""

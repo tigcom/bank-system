@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MockProviderServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="1" nameIsGenerated="true">
-    <module name="mock-provider-server" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.mock_provider_server.MockProviderServerApplication" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
-</component>

@@ -2,11 +2,12 @@ server:
   port: 8083
   servlet:
     context-path: /corebanking
+
 spring:
   application:
     name: corebanking-service
   datasource:
-    url: jdbc:mysql://localhost:3306/coredb_new
+    url: jdbc:mysql://localhost:3306/coredb
     username: root
     password: 22572
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,8 +16,7 @@ spring:
       ddl-auto: update
     show-sql: true
 
-<<<<<<< HEAD
-#Dubbo
+# Dubbo
 dubbo:
   application:
     name: corebanking-service
@@ -27,16 +27,7 @@ dubbo:
     address: zookeeper://localhost:2181
   scan:
     base-packages: com.example.corebanking_service.service
-<<<<<<< HEAD
 
-api-key: a5dde333-b181-406d-8b41-5ae960579488
-=======
-core-banking:
-  api:
-    key: asdfghjkl
-=======
-
+# API Key cấu hình
 api-key: a5dde333-b181-406d-8b41-5ae960579488
 mock-napas-api-key: 961a800c-9839-4140-9bf3-f4208fe61ab2
->>>>>>> 15e536bc976093c4e921fde702250bbcb4776b94
->>>>>>> main

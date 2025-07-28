@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   kafka:
     image: bitnami/kafka:3.7.0
@@ -18,13 +16,19 @@ services:
 
   vault-server:
     image: hashicorp/vault
-    container_name: vault
+    container_name: Vault
     ports:
       - "8200:8200"
     volumes:
-      - ./init-vault.sh:/init-vault.sh
-    cap_add:
-      - IPC_LOCK
+      - vault-data:/vault/data
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "myroot"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    restart: always
+  init-vault:
+    image: hashicorp/vault
+    depends_on:
+      - vault-server
     command: >
       sh -c "
       sleep 15;
@@ -35,22 +39,9 @@ services:
       provider.api.electricity.url=http://localhost:8089/mock-api/electricity provider.api.telephone.url=http://localhost:8089/mock-api/telephone
       core-banking.api.url=http://localhost:8083/corebanking/api/core-bank mock-provider-api=http://localhost:8089/mock-api
       mock-napas-api=http://localhost:8089/mock-napas core-banking.api-key=a5dde333-b181-406d-8b41-5ae960579488
-      mock-server-api-key=961a800c-9839-4140-9bf3-f4208fe61ab2;
+      mock-server-api-key=961a800c-9839-4140-9bf3-f4208fe61ab2 account-number-provider-electricity=8080808080
+      account-number-provider-telephone=8686868686;
       "
-      - vault-data:/vault/data
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "myroot"
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
-    restart: always
-
-  init-vault:
-    image: hashicorp/vault
-    container_name: init-vault
-    depends_on:
-      - vault-server
-    volumes:
-      - ./init-vault.sh:/init-vault.sh
-    entrypoint: sh /init-vault.sh
 
 
   #  redis:
@@ -104,6 +95,7 @@ services:
       - "8081:8080"
     command:
       - start-dev
+      - --import-realm
 
   redis:
     container_name: redis
@@ -117,4 +109,5 @@ services:
 
 volumes:
   vault-data:
+  cache:
 #  redis-data:

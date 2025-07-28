@@ -86,7 +86,7 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Override
     public List<Repayment> getUpcomingRepayments(Long loanId) {
-        return repaymentRepository.findUpcomingByLoanId(loanId);
+        return repaymentRepository.findUpcomingByLoanId(loanId,LocalDate.now(),LocalDate.now().plusDays(3));
     }
     @Override
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {

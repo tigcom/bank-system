@@ -20,10 +20,11 @@ public class CoreAccountServiceImpl implements CoreAccountService {
 
     private final CoreCustomerRepo coreCustomerRepo;
     private final CoreAccountRepo coreAccountRepo;
+    private final CoreAccountNumberRepo coreAccountNumberRepo;
     @Override
     public void createCoreAccount(CoreAccountRequest dto) {
             CoreAccount coreAccount = CoreAccount.builder()
-                    .accountNumber(dto.getAccountNumber())
+                    .coreAccountNumber(coreAccountNumberRepo.getAccountNumber())
                     .accountType(dto.getAccountType())
                     .balance(dto.getBalance())
                     .status(dto.getStatus())
@@ -54,7 +55,9 @@ public class CoreAccountServiceImpl implements CoreAccountService {
 
     @Override
     public BalanceResponse getBalanceByAccountNumber(String accountNumber) {
+        log.info("Calling updateBalanceSaving with accountNumber: {}" + accountNumber);
         CoreAccount account = coreAccountRepo.findByAccountNumber(accountNumber);
+        log.info("account: {}" + account.getCoreAccountNumber().getNumber());
         if (account == null) {
             throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);
         }

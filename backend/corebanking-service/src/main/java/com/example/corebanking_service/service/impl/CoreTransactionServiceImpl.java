@@ -41,7 +41,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
     @Override
     @Transactional
     public CommonTransactionDTO performTransfer(TransactionRequest request) {
-        CoreAccount fromAccount = accountRepo.findByAccountNumberWithLock(request.getFromAccountNumber());
+        CoreAccount fromAccount = accountRepo.findByAccountNumber(request.getFromAccountNumber());
         if (fromAccount == null ) {
             throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_EXIST);
         }
@@ -50,7 +50,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
         }
         if(fromAccount.getBalance().compareTo(request.getAmount())<0){
             log.warn("Tài khoản {} không đủ tiền. Số dư: {}, Số tiền yêu cầu: {}",
-                    fromAccount.getAccountNumber(),
+                    fromAccount.getCoreAccountNumber().getNumber(),
                     fromAccount.getBalance(),
                     request.getAmount());
             throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);
@@ -98,7 +98,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
                         .type(transaction.getTransactionType())
                         .timestamp(transaction.getTimestamp())
                         .status(transaction.getStatus())
-                        .fromAccountNumber(transaction.getFromAccount().getAccountNumber())
+                        .fromAccountNumber(transaction.getFromAccount().getCoreAccountNumber().getNumber())
                         .toAccountNumber(transaction.getDestinationAccountNumber())
                         .referenceCode(transaction.getReferenceCode())
                         .build();
@@ -111,7 +111,7 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
             }
 
         }else{
-            CoreAccount toAccount = accountRepo.findByAccountNumberWithLock(request.getToAccountNumber());
+            CoreAccount toAccount = accountRepo.findByAccountNumber(request.getToAccountNumber());
             if (toAccount == null) {
                 throw new AppException(ErrorCode.TO_ACCOUNT_NOT_EXIST);
             }
@@ -136,8 +136,8 @@ public class CoreTransactionServiceImpl implements CoreTransactionService {
                     .type(transaction.getTransactionType())
                     .timestamp(transaction.getTimestamp())
                     .status(transaction.getStatus())
-                    .fromAccountNumber(transaction.getFromAccount().getAccountNumber())
-                    .toAccountNumber(transaction.getToAccount().getAccountNumber())
+                    .fromAccountNumber(transaction.getFromAccount().getCoreAccountNumber().getNumber())
+                    .toAccountNumber(transaction.getToAccount().getCoreAccountNumber().getNumber())
                     .referenceCode(transaction.getReferenceCode())
                     .build();
             return transactionDTO;

@@ -799,9 +799,15 @@ public class AccountServiceImpl implements AccountService {
             do {
                 number = generateAccountNumber(account);
             } while (accountRepository.existsAccountsByAccountNumber(number));
-            
+            String url = coreBankingBaseUrl + "/save-account";
+            ResponseEntity<BalanceResponse> response = coreBankingRestTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<BalanceResponse>() {},
+                    "123"
+            );
             account.setAccountNumber(number);
-            
             log.info("ACCOUNT_NUMBER_GENERATED - CifCode: {}, AccountNumber: {}, AccountType: {}",
                     cifCode, number, AccountType.PAYMENT);
             
@@ -811,7 +817,6 @@ public class AccountServiceImpl implements AccountService {
                     cifCode, account.getAccountNumber(), account.getId());
 
             CoreAccountRequest coreAccount = CoreAccountRequest.builder()
-                    .accountNumber(account.getAccountNumber())
                     .cifCode(cifCode)
                     .balance(BigDecimal.ZERO)
                     .accountType(account.getAccountType())

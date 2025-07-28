@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="3">
-    <module name="Notification-service" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.Notification_service.NotificationServiceApplication" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
-</component>
