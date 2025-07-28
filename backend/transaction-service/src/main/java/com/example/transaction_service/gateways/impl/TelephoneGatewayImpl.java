@@ -30,8 +30,11 @@ public class TelephoneGatewayImpl implements ProviderGateway {
     private final RestTemplate mockServerRestTemplate;
     private final String apiUrl;
 
+    @Value("${account-number-provider-telephone}")
+    private String accountNumberProvider;
+
     public TelephoneGatewayImpl(@Qualifier("mockServerRestTemplate") RestTemplate restTemplate
-                                , @Value("${provider.api.telephone.url}") String apiUrl) {
+            , @Value("${provider.api.telephone.url}") String apiUrl) {
         this.mockServerRestTemplate = restTemplate;
         this.apiUrl = apiUrl;
     }
@@ -99,5 +102,10 @@ public class TelephoneGatewayImpl implements ProviderGateway {
     public String getProviderType() {
         log.info("[TELEPHONE][getProviderType] Được gọi");
         return "TELEPHONE";
+    }
+
+    @Override
+    public String getAccountNumberProvider() {
+        return accountNumberProvider;
     }
 }

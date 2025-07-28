@@ -22,12 +22,14 @@ public interface CoreAccountRepo extends JpaRepository<CoreAccount, String> {
     List<CoreAccount> getAllCorePaymentAccounts(@Param("cifCode") String cifCode);
 
 //     khóa bi quan ghi
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT a FROM CoreAccount a WHERE a.accountNumber = :accountNumber")
-    CoreAccount findByAccountNumberWithLock(@Param("accountNumber") String accountNumber);
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    @Query("SELECT a FROM CoreAccount a WHERE a.accountNumber = :accountNumber")
+//    CoreAccount findByAccountNumberWithLock(@Param("accountNumber") String accountNumber);
 
     @Query(name = "SavingAccountQueryResult", nativeQuery = true)
     List<SavingAccountResponse> getAccountSavings(@Param("cifCode") String cifCode);
 
+
+    @Query("SELECT a FROM CoreAccount a WHERE a.coreAccountNumber.number = :accountNumber")
     CoreAccount findByAccountNumber(String accountNumber);
 }

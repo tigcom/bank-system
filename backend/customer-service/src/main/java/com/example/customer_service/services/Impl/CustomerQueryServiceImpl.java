@@ -2,6 +2,7 @@ package com.example.customer_service.services.Impl;
 
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
+import com.example.common_service.dto.response.CustomerResponse;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.customer_service.models.Customer;
 import com.example.customer_service.repositories.CustomerRepository;
@@ -45,6 +46,11 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
             log.warn("GET_CUSTOMER_BY_CIF_NOT_FOUND - RequestId: {}, CifCode: {}", requestId, cifCode);
             return null;
         }
+    }
+
+    @Override
+    public CustomerResponse getCurrentCustomer() {
+        return null;
     }
 
     @Override

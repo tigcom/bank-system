@@ -21,12 +21,11 @@ import java.util.List;
 
 public interface AccountService {
 
-    PaymentRequestResponse createPaymentRequest(String cifcode);
+                                            PaymentRequestResponse createPaymentRequest(String cifcode);
 
     AccountCreateReponse confirmOtpAndCreatePayment(PaymentConfirmOtpDTO paymentConfirmOtpDTO);
 
     void resendPaymentOtp(String tempRequestKey);
-
 
     List<AccountSummaryDTO> getAllAccountsbyCifCode();
 

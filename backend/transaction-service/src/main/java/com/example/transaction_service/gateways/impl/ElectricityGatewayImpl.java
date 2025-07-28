@@ -31,6 +31,9 @@ public class ElectricityGatewayImpl implements ProviderGateway {
     private final RestTemplate mockServerRestTemplate;
     private final String apiUrl;
 
+    @Value("${account-number-provider-electricity}")
+    private String accountNumberProvider;
+
     public ElectricityGatewayImpl(@Qualifier("mockServerRestTemplate") RestTemplate restTemplate
             , @Value("${provider.api.electricity.url}") String apiUrl) {
         this.mockServerRestTemplate = restTemplate;
@@ -103,5 +106,10 @@ public class ElectricityGatewayImpl implements ProviderGateway {
     public String getProviderType() {
         log.info("[ELECTRICITY][getProviderType] Được gọi");
         return "ELECTRICITY";
+    }
+
+    @Override
+    public String getAccountNumberProvider() {
+        return accountNumberProvider;
     }
 }

@@ -11,7 +11,7 @@ spring:
     name: account-service
   datasource:
     url: jdbc:mysql://localhost:3306/accountdb
-    username: sa
+    username: root
     password: 22572
     driver-class-name: com.mysql.cj.jdbc.Driver
   security:

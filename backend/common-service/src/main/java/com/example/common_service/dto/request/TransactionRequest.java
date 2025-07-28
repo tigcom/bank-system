@@ -1,5 +1,4 @@
-package com.example.common_service.dto.request;
-
+package com.example.corebanking_service.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TransactionRequest implements Serializable {
+public class TransactionRequest {
 
     private String fromAccountNumber;
 
@@ -22,15 +21,19 @@ public class TransactionRequest implements Serializable {
 
     private BigDecimal amount;
 
-    private String description;
-
     private LocalDateTime timestamp;
 
     private String status;
 
     private String type;
+
     private String referenceCode;
+
+    private String description;
+
+    private String currency;
+
     private String destinationBankCode;
 
-
 }
+

@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class CoreAccountRequest implements Serializable {
-    private String accountNumber;
     private String cifCode;
     private AccountType accountType;
     private BigDecimal balance;
