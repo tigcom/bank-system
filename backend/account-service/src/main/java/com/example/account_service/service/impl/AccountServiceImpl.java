@@ -762,7 +762,7 @@ public class AccountServiceImpl implements AccountService {
             // Tạo và gửi OTP
             String otp = generateAndStoreOTP(tempRequestKey);
             sendOTPEmail(customer, otp);
-
+            log.info("OTP: {}:",otp);
             log.info("OTP_PROCESS_COMPLETED - CifCode: {}, TempKey: {}, EmailSent: true",
                     cifCode, tempRequestKey);
 
@@ -794,19 +794,8 @@ public class AccountServiceImpl implements AccountService {
                     .cifCode(cifCode)
                     .status(AccountStatus.ACTIVE)
                     .build();
-            
-            String number;
-            do {
-                number = generateAccountNumber(account);
-            } while (accountRepository.existsAccountsByAccountNumber(number));
-            String url = coreBankingBaseUrl + "/save-account";
-            ResponseEntity<BalanceResponse> response = coreBankingRestTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<BalanceResponse>() {},
-                    "123"
-            );
+            String urlGetAccountNumber = coreBankingBaseUrl + "/getAccountNumber/{typeAccount}";
+            String number = coreBankingRestTemplate.getForObject(urlGetAccountNumber, String.class, account.getAccountType().name());
             account.setAccountNumber(number);
             log.info("ACCOUNT_NUMBER_GENERATED - CifCode: {}, AccountNumber: {}, AccountType: {}",
                     cifCode, number, AccountType.PAYMENT);
@@ -825,8 +814,6 @@ public class AccountServiceImpl implements AccountService {
             
             log.info("CORE_BANKING_SYNC_START - CifCode: {}, AccountNumber: {}, Balance: {}",
                     cifCode, account.getAccountNumber(), BigDecimal.ZERO);
-
-            // Call API save account trên CoreBanking
             String url = coreBankingBaseUrl + "/save-account";
             coreBankingRestTemplate.postForObject(url, coreAccount, Void.class);
             

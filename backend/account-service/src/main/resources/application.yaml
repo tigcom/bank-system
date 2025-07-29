@@ -47,8 +47,9 @@ spring:
           content-type: application/json
   data:
     redis:
-      host: localhost
+      host: ${DOCKER_HOST:localhost}
       port: 6379
+      password: 123
   kafka:
     bootstrap-servers: localhost:9094
     consumer:

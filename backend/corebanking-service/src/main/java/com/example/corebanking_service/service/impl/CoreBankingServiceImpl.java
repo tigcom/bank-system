@@ -37,6 +37,7 @@ public class CoreBankingServiceImpl implements CoreBankingService {
 
     @Override
     public String getAccountNumber(String typeAccount) {
+        System.out.println(typeAccount);
         String accountTypeCode = null;
         if(typeAccount.equalsIgnoreCase("PAYMENT")){
             accountTypeCode = "01";
@@ -47,6 +48,7 @@ public class CoreBankingServiceImpl implements CoreBankingService {
         }else if(typeAccount.equalsIgnoreCase("LOAN")){
             accountTypeCode = "04";
         }
+        System.out.println(accountTypeCode);
         return  coreAccountNumberRepo.getAccountNumberByTypeAccount(accountTypeCode).getNumber();
     }
 

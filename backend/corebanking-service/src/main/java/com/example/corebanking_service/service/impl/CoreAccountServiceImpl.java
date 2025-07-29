@@ -11,7 +11,7 @@ import com.example.corebanking_service.service.CoreAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import com.example.common_service.constant.NumberStatus;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,13 +23,16 @@ public class CoreAccountServiceImpl implements CoreAccountService {
     private final CoreAccountNumberRepo coreAccountNumberRepo;
     @Override
     public void createCoreAccount(CoreAccountRequest dto) {
-            CoreAccount coreAccount = CoreAccount.builder()
-                    .coreAccountNumber(coreAccountNumberRepo.getAccountNumber())
-                    .accountType(dto.getAccountType())
-                    .balance(dto.getBalance())
-                    .status(dto.getStatus())
-                    .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
-                    .build();
+        CoreAccountNumber coreAccountNumber = coreAccountNumberRepo.getAccountNumber();
+        CoreAccount coreAccount = CoreAccount.builder()
+                .coreAccountNumber(coreAccountNumber)
+                .accountType(dto.getAccountType())
+                .balance(dto.getBalance())
+                .status(dto.getStatus())
+                .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
+                .build();
+        coreAccountNumber.setStatus(NumberStatus.USED);
+        coreAccountNumberRepo.save(coreAccountNumber);
             coreAccountRepo.save(coreAccount);
     }
     @Override
