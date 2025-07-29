@@ -113,7 +113,7 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class CoreAccount {
     @OneToOne
-    @JoinColumn(name = "account_number", referencedColumnName = "number", insertable = false, updatable = false)
+    @JoinColumn(name = "account_number", referencedColumnName = "number")
     private CoreAccountNumber coreAccountNumber;
 
     @Id
