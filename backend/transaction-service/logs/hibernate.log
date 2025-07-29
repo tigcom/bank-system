@@ -10302,3 +10302,1203 @@ java.lang.Exception: exception just for purpose of providing stack trace
  MDC:[traceId=, spanId=]
 2025-07-29 10:20:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
 2025-07-29 10:20:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@7873b2b3 MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@1923817a MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1613600661 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:21:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@59d2dfd3 MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6becc302 MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1599148191 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:22:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@4e8801b8 MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6374f463 MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@596666533 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:23:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@5f8d4eab MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@18e9ff01 MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@76303290 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:24:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@79e753c7 MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@1efbda73 MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@814329551 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:25:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@53c70eee MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3a9b5e85 MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@134959304 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:26:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@f04ef39 MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@755a4e14 MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1300545962 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:27:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3b2277b7 MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@433a3c51 MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@23996059 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:28:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6ea6f4a9 MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6c4e1483 MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@862352807 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:29:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@2502b4b2 MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@50f0a93 MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@209519897 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:30:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@39ea5be5 MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@7600d8f MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1747109337 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:31:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@5715311c MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@61679510 MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1294031037 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:32:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@54a3d7de MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@5f516247 MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@467426295 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:33:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@34ca028c MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3ac48ccd MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1740461067 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:34:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@4a011005 MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3da4f5b8 MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1472752441 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:35:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@155e26a3 MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@418b3500 MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1309641513 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:36:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@44ec36ef MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@15aa034b MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1157704813 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:37:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@3343f3a7 MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@68ca4caf MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@343278175 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:38:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6cb05e7c MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@275a24ea MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@57754256 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:39:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6579ff50 MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6d07ba93 MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@887276013 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:40:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@42efc1fa MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@5def5d24 MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@2056418635 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:41:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@7b9ea262 MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@b1ac8 MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1246089320 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:42:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@99e8ce MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@1eb545b6 MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@414903924 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:43:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@4aefd7d6 MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@69e4c600 MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1444166057 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:44:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - On TransactionImpl creation, JpaCompliance#isJpaTransactionComplianceEnabled == false MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - begin MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Created new SQL alias : t1_0 MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.create - Registration of TableGroup [StandardTableGroup(com.example.transaction_service.entity.Transaction(2))] with identifierForTableGroup [com.example.transaction_service.entity.Transaction] for NavigablePath [com.example.transaction_service.entity.Transaction]  MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@2fa77b62 MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).status)  MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@258e5c4a MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.q.s.sql.BaseSqmToSqlAstConverter - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.transaction_service.entity.Transaction(2).timestamp)  MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.orm.results.graph.AST - DomainResult Graph:
+ \-EntityResultImpl [com.example.transaction_service.entity.Transaction(2)]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).amount]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).bankType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billCustomerCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billProviderCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).billType]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdAt]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).createdBy]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).currency]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).description]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).destinationBankName]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).failedReason]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).fromAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).providerTransactionId]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).referenceCode]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).status]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).timestamp]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).toAccountNumber]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).type]
+ |  +-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedAt]
+ |  \-BasicFetch [com.example.transaction_service.entity.Transaction(2).updatedBy]
+ MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.orm.sql.ast.tree - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (t1 : com.example.transaction_service.entity.Transaction(2)) {
+          primaryTableReference : tbl_transaction as t1_0
+        }
+      }
+    }
+ MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.orm.sql.exec - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.orm.results - Initializer list:
+	  com.example.transaction_service.entity.Transaction(2) -> EntityResultInitializer(com.example.transaction_service.entity.Transaction(2))@1785501125 (SingleTableEntityPersister(com.example.transaction_service.entity.Transaction))
+ MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG org.hibernate.SQL - select t1_0.id,t1_0.amount,t1_0.bank_type,t1_0.bill_customer_code,t1_0.bill_id,t1_0.bill_provider_code,t1_0.bill_type,t1_0.created_at,t1_0.created_by,t1_0.currency,t1_0.description,t1_0.destination_bank_code,t1_0.destination_bank_name,t1_0.failed_reason,t1_0.from_account_number,t1_0.provider_transaction_id,t1_0.reference_code,t1_0.status,t1_0.timestamp,t1_0.to_account_number,t1_0.type,t1_0.updated_at,t1_0.updated_by from tbl_transaction t1_0 where t1_0.status=? and t1_0.timestamp<? MDC:[traceId=, spanId=]
+2025-07-29 10:45:14 [scheduling-1] DEBUG o.h.e.t.internal.TransactionImpl - committing MDC:[traceId=, spanId=]
