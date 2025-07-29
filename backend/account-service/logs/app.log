@@ -8023,3 +8023,7 @@ java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
 2025-07-29 10:20:19 INFO  [http-nio-8082-exec-7] c.e.a.s.impl.AccountServiceImpl [,] - CREATE_PAYMENT_ACCOUNT_FOR_CUSTOMER_SUCCESS - CifCode: 9704522166607, AccountNumber: 421010092, AccountId: a45cf9dd-d391-4421-8381-24a1be7f7311
 2025-07-29 10:20:19 INFO  [http-nio-8082-exec-7] c.e.a.s.impl.AccountServiceImpl [,] - TEMP_DATA_CLEANED - TempRequestId: TEMP_PAYMENT_REQUEST:9704522166607:1753759197841, RedisKeysDeleted: 2
 2025-07-29 10:20:19 INFO  [http-nio-8082-exec-7] c.e.a.s.impl.AccountServiceImpl [,] - CONFIRM_OTP_CREATE_PAYMENT_SUCCESS - TempRequestId: TEMP_PAYMENT_REQUEST:9704522166607:1753759197841, CifCode: 9704522166607, AccountNumber: 421010092
+2025-07-29 10:22:26 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.apache.kafka.clients.NetworkClient [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Node -1 disconnected.
+2025-07-29 10:24:32 INFO  [kafka-producer-network-thread | producer-1] o.apache.kafka.clients.NetworkClient [,] - [Producer clientId=producer-1] Node -1 disconnected.
+2025-07-29 10:32:26 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.apache.kafka.clients.NetworkClient [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Node -1 disconnected.
+2025-07-29 10:34:32 INFO  [kafka-producer-network-thread | producer-1] o.apache.kafka.clients.NetworkClient [,] - [Producer clientId=producer-1] Node -1 disconnected.
