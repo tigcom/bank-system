@@ -1,8 +1,10 @@
 package com.example.loan_service.dto.request;
 
 
+import com.example.common_service.constant.LoanType;
 import com.example.loan_service.models.LoanStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -24,7 +26,9 @@ import java.util.List;
 public class LoanRequestDTO {
     private Long loanId;
     @NotBlank
-    private String accountNumber;
+    private String 	disbursementAccountNumber;
+    @NotBlank
+    private String 	repaymentAccountNumber;
     @NotNull
     private BigDecimal amount;
     @NotNull
@@ -39,4 +43,6 @@ public class LoanRequestDTO {
     private LocalDateTime approvedAt;
     @Enumerated(EnumType.STRING)
     private LoanStatus status;
+    @Enumerated(EnumType.STRING)
+    private LoanType loanType ;
 }

@@ -1,6 +1,6 @@
 {
-  "status": "fail",
-  "creditScore": 500,
-  "overdue": false,
-  "debtGroup": 4
+  "status": "success",
+  "creditScore": 420,
+  "overdue": true,
+  "debtGroup": 2
 }

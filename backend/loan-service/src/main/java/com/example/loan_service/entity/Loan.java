@@ -1,5 +1,5 @@
 package com.example.loan_service.entity;
-
+import  com.example.common_service.constant.LoanType;
 import com.example.loan_service.models.LoanStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -25,8 +25,10 @@ public class Loan {
     @Column(name = "customer_id", nullable = false)
     private Long customerId;
 
-    @Column(name = "account_number", nullable = false, length = 20)
-    private String accountNumber;
+    @Column(name = "disbursement_account_number", nullable = false, length = 20)
+    private String 	disbursementAccountNumber;
+    @Column(name = "repayment_account_number", nullable = false, length = 20)
+    private String 	repaymentAccountNumber;
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -60,4 +62,7 @@ public class Loan {
     @JsonManagedReference
     private List<InfoIncome> infoIncomes;
 
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private  LoanType loanType ;
 }
