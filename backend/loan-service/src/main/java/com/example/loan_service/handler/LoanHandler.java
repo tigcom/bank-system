@@ -76,7 +76,7 @@ public class LoanHandler {
             log.debug("LOAN_FETCHED - {}", loan);
             
             CommonDisburseRequest disburseReq = new CommonDisburseRequest();
-            disburseReq.setToAccountNumber(loan.getAccountNumber());
+            disburseReq.setToAccountNumber(loan.getDisbursementAccountNumber());
             disburseReq.setAmount(loan.getAmount());
             disburseReq.setCurrency("VND");
             CommonTransactionDTO tx = commonTransactionService.loanDisbursement(disburseReq);
@@ -96,7 +96,7 @@ public class LoanHandler {
             MailMessageDTO mail = new MailMessageDTO();
             mail.setSubject("KÍCH HOẠT KHOẢN VAY");
             mail.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-            mail.setBody("Khoản vay đã duyệt và giải ngân tài khoản: " + loan.getAccountNumber());
+            mail.setBody("Khoản vay đã duyệt và giải ngân tài khoản: " + loan.getDisbursementAccountNumber());
             mail.setRecipientName(customer.getFullName());
             streamBridge.send("mail-out-0", mail);
             log.info("APPROVE_LOAN_MAIL_SENT - loanId: {}, to: {}", loanId, customer.getEmail());
@@ -118,8 +118,22 @@ public class LoanHandler {
             log.debug("CUSTOMER_ID_FETCHED - {}", customerId);
             CustomerResponseDTO customer = customerQueryService.getCustomerById(customerId);
             log.info("CUSTOMER_INFO - idNumber={}, status={}", customer.getIdentityNumber(), customer.getStatus());
-            AccountDTO account = accountQueryService.getAccountByAccountNumber(dto.getAccountNumber());
-            log.info("ACCOUNT_INFO - accountNumber={}, status={}", dto.getAccountNumber(), account.getStatus());
+            AccountDTO disbursementAccount = accountQueryService.getAccountByAccountNumber(dto.getDisbursementAccountNumber());
+            log.info("ACCOUNT_INFO - disbursementAccount={}, status={}", dto.getDisbursementAccountNumber(), disbursementAccount.getStatus());
+            AccountDTO repaymentAccount = accountQueryService.getAccountByAccountNumber(dto.getRepaymentAccountNumber());
+            log.info("ACCOUNT_INFO - repaymentAccount={}, status={}", dto.getRepaymentAccountNumber(), repaymentAccount.getStatus());
+
+            if (!CustomerStatus.ACTIVE.equals(customer.getStatus())) {
+                throw new IllegalArgumentException("Hồ sơ khách hàng không hợp lệ");
+            }
+            if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
+                throw new IllegalArgumentException("Người dùng chưa đủ tuổi");
+            }
+            if (!"ACTIVE".equalsIgnoreCase(disbursementAccount.getStatus())) {
+                throw new IllegalArgumentException("Tài khoản giải ngân không hợp lệ");
+            }if (!"ACTIVE".equalsIgnoreCase(repaymentAccount.getStatus())) {
+                throw new IllegalArgumentException("Tài khoản tất toán không hợp lệ");
+            }
             CICRequest cicRequest = new CICRequest();
             cicRequest.setIdNumber(customer.getIdentityNumber());
             cicRequest.setName(customer.getFullName());
@@ -133,18 +147,14 @@ public class LoanHandler {
                     cicResponse.getErrorCode(),
                     cicResponse.getMessage()
             );
-            if (!CustomerStatus.ACTIVE.equals(customer.getStatus())) {
-                throw new IllegalArgumentException("Hồ sơ khách hàng không hợp lệ");
-            }
-            if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
-                throw new IllegalArgumentException("Người dùng chưa đủ tuổi");
-            }
-            if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
-                throw new IllegalArgumentException("Tài khoản ngân hàng không hợp lệ");
-            }
-            if ("fail".equalsIgnoreCase(cicResponse.getStatus())) {
-                throw new IllegalArgumentException("Hồ sơ có dấu hiệu nợ xấu");
-            }
+            if (!"success".equalsIgnoreCase(cicResponse.getStatus())) throw new IllegalArgumentException("Không thể truy vấn CIC: " + cicResponse.getMessage());
+            int score = cicResponse.getCreditScore();
+            boolean overdue = cicResponse.getOverdue();
+            int group = cicResponse.getDebtGroup();
+            if (overdue)  throw new IllegalArgumentException("Khách hàng đang có nợ quá hạn theo CIC");
+            if (group >= 2)   throw new IllegalArgumentException("Khách hàng thuộc nhóm nợ xấu (nhóm " + group + ")");
+            if (score < 700 || group == 1)  log.warn("CIC warning: Khách hàng có điểm tín dụng trung bình hoặc nhóm nợ cần chú ý");
+            log.info("CIC PASS - Khách hàng đủ điều kiện tín dụng");
             coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
             Loan l = loanMapper.toEntity(dto);
             l.setCustomerId(customerId);
