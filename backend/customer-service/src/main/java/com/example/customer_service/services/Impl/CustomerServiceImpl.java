@@ -162,6 +162,22 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BusinessException(getMessage(MessageKeys.OTP_SEND_FAILED));
         }
     }
+    @Override
+    public CustomerResponse getCustomerDetail(String userId) {
+        String requestId = UUID.randomUUID().toString();
+        log.info("[getCustomerDetail] GET_CUSTOMER_DETAIL_START - RequestId: {}, UserId: {}",
+                requestId, userId);
+        Optional<Customer> customerOpt = customerRepository.findByUserId(userId);
+        if (customerOpt.isEmpty()) {
+            log.error("[getCustomerDetail] USER_NOT_FOUND - RequestId: {}, UserId: {}",
+                    requestId, userId);
+            throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
+        }
+        CustomerResponse response = toCustomerResponse(customerOpt.get());
+        log.info("[getCustomerDetail] CUSTOMER_DETAIL_RETRIEVED - RequestId: {}, UserId: {}, CifCode: {}",
+                requestId, userId, response.getCifCode());
+        return response;
+    }
 
     @Override
     public ApiResponseWrapper<?> reSendOtp(String email) {
@@ -579,22 +595,6 @@ public class CustomerServiceImpl implements CustomerService {
         return response;
     }
 
-    @Override
-    public CustomerResponse getCustomerDetail(String userId) {
-        String requestId = UUID.randomUUID().toString();
-        log.info("[getCustomerDetail] GET_CUSTOMER_DETAIL_START - RequestId: {}, UserId: {}", 
-                requestId, userId);
-        Optional<Customer> customerOpt = customerRepository.findByUserId(userId);
-        if (customerOpt.isEmpty()) {
-            log.error("[getCustomerDetail] USER_NOT_FOUND - RequestId: {}, UserId: {}", 
-                    requestId, userId);
-            throw new EntityNotFoundException(getMessage(MessageKeys.USER_NOT_FOUND));
-        }
-        CustomerResponse response = toCustomerResponse(customerOpt.get());
-        log.info("[getCustomerDetail] CUSTOMER_DETAIL_RETRIEVED - RequestId: {}, UserId: {}, CifCode: {}", 
-                requestId, userId, response.getCifCode());
-        return response;
-    }
 
     @Override
     public CustomerResponse getCustomerDetailByCifCode(String cifCode) {

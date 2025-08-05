@@ -110,13 +110,11 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan approveLoan(Long loanId) {
-        log.info("APPROVE_LOAN_START - loanId: {}", loanId);
-        try {
-            Loan loan = loanRepository.findById(loanId)
-                    .orElseThrow(() -> new EntityNotFoundException("Loan not found: " + loanId));
+    public Loan approveLoan(Loan loan) {
+        try{
+        log.info("APPROVE_LOAN_START - loanId: {}", loan.getLoanId());
             if (!LoanStatus.PENDING.equals(loan.getStatus())) {
-                log.warn("APPROVE_LOAN_INVALID - loanId: {}, status: {}", loanId, loan.getStatus());
+                log.warn("APPROVE_LOAN_INVALID - loanId: {}, status: {}",  loan.getLoanId(), loan.getStatus());
                 throw new IllegalStateException("Loan is not in PENDING status");
             }
             loan.setStatus(LoanStatus.APPROVED);
@@ -125,14 +123,13 @@ public class LoanServiceImpl implements LoanService {
             log.info("APPROVE_LOAN_SUCCESS - loanId: {}", saved.getLoanId());
             return saved;
         } catch (IllegalStateException e) {
-            log.warn("APPROVE_LOAN_WARN - loanId: {}, reason: {}", loanId, e.getMessage());
+            log.warn("APPROVE_LOAN_WARN - loanId: {}, reason: {}",  loan.getLoanId(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("APPROVE_LOAN_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            log.error("APPROVE_LOAN_ERROR - loanId: {}, error: {}",  loan.getLoanId(), e.getMessage(), e);
             throw e;
         }
     }
-
     @Override
     public List<Loan> getLoansByCustomerId(Long customerId) {
         log.info("GET_LOANS_BY_CUSTOMER_START - customerId: {}", customerId);

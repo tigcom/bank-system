@@ -1,4 +1,4 @@
-package com.example.corebanking_service.dto.request;
+package com.example.common_service.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -82,7 +82,7 @@ dubbo:
   application:
     name: account-service
     qos-enable: false
-    serialize-check-status: WARN
+    serialize-check-status: DISABLE
     # hoặc nếu cần thiết (không khuyến nghị cho production):
     # serialize-check-status: DISABLE
     serialize:

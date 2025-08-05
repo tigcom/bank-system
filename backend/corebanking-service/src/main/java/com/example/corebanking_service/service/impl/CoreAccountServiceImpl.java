@@ -23,7 +23,7 @@ public class CoreAccountServiceImpl implements CoreAccountService {
     private final CoreAccountNumberRepo coreAccountNumberRepo;
     @Override
     public void createCoreAccount(CoreAccountRequest dto) {
-        CoreAccountNumber coreAccountNumber = coreAccountNumberRepo.getAccountNumber();
+        CoreAccountNumber coreAccountNumber = coreAccountNumberRepo.findByNumber(dto.getAccountNumber());
         CoreAccount coreAccount = CoreAccount.builder()
                 .coreAccountNumber(coreAccountNumber)
                 .accountType(dto.getAccountType())
@@ -68,6 +68,19 @@ public class CoreAccountServiceImpl implements CoreAccountService {
                 .accountNumber(accountNumber)
                 .balance(account.getBalance())
                 .build();
+    }
+
+    @Override
+    public void updateCoreAccount(CoreAccountRequest dto) {
+        CoreAccountNumber coreAccountNumber = coreAccountNumberRepo.findByNumber(dto.getAccountNumber());
+        CoreAccount coreAccount = CoreAccount.builder()
+                .coreAccountNumber(coreAccountNumber)
+                .accountType(dto.getAccountType())
+                .balance(dto.getBalance())
+                .status(dto.getStatus())
+                .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
+                .build();
+        coreAccountRepo.save(coreAccount);
     }
 
     @Override

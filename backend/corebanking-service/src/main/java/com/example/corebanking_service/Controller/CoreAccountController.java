@@ -1,4 +1,4 @@
-package com.example.corebanking_service.controller;
+package com.example.corebanking_service.Controller;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.SavingUpdateRequest;
 import com.example.common_service.dto.response.*;
@@ -43,6 +43,9 @@ public class CoreAccountController {
     public String getAccountNumber (@PathVariable String typeAccount){
         return coreBankingService.getAccountNumber(typeAccount);
     }
-
+    @PostMapping("/update-account")
+    public void updateAccount(@RequestBody  CoreAccountRequest accountRequest) {
+        coreAccountService.updateCoreAccount(accountRequest);
+    }
 
 }

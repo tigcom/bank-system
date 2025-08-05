@@ -19,18 +19,18 @@ public class CoreBankingClientImpl implements CoreBankingClient {
     @Qualifier("restTemplate")
     private final RestTemplate restTemplate;
     @Override
-    public CoreResponse syncLoan(LoanResponseDTO dto) {
-        log.info("SYNC_LOAN_START - dto: {}", dto);
+    public CoreResponse updateAccount(com.example.common_service.dto.CoreAccountRequest request) {
+        log.info("UPDATE_ACCOUNT_START - request: {}", request);
         try {
             ResponseEntity<CoreResponse> response = restTemplate.postForEntity(
-                    "http://localhost:8083/corebanking/api/core/loans/sync",
-                    dto,
+                    "http://localhost:8083/corebanking/api/core/update-account",
+                    request,
                     CoreResponse.class
             );
-            log.info("SYNC_LOAN_SUCCESS - dto: {}", dto);
+            log.info("UPDATE_ACCOUNT_SUCCESS - request: {}", request);
             return response.getBody();
         } catch (Exception e) {
-            log.error("SYNC_LOAN_ERROR - dto: {}, error: {}", dto, e.getMessage(), e);
+            log.error("UPDATE_ACCOUNT_ERROR - request: {}, error: {}", request, e.getMessage(), e);
             throw e;
         }
     }

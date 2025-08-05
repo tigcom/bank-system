@@ -7,8 +7,10 @@ import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.CreditRequestReponse;
 import com.example.account_service.dto.response.PaymentRequestResponse;
+import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CreditCardDTO;
 import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.request.LoanRequestDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CreditAccountResponse;
@@ -51,5 +53,10 @@ public interface AccountService {
 
     Page<CreditRequestReponse> getAllCreditRequestPendingPaginated(Pageable pageable);
 
+    AccountDTO createLoanAccount (LoanRequestDTO dto) ;
 
+    /**
+     * Cập nhật dư nợ tài khoản vay dựa trên thông tin khoản vay
+     */
+    void updateAccountFromLoan(LoanRequestDTO dto);
 }

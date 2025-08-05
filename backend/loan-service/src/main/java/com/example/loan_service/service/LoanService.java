@@ -10,7 +10,7 @@ public interface LoanService {
     Loan createLoan(Loan loan);
 
     Loan updateLoan(Loan loan);
-    Loan approveLoan(Long loanId);
+    Loan approveLoan(Loan loan);
     Optional<Loan> getLoanById(Long loanId);
     List<Loan> findAllLoan();
     List<Loan> getLoansApprove();

@@ -5,6 +5,7 @@ import com.example.account_service.repository.AccountRepository;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.request.LoanRequestDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.BalanceResponse;
 import com.example.common_service.services.account.AccountQueryService;
@@ -50,8 +51,6 @@ public class AccountTransactionDubboServiceImpl implements AccountQueryService {
     public CustomerDTO getCustomerByAccountNumber(String accountNumber) {
         return accountService.getCustomerByAccountNumber(accountNumber);
     }
-
-
 
 
 }

@@ -25,9 +25,12 @@ public interface RepaymentService {
     List<Repayment> getUpcomingRepayments(Long loanId);
     Boolean checkLastMonthRepayment(Repayment repayment);
 
+    Boolean shouldCloseLoan(Long loanId);
+
     java.math.BigDecimal getTotalCollectedSystem();
 
     java.math.BigDecimal getTotalProfitSystem();
 
     Map<String, Long> getRepaymentStats();
+    BigDecimal getOutstandingDebtByLoanId (Long loanId);
 }

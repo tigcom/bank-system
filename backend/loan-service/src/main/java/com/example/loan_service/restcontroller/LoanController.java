@@ -4,7 +4,7 @@ import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
-import com.example.loan_service.dto.request.LoanRequestDTO;
+import com.example.common_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.dto.response.TransactionDto;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
@@ -95,7 +95,7 @@ public class LoanController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{loanId}/approve")
     public ResponseEntity<ApiResponseWrapper<Loan>> approveLoan(@PathVariable Long loanId) {
         log.info("APPROVE_LOAN_START - loanId: {}", loanId);

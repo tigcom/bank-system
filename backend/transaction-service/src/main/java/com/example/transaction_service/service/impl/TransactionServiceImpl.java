@@ -4,12 +4,13 @@ package com.example.transaction_service.service.impl;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.CreateAccountSavingRequest;
 import com.example.common_service.dto.request.PayInterestRequest;
+import com.example.common_service.dto.request.TransactionRequest;
 import com.example.common_service.dto.request.WithdrawAccountSavingRequest;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.CustomerResponse;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerQueryService;
-import com.example.corebanking_service.dto.request.TransactionRequest;
+
 import com.example.transaction_service.client.ProviderClient;
 import com.example.transaction_service.dto.TransactionDTO;
 import com.example.transaction_service.dto.request.*;
@@ -200,7 +201,12 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setDescription(repaymentRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(repaymentRequest.getCurrency()));
         transaction.setType(TransactionType.LOAN_PAYMENT);
-        transaction.setToAccountNumber(masterAccount);
+        if (repaymentRequest.getToAccountNumber() != null){
+            transaction.setToAccountNumber(repaymentRequest.getToAccountNumber());
+        }else{
+            transaction.setToAccountNumber(masterAccount);
+        }
+
         try {
             log.info("[LOAN_PAYMENT] Validate transaction...");
             validateTransaction(transaction);
@@ -864,6 +870,92 @@ public class TransactionServiceImpl implements TransactionService{
         }
     }
 
+    @Override
+    @Transactional
+    public TransactionDTO loanRecovery(DisburseRequest recoveryRequest) {
+        CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
+        log.info("[customerId:{}][cifCode:{}][LOAN_RECOVERY] From: {} | To: {} | Amount: {} | Currency: {} | Desc: {}", 
+            currentCustomer.getUserId(), currentCustomer.getCifCode(), 
+             recoveryRequest.getToAccountNumber(), masterAccount,
+            recoveryRequest.getAmount(), recoveryRequest.getCurrency(), recoveryRequest.getDescription());
+        
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(recoveryRequest.getToAccountNumber());
+        transaction.setToAccountNumber(masterAccount);
+        transaction.setAmount(recoveryRequest.getAmount());
+        transaction.setDescription(recoveryRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(recoveryRequest.getCurrency()));
+        transaction.setType(TransactionType.CORE_BANKING); // Sử dụng CORE_BANKING type cho thu hồi
+        
+        try {
+            log.info("[LOAN_RECOVERY] Validate transaction...");
+            validateTransaction(transaction);
+            log.info("[LOAN_RECOVERY] Validate thành công");
+            initTransaction(transaction);
+            log.info("[customerId:{}][cifCode:{}][LOAN_RECOVERY] Init transaction thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            processTransaction(transaction);
+            log.info("[customerId:{}][cifCode:{}][LOAN_RECOVERY] Process transaction thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            transactionRepository.save(transaction);
+            log.info("[customerId:{}][cifCode:{}][LOAN_RECOVERY] Lưu transaction thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            log.info("[customerId:{}][cifCode:{}][LOAN_RECOVERY] Giao dịch thu hồi khoản vay thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            return transactionMapper.toDTO(transaction);
+        } catch (Exception ex) {
+            log.error("[customerId:{}][cifCode:{}][LOAN_RECOVERY] Lỗi khi thực hiện giao dịch thu hồi khoản vay | ReferenceCode: {} | From: {} | To: {} | Amount: {} | Lý do: {}",
+                    currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode(), 
+                    recoveryRequest.getToAccountNumber(), masterAccount,
+                    recoveryRequest.getAmount(), ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional
+    public TransactionDTO autoDeductRepayment(AutoDeductRequest autoDeductRequest) {
+        CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
+        log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] From: {} | To: {} | Amount: {} | Currency: {} | LoanId: {} | RepaymentId: {} | Desc: {}", 
+            currentCustomer.getUserId(), currentCustomer.getCifCode(), 
+            autoDeductRequest.getFromAccountNumber(), autoDeductRequest.getToAccountNumber(), 
+            autoDeductRequest.getAmount(), autoDeductRequest.getCurrency(),
+            autoDeductRequest.getLoanId(), autoDeductRequest.getRepaymentId(),
+            autoDeductRequest.getDescription());
+        
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountNumber(autoDeductRequest.getFromAccountNumber());
+        transaction.setToAccountNumber(masterAccount);
+        transaction.setAmount(autoDeductRequest.getAmount());
+        transaction.setDescription(autoDeductRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(autoDeductRequest.getCurrency()));
+        transaction.setType(TransactionType.LOAN_PAYMENT); // Sử dụng LOAN_PAYMENT type cho tự động trừ
+        
+        try {
+            log.info("[AUTO_DEDUCT] Validate transaction...");
+            validateTransaction(transaction);
+            log.info("[AUTO_DEDUCT] Validate thành công");
+            initTransaction(transaction);
+            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Init transaction thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            processTransaction(transaction);
+            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Process transaction thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            transactionRepository.save(transaction);
+            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Lưu transaction thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Giao dịch tự động trừ tiền định kỳ thành công | ReferenceCode: {}", 
+                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            return transactionMapper.toDTO(transaction);
+        } catch (Exception ex) {
+            log.error("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Lỗi khi thực hiện giao dịch tự động trừ tiền định kỳ | ReferenceCode: {} | From: {} | To: {} | Amount: {} | Lý do: {}",
+                    currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode(), 
+                    autoDeductRequest.getFromAccountNumber(), autoDeductRequest.getToAccountNumber(), 
+                    autoDeductRequest.getAmount(), ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
 
     //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
@@ -916,7 +1008,7 @@ public class TransactionServiceImpl implements TransactionService{
                 TransactionType.DISBURSEMENT,
                 TransactionType.CORE_BANKING).contains(transaction.getType())) {
 
-            Set<String> allowedTypes = Set.of("PAYMENT", "MASTER");
+            Set<String> allowedTypes = Set.of("PAYMENT", "MASTER","LOAN");
             if (!allowedTypes.contains(fromAccount.getAccountType())) {
                 throw new AppException(ErrorCode.FROM_ACCOUNT_NOT_PAYMENT);
             }

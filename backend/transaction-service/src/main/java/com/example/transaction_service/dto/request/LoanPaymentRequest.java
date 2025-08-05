@@ -19,7 +19,9 @@ public class LoanPaymentRequest {
     @Schema(description = "Số tài khoản dùng để thanh toán", example = "100000001", required = true)
     @NotBlank(message = "From account number must not be blank")
     private String fromAccountNumber;
-
+    @Schema(description = "Số tài khoản thụ hưởng", example = "100000001", required = true)
+    @NotBlank(message = "to account number must not be blank")
+    private String toAccountNumber;
     @Schema(description = "Số tiền thanh toán", example = "150000", required = true)
     @NotNull(message = "Amount must not be null")
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")

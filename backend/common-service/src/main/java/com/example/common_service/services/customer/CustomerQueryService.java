@@ -8,5 +8,5 @@ public interface CustomerQueryService {
     CustomerDTO getCustomerByCifCode(String cifCode);
     CustomerResponse getCurrentCustomer();
     CustomerResponseDTO getCustomerById(Long id);
-
+    CustomerResponseDTO getCustomerByUserId(String userId);
 }

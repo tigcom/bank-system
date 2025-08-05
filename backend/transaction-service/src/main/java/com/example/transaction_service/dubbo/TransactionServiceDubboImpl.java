@@ -140,6 +140,47 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
         return toCommonTransactionDTO(transactionDTO);
     }
 
+    @Override
+    public CommonTransactionDTO loanRecovery(CommonDisburseRequest recoveryRequest) {
+        log.info("[DUBBO][loanRecovery] Nhận yêu cầu thu hồi khoản vay: {}", recoveryRequest);
+        try {
+            DisburseRequest request = DisburseRequest.builder()
+                    .toAccountNumber(recoveryRequest.getToAccountNumber())
+                    .amount(recoveryRequest.getAmount())
+                    .currency(recoveryRequest.getCurrency())
+                    .description(recoveryRequest.getDescription())
+                    .build();
+            TransactionDTO transactionDTO = transactionService.loanRecovery(request);
+            log.info("[DUBBO][loanRecovery] Kết quả: {}", transactionDTO);
+            return toCommonTransactionDTO(transactionDTO);
+        } catch (Exception ex) {
+            log.error("[DUBBO][loanRecovery] Lỗi: {}", ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    @Override
+    public CommonTransactionDTO autoDeductRepayment(AutoDeductRepaymentRequest autoDeductRequest) {
+        log.info("[DUBBO][autoDeductRepayment] Nhận yêu cầu tự động trừ tiền định kỳ: {}", autoDeductRequest);
+        try {
+            AutoDeductRequest request = AutoDeductRequest.builder()
+                    .fromAccountNumber(autoDeductRequest.getFromAccountNumber())
+                    .toAccountNumber(autoDeductRequest.getToAccountNumber())
+                    .amount(autoDeductRequest.getAmount())
+                    .currency(autoDeductRequest.getCurrency())
+                    .description(autoDeductRequest.getDescription())
+                    .loanId(autoDeductRequest.getLoanId())
+                    .repaymentId(autoDeductRequest.getRepaymentId())
+                    .build();
+            TransactionDTO transactionDTO = transactionService.autoDeductRepayment(request);
+            log.info("[DUBBO][autoDeductRepayment] Kết quả: {}", transactionDTO);
+            return toCommonTransactionDTO(transactionDTO);
+        } catch (Exception ex) {
+            log.error("[DUBBO][autoDeductRepayment] Lỗi: {}", ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
     private CommonTransactionDTO toCommonTransactionDTO(TransactionDTO transactionDTO){
         CommonTransactionDTO commonTransactionDTO = CommonTransactionDTO.builder()
                 .amount(transactionDTO.getAmount())

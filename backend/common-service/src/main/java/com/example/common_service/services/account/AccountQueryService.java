@@ -2,6 +2,7 @@ package com.example.common_service.services.account;
 
 import com.example.common_service.dto.AccountDTO;
 import com.example.common_service.dto.CustomerDTO;
+import com.example.common_service.dto.request.LoanRequestDTO;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.BalanceResponse;
 
@@ -13,4 +14,5 @@ public interface AccountQueryService {
     boolean existsAccountByAccountNumberAndCifCode(String accountNumber, String cifCode);
     List<AccountPaymentResponse> getAllAccountPaymentForCurrentCustomer();
     CustomerDTO getCustomerByAccountNumber(String accountNumber);
+
 }
