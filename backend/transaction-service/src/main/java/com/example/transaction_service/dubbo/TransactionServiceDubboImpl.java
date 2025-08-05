@@ -181,7 +181,7 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
         }
     }
 
-    private CommonTransactionDTO toCommonTransactionDTO(TransactionDTO transactionDTO){
+    public CommonTransactionDTO toCommonTransactionDTO(TransactionDTO transactionDTO){
         CommonTransactionDTO commonTransactionDTO = CommonTransactionDTO.builder()
                 .amount(transactionDTO.getAmount())
                 .type(transactionDTO.getType())
