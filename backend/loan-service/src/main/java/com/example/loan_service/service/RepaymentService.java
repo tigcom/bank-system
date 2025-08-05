@@ -5,6 +5,7 @@ import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.models.RepaymentStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,4 +34,9 @@ public interface RepaymentService {
 
     Map<String, Long> getRepaymentStats();
     BigDecimal getOutstandingDebtByLoanId (Long loanId);
+    
+    /**
+     * Lấy tất cả các kỳ trả nợ đã quá hạn
+     */
+    List<Repayment> getAllOverdueRepayments();
 }

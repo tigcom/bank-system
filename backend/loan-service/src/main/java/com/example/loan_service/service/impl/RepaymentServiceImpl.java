@@ -114,8 +114,22 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    public List<Repayment> getAllOverdueRepayments() {
+        log.info("GET_ALL_OVERDUE_REPAYMENTS_START");
+        try {
+            LocalDate today = LocalDate.now();
+            List<Repayment> repayments = repaymentRepository.findAllOverdueRepayments(today);
+            log.info("GET_ALL_OVERDUE_REPAYMENTS_SUCCESS - count: {}", repayments.size());
+            return repayments;
+        } catch (Exception e) {
+            log.error("GET_ALL_OVERDUE_REPAYMENTS_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
     public List<Repayment> getUpcomingRepayments(Long loanId) {
-        return repaymentRepository.findUpcomingByLoanId(loanId,LocalDate.now(),LocalDate.now().plusDays(3));
+        return repaymentRepository.findUpcomingByLoanId(loanId, LocalDate.now(), LocalDate.now().plusDays(7));
     }
     @Override
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
@@ -296,9 +310,17 @@ public class RepaymentServiceImpl implements RepaymentService {
         log.info("CHECK_LAST_MONTH_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
         try {
             List<Repayment> repayments = getRepaymentsByLoanId(repayment.getLoan().getLoanId());
-            boolean last = repayments.size() == 1;
-            log.info("CHECK_LAST_MONTH_REPAYMENT_SUCCESS - repaymentId: {}, isLast: {}", repayment.getRepaymentId(), last);
-            return last;
+            
+            // Sắp xếp theo dueDate để tìm kỳ cuối cùng
+            repayments.sort((r1, r2) -> r1.getDueDate().compareTo(r2.getDueDate()));
+            
+            // Kiểm tra xem repayment hiện tại có phải là kỳ cuối cùng không
+            Repayment lastRepayment = repayments.get(repayments.size() - 1);
+            boolean isLast = repayment.getRepaymentId().equals(lastRepayment.getRepaymentId());
+            
+            log.info("CHECK_LAST_MONTH_REPAYMENT_SUCCESS - repaymentId: {}, isLast: {}, totalPeriods: {}", 
+                repayment.getRepaymentId(), isLast, repayments.size());
+            return isLast;
         } catch (Exception e) {
             log.error("CHECK_LAST_MONTH_REPAYMENT_ERROR - repaymentId: {}, error: {}", repayment.getRepaymentId(), e.getMessage(), e);
             throw e;
@@ -399,4 +421,6 @@ public class RepaymentServiceImpl implements RepaymentService {
     public BigDecimal getOutstandingDebtByLoanId(Long loanId) {
         return repaymentRepository.getOutstandingDebtByLoanId(loanId);
     }
+
+
 }

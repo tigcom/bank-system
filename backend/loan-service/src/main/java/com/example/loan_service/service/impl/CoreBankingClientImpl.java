@@ -23,7 +23,7 @@ public class CoreBankingClientImpl implements CoreBankingClient {
         log.info("UPDATE_ACCOUNT_START - request: {}", request);
         try {
             ResponseEntity<CoreResponse> response = restTemplate.postForEntity(
-                    "http://localhost:8083/corebanking/api/core/update-account",
+                    "http://localhost:8083/corebanking/update-account",
                     request,
                     CoreResponse.class
             );

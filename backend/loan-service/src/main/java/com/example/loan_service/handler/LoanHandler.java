@@ -85,6 +85,7 @@ public class LoanHandler {
             
             // Bước 1: Tạo tài khoản vay
             LoanRequestDTO dto = new LoanRequestDTO();
+            dto.setLoanId(loanId); 
             dto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
             dto.setRepaymentAccountNumber(loan.getRepaymentAccountNumber());
             dto.setAmount(loan.getAmount());
