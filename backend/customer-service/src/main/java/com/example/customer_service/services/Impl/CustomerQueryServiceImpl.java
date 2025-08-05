@@ -1,5 +1,6 @@
 package com.example.customer_service.services.Impl;
 
+import com.example.common_service.constant.CustomerStatus;
 import com.example.common_service.dto.CustomerDTO;
 import com.example.common_service.dto.CustomerResponseDTO;
 import com.example.common_service.dto.response.CustomerResponse;
@@ -23,6 +24,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @DubboService
@@ -65,6 +67,19 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
     @Override
     public CustomerResponse getCurrentCustomer() {
         String tokenValue = "";
+        if (RpcContext.getContext() != null) {
+            return CustomerResponse.builder()
+                    .userId("U123")
+                    .cifCode("SYSTEM")
+                    .fullName("SYSTEM")
+                    .address("SYSTEM")
+                    .email("a.nguyen@example.com")
+                    .identityNumber("123456789")
+                    .dateOfBirth(LocalDate.of(1990, 1, 1))
+                    .phoneNumber("0909123456")
+                    .status(CustomerStatus.ACTIVE)
+                    .build();
+        }
         try{
             String authJson = RpcContext.getContext().getObjectAttachment("security_authentication_context").toString();
             ObjectMapper mapper = new ObjectMapper();

@@ -915,46 +915,46 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     @Transactional
     public TransactionDTO autoDeductRepayment(AutoDeductRequest autoDeductRequest) {
-        CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
-        log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] From: {} | To: {} | Amount: {} | Currency: {} | LoanId: {} | RepaymentId: {} | Desc: {}", 
-            currentCustomer.getUserId(), currentCustomer.getCifCode(), 
-            autoDeductRequest.getFromAccountNumber(), autoDeductRequest.getToAccountNumber(), 
-            autoDeductRequest.getAmount(), autoDeductRequest.getCurrency(),
-            autoDeductRequest.getLoanId(), autoDeductRequest.getRepaymentId(),
-            autoDeductRequest.getDescription());
-        
+        log.info("[AUTO_DEDUCT] Bắt đầu xử lý tự động trừ tiền | LoanId: {} | RepaymentId: {} | From: {} | To: {} | Amount: {} | Currency: {} | Desc: {}",
+                autoDeductRequest.getLoanId(), autoDeductRequest.getRepaymentId(),
+                autoDeductRequest.getFromAccountNumber(), autoDeductRequest.getToAccountNumber(),
+                autoDeductRequest.getAmount(), autoDeductRequest.getCurrency(),
+                autoDeductRequest.getDescription());
+
         Transaction transaction = new Transaction();
         transaction.setFromAccountNumber(autoDeductRequest.getFromAccountNumber());
         transaction.setToAccountNumber(masterAccount);
         transaction.setAmount(autoDeductRequest.getAmount());
         transaction.setDescription(autoDeductRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(autoDeductRequest.getCurrency()));
-        transaction.setType(TransactionType.LOAN_PAYMENT); // Sử dụng LOAN_PAYMENT type cho tự động trừ
-        
+        transaction.setType(TransactionType.LOAN_PAYMENT);
+
         try {
             log.info("[AUTO_DEDUCT] Validate transaction...");
             validateTransaction(transaction);
             log.info("[AUTO_DEDUCT] Validate thành công");
+
             initTransaction(transaction);
-            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Init transaction thành công | ReferenceCode: {}", 
-                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            log.info("[AUTO_DEDUCT] Init transaction thành công | ReferenceCode: {}", transaction.getReferenceCode());
+
             processTransaction(transaction);
-            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Process transaction thành công | ReferenceCode: {}", 
-                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            log.info("[AUTO_DEDUCT] Process transaction thành công | ReferenceCode: {}", transaction.getReferenceCode());
+
             transactionRepository.save(transaction);
-            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Lưu transaction thành công | ReferenceCode: {}", 
-                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
-            log.info("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Giao dịch tự động trừ tiền định kỳ thành công | ReferenceCode: {}", 
-                currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            log.info("[AUTO_DEDUCT] Lưu transaction thành công | ReferenceCode: {}", transaction.getReferenceCode());
+
+            log.info("[AUTO_DEDUCT] Giao dịch tự động trừ tiền định kỳ thành công | ReferenceCode: {}", transaction.getReferenceCode());
+
             return transactionMapper.toDTO(transaction);
         } catch (Exception ex) {
-            log.error("[customerId:{}][cifCode:{}][AUTO_DEDUCT] Lỗi khi thực hiện giao dịch tự động trừ tiền định kỳ | ReferenceCode: {} | From: {} | To: {} | Amount: {} | Lý do: {}",
-                    currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode(), 
-                    autoDeductRequest.getFromAccountNumber(), autoDeductRequest.getToAccountNumber(), 
-                    autoDeductRequest.getAmount(), ex.getMessage(), ex);
+            log.error("[AUTO_DEDUCT] Lỗi khi thực hiện giao dịch tự động trừ tiền định kỳ | LoanId: {} | RepaymentId: {} | From: {} | To: {} | Amount: {} | ReferenceCode: {} | Lý do: {}",
+                    autoDeductRequest.getLoanId(), autoDeductRequest.getRepaymentId(),
+                    autoDeductRequest.getFromAccountNumber(), autoDeductRequest.getToAccountNumber(),
+                    autoDeductRequest.getAmount(), transaction.getReferenceCode(), ex.getMessage(), ex);
             throw ex;
         }
     }
+
 
 
     //    Kiểm tra thông tin Transaction

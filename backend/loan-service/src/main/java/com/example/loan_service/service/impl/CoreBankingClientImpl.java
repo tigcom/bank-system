@@ -2,7 +2,7 @@ package com.example.loan_service.service.impl;
 
 import com.example.common_service.dto.customer.CoreCustomerDTO;
 import com.example.common_service.dto.customer.CoreResponse;
-import com.example.corebanking_service.dto.resonse.ApiResponse;
+import com.example.common_service.dto.response.ApiResponse;
 import com.example.loan_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.dto.response.LoanResponseDTO;
 import com.example.loan_service.service.CoreBankingClient;

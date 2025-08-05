@@ -22,4 +22,5 @@ public interface CommonTransactionService {
     CommonTransactionDTO loanRecovery(CommonDisburseRequest recoveryRequest);
 
     CommonTransactionDTO autoDeductRepayment(AutoDeductRepaymentRequest autoDeductRequest);
+
 }
