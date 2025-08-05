@@ -474,19 +474,27 @@ public class RepaymentCheckScheduler {
      */
     private BigDecimal getLoanAccountBalance(String accountNumber) {
         try {
-            // Thử lấy từ account service trước
-            AccountDTO account = accountQueryService.getAccountByAccountNumber(accountNumber);
-            if (account != null && account.getBalance() != null) {
-                log.info("GET_LOAN_ACCOUNT_BALANCE_FROM_ACCOUNT_SERVICE - account: {}, balance: {}", accountNumber, account.getBalance());
-                return account.getBalance();
-            }
-            
-            // Nếu không có, trả về 0 (có thể account không tồn tại hoặc không có quyền truy cập)
-            log.warn("GET_LOAN_ACCOUNT_BALANCE_NOT_FOUND - account: {}, using zero balance", accountNumber);
-            return BigDecimal.ZERO;
+            // Gọi trực tiếp đến Core Banking Service để lấy số dư chính xác
+            BigDecimal balance = coreBankingClient.getBalance(accountNumber);
+            log.info("GET_LOAN_ACCOUNT_BALANCE_FROM_CORE_BANKING - account: {}, balance: {}", accountNumber, balance);
+            return balance;
         } catch (Exception e) {
             log.error("GET_LOAN_ACCOUNT_BALANCE_ERROR - account: {}, error: {}", accountNumber, e.getMessage());
-            return BigDecimal.ZERO; // Trả về 0 nếu có lỗi
+            
+            // Nếu có lỗi khi gọi Core Banking, thử lấy từ account service
+            try {
+                AccountDTO account = accountQueryService.getAccountByAccountNumber(accountNumber);
+                if (account != null && account.getBalance() != null) {
+                    log.info("GET_LOAN_ACCOUNT_BALANCE_FALLBACK_TO_ACCOUNT_SERVICE - account: {}, balance: {}", accountNumber, account.getBalance());
+                    return account.getBalance();
+                }
+            } catch (Exception ex) {
+                log.error("GET_LOAN_ACCOUNT_BALANCE_FALLBACK_ERROR - account: {}, error: {}", accountNumber, ex.getMessage());
+            }
+            
+            // Nếu không lấy được từ cả hai nguồn, trả về 0
+            log.warn("GET_LOAN_ACCOUNT_BALANCE_NOT_FOUND - account: {}, using zero balance", accountNumber);
+            return BigDecimal.ZERO;
         }
     }
 
@@ -495,19 +503,27 @@ public class RepaymentCheckScheduler {
      */
     private BigDecimal getRepaymentAccountBalance(String accountNumber) {
         try {
-            // Thử lấy từ account service trước
-            AccountDTO account = accountQueryService.getAccountByAccountNumber(accountNumber);
-            if (account != null && account.getBalance() != null) {
-                log.info("GET_REPAYMENT_ACCOUNT_BALANCE_FROM_ACCOUNT_SERVICE - account: {}, balance: {}", accountNumber, account.getBalance());
-                return account.getBalance();
-            }
-            
-            // Nếu không có, trả về 0 (có thể account không tồn tại hoặc không có quyền truy cập)
-            log.warn("GET_REPAYMENT_ACCOUNT_BALANCE_NOT_FOUND - account: {}, using zero balance", accountNumber);
-            return BigDecimal.ZERO;
+            // Gọi trực tiếp đến Core Banking Service để lấy số dư chính xác
+            BigDecimal balance = coreBankingClient.getBalance(accountNumber);
+            log.info("GET_REPAYMENT_ACCOUNT_BALANCE_FROM_CORE_BANKING - account: {}, balance: {}", accountNumber, balance);
+            return balance;
         } catch (Exception e) {
             log.error("GET_REPAYMENT_ACCOUNT_BALANCE_ERROR - account: {}, error: {}", accountNumber, e.getMessage());
-            return BigDecimal.ZERO; // Trả về 0 nếu có lỗi
+            
+            // Nếu có lỗi khi gọi Core Banking, thử lấy từ account service
+            try {
+                AccountDTO account = accountQueryService.getAccountByAccountNumber(accountNumber);
+                if (account != null && account.getBalance() != null) {
+                    log.info("GET_REPAYMENT_ACCOUNT_BALANCE_FALLBACK_TO_ACCOUNT_SERVICE - account: {}, balance: {}", accountNumber, account.getBalance());
+                    return account.getBalance();
+                }
+            } catch (Exception ex) {
+                log.error("GET_REPAYMENT_ACCOUNT_BALANCE_FALLBACK_ERROR - account: {}, error: {}", accountNumber, ex.getMessage());
+            }
+            
+            // Nếu không lấy được từ cả hai nguồn, trả về 0
+            log.warn("GET_REPAYMENT_ACCOUNT_BALANCE_NOT_FOUND - account: {}, using zero balance", accountNumber);
+            return BigDecimal.ZERO;
         }
     }
 
