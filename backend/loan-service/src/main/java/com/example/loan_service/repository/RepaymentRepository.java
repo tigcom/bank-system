@@ -1,3 +1,4 @@
+
 package com.example.loan_service.repository;
 
 import com.example.loan_service.entity.Loan;
@@ -74,4 +75,14 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
       GROUP BY r.status
     """)
     List<Object[]> countByStatus();
+    // Tổng số tiền chưa trả cho loanId (gốc + lãi các kỳ chưa trả - đã trả)
+    @Query("SELECT COALESCE(SUM(r.principal + r.interest - r.paidAmount), 0) FROM Repayment r WHERE r.loan.loanId = :loanId AND r.status <> 'PAID'")
+    BigDecimal getOutstandingDebtByLoanId(@Param("loanId") Long loanId);
+
+    /**
+     * Kiểm tra xem còn kỳ trả nợ nào chưa trả đủ cho khoản vay không
+     * Trả về true nếu còn ít nhất một kỳ chưa trả đủ
+     */
+    @Query("SELECT COUNT(r) > 0 FROM Repayment r WHERE r.loan.loanId = :loanId AND r.paidAmount < (r.principal + r.interest)")
+    boolean existsUnpaidRepaymentByLoanId(@Param("loanId") Long loanId);
 }

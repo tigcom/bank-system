@@ -50,6 +50,10 @@ public interface TransactionService {
 
     TransactionDTO payInterest(PayInterestRequest request);
 
+    TransactionDTO loanRecovery(DisburseRequest recoveryRequest);
+
+    TransactionDTO autoDeductRepayment(AutoDeductRequest autoDeductRequest);
+
     List<AccountPaymentResponse> getAllAccountPaymentForCurrentCustomer();
     CustomerDTO getCustomerByAccountNumber(String accountNumber);
     CustomerResponse getCurrentCustomer();

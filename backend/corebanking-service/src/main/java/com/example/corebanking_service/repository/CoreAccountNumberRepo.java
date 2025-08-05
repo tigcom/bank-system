@@ -21,4 +21,5 @@ public interface CoreAccountNumberRepo extends JpaRepository<CoreAccountNumber, 
     @Query(value = "select * from core_account_numbers where account_type_code = :typeCode  AND STATUS = 'AVAILABLE' limit 1;",nativeQuery = true)
     CoreAccountNumber getAccountNumberByTypeAccount(@Param("typeCode") String typeCode);
     boolean existsByNumber(String number);
+    CoreAccountNumber findByNumber(String number);
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public interface LoanAccountRepository extends JpaRepository<LoanAccount, String> {
 
     LoanAccount findByAccountNumber(String accountNumber);
-
+    LoanAccount findByLoanId (Long id );
     List<LoanAccount> findByCifCode(String cifCode);
 
     List<LoanAccount> findByCifCodeAndStatus(String cifCode, AccountStatus status);

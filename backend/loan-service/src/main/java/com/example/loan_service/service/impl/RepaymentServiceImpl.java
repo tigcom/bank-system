@@ -52,27 +52,56 @@ public class RepaymentServiceImpl implements RepaymentService {
             BigDecimal monthlyInterestRate = loan.getInterestRate()
                     .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
                     .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
+            
+            // Tính toán theo phương pháp lãi suất giảm dần (Equal Principal)
             BigDecimal monthlyPrincipal = loan.getAmount()
                     .divide(BigDecimal.valueOf(loan.getTermMonths()), 2, RoundingMode.HALF_UP);
             LocalDate startDueDate = LocalDate.now().plusMonths(1);
+            
+            // Điều chỉnh principal kỳ cuối để tránh sai số do làm tròn
+            BigDecimal totalPrincipal = BigDecimal.ZERO;
+            BigDecimal remainingAmount = loan.getAmount();
 
             for (int i = 0; i < loan.getTermMonths(); i++) {
-                BigDecimal remainingPrincipal = loan.getAmount()
-                        .subtract(monthlyPrincipal.multiply(BigDecimal.valueOf(i)));
+                BigDecimal currentPrincipal;
+                if (i == loan.getTermMonths() - 1) {
+                    // Kỳ cuối: lấy phần còn lại để đảm bảo tổng = loan amount
+                    currentPrincipal = remainingAmount;
+                } else {
+                    currentPrincipal = monthlyPrincipal;
+                }
+                
+                // Tính lãi trên dư nợ đầu kỳ
+                BigDecimal interest = remainingAmount
+                        .multiply(monthlyInterestRate)
+                        .setScale(2, RoundingMode.HALF_UP);
+                
                 Repayment repayment = new Repayment();
                 repayment.setLoan(loan);
                 repayment.setDueDate(startDueDate.plusMonths(i));
-                repayment.setPrincipal(monthlyPrincipal);
-                repayment.setInterest(
-                        monthlyInterestRate.multiply(remainingPrincipal)
-                                .setScale(2, RoundingMode.HALF_UP)
-                );
+                repayment.setPrincipal(currentPrincipal);
+                repayment.setInterest(interest);
                 repayment.setPaidAmount(BigDecimal.ZERO);
                 repayment.setStatus(RepaymentStatus.UNPAID);
+                
                 repaymentRepository.save(repayment);
                 repayments.add(repayment);
+                
+                // Cập nhật dư nợ cho kỳ tiếp theo
+                remainingAmount = remainingAmount.subtract(currentPrincipal);
+                totalPrincipal = totalPrincipal.add(currentPrincipal);
+                
+                log.debug("PERIOD_{} - principal: {}, interest: {}, remaining: {}", 
+                    i + 1, currentPrincipal, interest, remainingAmount);
             }
-            log.info("GENERATE_REPAYMENT_SCHEDULE_SUCCESS - loanId: {}, totalPeriods: {}", loan.getLoanId(), repayments.size());
+            
+            // Kiểm tra tổng principal phải bằng loan amount
+            if (totalPrincipal.compareTo(loan.getAmount()) != 0) {
+                log.warn("PRINCIPAL_TOTAL_MISMATCH - expected: {}, actual: {}", loan.getAmount(), totalPrincipal);
+            }
+            
+            log.info("GENERATE_REPAYMENT_SCHEDULE_SUCCESS - loanId: {}, totalPeriods: {}, totalPrincipal: {}", 
+                loan.getLoanId(), repayments.size(), totalPrincipal);
             return repayments;
         } catch (Exception e) {
             log.error("GENERATE_REPAYMENT_SCHEDULE_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage(), e);
@@ -171,18 +200,19 @@ public class RepaymentServiceImpl implements RepaymentService {
 
             BigDecimal totalDue = repayment.getPrincipal().add(repayment.getInterest());
             log.debug("MAKE_REPAYMENT_CALC - repaymentId: {}, totalDue: {}, newPaid: {}", repaymentId, totalDue, newPaid);
-
+            Repayment saved = new Repayment();
             if (newPaid.compareTo(totalDue) >= 0) {
                 repayment.setStatus(RepaymentStatus.PAID);
-                if (checkLastMonthRepayment(repayment)) {
-                    loanService.closedLoan(repayment.getLoan().getLoanId());
-                    bankingClient.syncLoan(loanMapper.toResponseDTO(loanMapper.toRequestDTO(repayment.getLoan())));
-                }
+                saved = repaymentRepository.save(repayment);
+                // Kiểm tra xem khoản vay có thể đóng không
+
             } else if (newPaid.compareTo(BigDecimal.ZERO) > 0) {
                 repayment.setStatus(RepaymentStatus.PARTIAL);
+                saved = repaymentRepository.save(repayment);
             }
 
-            Repayment saved = repaymentRepository.save(repayment);
+
+
             log.info("MAKE_REPAYMENT_SUCCESS - repaymentId: {}, status: {}", repaymentId, saved.getStatus());
             return saved;
         } catch (EntityNotFoundException e) {
@@ -275,6 +305,27 @@ public class RepaymentServiceImpl implements RepaymentService {
         }
     }
 
+    /**
+     * Kiểm tra xem khoản vay có thể đóng không
+     * Điều kiện: Tất cả các kỳ trả nợ đã được thanh toán đầy đủ
+     */
+    @Override
+    public Boolean shouldCloseLoan(Long loanId) {
+        log.info("SHOULD_CLOSE_LOAN_START - loanId: {}", loanId);
+        try {
+            boolean hasUnpaid = repaymentRepository.existsUnpaidRepaymentByLoanId(loanId);
+            if (hasUnpaid) {
+                log.info("SHOULD_CLOSE_LOAN_FALSE - loanId: {}, còn kỳ chưa trả đủ", loanId);
+                return false;
+            }
+            log.info("SHOULD_CLOSE_LOAN_TRUE - loanId: {}, all repayments paid", loanId);
+            return true;
+        } catch (Exception e) {
+            log.error("SHOULD_CLOSE_LOAN_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            return false;
+        }
+    }
+
     private Repayment calculateRepayment(Loan loan, int periodIndex, BigDecimal monthlyPrincipal, BigDecimal monthlyInterestRate, LocalDate startDueDate) {
         log.info("CALCULATE_REPAYMENT_START - loanId: {}, periodIndex: {}",
                 loan.getLoanId(), periodIndex);
@@ -342,5 +393,10 @@ public class RepaymentServiceImpl implements RepaymentService {
             stats.put(status.name().toLowerCase(), count);
         }
         return stats;
+    }
+
+    @Override
+    public BigDecimal getOutstandingDebtByLoanId(Long loanId) {
+        return repaymentRepository.getOutstandingDebtByLoanId(loanId);
     }
 }

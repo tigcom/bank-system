@@ -1,20 +1,20 @@
 package com.example.loan_service.handler;
 
-import com.example.common_service.dto.AccountDTO;
-import com.example.common_service.dto.CommonTransactionDTO;
-import com.example.common_service.dto.CustomerResponseDTO;
+import com.example.loan_service.models.LoanStatus;
+import com.example.common_service.constant.LoanType;
+import com.example.common_service.dto.*;
 import com.example.common_service.constant.CustomerStatus;
-import com.example.common_service.dto.MailMessageDTO;
 import com.example.common_service.dto.request.*;
 import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.services.CommonService;
+import com.example.common_service.services.account.AccountDubboService;
 import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
-import com.example.loan_service.dto.request.LoanRequestDTO;
+import com.example.common_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.dto.response.CicResponse;
 import com.example.loan_service.dto.response.TransactionDto;
 import com.example.loan_service.entity.InfoIncome;
@@ -22,6 +22,7 @@ import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.LoanRejectionReason;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.handler.LoanHandler;
+import com.example.loan_service.mapper.CoreAccountMapper;
 import com.example.loan_service.mapper.InfoIncomeMapper;
 import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.mapper.RepaymentMapper;
@@ -31,6 +32,7 @@ import com.example.loan_service.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.rpc.RpcContext;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,32 +68,58 @@ public class LoanHandler {
     @DubboReference private final AccountQueryService accountQueryService;
     @DubboReference private final CommonTransactionService commonTransactionService;
     @DubboReference private final CommonService commonService;
+    @DubboReference private final AccountDubboService accountDubboService;
     @DubboReference private final CustomerCommonService customerCommonService;
 
     public Loan approveLoan(Long loanId) {
         log.info("APPROVE_LOAN_HANDLER_START - loanId: {}", loanId);
+        Loan loan = null;
         try {
-            Loan loan = loanService.getLoanById(loanId)
+            loan = loanService.getLoanById(loanId)
                     .orElseThrow(() -> new IllegalArgumentException("Loan not found: " + loanId));
             log.debug("LOAN_FETCHED - {}", loan);
+
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            RpcContext.getClientAttachment().setAttachment("username", username);
+            log.info("user name: {}", username);
             
+            // Bước 1: Tạo tài khoản vay
+            LoanRequestDTO dto = new LoanRequestDTO();
+            dto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
+            dto.setRepaymentAccountNumber(loan.getRepaymentAccountNumber());
+            dto.setAmount(loan.getAmount());
+            dto.setInterestRate(loan.getInterestRate());
+            dto.setTermMonths(loan.getTermMonths());
+            dto.setCustomerId(loan.getCustomerId());
+            dto.setCreatedAt(LocalDateTime.now());
+            dto.setStatus(com.example.common_service.constant.LoanStatus.APPROVED);
+            dto.setLoanType(loan.getLoanType());
+            
+            AccountDTO accountDTO = accountDubboService.createLoanAccount(dto);
+            log.info("accountDto : {}",accountDTO.toString());
+            loan.setDisbursementAccountNumber(accountDTO.getAccountNumber());
+            
+            // Bước 2: Thực hiện giải ngân trước khi approve
             CommonDisburseRequest disburseReq = new CommonDisburseRequest();
             disburseReq.setToAccountNumber(loan.getDisbursementAccountNumber());
             disburseReq.setAmount(loan.getAmount());
             disburseReq.setCurrency("VND");
+            RpcContext.getClientAttachment().setAttachment("username", username);
             CommonTransactionDTO tx = commonTransactionService.loanDisbursement(disburseReq);
             log.info("LOAN_DISBURSE_TRANSACTION - status: {}, ref: {}", tx.getStatus(), tx.getReferenceCode());
             
             if (!"COMPLETED".equalsIgnoreCase(tx.getStatus())) {
-                log.warn("APPROVE_LOAN_DISBURSE_FAILED - reason: {}", tx.getFailedReason());
-                throw new IllegalArgumentException(tx.getFailedReason());
+                log.error("APPROVE_LOAN_DISBURSE_FAILED - reason: {}", tx.getFailedReason());
+                throw new IllegalArgumentException("Giải ngân thất bại: " + tx.getFailedReason());
             }
-
-            loan = loanService.approveLoan(loanId);
+            
+            // Bước 3: Chỉ approve và tạo lịch trả nợ sau khi giải ngân thành công
+            loan = loanService.approveLoan(loan);
             repaymentService.generateRepaymentSchedule(loan);
-            coreBankingClient.syncLoan(loanMapper.toDTO(loan));
-            log.info("LOAN_APPROVED_AND_SYNCED - loanId: {}", loanId);
 
+            log.info("LOAN_APPROVED_AND_SYNCED - loanId: {}", loanId);
+            
+            // Bước 4: Gửi thông báo
             CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
             MailMessageDTO mail = new MailMessageDTO();
             mail.setSubject("KÍCH HOẠT KHOẢN VAY");
@@ -100,39 +128,46 @@ public class LoanHandler {
             mail.setRecipientName(customer.getFullName());
             streamBridge.send("mail-out-0", mail);
             log.info("APPROVE_LOAN_MAIL_SENT - loanId: {}, to: {}", loanId, customer.getEmail());
-
             log.info("APPROVE_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
             return loan;
+            
         } catch (IllegalArgumentException e) {
             log.error("APPROVE_LOAN_HANDLER_INVALID - loanId: {}, error: {}", loanId, e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error("APPROVE_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            // Nếu có lỗi sau khi đã approve, cần rollback
+            if (loan != null && LoanStatus.APPROVED.equals(loan.getStatus())) {
+                try {
+                    log.warn("ROLLBACK_LOAN_APPROVAL - loanId: {}", loanId);
+                    loan.setStatus(LoanStatus.PENDING);
+                    loanService.updateLoan(loan);
+                    // Xóa lịch trả nợ đã tạo
+                    repaymentService.deleteRepaymentsByLoanId(loanId);
+                } catch (Exception rollbackEx) {
+                    log.error("ROLLBACK_LOAN_APPROVAL_FAILED - loanId: {}, error: {}", loanId, rollbackEx.getMessage());
+                }
+            }
             throw e;
         }
     }
-    public Loan createLoan(LoanRequestDTO dto) throws Exception {
+    public Loan createLoan(LoanRequestDTO dto)  {
         log.info("CREATE_LOAN_HANDLER_START - request: {}", dto);
         try {
             Long customerId = getCustomerId();
             log.debug("CUSTOMER_ID_FETCHED - {}", customerId);
             CustomerResponseDTO customer = customerQueryService.getCustomerById(customerId);
             log.info("CUSTOMER_INFO - idNumber={}, status={}", customer.getIdentityNumber(), customer.getStatus());
-            AccountDTO disbursementAccount = accountQueryService.getAccountByAccountNumber(dto.getDisbursementAccountNumber());
-            log.info("ACCOUNT_INFO - disbursementAccount={}, status={}", dto.getDisbursementAccountNumber(), disbursementAccount.getStatus());
             AccountDTO repaymentAccount = accountQueryService.getAccountByAccountNumber(dto.getRepaymentAccountNumber());
             log.info("ACCOUNT_INFO - repaymentAccount={}, status={}", dto.getRepaymentAccountNumber(), repaymentAccount.getStatus());
-
             if (!CustomerStatus.ACTIVE.equals(customer.getStatus())) {
                 throw new IllegalArgumentException("Hồ sơ khách hàng không hợp lệ");
             }
             if (Period.between(customer.getDateOfBirth(), LocalDate.now()).getYears() <= 18) {
                 throw new IllegalArgumentException("Người dùng chưa đủ tuổi");
             }
-            if (!"ACTIVE".equalsIgnoreCase(disbursementAccount.getStatus())) {
-                throw new IllegalArgumentException("Tài khoản giải ngân không hợp lệ");
-            }if (!"ACTIVE".equalsIgnoreCase(repaymentAccount.getStatus())) {
-                throw new IllegalArgumentException("Tài khoản tất toán không hợp lệ");
+            if (!"ACTIVE".equalsIgnoreCase(repaymentAccount.getStatus())) {
+                throw new IllegalArgumentException("Tài khoản thanh toán không hợp lệ");
             }
             CICRequest cicRequest = new CICRequest();
             cicRequest.setIdNumber(customer.getIdentityNumber());
@@ -155,11 +190,10 @@ public class LoanHandler {
             if (group >= 2)   throw new IllegalArgumentException("Khách hàng thuộc nhóm nợ xấu (nhóm " + group + ")");
             if (score < 700 || group == 1)  log.warn("CIC warning: Khách hàng có điểm tín dụng trung bình hoặc nhóm nợ cần chú ý");
             log.info("CIC PASS - Khách hàng đủ điều kiện tín dụng");
-            coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
             Loan l = loanMapper.toEntity(dto);
             l.setCustomerId(customerId);
             l.setCreatedAt(LocalDateTime.now());
-            Loan r = loanService.updateLoan(l);
+            Loan r = loanService.createLoan(l);
             log.info("CREATE_LOAN_HANDLER_SUCCESS - loanId: {}", l.getLoanId());
             return r;
         } catch (IllegalArgumentException e) {
@@ -167,16 +201,19 @@ public class LoanHandler {
             throw e;
         } catch (Exception e) {
             log.error("CREATE_LOAN_HANDLER_ERROR - dto={}, error: {}", dto, e.getMessage(), e);
-            throw e;
+            throw new RuntimeException("Xảy ra lỗi khi xử lý khoản vay", e);
         }
     }
     public Loan updateLoan(LoanRequestDTO dto) {
         log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        RpcContext.getClientAttachment().setAttachment("username", username);
         try {
             Loan loan = loanMapper.toEntity(dto);
-            loan.setInfoIncomes(null);
             Loan updatedLoan = loanService.updateLoan(loan);
-            coreBankingClient.syncLoan(loanMapper.toResponseDTO(dto));
+            accountDubboService.updateAccountFromLoan(dto);
+            CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
+            coreBankingClient.updateAccount(coreAccountRequest);
             log.info("UPDATE_LOAN_HANDLER_SUCCESS - loanId: {}", updatedLoan.getLoanId());
             return updatedLoan;
         } catch (Exception e) {
@@ -211,7 +248,8 @@ public class LoanHandler {
         log.info("CLOSE_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
             Loan loan = loanService.closedLoan(loanId);
-            coreBankingClient.syncLoan(loanMapper.toDTO(loan));
+            com.example.common_service.dto.CoreAccountRequest coreAccountRequest = com.example.loan_service.mapper.CoreAccountMapper.INSTANCE.fromLoan(loan);
+            coreBankingClient.updateAccount(coreAccountRequest);
             log.info("CLOSE_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
             return loan;
         } catch (Exception e) {
@@ -223,7 +261,6 @@ public class LoanHandler {
         log.info("REJECT_LOAN_HANDLER_START - loanId: {}, reason: {}", loanId, req.getReason());
         try {
             Loan loan = loanService.rejectedLoan(loanId);
-            coreBankingClient.syncLoan(loanMapper.toDTO(loan));
             LoanRejectionReason reason = new LoanRejectionReason();
             reason.setReason(req.getReason());
             reason.setLoan(loan);
@@ -313,6 +350,32 @@ public class LoanHandler {
             }
 
             Repayment r = repaymentService.makeRepayment(repaymentId, amount);
+            // Gọi updateAccountFromLoan với paidAmount
+            try {
+                Loan loan = r.getLoan();
+                LoanRequestDTO updateDto = new LoanRequestDTO();
+                updateDto.setLoanId(loan.getLoanId());
+                updateDto.setAmount(loan.getAmount());
+                updateDto.setInterestRate(loan.getInterestRate());
+                updateDto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
+                updateDto.setTermMonths(loan.getTermMonths());
+                updateDto.setPaidAmount(r.getPaidAmount());
+                // Đồng bộ corebanking
+
+                if (repaymentService.shouldCloseLoan(loan.getLoanId())) {
+                    log.info("CLOSE_LOAN_AFTER_REPAYMENT - loanId: {}", loan.getLoanId());
+                    loanService.closedLoan(loan.getLoanId());
+                    updateDto.setStatus(com.example.common_service.constant.LoanStatus.CLOSED);
+                    loan.setStatus(LoanStatus.CLOSED);
+                }
+                CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
+                coreAccountRequest.setBalance(repaymentService.getOutstandingDebtByLoanId(loan.getLoanId()));
+                log.warn("UPDATE_ACCOUNT_core: {}",repaymentService.getOutstandingDebtByLoanId(loan.getLoanId()));
+                accountDubboService.updateAccountFromLoan(updateDto);
+                coreBankingClient.updateAccount(coreAccountRequest);
+            } catch (Exception ex) {
+                log.warn("UPDATE_ACCOUNT_FROM_LOAN_AFTER_REPAYMENT_FAILED: {}", ex.getMessage());
+            }
             log.info("CONFIRM_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", repaymentId);
             return r;
         } catch (IllegalArgumentException e) {

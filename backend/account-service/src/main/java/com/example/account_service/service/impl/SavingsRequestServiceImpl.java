@@ -75,13 +75,10 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     @Override
     public SavingsRequestResponse CreateSavingRequest(SavingRequestCreateDTO savingRequestCreateDTO) {
         log.info("Starting createSavingRequest with input: {}", savingRequestCreateDTO);
-
         // Validate input
         validateSavingRequestInput(savingRequestCreateDTO);
-
-        // Check account balance
+        // Check account balace
         validateAccountBalance(savingRequestCreateDTO.getAccountNumberSource(), savingRequestCreateDTO.getInitialDeposit());
-
         // Get and validate customer
         CustomerDTO currentCustomer = getCurrentValidatedCustomer();
 
@@ -164,21 +161,16 @@ public class SavingsRequestServiceImpl implements SavingRequestService {
     @Override
     public SavingsRequestResponse confirmOTPAndCreateSavingAccount(ConfirmRequestDTO confirmRequestDTO) {
         log.info("Confirming OTP and creating saving account: {}", confirmRequestDTO.getSavingRequestID());
-
         // Validate OTP
         SavingRequestCreateDTO tempRequest = validateOTPAndGetTempRequest(confirmRequestDTO, "SAVING");
-
         // Lấy thông tin customer
         String cifCode = extractCifFromTempKey(confirmRequestDTO.getSavingRequestID());
         log.info("Creating saving account for CIF Code: {}", cifCode);
         CustomerDTO customerDTO = commonService.getCustomerByCifCode(cifCode);
-
         // Tạo Saving Account trực tiếp (không cần tạo SavingsRequest entity)
         Account account = processSavingAccountCreation(tempRequest, cifCode);
-
         // Cleanup temp data
         cleanupTempData(confirmRequestDTO.getSavingRequestID(), "SAVING");
-
         log.info("Saving account created successfully: {}", account.getAccountNumber());
 
         // Trả về response với thông tin account đã tạo

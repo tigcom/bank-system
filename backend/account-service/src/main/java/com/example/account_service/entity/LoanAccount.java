@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class LoanAccount extends Account {
 
     @Column(name = "loan_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal loanAmount; // Tổng tiền vay
+    private BigDecimal loanAmount;
 
     @Column(name = "outstanding_debt", nullable = false, precision = 19, scale = 2)
     private BigDecimal outstandingDebt; // Dư nợ còn lại
@@ -24,8 +24,11 @@ public class LoanAccount extends Account {
     @Column(name = "interest_rate", nullable = false, precision = 5, scale = 3)
     private BigDecimal interestRate; // Lãi suất vay
 
-    @Column(name = "due_date")
-    private LocalDate dueDate; // Ngày đáo hạn
+    @Column(name = "term_months")
+    private Integer termMonths;
+
+    @Column(name = "loan_id")
+    private Long loanId;
 
     @PostLoad
     @PrePersist
@@ -37,4 +40,6 @@ public class LoanAccount extends Account {
             this.outstandingDebt = loanAmount;
         }
     }
+
+
 }

@@ -19,6 +19,7 @@ public interface CommonTransactionService {
 
     CommonTransactionDTO payinterestInternal(PayInterestRequest request);
 
+    CommonTransactionDTO loanRecovery(CommonDisburseRequest recoveryRequest);
 
-
+    CommonTransactionDTO autoDeductRepayment(AutoDeductRepaymentRequest autoDeductRequest);
 }
