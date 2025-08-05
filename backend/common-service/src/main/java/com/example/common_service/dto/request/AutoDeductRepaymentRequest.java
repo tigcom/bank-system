@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AutoDeductRepaymentRequest {
+public class AutoDeductRepaymentRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String fromAccountNumber; // Repayment account
     private String toAccountNumber;   // Master account
     private BigDecimal amount;        // Số tiền cần trừ
@@ -19,4 +21,4 @@ public class AutoDeductRepaymentRequest {
     private String description;       // Mô tả giao dịch
     private Long loanId;              // ID khoản vay
     private Long repaymentId;         // ID kỳ trả nợ
-} 
+}
