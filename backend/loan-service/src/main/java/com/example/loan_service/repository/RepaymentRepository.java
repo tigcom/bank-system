@@ -43,13 +43,14 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
        SELECT r FROM Repayment r
         WHERE r.loan.loanId = :loanId
           AND r.status = RepaymentStatus.UNPAID
-          AND r.dueDate BETWEEN :today AND :threeDaysLater
+          AND r.dueDate > :today 
+          AND r.dueDate <= :sevenDaysLater
         ORDER BY r.dueDate ASC
     """)
     List<Repayment> findUpcomingByLoanId(
             @Param("loanId") Long loanId,
             @Param("today") LocalDate today,
-            @Param("threeDaysLater") LocalDate threeDaysLater
+            @Param("sevenDaysLater") LocalDate sevenDaysLater
     );
 
     @Query("""
@@ -85,4 +86,17 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
      */
     @Query("SELECT COUNT(r) > 0 FROM Repayment r WHERE r.loan.loanId = :loanId AND r.paidAmount < (r.principal + r.interest)")
     boolean existsUnpaidRepaymentByLoanId(@Param("loanId") Long loanId);
+
+    /**
+     * Lấy tất cả các kỳ trả nợ đã quá hạn (due date < today) với status UNPAID
+     */
+    @Query("""
+        SELECT r FROM Repayment r 
+        JOIN r.loan l 
+        WHERE r.dueDate < :today 
+        AND (r.status = 'UNPAID' OR r.status = 'PARTIAL') 
+        AND l.status = 'APPROVED'
+        ORDER BY r.dueDate ASC
+    """)
+    List<Repayment> findAllOverdueRepayments(@Param("today") LocalDate today);
 }

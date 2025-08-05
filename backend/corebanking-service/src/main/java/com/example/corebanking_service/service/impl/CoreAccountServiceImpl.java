@@ -72,15 +72,24 @@ public class CoreAccountServiceImpl implements CoreAccountService {
 
     @Override
     public void updateCoreAccount(CoreAccountRequest dto) {
-        CoreAccountNumber coreAccountNumber = coreAccountNumberRepo.findByNumber(dto.getAccountNumber());
-        CoreAccount coreAccount = CoreAccount.builder()
-                .coreAccountNumber(coreAccountNumber)
-                .accountType(dto.getAccountType())
-                .balance(dto.getBalance())
-                .status(dto.getStatus())
-                .coreCustomer(coreCustomerRepo.getCoreCustomerByCifCode(dto.getCifCode()))
-                .build();
-        coreAccountRepo.save(coreAccount);
+        log.info("UPDATE_CORE_ACCOUNT_START - accountNumber: {}, balance: {}", dto.getAccountNumber(), dto.getBalance());
+        
+        // Tìm account hiện có
+        CoreAccount existingAccount = coreAccountRepo.findByAccountNumber(dto.getAccountNumber());
+        if (existingAccount == null) {
+            log.error("UPDATE_CORE_ACCOUNT_ERROR - Account not found: {}", dto.getAccountNumber());
+            throw new AppException(ErrorCode.ACCOUNT_NOT_EXIST);
+        }
+        
+        // Cập nhật thông tin account
+        existingAccount.setBalance(dto.getBalance());
+        existingAccount.setStatus(dto.getStatus());
+        if (dto.getAccountType() != null) {
+            existingAccount.setAccountType(dto.getAccountType());
+        }
+        
+        coreAccountRepo.save(existingAccount);
+        log.info("UPDATE_CORE_ACCOUNT_SUCCESS - accountNumber: {}, newBalance: {}", dto.getAccountNumber(), dto.getBalance());
     }
 
     @Override

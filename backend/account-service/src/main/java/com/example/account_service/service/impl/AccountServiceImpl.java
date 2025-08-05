@@ -817,6 +817,12 @@ public class AccountServiceImpl implements AccountService {
         log.info("[createLoanAccount] Start processing loan account creation");
         String username = null;
         try {
+            // Validate loanId
+            if (dto.getLoanId() == null) {
+                log.error("[createLoanAccount] ERROR: loanId is null in request");
+                throw new IllegalArgumentException("loanId cannot be null when creating loan account");
+            }
+            
             username =RpcContext.getContext().getAttachment("username");
             log.info("user name: {}",username);
             // Lấy số tài khoản từ coreBanking
@@ -840,6 +846,8 @@ public class AccountServiceImpl implements AccountService {
             loanAccount.setTermMonths(dto.getTermMonths());
             loanAccount.setCreatedBy(customer.getUsername());
             loanAccount.setInterestRate(dto.getInterestRate());
+            loanAccount.setLoanId(dto.getLoanId()); // Set loanId để link với loan
+            log.info("[createLoanAccount] Set loanId: {} for account: {}", dto.getLoanId(), number);
             // Tính tổng số tiền phải trả (gốc + lãi dự kiến)
             BigDecimal amount = dto.getAmount();
             BigDecimal interestRate = dto.getInterestRate();
@@ -855,7 +863,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("[createLoanAccount] LoanAccount entity to save: {}", objectMapper.writeValueAsString(loanAccount));
 
             loanAccountRepository.save(loanAccount);
-            log.info("[createLoanAccount] LoanAccount saved successfully. Account number: {}", number);
+            log.info("[createLoanAccount] LoanAccount saved successfully. Account number: {}, LoanId: {}", number, dto.getLoanId());
 
             // Gửi dữ liệu lên CoreBanking
             CoreAccountRequest coreAccount = CoreAccountRequest.builder()
@@ -1083,9 +1091,27 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void updateAccountFromLoan(LoanRequestDTO dto) {
-        LoanAccount loanAccount = loanAccountRepository.findByAccountNumber(dto.getDisbursementAccountNumber());
+        LoanAccount loanAccount = null;
+        
+        // Tìm loan account bằng loanId trước (ưu tiên)
+        if (dto.getLoanId() != null) {
+            loanAccount = loanAccountRepository.findByLoanId(dto.getLoanId());
+            if (loanAccount != null) {
+                log.info("[updateAccountFromLoan] Found loan account by loanId: {}", dto.getLoanId());
+            }
+        }
+        
+        // Nếu không tìm thấy bằng loanId, tìm bằng account number
         if (loanAccount == null) {
-            log.warn("[updateAccountFromLoan] Không tìm thấy tài khoản vay với loan number: {}", dto.getDisbursementAccountNumber());
+            loanAccount = loanAccountRepository.findByAccountNumber(dto.getDisbursementAccountNumber());
+            if (loanAccount != null) {
+                log.info("[updateAccountFromLoan] Found loan account by account number: {}", dto.getDisbursementAccountNumber());
+            }
+        }
+        
+        if (loanAccount == null) {
+            log.warn("[updateAccountFromLoan] Không tìm thấy tài khoản vay với loanId: {} hoặc account number: {}", 
+                dto.getLoanId(), dto.getDisbursementAccountNumber());
             return;
         }
 
@@ -1094,13 +1120,24 @@ public class AccountServiceImpl implements AccountService {
         loanAccount.setTermMonths(dto.getTermMonths());
         loanAccount.setInterestRate(dto.getInterestRate());
         loanAccount.setStatus(dto.getStatus().equals("CLOSED") ? AccountStatus.CLOSED : AccountStatus.ACTIVE);
-        BigDecimal paidAmount = dto.getPaidAmount() != null ? dto.getPaidAmount() : BigDecimal.ZERO;
-        BigDecimal newOutstanding = loanAccount.getOutstandingDebt().subtract(paidAmount);
-        loanAccount.setOutstandingDebt(newOutstanding.max(BigDecimal.ZERO));
+        
+        // Xử lý outstanding debt
+        if (dto.getStatus().equals("CLOSED")) {
+            // Khi đóng khoản vay, outstanding debt = 0
+            loanAccount.setOutstandingDebt(BigDecimal.ZERO);
+            log.info("[updateAccountFromLoan] Đóng khoản vay - outstanding debt set to 0 cho account: {}", loanAccount.getAccountNumber());
+        } else {
+            // Cập nhật outstanding debt bình thường
+            BigDecimal paidAmount = dto.getPaidAmount() != null ? dto.getPaidAmount() : BigDecimal.ZERO;
+            BigDecimal newOutstanding = loanAccount.getOutstandingDebt().subtract(paidAmount);
+            loanAccount.setOutstandingDebt(newOutstanding.max(BigDecimal.ZERO));
+            log.info("[updateAccountFromLoan] Cập nhật dư nợ cho account {} (loanId: {}): {}", 
+                loanAccount.getAccountNumber(), dto.getLoanId(), newOutstanding);
+        }
+        
         loanAccount.setLastModifiedBy(customer.getUserId());
         loanAccount.setLastModifiedDate(LocalDateTime.now());
         loanAccountRepository.save(loanAccount);
-        log.info("[updateAccountFromLoan] Đã cập nhật dư nợ cho account {}: {}", dto.getLoanId(), newOutstanding);
     }
 }
  
