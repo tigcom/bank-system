@@ -21,7 +21,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     boolean existsAccountsByAccountNumber(String number);
 
     List<Account> findByCifCode(String cifCode);
-
     boolean existsAccountByAccountNumberAndCifCode(String accountNumber, String cifCode);
 
 }

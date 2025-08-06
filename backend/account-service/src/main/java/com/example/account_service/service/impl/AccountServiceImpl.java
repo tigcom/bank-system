@@ -1128,7 +1128,8 @@ public class AccountServiceImpl implements AccountService {
             log.info("[updateAccountFromLoan] Đóng khoản vay - outstanding debt set to 0 cho account: {}", loanAccount.getAccountNumber());
         } else {
             // Cập nhật outstanding debt bình thường
-            BigDecimal paidAmount = dto.getPaidAmount() != null ? dto.getPaidAmount() : BigDecimal.ZERO;
+            BigDecimal paidAmount = dto.getPaidAmount() ;
+            log.info("[updateAccountFromLoan] paidAmount: {}", paidAmount);
             BigDecimal newOutstanding = loanAccount.getOutstandingDebt().subtract(paidAmount);
             loanAccount.setOutstandingDebt(newOutstanding.max(BigDecimal.ZERO));
             log.info("[updateAccountFromLoan] Cập nhật dư nợ cho account {} (loanId: {}): {}", 

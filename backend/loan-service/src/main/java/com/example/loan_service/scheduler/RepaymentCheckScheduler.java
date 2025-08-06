@@ -128,50 +128,20 @@ public class RepaymentCheckScheduler {
             
             // Phạt 1.5% trên tổng số tiền chưa trả
             BigDecimal penalty = unpaid.multiply(BigDecimal.valueOf(0.015)).setScale(2, BigDecimal.ROUND_HALF_UP);
-
-            // Nếu có tiền một phần, thực hiện trừ trước
-            if (availableBalance.compareTo(BigDecimal.ZERO) > 0) {
-                performAutoDeduct(loan, repayment, availableBalance);
-            }
-
             boolean isLast = repaymentService.checkLastMonthRepayment(repayment);
             if (isLast) {
                 log.info("CREATE_PENALTY_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
-                
-                // Kiểm tra xem đã có kỳ phạt nào chưa để tránh tạo trùng lặp
-                LocalDate nextMonthDate = repayment.getDueDate().plusMonths(1);
-                List<Repayment> existingPenalties = repaymentService.getRepaymentsByLoanId(loan.getLoanId())
-                    .stream()
-                    .filter(r -> r.getDueDate().equals(nextMonthDate))
-                    .collect(Collectors.toList());
-                
-                if (!existingPenalties.isEmpty()) {
-                    log.info("PENALTY_REPAYMENT_ALREADY_EXISTS - repaymentId: {}, existingPenaltyId: {}", 
-                        repayment.getRepaymentId(), existingPenalties.get(0).getRepaymentId());
-                    // Cộng dồn vào kỳ phạt đã tồn tại
-                    Repayment existingPenalty = existingPenalties.get(0);
-                    existingPenalty.setPrincipal(existingPenalty.getPrincipal().add(unpaid));
-                    existingPenalty.setInterest(existingPenalty.getInterest().add(penalty));
-                    repaymentService.updateRepayment(existingPenalty);
-                } else {
-                    // Tạo kỳ phạt mới
-                    Repayment p = new Repayment();
-                    p.setLoan(repayment.getLoan());
-                    p.setDueDate(nextMonthDate);
-                    p.setPrincipal(unpaid); // phần gốc chưa trả
-                    p.setInterest(penalty); // chỉ phạt, không cộng lãi cũ nữa
-                    p.setPaidAmount(BigDecimal.ZERO);
-                    p.setStatus(RepaymentStatus.UNPAID);
-                    repaymentService.updateRepayment(p);
-                    log.info("CREATE_PENALTY_REPAYMENT_SUCCESS - newDueDate: {}",
-                            p.getDueDate().format(DateTimeFormatter.ISO_DATE));
-                }
-                
-                // Đồng bộ outstandingDebt thực tế lên corebanking
-                BigDecimal outstandingDebt = repaymentRepository.getOutstandingDebtByLoanId(loan.getLoanId());
-                CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
-                coreAccountRequest.setBalance(outstandingDebt);
-                coreBankingClient.updateAccount(coreAccountRequest);
+                // Đã là kỳ cuối, chỉ tạo penalty mới cho tháng tiếp theo
+                Repayment p = new Repayment();
+                p.setLoan(repayment.getLoan());
+                p.setDueDate(repayment.getDueDate().plusMonths(1));
+                p.setPrincipal(unpaid); // phần gốc chưa trả
+                p.setInterest(penalty); // chỉ phạt, không cộng lãi cũ nữa
+                p.setPaidAmount(BigDecimal.ZERO);
+                p.setStatus(RepaymentStatus.UNPAID);
+                repaymentService.updateRepayment(p);
+                log.info("CREATE_PENALTY_REPAYMENT_SUCCESS - newDueDate: {}",
+                        p.getDueDate().format(DateTimeFormatter.ISO_DATE));
             } else {
                 log.info("ROLL_FORWARD_PENALTY_START - repaymentId: {}", repayment.getRepaymentId());
                 Repayment current = repaymentService.getCurrentRepaymentbyLoanId(loan.getLoanId());
@@ -180,12 +150,9 @@ public class RepaymentCheckScheduler {
                     current.setPrincipal(current.getPrincipal().add(unpaid));
                     current.setInterest(current.getInterest().add(penalty));
                     repaymentService.updateRepayment(current);
-                    
-                    // Đồng bộ outstandingDebt thực tế lên corebanking
+                    // Cập nhật dư nợ còn lại lên account loan
                     BigDecimal outstandingDebt = repaymentRepository.getOutstandingDebtByLoanId(loan.getLoanId());
-                    CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
-                    coreAccountRequest.setBalance(outstandingDebt);
-                    coreBankingClient.updateAccount(coreAccountRequest);
+                    updateOutstandingDebtToLoanAccount(loan.getLoanId(), outstandingDebt);
                     log.info("ROLL_FORWARD_PENALTY_SUCCESS - currentRepaymentId: {}", current.getRepaymentId());
                 } else {
                     log.warn("ROLL_FORWARD_PENALTY_SKIPPED - no current repayment for loanId: {}",
@@ -241,16 +208,23 @@ public class RepaymentCheckScheduler {
                     repayment.setStatus(RepaymentStatus.PARTIAL);
                 }
                 repaymentService.updateRepayment(repayment);
-                // Bổ sung cập nhật outstandingDebt lên core banking
-                BigDecimal outstandingDebt = repaymentRepository.getOutstandingDebtByLoanId(loan.getLoanId());
-                CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
-                coreAccountRequest.setBalance(outstandingDebt);
-                coreBankingClient.updateAccount(coreAccountRequest);
-                // Bổ sung cập nhật trạng thái/số dư khoản vay lên account service
                 LoanRequestDTO updateDto = new LoanRequestDTO();
                 updateDto.setLoanId(loan.getLoanId());
-                updateDto.setAmount(outstandingDebt); // Số dư thực tế còn lại
-                updateDto.setStatus(shouldCloseLoan(loan.getLoanId()) ? LoanStatus.CLOSED : loan.getStatus());
+                updateDto.setAmount(loan.getAmount());
+                updateDto.setPaidAmount(newPaidAmount);
+                String statusName = loan.getStatus() != null ? loan.getStatus().toString() : "PENDING";
+                com.example.common_service.constant.LoanStatus mappedStatus = com.example.common_service.constant.LoanStatus.PENDING;
+                if (shouldCloseLoan(loan.getLoanId())) {
+                    mappedStatus = com.example.common_service.constant.LoanStatus.CLOSED;
+                } else {
+                    for (com.example.common_service.constant.LoanStatus s : com.example.common_service.constant.LoanStatus.values()) {
+                        if (s.name().equalsIgnoreCase(statusName)) {
+                            mappedStatus = s;
+                            break;
+                        }
+                    }
+                }
+                updateDto.setStatus(mappedStatus);
                 updateDto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
                 updateDto.setRepaymentAccountNumber(loan.getRepaymentAccountNumber());
                 updateDto.setInterestRate(loan.getInterestRate());
@@ -590,5 +564,13 @@ public class RepaymentCheckScheduler {
     private boolean shouldCloseLoan(Long loanId) {
         // Dùng JPA để kiểm tra còn kỳ chưa trả đủ
         return !repaymentRepository.existsUnpaidRepaymentByLoanId(loanId);
+    }
+
+    /**
+     * Cập nhật dư nợ cho loan account thông qua Dubbo (chỉ dư nợ)
+     */
+    private void updateOutstandingDebtToLoanAccount(Long loanId, BigDecimal outstandingDebt) {
+        accountDubboService.updateOutstandingDebt(loanId, outstandingDebt);
+        log.info("UPDATE_OUTSTANDING_DEBT_TO_LOAN_ACCOUNT - loanId: {}, amount: {}", loanId, outstandingDebt);
     }
 }
