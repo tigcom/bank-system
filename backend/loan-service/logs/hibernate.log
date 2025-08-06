@@ -58215,3 +58215,7 @@ java.lang.Exception: exception just for purpose of providing stack trace
 2025-08-05 17:07:21 DEBUG [scheduling-1] o.h.internal.util.EntityPrinter [,] - com.example.loan_service.entity.Repayment{principal=2083333.33, loan=com.example.loan_service.entity.Loan#84, interest=236111.11, repaymentId=502, dueDate=2024-09-01, paidAmount=2319444.44, status=PAID}
 2025-08-05 17:07:21 DEBUG [scheduling-1] o.h.internal.util.EntityPrinter [,] - com.example.loan_service.entity.Repayment{principal=2083333.33, loan=com.example.loan_service.entity.Loan#84, interest=221354.17, repaymentId=503, dueDate=2024-10-01, paidAmount=2304687.50, status=PAID}
 2025-08-05 17:07:21 DEBUG [scheduling-1] o.h.internal.util.EntityPrinter [,] - More......
+2025-08-05 17:29:54 DEBUG [SpringApplicationShutdownHook] o.h.internal.SessionFactoryImpl [,] - HHH000031: Closing
+2025-08-05 17:29:54 DEBUG [SpringApplicationShutdownHook] o.h.type.spi.TypeConfiguration$Scope [,] - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@24708e3d] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@6075e5d0]
+2025-08-05 17:29:54 DEBUG [SpringApplicationShutdownHook] o.h.s.i.AbstractServiceRegistryImpl [,] - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
+2025-08-05 17:29:54 DEBUG [SpringApplicationShutdownHook] o.h.b.r.i.BootstrapServiceRegistryImpl [,] - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries

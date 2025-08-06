@@ -227,12 +227,10 @@ public class RepaymentCheckScheduler {
                 // Cập nhật trạng thái repayment
                 BigDecimal newPaidAmount = repayment.getPaidAmount().add(amount);
                 repayment.setPaidAmount(newPaidAmount);
-                
                 // Kiểm tra xem đã trả đủ chưa
                 BigDecimal totalRequired = repayment.getPrincipal().add(repayment.getInterest());
                 if (newPaidAmount.compareTo(totalRequired) >= 0) {
                     repayment.setStatus(RepaymentStatus.PAID);
-                    
                     // Kiểm tra xem có phải kỳ cuối không
                     if (shouldCloseLoan(repayment.getLoan().getLoanId())) {
                         log.info("CLOSE_LOAN_AFTER_AUTO_DEDUCT - loanId: {}", loan.getLoanId());
@@ -242,14 +240,25 @@ public class RepaymentCheckScheduler {
                 } else {
                     repayment.setStatus(RepaymentStatus.PARTIAL);
                 }
-                
                 repaymentService.updateRepayment(repayment);
-                
+                // Bổ sung cập nhật outstandingDebt lên core banking
+                BigDecimal outstandingDebt = repaymentRepository.getOutstandingDebtByLoanId(loan.getLoanId());
+                CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
+                coreAccountRequest.setBalance(outstandingDebt);
+                coreBankingClient.updateAccount(coreAccountRequest);
+                // Bổ sung cập nhật trạng thái/số dư khoản vay lên account service
+                LoanRequestDTO updateDto = new LoanRequestDTO();
+                updateDto.setLoanId(loan.getLoanId());
+                updateDto.setAmount(outstandingDebt); // Số dư thực tế còn lại
+                updateDto.setStatus(shouldCloseLoan(loan.getLoanId()) ? LoanStatus.CLOSED : loan.getStatus());
+                updateDto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
+                updateDto.setRepaymentAccountNumber(loan.getRepaymentAccountNumber());
+                updateDto.setInterestRate(loan.getInterestRate());
+                updateDto.setTermMonths(loan.getTermMonths());
+                accountDubboService.updateAccountFromLoan(updateDto);
                 // Gửi thông báo thanh toán thành công
                 sendSuccessfulPaymentNotification(loan, repayment, amount);
-                
-                log.info("PERFORM_AUTO_DEDUCT_SUCCESS - loanId: {}, repaymentId: {}", 
-                    loan.getLoanId(), repayment.getRepaymentId());
+                log.info("PERFORM_AUTO_DEDUCT_SUCCESS - loanId: {}, repaymentId: {}", loan.getLoanId(), repayment.getRepaymentId());
             } else {
                 log.error("AUTO_DEDUCT_FAILED - reason: {}", tx.getFailedReason());
                 // Đánh dấu trễ hạn nếu tự động trừ thất bại
