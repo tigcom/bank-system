@@ -2,7 +2,9 @@ package com.example.account_service.service.impl;
 
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.entity.Account;
+import com.example.account_service.entity.LoanAccount;
 import com.example.account_service.repository.AccountRepository;
+import com.example.account_service.repository.LoanAccountRepository;
 import com.example.account_service.service.AccountService;
 import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.constant.AccountType;
@@ -38,6 +40,7 @@ public class AccountLoanDubboServiceImpl implements AccountDubboService {
 
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+     private final LoanAccountRepository loanAccountRepository;
     @DubboReference(timeout = 5000)
     private CommonService commonService;
     @Autowired
@@ -54,5 +57,18 @@ public class AccountLoanDubboServiceImpl implements AccountDubboService {
     public void updateAccountFromLoan(LoanRequestDTO dto) {
         log.info("DUBBO updateAccountFromLoan - loanId: {}, repaymentAccount: {}", dto.getLoanId(), dto.getRepaymentAccountNumber());
         accountService.updateAccountFromLoan(dto);
+    }
+
+    @Override
+    public void updateOutstandingDebt(Long loanId, BigDecimal outstandingDebt) {
+        log.info("DUBBO updateOutstandingDebt - loanId: {}, outstandingDebt: {}", loanId, outstandingDebt);
+        // Tìm loan account theo loanId
+        LoanAccount loanAccount = loanAccountRepository.findByLoanId(loanId)
+        if (loanAccount == null) {
+            log.warn("Không tìm thấy tài khoản vay với loanId: {}", loanId);
+            return;
+        }
+        accountRepository.save(loanAccount);
+        log.info("Đã cập nhật dư nợ cho loan account {}: {}", loanAccount.getAccountNumber(), outstandingDebt);
     }
 }
