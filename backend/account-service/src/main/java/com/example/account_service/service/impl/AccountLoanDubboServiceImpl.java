@@ -63,7 +63,7 @@ public class AccountLoanDubboServiceImpl implements AccountDubboService {
     public void updateOutstandingDebt(Long loanId, BigDecimal outstandingDebt) {
         log.info("DUBBO updateOutstandingDebt - loanId: {}, outstandingDebt: {}", loanId, outstandingDebt);
         // Tìm loan account theo loanId
-        LoanAccount loanAccount = loanAccountRepository.findByLoanId(loanId)
+        LoanAccount loanAccount = loanAccountRepository.findByLoanId(loanId);
         if (loanAccount == null) {
             log.warn("Không tìm thấy tài khoản vay với loanId: {}", loanId);
             return;

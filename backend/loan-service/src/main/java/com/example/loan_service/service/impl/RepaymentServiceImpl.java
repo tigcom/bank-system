@@ -309,17 +309,8 @@ public class RepaymentServiceImpl implements RepaymentService {
     public Boolean checkLastMonthRepayment(Repayment repayment) {
         log.info("CHECK_LAST_MONTH_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
         try {
-            List<Repayment> repayments = getRepaymentsByLoanId(repayment.getLoan().getLoanId());
-            
-            // Sắp xếp theo dueDate để tìm kỳ cuối cùng
-            repayments.sort((r1, r2) -> r1.getDueDate().compareTo(r2.getDueDate()));
-            
-            // Kiểm tra xem repayment hiện tại có phải là kỳ cuối cùng không
-            Repayment lastRepayment = repayments.get(repayments.size() - 1);
+            Repayment lastRepayment =repaymentRepository.findLastRepayment(repayment.getLoan().getLoanId());
             boolean isLast = repayment.getRepaymentId().equals(lastRepayment.getRepaymentId());
-            
-            log.info("CHECK_LAST_MONTH_REPAYMENT_SUCCESS - repaymentId: {}, isLast: {}, totalPeriods: {}", 
-                repayment.getRepaymentId(), isLast, repayments.size());
             return isLast;
         } catch (Exception e) {
             log.error("CHECK_LAST_MONTH_REPAYMENT_ERROR - repaymentId: {}, error: {}", repayment.getRepaymentId(), e.getMessage(), e);

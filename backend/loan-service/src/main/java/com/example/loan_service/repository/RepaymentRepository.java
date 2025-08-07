@@ -99,4 +99,7 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
         ORDER BY r.dueDate ASC
     """)
     List<Repayment> findAllOverdueRepayments(@Param("today") LocalDate today);
+
+    @Query(value = "SELECT * FROM repayment WHERE loan_id = :loanId ORDER BY due_date DESC LIMIT 1",nativeQuery = true)
+    Repayment findLastRepayment (@Param("loanId") Long loanId);
 }
