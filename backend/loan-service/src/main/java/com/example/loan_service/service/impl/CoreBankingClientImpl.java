@@ -6,6 +6,7 @@ import com.example.common_service.dto.response.ApiResponse;
 import com.example.loan_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.dto.response.LoanResponseDTO;
 import com.example.loan_service.service.CoreBankingClient;
+import com.example.loan_service.service.LoanMetricsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,8 +15,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import io.micrometer.core.instrument.Timer;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 
 import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -23,10 +30,20 @@ import java.math.BigDecimal;
 public class CoreBankingClientImpl implements CoreBankingClient {
     @Qualifier("restTemplate")
     private final RestTemplate restTemplate;
+    private final LoanMetricsService metricsService;
     @Override
+    @CircuitBreaker(name = "coreBanking", fallbackMethod = "updateAccountFallback")
+    @Retry(name = "coreBanking", fallbackMethod = "updateAccountFallback")
+    @TimeLimiter(name = "coreBanking", fallbackMethod = "updateAccountFallback")
+    @Bulkhead(name = "externalApiCalls", fallbackMethod = "updateAccountFallback")
     public CoreResponse updateAccount(com.example.common_service.dto.CoreAccountRequest request) {
         log.info("UPDATE_ACCOUNT_START - request: {}", request);
+        Timer.Sample timer = metricsService.startCoreBankingCall();
+        
         try {
+            // Increment core banking calls counter
+            metricsService.incrementCoreBankingCalls();
+            
             ResponseEntity<CoreResponse> response = restTemplate.postForEntity(
                     "http://localhost:8083/corebanking/update-account",
                     request,
@@ -36,11 +53,22 @@ public class CoreBankingClientImpl implements CoreBankingClient {
             return response.getBody();
         } catch (Exception e) {
             log.error("UPDATE_ACCOUNT_ERROR - request: {}, error: {}", request, e.getMessage(), e);
-            throw e;
+            throw new RuntimeException("Failed to update account in core banking: " + e.getMessage(), e);
+        } finally {
+            metricsService.stopCoreBankingCall(timer);
         }
     }
 
+    public CoreResponse updateAccountFallback(com.example.common_service.dto.CoreAccountRequest request, Throwable t) {
+        log.warn("UPDATE_ACCOUNT_FALLBACK - request: {}, error: {}", request, t.getMessage());
+        // Return a default response or throw a specific exception
+        throw new RuntimeException("Core banking service is temporarily unavailable: " + t.getMessage(), t);
+    }
+
     @Override
+    @CircuitBreaker(name = "coreBanking", fallbackMethod = "deleteLoanFallback")
+    @Retry(name = "coreBanking", fallbackMethod = "deleteLoanFallback")
+    @Bulkhead(name = "externalApiCalls", fallbackMethod = "deleteLoanFallback")
     public void deleteLoan(long id) {
         log.info("DELETE_LOAN_START - id: {}", id);
         try {
@@ -51,14 +79,28 @@ public class CoreBankingClientImpl implements CoreBankingClient {
             log.info("DELETE_LOAN_SUCCESS - id: {}", id);
         } catch (Exception e) {
             log.error("DELETE_LOAN_ERROR - id: {}, error: {}", id, e.getMessage(), e);
-            throw e;
+            throw new RuntimeException("Failed to delete loan in core banking: " + e.getMessage(), e);
         }
     }
 
+    public void deleteLoanFallback(long id, Throwable t) {
+        log.warn("DELETE_LOAN_FALLBACK - id: {}, error: {}", id, t.getMessage());
+        throw new RuntimeException("Core banking service is temporarily unavailable: " + t.getMessage(), t);
+    }
+
     @Override
+    @CircuitBreaker(name = "coreBanking", fallbackMethod = "getBalanceFallback")
+    @Retry(name = "coreBanking", fallbackMethod = "getBalanceFallback")
+    @TimeLimiter(name = "coreBanking", fallbackMethod = "getBalanceFallback")
+    @Bulkhead(name = "externalApiCalls", fallbackMethod = "getBalanceFallback")
     public BigDecimal getBalance(String accountNumber) {
         log.info("GET_BALANCE_START - accountNumber: {}", accountNumber);
+        Timer.Sample timer = metricsService.startCoreBankingCall();
+        
         try {
+            // Increment core banking calls counter
+            metricsService.incrementCoreBankingCalls();
+            
             ResponseEntity<ApiResponse<BigDecimal>> response = restTemplate.exchange(
                     "http://localhost:8083/corebanking/api/core-bank/get-balance/{accountNumber}",
                     HttpMethod.GET,
@@ -77,7 +119,15 @@ public class CoreBankingClientImpl implements CoreBankingClient {
             return BigDecimal.ZERO;
         } catch (Exception e) {
             log.error("GET_BALANCE_ERROR - accountNumber: {}, error: {}", accountNumber, e.getMessage(), e);
-            return BigDecimal.ZERO; // Trả về 0 nếu có lỗi để tránh lỗi hệ thống
+            throw new RuntimeException("Failed to get balance from core banking: " + e.getMessage(), e);
+        } finally {
+            metricsService.stopCoreBankingCall(timer);
         }
+    }
+
+    public BigDecimal getBalanceFallback(String accountNumber, Throwable t) {
+        log.warn("GET_BALANCE_FALLBACK - accountNumber: {}, error: {}", accountNumber, t.getMessage());
+        // Return zero balance as fallback
+        return BigDecimal.ZERO;
     }
 }

@@ -885,7 +885,7 @@ public class TransactionServiceImpl implements TransactionService{
         transaction.setAmount(recoveryRequest.getAmount());
         transaction.setDescription(recoveryRequest.getDescription());
         transaction.setCurrency(CurrencyType.valueOf(recoveryRequest.getCurrency()));
-        transaction.setType(TransactionType.CORE_BANKING); // Sử dụng CORE_BANKING type cho thu hồi
+        transaction.setType(TransactionType.CORE_BANKING);
         
         try {
             log.info("[LOAN_RECOVERY] Validate transaction...");

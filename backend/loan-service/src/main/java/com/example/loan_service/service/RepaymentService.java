@@ -25,7 +25,7 @@ public interface RepaymentService {
     List<Repayment> getOverdueRepayments(Long loanId);
     List<Repayment> getUpcomingRepayments(Long loanId);
     Boolean checkLastMonthRepayment(Repayment repayment);
-
+    Integer checkPreviousMonthLate(Long repaymentId);
     Boolean shouldCloseLoan(Long loanId);
 
     java.math.BigDecimal getTotalCollectedSystem();
@@ -39,4 +39,5 @@ public interface RepaymentService {
      * Lấy tất cả các kỳ trả nợ đã quá hạn
      */
     List<Repayment> getAllOverdueRepayments();
+    List<Repayment> findAfter3DaysNative();
 }

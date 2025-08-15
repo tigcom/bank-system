@@ -1,7 +1,0 @@
-[
-  { "id": "gd101", "amount": 120000, "timestamp": "2025-06-01T12:00:00Z", "description": "Quán trà sữa",     "type": "debit" },
-  { "id": "gd102", "amount": 50000,  "timestamp": "2025-06-02T09:00:00Z", "description": "Mua bánh mì",       "type": "debit" },
-  { "id": "gd103", "amount": 250000, "timestamp": "2025-06-10T14:20:00Z", "description": "Chợ truyền thống", "type": "debit" },
-  { "id": "gd104", "amount": 180000, "timestamp": "2025-06-18T16:00:00Z", "description": "Nạp điện thoại",   "type": "debit" },
-  { "id": "gd105", "amount": 100000, "timestamp": "2025-06-25T20:00:00Z", "description": "Xem phim",         "type": "debit" }
-]

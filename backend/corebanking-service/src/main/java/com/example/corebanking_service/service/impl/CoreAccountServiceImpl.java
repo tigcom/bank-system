@@ -72,7 +72,7 @@ public class CoreAccountServiceImpl implements CoreAccountService {
 
     @Override
     public void updateCoreAccount(CoreAccountRequest dto) {
-        log.info("UPDATE_CORE_ACCOUNT_START - accountNumber: {}, balance: {}", dto.getAccountNumber(), dto.getBalance());
+        log.info("UPDATE_CORE_ACCOUNT_START - accountNumber: {}, balance: {}, status: {}", dto.getAccountNumber(), dto.getBalance(),dto.getStatus());
         
         // Tìm account hiện có
         CoreAccount existingAccount = coreAccountRepo.findByAccountNumber(dto.getAccountNumber());

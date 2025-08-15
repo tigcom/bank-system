@@ -1092,12 +1092,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void updateAccountFromLoan(LoanRequestDTO dto) {
         LoanAccount loanAccount = null;
-        
+
         // Tìm loan account bằng loanId trước (ưu tiên)
         if (dto.getLoanId() != null) {
             loanAccount = loanAccountRepository.findByLoanId(dto.getLoanId());
             if (loanAccount != null) {
-                log.info("[updateAccountFromLoan] Found loan account by loanId: {}", dto.getLoanId());
+                log.info("[updateAccountFromLoan] Found loan account by loanId: {}, status: {}",dto.getLoanId(),dto.getStatus());
             }
         }
         
@@ -1119,7 +1119,7 @@ public class AccountServiceImpl implements AccountService {
         loanAccount.setLoanAmount(dto.getAmount());
         loanAccount.setTermMonths(dto.getTermMonths());
         loanAccount.setInterestRate(dto.getInterestRate());
-        loanAccount.setStatus(dto.getStatus().equals("CLOSED") ? AccountStatus.CLOSED : AccountStatus.ACTIVE);
+        loanAccount.setStatus(dto.getStatus().name().equals("CLOSED") ? AccountStatus.CLOSED : AccountStatus.ACTIVE);
         
         // Xử lý outstanding debt
         if (dto.getStatus().equals("CLOSED")) {

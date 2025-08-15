@@ -3,6 +3,7 @@ package com.example.loan_service.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "loan_rejection_reason")
+@Audited
 public class LoanRejectionReason {
 
     @Id

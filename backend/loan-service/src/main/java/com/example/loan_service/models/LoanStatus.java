@@ -5,5 +5,8 @@ public enum LoanStatus {
     APPROVED,
     REJECTED,
     CLOSED,
-    CANCELLED
+    CANCELLED;
+    public com.example.common_service.constant.LoanStatus toCommonStatus() {
+        return com.example.common_service.constant.LoanStatus.valueOf(this.name());
+    }
 }

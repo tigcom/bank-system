@@ -12,23 +12,20 @@ import com.example.common_service.services.account.AccountQueryService;
 import com.example.common_service.services.customer.CustomerCommonService;
 import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.transactions.CommonTransactionService;
-import com.example.loan_service.dto.request.InfoIncomeRequestDto;
 import com.example.loan_service.dto.request.LoanRejectionReasonRequestDTO;
 import com.example.common_service.dto.request.LoanRequestDTO;
 import com.example.loan_service.dto.response.CicResponse;
-import com.example.loan_service.dto.response.TransactionDto;
-import com.example.loan_service.entity.InfoIncome;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.LoanRejectionReason;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.handler.LoanHandler;
 import com.example.loan_service.mapper.CoreAccountMapper;
-import com.example.loan_service.mapper.InfoIncomeMapper;
 import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.mapper.RepaymentMapper;
 import com.example.loan_service.models.RepaymentStatus;
 import com.example.loan_service.response.ApiResponseWrapper;
 import com.example.loan_service.service.*;
+import com.example.loan_service.workflow.LoanApprovalResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -39,16 +36,19 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.cache.annotation.Cacheable;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -57,13 +57,11 @@ public class LoanHandler {
     private final StreamBridge streamBridge;
     private final LoanService loanService;
     private final LoanMapper loanMapper;
-    private final InfoIncomeMapper  infoIncomeMapper;
     private final CoreBankingClient coreBankingClient;
     private final RepaymentService repaymentService;
     private final CICClient cicClient;
-    private final  OpeningBankingClient openingBankingClient;
-    private final InfoIncomeService infoIncomeService;
     private final LoanRejectionReasonService loanRejectionReasonService;
+    private final LoanWorkflowService loanWorkflowService;
     @DubboReference private final CustomerQueryService customerQueryService;
     @DubboReference private final AccountQueryService accountQueryService;
     @DubboReference private final CommonTransactionService commonTransactionService;
@@ -73,63 +71,19 @@ public class LoanHandler {
 
     public Loan approveLoan(Long loanId) {
         log.info("APPROVE_LOAN_HANDLER_START - loanId: {}", loanId);
-        Loan loan = null;
         try {
-            loan = loanService.getLoanById(loanId)
-                    .orElseThrow(() -> new IllegalArgumentException("Loan not found: " + loanId));
-            log.debug("LOAN_FETCHED - {}", loan);
-
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            RpcContext.getClientAttachment().setAttachment("username", username);
-            log.info("user name: {}", username);
+            // Sử dụng Temporal Workflow để approve loan
+            LoanApprovalResult result = loanWorkflowService.startLoanApprovalWorkflow(loanId);
             
-            // Bước 1: Tạo tài khoản vay
-            LoanRequestDTO dto = new LoanRequestDTO();
-            dto.setLoanId(loanId); 
-            dto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
-            dto.setRepaymentAccountNumber(loan.getRepaymentAccountNumber());
-            dto.setAmount(loan.getAmount());
-            dto.setInterestRate(loan.getInterestRate());
-            dto.setTermMonths(loan.getTermMonths());
-            dto.setCustomerId(loan.getCustomerId());
-            dto.setCreatedAt(LocalDateTime.now());
-            dto.setStatus(com.example.common_service.constant.LoanStatus.APPROVED);
-            dto.setLoanType(loan.getLoanType());
-            
-            AccountDTO accountDTO = accountDubboService.createLoanAccount(dto);
-            log.info("accountDto : {}",accountDTO.toString());
-            loan.setDisbursementAccountNumber(accountDTO.getAccountNumber());
-            
-            // Bước 2: Thực hiện giải ngân trước khi approve
-            CommonDisburseRequest disburseReq = new CommonDisburseRequest();
-            disburseReq.setToAccountNumber(loan.getDisbursementAccountNumber());
-            disburseReq.setAmount(loan.getAmount());
-            disburseReq.setCurrency("VND");
-            RpcContext.getClientAttachment().setAttachment("username", username);
-            CommonTransactionDTO tx = commonTransactionService.loanDisbursement(disburseReq);
-            log.info("LOAN_DISBURSE_TRANSACTION - status: {}, ref: {}", tx.getStatus(), tx.getReferenceCode());
-            
-            if (!"COMPLETED".equalsIgnoreCase(tx.getStatus())) {
-                log.error("APPROVE_LOAN_DISBURSE_FAILED - reason: {}", tx.getFailedReason());
-                throw new IllegalArgumentException("Giải ngân thất bại: " + tx.getFailedReason());
+            if (!result.isSuccess()) {
+                throw new IllegalArgumentException("Loan approval failed: " + result.getErrorMessage());
             }
             
-            // Bước 3: Chỉ approve và tạo lịch trả nợ sau khi giải ngân thành công
-            loan = loanService.approveLoan(loan);
-            repaymentService.generateRepaymentSchedule(loan);
-
-            log.info("LOAN_APPROVED_AND_SYNCED - loanId: {}", loanId);
+            // Lấy loan đã được approve từ database
+            Loan loan = loanService.getLoanById(loanId)
+                    .orElseThrow(() -> new IllegalArgumentException("Loan not found after approval: " + loanId));
             
-            // Bước 4: Gửi thông báo
-            CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
-            MailMessageDTO mail = new MailMessageDTO();
-            mail.setSubject("KÍCH HOẠT KHOẢN VAY");
-            mail.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-            mail.setBody("Khoản vay đã duyệt và giải ngân tài khoản: " + loan.getDisbursementAccountNumber());
-            mail.setRecipientName(customer.getFullName());
-            streamBridge.send("mail-out-0", mail);
-            log.info("APPROVE_LOAN_MAIL_SENT - loanId: {}, to: {}", loanId, customer.getEmail());
-            log.info("APPROVE_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
+            log.info("APPROVE_LOAN_HANDLER_SUCCESS - loanId: {}, accountNumber: {}", loanId, result.getDisbursementAccountNumber());
             return loan;
             
         } catch (IllegalArgumentException e) {
@@ -137,21 +91,28 @@ public class LoanHandler {
             throw e;
         } catch (Exception e) {
             log.error("APPROVE_LOAN_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
-            // Nếu có lỗi sau khi đã approve, cần rollback
-            if (loan != null && LoanStatus.APPROVED.equals(loan.getStatus())) {
-                try {
-                    log.warn("ROLLBACK_LOAN_APPROVAL - loanId: {}", loanId);
-                    loan.setStatus(LoanStatus.PENDING);
-                    loanService.updateLoan(loan);
-                    // Xóa lịch trả nợ đã tạo
-                    repaymentService.deleteRepaymentsByLoanId(loanId);
-                } catch (Exception rollbackEx) {
-                    log.error("ROLLBACK_LOAN_APPROVAL_FAILED - loanId: {}, error: {}", loanId, rollbackEx.getMessage());
-                }
-            }
             throw e;
         }
     }
+
+    public LoanApprovalResult approveLoanAsync(Long loanId) {
+        log.info("APPROVE_LOAN_ASYNC_HANDLER_START - loanId: {}", loanId);
+        try {
+            // Sử dụng Temporal Workflow để approve loan bất đồng bộ
+            LoanApprovalResult result = loanWorkflowService.startLoanApprovalWorkflowAsync(loanId);
+            
+            log.info("APPROVE_LOAN_ASYNC_HANDLER_SUCCESS - loanId: {}, status: {}", loanId, result.getStatus());
+            return result;
+            
+        } catch (Exception e) {
+            log.error("APPROVE_LOAN_ASYNC_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
+    }
+    @CircuitBreaker(name = "dubboServices", fallbackMethod = "createLoanFallback")
+    @Retry(name = "dubboServices", fallbackMethod = "createLoanFallback")
+    @TimeLimiter(name = "dubboServices", fallbackMethod = "createLoanFallback")
+    @Bulkhead(name = "loanProcessing", fallbackMethod = "createLoanFallback")
     public Loan createLoan(LoanRequestDTO dto)  {
         log.info("CREATE_LOAN_HANDLER_START - request: {}", dto);
         try {
@@ -204,6 +165,11 @@ public class LoanHandler {
             log.error("CREATE_LOAN_HANDLER_ERROR - dto={}, error: {}", dto, e.getMessage(), e);
             throw new RuntimeException("Xảy ra lỗi khi xử lý khoản vay", e);
         }
+    }
+
+    public Loan createLoanFallback(LoanRequestDTO dto, Throwable t) {
+        log.warn("CREATE_LOAN_HANDLER_FALLBACK - dto: {}, error: {}", dto, t.getMessage());
+        throw new RuntimeException("Loan creation service is temporarily unavailable: " + t.getMessage(), t);
     }
     public Loan updateLoan(LoanRequestDTO dto) {
         log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
@@ -313,6 +279,10 @@ public class LoanHandler {
             throw e;
         }
     }
+    @CircuitBreaker(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
+    @Retry(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
+    @TimeLimiter(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
+    @Bulkhead(name = "loanProcessing", fallbackMethod = "makeRepaymentFallback")
     public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber) {
         log.info("MAKE_REPAYMENT_HANDLER_START - repaymentId: {}, amount: {}, account: {}", repaymentId, amount, accountNumber);
         try {
@@ -336,6 +306,12 @@ public class LoanHandler {
             log.error("MAKE_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    public String makeRepaymentFallback(Long repaymentId, BigDecimal amount, String accountNumber, Throwable t) {
+        log.warn("MAKE_REPAYMENT_HANDLER_FALLBACK - repaymentId: {}, amount: {}, account: {}, error: {}", 
+                repaymentId, amount, accountNumber, t.getMessage());
+        throw new RuntimeException("Transaction service is temporarily unavailable: " + t.getMessage(), t);
     }
     public Repayment confirmRepayment(Long repaymentId, BigDecimal amount, String otpCode, String referenceCode) {
         log.info("CONFIRM_REPAYMENT_HANDLER_START - repaymentId: {}, referenceCode: {}", repaymentId, referenceCode);
@@ -535,17 +511,7 @@ public class LoanHandler {
             throw e;
         }
     }
-    public List<TransactionDto> checkInfoIncome(InfoIncomeRequestDto infoIncome) {
-        log.info("LOAN_HANDLER_CHECK_INFO_INCOME input: {}", infoIncome);
-        try {
-            List<TransactionDto> result = openingBankingClient.checkIncome(infoIncome);
-            log.info("LOAN_HANDLER_CHECK_INFO_INCOME_SUCCESS size: {}", result.size());
-            return result;
-        } catch (Exception e) {
-            log.error("LOAN_HANDLER_CHECK_INFO_INCOME_ERROR: {}", e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
+
 
     public java.math.BigDecimal getTotalDisbursedSystem() {
         return loanService.getTotalDisbursedSystem();

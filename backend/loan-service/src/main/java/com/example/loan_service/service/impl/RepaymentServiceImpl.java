@@ -13,7 +13,15 @@ import com.example.loan_service.service.RepaymentService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -110,7 +118,15 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
     @Override
     public List<Repayment> getOverdueRepayments(Long loanId) {
-        return repaymentRepository.findOverdueByLoanId(loanId, RepaymentStatus.LATE);
+        log.info("GET_OVERDUE_REPAYMENTS_START - loanId: {}", loanId);
+        try {
+            List<Repayment> repayments = repaymentRepository.findOverdueByLoanId(loanId, RepaymentStatus.LATE);
+            log.info("GET_OVERDUE_REPAYMENTS_SUCCESS - loanId: {}, count: {}", loanId, repayments.size());
+            return repayments;
+        } catch (Exception e) {
+            log.error("GET_OVERDUE_REPAYMENTS_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
@@ -126,12 +142,34 @@ public class RepaymentServiceImpl implements RepaymentService {
             throw e;
         }
     }
+    @Override
+    public  List<Repayment> findAfter3DaysNative() {
+        log.info("GET_ALL_OVERDUE_REPAYMENTS_START");
+        try {
+            List<Repayment> repayments = repaymentRepository.findAfter3DaysNative();
+            log.info("GET_ALL_OVERDUE_REPAYMENTS_SUCCESS - count: {}", repayments.size());
+            return repayments;
+        } catch (Exception e) {
+            log.error("GET_ALL_OVERDUE_REPAYMENTS_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
 
     @Override
     public List<Repayment> getUpcomingRepayments(Long loanId) {
-        return repaymentRepository.findUpcomingByLoanId(loanId, LocalDate.now(), LocalDate.now().plusDays(7));
+        log.info("GET_UPCOMING_REPAYMENTS_START - loanId: {}", loanId);
+        try {
+            List<Repayment> repayments = repaymentRepository.findUpcomingByLoanId(loanId, LocalDate.now(), LocalDate.now().plusDays(7));
+            log.info("GET_UPCOMING_REPAYMENTS_SUCCESS - loanId: {}, count: {}", loanId, repayments.size());
+            return repayments;
+        } catch (Exception e) {
+            log.error("GET_UPCOMING_REPAYMENTS_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
     @Override
+    @Cacheable(value = "repaymentsByLoan", key = "#loanId")
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
         log.info("GET_REPAYMENTS_BY_LOAN_START - loanId: {}", loanId);
         try {
@@ -145,6 +183,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    @Cacheable(value = "repaymentById", key = "#repaymentId")
     public Optional<Repayment> getRepaymentById(Long repaymentId) {
         // giữ nguyên logging đã có
         log.info("GET_REPAYMENT_BY_ID_START - repaymentId: {}", repaymentId);
@@ -159,6 +198,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    @Cacheable(value = "repaymentHistory", key = "#customerId")
     public List<Repayment> getHistoryRepayment(Long customerId) {
         log.info("GET_REPAYMENT_HISTORY_START - customerId: {}", customerId);
         try {
@@ -172,6 +212,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    @CacheEvict(value = {"repaymentById", "repaymentsByLoan", "repaymentHistory", "currentRepayment", "repaymentStats"}, allEntries = true)
     public Repayment updateRepaymentStatus(Long repaymentId, RepaymentStatus status) {
         log.info("UPDATE_REPAYMENT_STATUS_START - repaymentId: {}, status: {}", repaymentId, status);
         try {
@@ -191,6 +232,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    @CachePut(value = "repaymentById", key = "#repayment.repaymentId")
     public Repayment updateRepayment(Repayment repayment) {
         log.info("UPDATE_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
         try {
@@ -204,6 +246,10 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    @CacheEvict(value = "repaymentHistory", allEntries = true)
+    @RateLimiter(name = "repaymentProcessing", fallbackMethod = "makeRepaymentFallback")
+    @Bulkhead(name = "databaseOperations", fallbackMethod = "makeRepaymentFallback")
+    @Retry(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
     public Repayment makeRepayment(Long repaymentId, BigDecimal amount) {
         log.info("MAKE_REPAYMENT_START - repaymentId: {}, amount: {}", repaymentId, amount);
         try {
@@ -236,6 +282,11 @@ public class RepaymentServiceImpl implements RepaymentService {
             log.error("MAKE_REPAYMENT_ERROR - repaymentId: {}, error: {}", repaymentId, e.getMessage(), e);
             throw e;
         }
+    }
+
+    public Repayment makeRepaymentFallback(Long repaymentId, BigDecimal amount, Throwable t) {
+        log.warn("MAKE_REPAYMENT_FALLBACK - repaymentId: {}, amount: {}, error: {}", repaymentId, amount, t.getMessage());
+        throw new RuntimeException("Repayment processing is temporarily unavailable: " + t.getMessage(), t);
     }
 
     @Override
@@ -318,6 +369,20 @@ public class RepaymentServiceImpl implements RepaymentService {
         }
     }
 
+    @Override
+    public Integer checkPreviousMonthLate(Long repaymentId) {
+        log.info("CHECK_PREVIOUS_MONTH_LATE_START - repaymentId: {}", repaymentId);
+        try {
+            Integer grp = repaymentRepository.findGrpBeforeRepayment(repaymentId);
+            log.info("CHECK_PREVIOUS_MONTH_LATE_SUCCESS - repaymentId: {}, grp: {}", repaymentId, grp);
+            return grp != null ? grp : 0;
+        } catch (Exception e) {
+            log.error("CHECK_PREVIOUS_MONTH_LATE_ERROR - repaymentId: {}, error: {}", repaymentId, e.getMessage(), e);
+            return 0;
+        }
+    }
+
+
     /**
      * Kiểm tra xem khoản vay có thể đóng không
      * Điều kiện: Tất cả các kỳ trả nợ đã được thanh toán đầy đủ
@@ -374,43 +439,72 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Override
     public java.math.BigDecimal getTotalCollectedSystem() {
-        List<Repayment> all = repaymentRepository.findAll();
-        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
-        for (Repayment r : all) {
-            if (r.getStatus() == RepaymentStatus.PAID || r.getStatus() == RepaymentStatus.PARTIAL) {
-                total = total.add(r.getPaidAmount());
+        log.info("GET_TOTAL_COLLECTED_SYSTEM_START");
+        try {
+            List<Repayment> all = repaymentRepository.findAll();
+            java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+            for (Repayment r : all) {
+                if (r.getStatus() == RepaymentStatus.PAID || r.getStatus() == RepaymentStatus.PARTIAL) {
+                    total = total.add(r.getPaidAmount());
+                }
             }
+            log.info("GET_TOTAL_COLLECTED_SYSTEM_SUCCESS - total: {}", total);
+            return total;
+        } catch (Exception e) {
+            log.error("GET_TOTAL_COLLECTED_SYSTEM_ERROR - error: {}", e.getMessage(), e);
+            throw e;
         }
-        return total;
     }
 
     @Override
     public BigDecimal getTotalProfitSystem() {
-        // 1 query tính tổng profit
-        return repaymentRepository.sumProfit();
+        log.info("GET_TOTAL_PROFIT_SYSTEM_START");
+        try {
+            BigDecimal profit = repaymentRepository.sumProfit();
+            log.info("GET_TOTAL_PROFIT_SYSTEM_SUCCESS - profit: {}", profit);
+            return profit;
+        } catch (Exception e) {
+            log.error("GET_TOTAL_PROFIT_SYSTEM_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
     public Map<String, Long> getRepaymentStats() {
-        List<Object[]> rows = repaymentRepository.countByStatus();
-        // khởi map với 0 cho mọi trạng thái
-        Map<String, Long> stats = new HashMap<>();
-        stats.put("paid",    0L);
-        stats.put("partial", 0L);
-        stats.put("unpaid",  0L);
-        stats.put("late",    0L);
+        log.info("GET_REPAYMENT_STATS_START");
+        try {
+            List<Object[]> rows = repaymentRepository.countByStatus();
+            // khởi map với 0 cho mọi trạng thái
+            Map<String, Long> stats = new HashMap<>();
+            stats.put("paid",    0L);
+            stats.put("partial", 0L);
+            stats.put("unpaid",  0L);
+            stats.put("late",    0L);
 
-        for (Object[] row : rows) {
-            RepaymentStatus status = (RepaymentStatus) row[0];
-            Long count             = (Long) row[1];
-            stats.put(status.name().toLowerCase(), count);
+            for (Object[] row : rows) {
+                RepaymentStatus status = (RepaymentStatus) row[0];
+                Long count             = (Long) row[1];
+                stats.put(status.name().toLowerCase(), count);
+            }
+            log.info("GET_REPAYMENT_STATS_SUCCESS - stats: {}", stats);
+            return stats;
+        } catch (Exception e) {
+            log.error("GET_REPAYMENT_STATS_ERROR - error: {}", e.getMessage(), e);
+            throw e;
         }
-        return stats;
     }
 
     @Override
     public BigDecimal getOutstandingDebtByLoanId(Long loanId) {
-        return repaymentRepository.getOutstandingDebtByLoanId(loanId);
+        log.info("GET_OUTSTANDING_DEBT_BY_LOAN_START - loanId: {}", loanId);
+        try {
+            BigDecimal debt = repaymentRepository.getOutstandingDebtByLoanId(loanId);
+            log.info("GET_OUTSTANDING_DEBT_BY_LOAN_SUCCESS - loanId: {}, debt: {}", loanId, debt);
+            return debt;
+        } catch (Exception e) {
+            log.error("GET_OUTSTANDING_DEBT_BY_LOAN_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
+            throw e;
+        }
     }
 
 
