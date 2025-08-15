@@ -8,11 +8,19 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import org.hibernate.envers.Audited;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "repayment")
 @Data
 @NoArgsConstructor
+@Audited
+@EntityListeners(AuditingEntityListener.class)
 public class Repayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +47,20 @@ public class Repayment {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private RepaymentStatus status = RepaymentStatus.UNPAID;
+
+    @CreatedDate
+    @Column(name = "audit_created_at", updatable = false)
+    private java.time.LocalDateTime auditCreatedAt;
+
+    @LastModifiedDate
+    @Column(name = "audit_last_modified_at")
+    private java.time.LocalDateTime auditLastModifiedAt;
+
+    @CreatedBy
+    @Column(name = "audit_created_by", updatable = false)
+    private String auditCreatedBy;
+
+    @LastModifiedBy
+    @Column(name = "audit_last_modified_by")
+    private String auditLastModifiedBy;
 }

@@ -1,6 +1,6 @@
 package com.example.loan_service.dto.response;
 
-import com.example.loan_service.dto.request.InfoIncomeRequestDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

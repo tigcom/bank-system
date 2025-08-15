@@ -102,4 +102,28 @@ public interface RepaymentRepository extends JpaRepository<Repayment, Long> {
 
     @Query(value = "SELECT * FROM repayment WHERE loan_id = :loanId ORDER BY due_date DESC LIMIT 1",nativeQuery = true)
     Repayment findLastRepayment (@Param("loanId") Long loanId);
+    @Query(
+            value = "SELECT grp FROM (" +
+                    " SELECT repayment_id, status, due_date, CAST(@grp := IF(status = 'LATE', @grp + 1, 0) AS SIGNED) AS grp " +
+                    " FROM (SELECT repayment_id, status, due_date FROM repayment WHERE loan_id = 84 ORDER BY due_date ASC) t1 " +
+                    " CROSS JOIN (SELECT @grp := 0) var_init" +
+                    ") t2 " +
+                    "WHERE due_date < (SELECT due_date FROM repayment WHERE repayment_id = :repaymentId) " +
+                    "ORDER BY due_date DESC LIMIT 1",
+            nativeQuery = true
+    )
+    Integer findGrpBeforeRepayment(@Param("repaymentId") Long repaymentId);
+    @Query(
+            value = """
+        SELECT r.* FROM repayment r
+        JOIN loan l ON r.loan_id = l.loan_id
+        WHERE r.due_date <= DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+        AND (r.status = 'UNPAID' OR r.status = 'PARTIAL')
+        AND l.status = 'APPROVED'
+        ORDER BY r.due_date ASC
+    """,
+            nativeQuery = true
+    )
+    List<Repayment> findAfter3DaysNative();
+
 }

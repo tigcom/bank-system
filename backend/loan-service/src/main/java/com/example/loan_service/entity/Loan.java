@@ -8,6 +8,12 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.hibernate.envers.Audited;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @NoArgsConstructor
@@ -15,6 +21,8 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "loan")
+@Audited
+@EntityListeners(AuditingEntityListener.class)
 public class Loan {
 
     @Id
@@ -50,6 +58,22 @@ public class Loan {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    @CreatedDate
+    @Column(name = "audit_created_at", updatable = false)
+    private LocalDateTime auditCreatedAt;
+
+    @LastModifiedDate
+    @Column(name = "audit_last_modified_at")
+    private LocalDateTime auditLastModifiedAt;
+
+    @CreatedBy
+    @Column(name = "audit_created_by", updatable = false)
+    private String auditCreatedBy;
+
+    @LastModifiedBy
+    @Column(name = "audit_last_modified_by")
+    private String auditLastModifiedBy;
+
     @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Repayment> repayments;
@@ -58,9 +82,7 @@ public class Loan {
     @JsonManagedReference
     private List<LoanRejectionReason> rejectionReasons;
 
-    @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<InfoIncome> infoIncomes;
+
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)

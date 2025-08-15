@@ -1,5 +1,6 @@
 package com.example.loan_service.scheduler;
 
+import com.example.common_service.constant.AccountStatus;
 import com.example.common_service.dto.*;
 import com.example.common_service.dto.request.CommonDisburseRequest;
 import com.example.common_service.dto.request.LoanRequestDTO;
@@ -54,7 +55,7 @@ public class RepaymentCheckScheduler {
      */
 
     @Transactional
-    @Scheduled(fixedRateString = "${repayment.scheduler.fix-rate:5000000}")
+//    @Scheduled(fixedRateString = "${repayment.scheduler.fix-rate:5000000}")
     public void processRepayments() {
         log.info("PROCESS_OVERDUE_REPAYMENTS_START");
         
@@ -79,21 +80,8 @@ public class RepaymentCheckScheduler {
                 log.info("PROCESS_OVERDUE_REPAYMENT_START - loanId: {}, repaymentId: {}, dueDate: {}", 
                     loan.getLoanId(), repayment.getRepaymentId(), repayment.getDueDate());
                 
-                // Đếm số tháng liên tiếp bị trễ hạn
-                int consecutiveLateMonths = countConsecutiveLateMonths(loan.getLoanId(), repayment.getDueDate());
-                if (consecutiveLateMonths >= 3) {
-                    // Nếu trễ liên tiếp 3 tháng trở lên, thu hồi khoản vay
-                    log.info("CLOSE_LOAN_DUE_TO_3_CONSECUTIVE_LATE_MONTHS - loanId: {}", loan.getLoanId());
-                    closeLoanAndRecover(loan);
-                    repayment.setStatus(RepaymentStatus.LATE);
-                    repaymentService.updateRepayment(repayment);
-                    log.info("MARK_REPAYMENT_LATE_SUCCESS - repaymentId: {}", repayment.getRepaymentId());
-                    continue;
-                } else if (consecutiveLateMonths == 2) {
-                    // Nếu trễ tháng thứ 2 liên tiếp, khóa tài khoản giải ngân
-                    log.info("LOCK_DISBURSEMENT_ACCOUNT_DUE_TO_2_CONSECUTIVE_LATE_MONTHS - loanId: {}", loan.getLoanId());
-                    lockDisbursementAccount(loan.getDisbursementAccountNumber());
-                }
+                // Kiểm tra xem tháng trước có trễ hạn không
+
 
                 // Kiểm tra số dư repayment account
                 BigDecimal repaymentBalance = getRepaymentAccountBalance(loan.getRepaymentAccountNumber());
@@ -106,8 +94,18 @@ public class RepaymentCheckScheduler {
                     // Có đủ tiền, thực hiện tự động trừ
                     performAutoDeduct(loan, repayment, requiredAmount);
                 } else {
+                    Integer previousMonthLate = repaymentService.checkPreviousMonthLate(repayment.getRepaymentId());
+                    if (previousMonthLate >= 3) {
+                        // Nếu tháng trước cũng trễ hạn, đóng khoản vay và thu hồi
+                        log.info("CLOSE_LOAN_DUE_TO_CONSECUTIVE_LATE - loanId: {}", loan.getLoanId());
+                        closeLoanAndRecover(loan);
+                        repayment.setStatus(RepaymentStatus.LATE);
+                        repaymentService.updateRepayment(repayment);
+                        log.info("MARK_REPAYMENT_LATE_SUCCESS - repaymentId: {}", repayment.getRepaymentId());
+                        continue;
+                    }
                     // Không đủ tiền, đánh dấu trễ và xử lý phạt
-                    handleLateRepayment(loan, repayment, requiredAmount, repaymentBalance);
+                    handleLateRepayment(loan, repayment, requiredAmount);
                 }
             } catch (Exception e) {
                 log.error("PROCESS_OVERDUE_REPAYMENT_ERROR - repaymentId: {}, error: {}", repayment.getRepaymentId(), e.getMessage(), e);
@@ -119,7 +117,7 @@ public class RepaymentCheckScheduler {
     /**
      * Xử lý trường hợp trễ hạn - đánh dấu trễ và cộng dồn phạt
      */
-    private void handleLateRepayment(Loan loan, Repayment repayment, BigDecimal requiredAmount, BigDecimal availableBalance) {
+    private void handleLateRepayment(Loan loan, Repayment repayment, BigDecimal requiredAmount) {
         try {
             log.info("HANDLE_LATE_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
             
@@ -359,45 +357,7 @@ public class RepaymentCheckScheduler {
         }
     }
 
-    /**
-     * Đếm số tháng liên tiếp bị trễ hạn tính đến kỳ hiện tại
-     */
-    private int countConsecutiveLateMonths(Long loanId, LocalDate currentDueDate) {
-        try {
-            List<Repayment> repayments = repaymentService.getRepaymentsByLoanId(loanId);
-            repayments.sort((r1, r2) -> r2.getDueDate().compareTo(r1.getDueDate())); // giảm dần theo ngày
-            int count = 0;
-            LocalDate checkDate = currentDueDate.minusMonths(1);
-            for (Repayment r : repayments) {
-                if (r.getDueDate().isAfter(currentDueDate)) continue;
-                if (r.getDueDate().isEqual(checkDate)) {
-                    if (r.getStatus() == RepaymentStatus.UNPAID || r.getStatus() == RepaymentStatus.PARTIAL || r.getStatus() == RepaymentStatus.LATE) {
-                        count++;
-                        checkDate = checkDate.minusMonths(1);
-                    } else {
-                        break;
-                    }
-                }
-            }
-            return count;
-        } catch (Exception e) {
-            log.error("COUNT_CONSECUTIVE_LATE_MONTHS_ERROR - loanId: {}, error: {}", loanId, e.getMessage());
-            return 0;
-        }
-    }
 
-    /**
-     * Khóa tài khoản giải ngân
-     */
-    private void lockDisbursementAccount(String accountNumber) {
-        try {
-            // Gọi core banking để khóa tài khoản
-            coreBankingClient.lockAccount(accountNumber);
-            log.info("LOCK_DISBURSEMENT_ACCOUNT_SUCCESS - account: {}", accountNumber);
-        } catch (Exception e) {
-            log.error("LOCK_DISBURSEMENT_ACCOUNT_ERROR - account: {}, error: {}", accountNumber, e.getMessage());
-        }
-    }
 
     /**
      * Đóng khoản vay và thu hồi tiền từ loan account
@@ -405,27 +365,27 @@ public class RepaymentCheckScheduler {
     private void closeLoanAndRecover(Loan loan) {
         try {
             log.info("CLOSE_LOAN_AND_RECOVER_START - loanId: {}", loan.getLoanId());
-            
+
             // 1. Đóng khoản vay trước
             loanService.closedLoan(loan.getLoanId());
             log.info("LOAN_CLOSED_SUCCESS - loanId: {}", loan.getLoanId());
-            
+
             // 2. Kiểm tra số dư loan account
             BigDecimal loanBalance = getLoanAccountBalance(loan.getDisbursementAccountNumber());
             log.info("LOAN_ACCOUNT_BALANCE - account: {}, balance: {}", loan.getDisbursementAccountNumber(), loanBalance);
-            
+
             // 3. Chỉ thu hồi nếu có tài sản
             if (loanBalance.compareTo(BigDecimal.ZERO) > 0) {
                 log.info("RECOVER_LOAN_AMOUNT - amount: {}", loanBalance);
                 CommonDisburseRequest recoverRequest = new CommonDisburseRequest();
-                recoverRequest.setToAccountNumber("MASTER_ACCOUNT"); // Master account của ngân hàng
+                recoverRequest.setToAccountNumber(loan.getDisbursementAccountNumber());
                 recoverRequest.setAmount(loanBalance); // Thu hồi số dư thực tế
                 recoverRequest.setCurrency("VND");
                 recoverRequest.setDescription("Thu hồi khoản vay do vi phạm điều khoản trả nợ");
-                
+
                 CommonTransactionDTO tx = commonTransactionService.loanRecovery(recoverRequest);
                 log.info("RECOVER_LOAN_TRANSACTION - status: {}, ref: {}", tx.getStatus(), tx.getReferenceCode());
-                
+
                 if (!"COMPLETED".equalsIgnoreCase(tx.getStatus())) {
                     log.error("RECOVER_LOAN_FAILED - reason: {}", tx.getFailedReason());
                     throw new RuntimeException("Thu hồi khoản vay thất bại: " + tx.getFailedReason());
@@ -433,7 +393,7 @@ public class RepaymentCheckScheduler {
             } else {
                 log.info("SKIP_RECOVERY - loan account balance is zero");
             }
-            
+
             // 4. Cập nhật account service
             LoanRequestDTO updateDto = new LoanRequestDTO();
             updateDto.setLoanId(loan.getLoanId());
@@ -449,6 +409,7 @@ public class RepaymentCheckScheduler {
             // 5. Cập nhật core banking
             CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
             coreAccountRequest.setBalance(BigDecimal.ZERO);
+            coreAccountRequest.setStatus(AccountStatus.CLOSED);
             coreBankingClient.updateAccount(coreAccountRequest);
             
             // 6. Gửi thông báo đóng khoản vay
@@ -457,7 +418,7 @@ public class RepaymentCheckScheduler {
             log.info("CLOSE_LOAN_AND_RECOVER_SUCCESS - loanId: {}", loan.getLoanId());
         } catch (Exception e) {
             log.error("CLOSE_LOAN_AND_RECOVER_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage(), e);
-            throw e;
+            throw new RuntimeException("Failed to close loan and recover: " + e.getMessage(), e);
         }
     }
 
@@ -520,52 +481,69 @@ public class RepaymentCheckScheduler {
     }
 
 
-//
-//    @Scheduled(cron = "${repayment.scheduler.remind-cron:0 0 9 * * *}")
-//    public void remindUpcomingRepayments() {
-//        log.info("REMIND_UPCOMING_REPAYMENTS_START");
-//
-//        // Lấy tất cả các khoản vay đã được approve
-//        List<Loan> approvedLoans = loanService.getLoansApprove();
-//
-//        for (Loan loan : approvedLoans) {
-//            List<Repayment> upcoming = repaymentService.getUpcomingRepayments(loan.getLoanId());
-//            if (upcoming.isEmpty()) continue;
-//
-//            Repayment next = upcoming.get(0);
-//            long daysToDue = ChronoUnit.DAYS.between(LocalDate.now(), next.getDueDate());
-//
-//            // Chỉ nhắc nợ cho các kỳ trả nợ trong tương lai (1-7 ngày tới)
-//            if (daysToDue > 7) continue; // Query đã loại trừ hôm nay, chỉ cần kiểm tra > 7 ngày
-//
-//            try {
-//                CustomerResponseDTO cust = customerQueryService.getCustomerById(loan.getCustomerId());
-//                String body = String.format(
-//                        "Kính chào %s,%n%n" +
-//                                "Bạn còn %d ngày đến kỳ thanh toán khoản vay ID: %s với tổng số tiền %s VND.%n" +
-//                                "Ngày đến hạn: %s.%n%n" +
-//                                "Vui lòng chuẩn bị để tránh phát sinh phí trễ.%n%n" +
-//                                "Trân trọng, Ngân hàng",
-//                        cust.getFullName(),
-//                        daysToDue,
-//                        loan.getLoanId(),
-//                        next.getPrincipal().add(next.getInterest()),
-//                        next.getDueDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-//                );
-//                MailMessageDTO mail = MailMessageDTO.builder()
-//                        .subject("NHẮC NỢ ĐỊNH KỲ")
-//                        .recipient(cust.getEmail())
-//                        .recipientName(cust.getFullName())
-//                        .body(body)
-//                        .build();
-//                streamBridge.send("mail-out-0", mail);
-//                log.info("REMIND_UPCOMING_REPAYMENT_NOTIFICATION_SENT - repaymentId: {}, daysToDue: {}", next.getRepaymentId(), daysToDue);
-//            } catch (Exception e) {
-//                log.error("REMIND_UPCOMING_REPAYMENT_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
-//            }
-//        }
-//        log.info("REMIND_UPCOMING_REPAYMENTS_SUCCESS");
-//    }
+    @Transactional
+    @Scheduled(fixedRateString = "${repayment.scheduler.fix-rate:5000000}")
+    public void remindUpcomingRepayments() {
+        long startTime = System.currentTimeMillis();
+        log.info("REMIND_UPCOMING_REPAYMENTS_START -");
+
+        try {
+            List<Repayment> upcoming = repaymentService.findAfter3DaysNative();
+            log.info("REMIND_UPCOMING_REPAYMENTS_FOUND - count: {}", upcoming.size());
+
+            for (Repayment next : upcoming) {
+                try {
+                    Long loanId = next.getLoan().getLoanId();
+                    Long customerId = next.getLoan().getCustomerId();
+                    LocalDate dueDate = next.getDueDate();
+                    BigDecimal totalAmount = next.getPrincipal().add(next.getInterest());
+
+                    log.info("REMIND_UPCOMING_REPAYMENT_DETAIL - repaymentId: {}, loanId: {}, customerId: {}, dueDate: {}, amount: {}",
+                            next.getRepaymentId(), loanId, customerId, dueDate, totalAmount);
+
+                    CustomerResponseDTO cust = customerQueryService.getCustomerById(customerId);
+
+                    String body = String.format(
+                            "Kính chào %s,%n%n" +
+                                    "Bạn còn %d ngày đến kỳ thanh toán khoản vay ID: %s với tổng số tiền %s VND.%n" +
+                                    "Ngày đến hạn: %s.%n%n" +
+                                    "Vui lòng chuẩn bị để tránh phát sinh phí trễ.%n%n" +
+                                    "Trân trọng, Ngân hàng",
+                            cust.getFullName(),
+                            ChronoUnit.DAYS.between(LocalDate.now(), dueDate),
+                            loanId,
+                            totalAmount,
+                            dueDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    );
+
+                    MailMessageDTO mail = MailMessageDTO.builder()
+                            .subject("NHẮC NỢ ĐỊNH KỲ")
+                            .recipient(cust.getEmail())
+                            .recipientName(cust.getFullName())
+                            .body(body)
+                            .build();
+
+                    log.info("REMIND_UPCOMING_REPAYMENT_MAIL_PREPARED - to: {}, name: {}, subject: {}",
+                            mail.getRecipient(), mail.getRecipientName(), mail.getSubject());
+
+                    streamBridge.send("mail-out-0", mail);
+                    log.info("REMIND_UPCOMING_REPAYMENT_NOTIFICATION_SENT - repaymentId: {}, loanId: {}, email: {}",
+                            next.getRepaymentId(), loanId, cust.getEmail());
+
+                } catch (Exception e) {
+                    log.info("REMIND_UPCOMING_REPAYMENT_ERROR - repaymentId: {}, loanId: {}, error: {}",
+                            next.getRepaymentId(), next.getLoan().getLoanId(), e.getMessage(), e);
+                }
+            }
+            log.info("REMIND_UPCOMING_REPAYMENTS_SUCCESS - processed: {}, durationMs: {}",
+                    upcoming.size(), System.currentTimeMillis() - startTime);
+
+        } catch (Exception e) {
+            log.info("REMIND_UPCOMING_REPAYMENTS_FATAL_ERROR - error: {}", e.getMessage(), e);
+        }
+    }
+
+
 
     /**
      * Kiểm tra xem đã trả hết nợ cho khoản vay chưa (không còn kỳ unpaid hoặc partial)
