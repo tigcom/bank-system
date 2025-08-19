@@ -112,13 +112,15 @@ services:
     image: temporalio/auto-setup:1.25
     container_name: temporal
     ports:
-      - "7233:7233"  # gRPC
+      - "7233:7233"
     environment:
-      - DB=mysql8
-      - DB_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PWD=123456
-      - MYSQL_SEEDS=10.2.36.5
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=temporal-postgres
+    depends_on:
+      - temporal-postgres
   temporal-admin-tools:
       image: temporalio/admin-tools:1.25
       container_name: temporal-admin-tools

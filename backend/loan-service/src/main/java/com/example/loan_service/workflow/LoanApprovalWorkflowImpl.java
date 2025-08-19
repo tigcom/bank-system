@@ -7,6 +7,7 @@ import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.rpc.RpcContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.Duration;
@@ -22,10 +23,10 @@ public class LoanApprovalWorkflowImpl implements LoanApprovalWorkflow {
     );
 
     @Override
-    public LoanApprovalResult approveLoan(Long loanId) {
+    public LoanApprovalResult approveLoan(Long loanId, String username) {
         log.info("Starting loan approval workflow for loanId: {}", loanId);
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         RpcContext.getClientAttachment().setAttachment("username", username);
+        log.info("USERNAME - : {}", username);
         try {
             // Bước 1: Validate loan
             log.info("Step 1: Validating loan {}", loanId);
@@ -33,7 +34,7 @@ public class LoanApprovalWorkflowImpl implements LoanApprovalWorkflow {
             
             // Bước 2: Tạo tài khoản vay
             log.info("Step 2: Creating loan account for loan {}", loanId);
-            String accountNumber = activities.createLoanAccount(loanData);
+            String accountNumber = activities.createLoanAccount(loanData, username);
             
             // Bước 3: Thực hiện giải ngân
             log.info("Step 3: Disbursing loan {}", loanId);
@@ -41,10 +42,10 @@ public class LoanApprovalWorkflowImpl implements LoanApprovalWorkflow {
             disburseReq.setToAccountNumber(accountNumber);
             disburseReq.setAmount(loanData.getAmount());
             disburseReq.setCurrency("VND");
-            String transactionRef = activities.disburseLoan(disburseReq);
+            String transactionRef = activities.disburseLoan(disburseReq, username);
             // Bước 4: Approve loan trong database
             log.info("Step 4: Approving loan in database {}", loanId);
-            activities.approveLoanInDatabase(loanId);
+            activities.approveLoanInDatabase(loanId,accountNumber);
             
             // Bước 5: Tạo lịch trả nợ
             log.info("Step 5: Generating repayment schedule for loan {}", loanId);

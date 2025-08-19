@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import io.micrometer.core.instrument.Timer;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 @Slf4j
 @Service
@@ -37,7 +36,6 @@ public class CICClientImpl implements CICClient {
     @Override
     @CircuitBreaker(name = "cicService", fallbackMethod = "checkCICFallback")
     @Retry(name = "cicService", fallbackMethod = "checkCICFallback")
-    @TimeLimiter(name = "cicService", fallbackMethod = "checkCICFallback")
     @Bulkhead(name = "externalApiCalls", fallbackMethod = "checkCICFallback")
     public CicResponse checkCIC(CICRequest cicRequest) {
         log.info("CHECK_CIC - CICRequest: {}", cicRequest);

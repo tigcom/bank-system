@@ -7,5 +7,5 @@ import io.temporal.workflow.WorkflowMethod;
 public interface LoanApprovalWorkflow {
     
     @WorkflowMethod
-    LoanApprovalResult approveLoan(Long loanId);
+    LoanApprovalResult approveLoan(Long loanId, String username);
 } 

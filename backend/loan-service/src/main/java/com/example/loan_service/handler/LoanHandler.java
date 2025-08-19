@@ -31,16 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.rpc.RpcContext;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.cache.annotation.Cacheable;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,6 +46,9 @@ import java.time.Period;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
@@ -72,17 +72,16 @@ public class LoanHandler {
     public Loan approveLoan(Long loanId) {
         log.info("APPROVE_LOAN_HANDLER_START - loanId: {}", loanId);
         try {
-            // Sử dụng Temporal Workflow để approve loan
-            LoanApprovalResult result = loanWorkflowService.startLoanApprovalWorkflow(loanId);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication != null ? authentication.getName() : null;
+            RpcContext.getClientAttachment().setAttachment("username", username);
+            log.info("USERNAME - : {}", username);
+            LoanApprovalResult result = loanWorkflowService.startLoanApprovalWorkflow(loanId, username);
             
             if (!result.isSuccess()) {
                 throw new IllegalArgumentException("Loan approval failed: " + result.getErrorMessage());
             }
-            
-            // Lấy loan đã được approve từ database
-            Loan loan = loanService.getLoanById(loanId)
-                    .orElseThrow(() -> new IllegalArgumentException("Loan not found after approval: " + loanId));
-            
+            Loan loan = loanService.getLoanById(loanId);
             log.info("APPROVE_LOAN_HANDLER_SUCCESS - loanId: {}, accountNumber: {}", loanId, result.getDisbursementAccountNumber());
             return loan;
             
@@ -98,8 +97,10 @@ public class LoanHandler {
     public LoanApprovalResult approveLoanAsync(Long loanId) {
         log.info("APPROVE_LOAN_ASYNC_HANDLER_START - loanId: {}", loanId);
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication != null ? authentication.getName() : null;
             // Sử dụng Temporal Workflow để approve loan bất đồng bộ
-            LoanApprovalResult result = loanWorkflowService.startLoanApprovalWorkflowAsync(loanId);
+            LoanApprovalResult result = loanWorkflowService.startLoanApprovalWorkflowAsync(loanId, username);
             
             log.info("APPROVE_LOAN_ASYNC_HANDLER_SUCCESS - loanId: {}, status: {}", loanId, result.getStatus());
             return result;
@@ -109,11 +110,7 @@ public class LoanHandler {
             throw e;
         }
     }
-    @CircuitBreaker(name = "dubboServices", fallbackMethod = "createLoanFallback")
-    @Retry(name = "dubboServices", fallbackMethod = "createLoanFallback")
-    @TimeLimiter(name = "dubboServices", fallbackMethod = "createLoanFallback")
-    @Bulkhead(name = "loanProcessing", fallbackMethod = "createLoanFallback")
-    public Loan createLoan(LoanRequestDTO dto)  {
+    public Loan createLoan(LoanRequestDTO dto) {
         log.info("CREATE_LOAN_HANDLER_START - request: {}", dto);
         try {
             Long customerId = getCustomerId();
@@ -144,13 +141,16 @@ public class LoanHandler {
                     cicResponse.getErrorCode(),
                     cicResponse.getMessage()
             );
-            if (!"success".equalsIgnoreCase(cicResponse.getStatus())) throw new IllegalArgumentException("Không thể truy vấn CIC: " + cicResponse.getMessage());
+            if (!"success".equalsIgnoreCase(cicResponse.getStatus())) {
+                throw new IllegalArgumentException("Không thể truy vấn CIC: " + cicResponse.getMessage());
+            }
             int score = cicResponse.getCreditScore();
             boolean overdue = cicResponse.getOverdue();
             int group = cicResponse.getDebtGroup();
-            if (overdue)  throw new IllegalArgumentException("Khách hàng đang có nợ quá hạn theo CIC");
-            if (group >= 2)   throw new IllegalArgumentException("Khách hàng thuộc nhóm nợ xấu (nhóm " + group + ")");
-            if (score < 700 || group == 1)  log.warn("CIC warning: Khách hàng có điểm tín dụng trung bình hoặc nhóm nợ cần chú ý");
+            if (overdue) throw new IllegalArgumentException("Khách hàng đang có nợ quá hạn theo CIC");
+            if (group >= 2) throw new IllegalArgumentException("Khách hàng thuộc nhóm nợ xấu (nhóm " + group + ")");
+            if (score < 700 || group == 1)
+                log.warn("CIC warning: Khách hàng có điểm tín dụng trung bình hoặc nhóm nợ cần chú ý");
             log.info("CIC PASS - Khách hàng đủ điều kiện tín dụng");
             Loan l = loanMapper.toEntity(dto);
             l.setCustomerId(customerId);
@@ -166,11 +166,11 @@ public class LoanHandler {
             throw new RuntimeException("Xảy ra lỗi khi xử lý khoản vay", e);
         }
     }
-
-    public Loan createLoanFallback(LoanRequestDTO dto, Throwable t) {
+    public RuntimeException createLoanFallback(LoanRequestDTO dto, Throwable t) {
         log.warn("CREATE_LOAN_HANDLER_FALLBACK - dto: {}, error: {}", dto, t.getMessage());
-        throw new RuntimeException("Loan creation service is temporarily unavailable: " + t.getMessage(), t);
+        return new RuntimeException("Loan creation service is temporarily unavailable", t);
     }
+
     public Loan updateLoan(LoanRequestDTO dto) {
         log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -188,11 +188,11 @@ public class LoanHandler {
             throw e;
         }
     }
-    public Optional<Loan> getLoanById(Long loanId) {
+    public Loan getLoanById(Long loanId) {
         log.info("GET_LOAN_BY_ID_HANDLER_START - loanId: {}", loanId);
         try {
-            Optional<Loan> loan = loanService.getLoanById(loanId);
-            log.info("GET_LOAN_BY_ID_HANDLER_SUCCESS - found: {}", loan.isPresent());
+            Loan loan = loanService.getLoanById(loanId);
+            log.info("GET_LOAN_BY_ID_HANDLER_SUCCESS - found: {}", loan.getLoanId());
             return loan;
         } catch (Exception e) {
             log.error("GET_LOAN_BY_ID_HANDLER_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
@@ -279,10 +279,6 @@ public class LoanHandler {
             throw e;
         }
     }
-    @CircuitBreaker(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
-    @Retry(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
-    @TimeLimiter(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
-    @Bulkhead(name = "loanProcessing", fallbackMethod = "makeRepaymentFallback")
     public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber) {
         log.info("MAKE_REPAYMENT_HANDLER_START - repaymentId: {}, amount: {}, account: {}", repaymentId, amount, accountNumber);
         try {
@@ -298,7 +294,7 @@ public class LoanHandler {
                 throw new IllegalArgumentException(tx.getFailedReason());
             }
             log.info("MAKE_REPAYMENT_HANDLER_SUCCESS - referenceCode: {}", tx.getReferenceCode());
-            return tx.getReferenceCode();
+            return tx.getReferenceCode() ;
         } catch (IllegalArgumentException e) {
             log.error("MAKE_REPAYMENT_HANDLER_INVALID - {}", e.getMessage());
             throw e;
@@ -308,7 +304,7 @@ public class LoanHandler {
         }
     }
 
-    public String makeRepaymentFallback(Long repaymentId, BigDecimal amount, String accountNumber, Throwable t) {
+    public CompletableFuture<String>  makeRepaymentFallback(Long repaymentId, BigDecimal amount, String accountNumber, Throwable t) {
         log.warn("MAKE_REPAYMENT_HANDLER_FALLBACK - repaymentId: {}, amount: {}, account: {}, error: {}", 
                 repaymentId, amount, accountNumber, t.getMessage());
         throw new RuntimeException("Transaction service is temporarily unavailable: " + t.getMessage(), t);
