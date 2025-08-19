@@ -82,7 +82,11 @@ public class Loan {
     @JsonManagedReference
     private List<LoanRejectionReason> rejectionReasons;
 
+    @Column(name = "path_file")
+    private String pathFile;;
 
+    @Column(name = "declared_income")
+    private BigDecimal declaredIncome;
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
