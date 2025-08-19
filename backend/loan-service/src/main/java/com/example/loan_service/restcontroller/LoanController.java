@@ -255,8 +255,7 @@ public class LoanController {
         log.info("GET_LOAN_BY_ID_START - loanId: {}", loanId);
         ApiResponseWrapper<Loan> response = new ApiResponseWrapper<>();
         try {
-            Loan loan = loanHandler.getLoanById(loanId)
-                    .orElseThrow(() -> new RuntimeException("Loan not found with id " + loanId));
+            Loan loan = loanHandler.getLoanById(loanId);
             response.setData(loan);
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Loan found");

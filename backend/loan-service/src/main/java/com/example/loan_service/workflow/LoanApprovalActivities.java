@@ -12,13 +12,13 @@ public interface LoanApprovalActivities {
     LoanRequestDTO validateLoan(Long loanId);
     
     @ActivityMethod
-    String createLoanAccount(LoanRequestDTO loanData);
+    String createLoanAccount(LoanRequestDTO loanData, String username);
     
     @ActivityMethod
-    String disburseLoan(CommonDisburseRequest disburseReq );
+    String disburseLoan(CommonDisburseRequest disburseReq , String username);
     
     @ActivityMethod
-    void approveLoanInDatabase(Long loanId);
+    void approveLoanInDatabase(Long loanId,String accountNumber);
     
     @ActivityMethod
     void generateRepaymentSchedule(Long loanId);

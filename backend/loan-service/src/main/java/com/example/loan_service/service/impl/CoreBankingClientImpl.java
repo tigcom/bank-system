@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import io.micrometer.core.instrument.Timer;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 
 import java.math.BigDecimal;
@@ -34,7 +33,6 @@ public class CoreBankingClientImpl implements CoreBankingClient {
     @Override
     @CircuitBreaker(name = "coreBanking", fallbackMethod = "updateAccountFallback")
     @Retry(name = "coreBanking", fallbackMethod = "updateAccountFallback")
-    @TimeLimiter(name = "coreBanking", fallbackMethod = "updateAccountFallback")
     @Bulkhead(name = "externalApiCalls", fallbackMethod = "updateAccountFallback")
     public CoreResponse updateAccount(com.example.common_service.dto.CoreAccountRequest request) {
         log.info("UPDATE_ACCOUNT_START - request: {}", request);
@@ -91,7 +89,6 @@ public class CoreBankingClientImpl implements CoreBankingClient {
     @Override
     @CircuitBreaker(name = "coreBanking", fallbackMethod = "getBalanceFallback")
     @Retry(name = "coreBanking", fallbackMethod = "getBalanceFallback")
-    @TimeLimiter(name = "coreBanking", fallbackMethod = "getBalanceFallback")
     @Bulkhead(name = "externalApiCalls", fallbackMethod = "getBalanceFallback")
     public BigDecimal getBalance(String accountNumber) {
         log.info("GET_BALANCE_START - accountNumber: {}", accountNumber);

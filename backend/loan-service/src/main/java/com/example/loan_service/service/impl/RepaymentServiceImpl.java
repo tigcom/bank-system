@@ -17,10 +17,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 import java.math.BigDecimal;
@@ -248,8 +244,6 @@ public class RepaymentServiceImpl implements RepaymentService {
     @Override
     @CacheEvict(value = "repaymentHistory", allEntries = true)
     @RateLimiter(name = "repaymentProcessing", fallbackMethod = "makeRepaymentFallback")
-    @Bulkhead(name = "databaseOperations", fallbackMethod = "makeRepaymentFallback")
-    @Retry(name = "dubboServices", fallbackMethod = "makeRepaymentFallback")
     public Repayment makeRepayment(Long repaymentId, BigDecimal amount) {
         log.info("MAKE_REPAYMENT_START - repaymentId: {}, amount: {}", repaymentId, amount);
         try {

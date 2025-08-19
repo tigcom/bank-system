@@ -6,6 +6,7 @@ import com.example.loan_service.repository.LoanRepository;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.LoanMetricsService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,16 +14,11 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import io.micrometer.core.instrument.Timer;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,8 +31,6 @@ public class LoanServiceImpl implements LoanService {
     @Override
     @CacheEvict(value = {"loanById", "allLoans"}, allEntries = true)
     @RateLimiter(name = "loanCreation", fallbackMethod = "createLoanFallback")
-    @Bulkhead(name = "loanProcessing", fallbackMethod = "createLoanFallback")
-    @TimeLimiter(name = "loanProcessing", fallbackMethod = "createLoanFallback")
     public Loan createLoan(Loan loan) {
         log.info("CREATE_LOAN_START - loan: {}", loan);
         Timer.Sample timer = metricsService.startLoanApplicationProcessing();
@@ -74,8 +68,6 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     @CachePut(value = "loanById", key = "#loan.loanId")
-    @Bulkhead(name = "databaseOperations", fallbackMethod = "updateLoanFallback")
-    @Retry(name = "dubboServices", fallbackMethod = "updateLoanFallback")
     public Loan updateLoan(Loan loan) {
         log.info("UPDATE_LOAN_START - loanId: {}, data: {}", loan.getLoanId(), loan);
         try {
@@ -95,7 +87,6 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     @Cacheable(value = "allLoans", key = "'allLoans'")
-    @Bulkhead(name = "databaseOperations", fallbackMethod = "findAllLoanFallback")
     public List<Loan> findAllLoan() {
         log.info("FIND_ALL_LOANS_START");
         try {
@@ -127,12 +118,13 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Transactional
     @Cacheable(value = "loanById", key = "#loanId")
-    public Optional<Loan> getLoanById(Long loanId) {
+    public Loan getLoanById(Long loanId) {
         log.info("GET_LOAN_BY_ID_START - loanId: {}", loanId);
         try {
-            Optional<Loan> loan = loanRepository.findById(loanId);
-            log.info("GET_LOAN_BY_ID_SUCCESS - found: {}", loan.isPresent());
+            Loan loan = loanRepository.findById(loanId).orElse(null);
+            log.info("GET_LOAN_BY_ID_SUCCESS - found: {}", loan.getLoanId());
             return loan;
         } catch (Exception e) {
             log.error("GET_LOAN_BY_ID_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
@@ -165,8 +157,6 @@ public class LoanServiceImpl implements LoanService {
     @Override
     @CacheEvict(value = {"loanById", "allLoans"}, allEntries = true)
     @RateLimiter(name = "loanApproval", fallbackMethod = "approveLoanFallback")
-    @Bulkhead(name = "loanProcessing", fallbackMethod = "approveLoanFallback")
-    @TimeLimiter(name = "loanProcessing", fallbackMethod = "approveLoanFallback")
     public Loan approveLoan(Loan loan) {
         log.info("APPROVE_LOAN_START - loanId: {}", loan.getLoanId());
         

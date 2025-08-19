@@ -17,7 +17,7 @@ public class LoanWorkflowService {
 
     private final WorkflowClient workflowClient;
 
-    public LoanApprovalResult startLoanApprovalWorkflow(Long loanId) {
+    public LoanApprovalResult startLoanApprovalWorkflow(Long loanId, String username) {
         log.info("Starting loan approval workflow for loanId: {}", loanId);
         
         WorkflowOptions options = WorkflowOptions.newBuilder()
@@ -30,7 +30,7 @@ public class LoanWorkflowService {
         LoanApprovalWorkflow workflow = workflowClient.newWorkflowStub(LoanApprovalWorkflow.class, options);
         
         try {
-            LoanApprovalResult result = workflow.approveLoan(loanId);
+            LoanApprovalResult result = workflow.approveLoan(loanId, username);
             log.info("Loan approval workflow completed for loanId: {}, success: {}", loanId, result.isSuccess());
             return result;
         } catch (Exception e) {
@@ -39,7 +39,7 @@ public class LoanWorkflowService {
         }
     }
 
-    public LoanApprovalResult startLoanApprovalWorkflowAsync(Long loanId) {
+    public LoanApprovalResult startLoanApprovalWorkflowAsync(Long loanId, String username) {
         log.info("Starting async loan approval workflow for loanId: {}", loanId);
         
         WorkflowOptions options = WorkflowOptions.newBuilder()
@@ -52,7 +52,7 @@ public class LoanWorkflowService {
         LoanApprovalWorkflow workflow = workflowClient.newWorkflowStub(LoanApprovalWorkflow.class, options);
         
         // Start workflow asynchronously
-        workflow.approveLoan(loanId);
+        workflow.approveLoan(loanId, username);
         
         log.info("Async loan approval workflow started for loanId: {}", loanId);
         

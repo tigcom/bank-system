@@ -74,11 +74,11 @@ public class Loan {
     @Column(name = "audit_last_modified_by")
     private String auditLastModifiedBy;
 
-    @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "loan", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Repayment> repayments;
 
-    @OneToMany(mappedBy = "loan", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "loan", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<LoanRejectionReason> rejectionReasons;
 
