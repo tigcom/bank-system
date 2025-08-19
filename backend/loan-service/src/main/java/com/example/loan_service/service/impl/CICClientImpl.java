@@ -19,11 +19,16 @@ import io.micrometer.core.instrument.Timer;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import org.springframework.beans.factory.annotation.Value;
 @Slf4j
 @Service
 public class CICClientImpl implements CICClient {
     private final RestTemplate restTemplate;
     private final LoanMetricsService metricsService;
+    @Value("${app.simulate.cicService.fail:false}")
+    private boolean simulateFail;
+    @Value("${app.simulate.cicService.delayMs:0}")
+    private long simulateDelayMs;
 
     public CICClientImpl(
             @Qualifier("interServiceRestTemplate")
@@ -42,6 +47,12 @@ public class CICClientImpl implements CICClient {
         Timer.Sample timer = metricsService.startCicCheck();
         
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated CIC failure");
+            }
             // Increment CIC checks counter
             metricsService.incrementCicChecks();
             
@@ -54,6 +65,9 @@ public class CICClientImpl implements CICClient {
             CicResponse body = resp.getBody().getData();
             log.info("CHECK_CIC - CICResponse: {}", body);
             return body;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (Exception e) {
             log.error("CHECK_CIC_ERROR - cicRequest: {}, error: {}", cicRequest, e.getMessage(), e);
             throw new RuntimeException("Failed to check CIC: " + e.getMessage(), e);

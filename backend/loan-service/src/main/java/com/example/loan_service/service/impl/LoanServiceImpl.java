@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import io.micrometer.core.instrument.Timer;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +29,11 @@ public class LoanServiceImpl implements LoanService {
     private final LoanRepository loanRepository;
     private final LoanMetricsService metricsService;
 
+    @Value("${app.simulate.loanService.fail:false}")
+    private boolean simulateFail;
+    @Value("${app.simulate.loanService.delayMs:0}")
+    private long simulateDelayMs;
+
     @Override
     @CacheEvict(value = {"loanById", "allLoans"}, allEntries = true)
     @RateLimiter(name = "loanCreation", fallbackMethod = "createLoanFallback")
@@ -36,6 +42,12 @@ public class LoanServiceImpl implements LoanService {
         Timer.Sample timer = metricsService.startLoanApplicationProcessing();
         
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated loanService createLoan failure");
+            }
             // Increment loan applications counter
             metricsService.incrementLoanApplications();
             
@@ -53,6 +65,9 @@ public class LoanServiceImpl implements LoanService {
             
             log.info("CREATE_LOAN_SUCCESS - loanId: {}", saved.getLoanId());
             return saved;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (Exception e) {
             log.error("CREATE_LOAN_ERROR - error: {}", e.getMessage(), e);
             throw e;
@@ -161,6 +176,12 @@ public class LoanServiceImpl implements LoanService {
         log.info("APPROVE_LOAN_START - loanId: {}", loan.getLoanId());
         
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated loanService approveLoan failure");
+            }
             if (!LoanStatus.PENDING.equals(loan.getStatus())) {
                 log.warn("APPROVE_LOAN_INVALID - loanId: {}, status: {}",  loan.getLoanId(), loan.getStatus());
                 throw new IllegalStateException("Loan is not in PENDING status");
@@ -175,6 +196,9 @@ public class LoanServiceImpl implements LoanService {
             
             log.info("APPROVE_LOAN_SUCCESS - loanId: {}", saved.getLoanId());
             return saved;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (IllegalStateException e) {
             log.warn("APPROVE_LOAN_WARN - loanId: {}, reason: {}",  loan.getLoanId(), e.getMessage());
             throw e;
@@ -254,6 +278,12 @@ public class LoanServiceImpl implements LoanService {
         Timer.Sample timer = metricsService.startLoanDisbursement();
         
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated loanService closedLoan failure");
+            }
             Loan loan = loanRepository.findById(loanId)
                     .orElseThrow(() -> new EntityNotFoundException("Loan not found: " + loanId));
             if (!LoanStatus.APPROVED.equals(loan.getStatus())) {
@@ -270,6 +300,9 @@ public class LoanServiceImpl implements LoanService {
             
             log.info("CLOSE_LOAN_SUCCESS - loanId: {}", saved.getLoanId());
             return saved;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (IllegalStateException e) {
             log.warn("CLOSE_LOAN_WARN - loanId: {}, reason: {}", loanId, e.getMessage());
             throw e;

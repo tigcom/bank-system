@@ -25,7 +25,9 @@ public interface LoanMapper {
             @Mapping(target = "status",                      source = "status"),
             @Mapping(target = "createdAt",                   source = "createdAt"),
             @Mapping(target = "approvedAt",                  source = "approvedAt"),
-            @Mapping(target = "loanType",                    source = "loanType")
+            @Mapping(target = "loanType",                    source = "loanType"),
+            @Mapping(target = "declaredIncome",              source = "declaredIncome"),
+            @Mapping(target = "pathFile",                    source = "pathFile")
     })
     Loan toEntity(LoanRequestDTO dto);
 
@@ -58,7 +60,9 @@ public interface LoanMapper {
             @Mapping(target = "createdAt",                 source = "createdAt"),
             @Mapping(target = "approvedAt",                source = "approvedAt"),
             @Mapping(target = "status",                    source = "status"),
-            @Mapping(target = "loanType",                  source = "loanType")
+            @Mapping(target = "loanType",                  source = "loanType"),
+            @Mapping(target = "declaredIncome",            source = "declaredIncome"),
+            @Mapping(target = "pathFile",                  source = "pathFile")
     })
     LoanRequestDTO toRequestDTO(Loan loan);
 

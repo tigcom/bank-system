@@ -60,4 +60,8 @@ public class LoanRequestDTO implements Serializable {
 
     @DecimalMin(value = "0.0", inclusive = true, message = "{loan.paidAmount.min}")
     private BigDecimal paidAmount;
+
+    // new fields for income proof
+    private BigDecimal declaredIncome;
+    private String pathFile;
 }

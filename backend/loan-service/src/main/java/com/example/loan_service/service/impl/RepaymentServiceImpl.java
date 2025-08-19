@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,6 +35,11 @@ public class RepaymentServiceImpl implements RepaymentService {
     private final LoanService loanService;
     private final LoanMapper loanMapper;
     private final CoreBankingClient bankingClient;
+
+    @Value("${app.simulate.repaymentService.fail:false}")
+    private boolean simulateFail;
+    @Value("${app.simulate.repaymentService.delayMs:0}")
+    private long simulateDelayMs;
 
     @Override
     public List<Repayment> getRepaymentNotPaid(Long loanId) {
@@ -247,6 +253,12 @@ public class RepaymentServiceImpl implements RepaymentService {
     public Repayment makeRepayment(Long repaymentId, BigDecimal amount) {
         log.info("MAKE_REPAYMENT_START - repaymentId: {}, amount: {}", repaymentId, amount);
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated repaymentService makeRepayment failure");
+            }
             Repayment repayment = repaymentRepository.findById(repaymentId)
                     .orElseThrow(() -> new EntityNotFoundException("Repayment not found: " + repaymentId));
             BigDecimal newPaid = repayment.getPaidAmount().add(amount);
@@ -269,6 +281,9 @@ public class RepaymentServiceImpl implements RepaymentService {
 
             log.info("MAKE_REPAYMENT_SUCCESS - repaymentId: {}, status: {}", repaymentId, saved.getStatus());
             return saved;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (EntityNotFoundException e) {
             log.warn("MAKE_REPAYMENT_NOT_FOUND - repaymentId: {}", repaymentId);
             throw e;

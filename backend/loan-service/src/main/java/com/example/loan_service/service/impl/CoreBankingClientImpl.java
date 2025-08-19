@@ -19,6 +19,7 @@ import io.micrometer.core.instrument.Timer;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +31,11 @@ public class CoreBankingClientImpl implements CoreBankingClient {
     @Qualifier("restTemplate")
     private final RestTemplate restTemplate;
     private final LoanMetricsService metricsService;
+
+    @Value("${app.simulate.coreBanking.fail:false}")
+    private boolean simulateFail;
+    @Value("${app.simulate.coreBanking.delayMs:0}")
+    private long simulateDelayMs;
     @Override
     @CircuitBreaker(name = "coreBanking", fallbackMethod = "updateAccountFallback")
     @Retry(name = "coreBanking", fallbackMethod = "updateAccountFallback")
@@ -39,6 +45,13 @@ public class CoreBankingClientImpl implements CoreBankingClient {
         Timer.Sample timer = metricsService.startCoreBankingCall();
         
         try {
+            // Simulation toggles for testing Resilience4j
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated coreBanking updateAccount failure");
+            }
             // Increment core banking calls counter
             metricsService.incrementCoreBankingCalls();
             
@@ -49,6 +62,9 @@ public class CoreBankingClientImpl implements CoreBankingClient {
             );
             log.info("UPDATE_ACCOUNT_SUCCESS - request: {}", request);
             return response.getBody();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (Exception e) {
             log.error("UPDATE_ACCOUNT_ERROR - request: {}, error: {}", request, e.getMessage(), e);
             throw new RuntimeException("Failed to update account in core banking: " + e.getMessage(), e);
@@ -70,11 +86,20 @@ public class CoreBankingClientImpl implements CoreBankingClient {
     public void deleteLoan(long id) {
         log.info("DELETE_LOAN_START - id: {}", id);
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated coreBanking deleteLoan failure");
+            }
             restTemplate.delete(
                     "http://localhost:8083/corebanking/api/core/loans/sync",
                     id
             );
             log.info("DELETE_LOAN_SUCCESS - id: {}", id);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (Exception e) {
             log.error("DELETE_LOAN_ERROR - id: {}, error: {}", id, e.getMessage(), e);
             throw new RuntimeException("Failed to delete loan in core banking: " + e.getMessage(), e);
@@ -95,6 +120,12 @@ public class CoreBankingClientImpl implements CoreBankingClient {
         Timer.Sample timer = metricsService.startCoreBankingCall();
         
         try {
+            if (simulateDelayMs > 0) {
+                Thread.sleep(simulateDelayMs);
+            }
+            if (simulateFail) {
+                throw new RuntimeException("Simulated coreBanking getBalance failure");
+            }
             // Increment core banking calls counter
             metricsService.incrementCoreBankingCalls();
             
@@ -114,6 +145,9 @@ public class CoreBankingClientImpl implements CoreBankingClient {
             
             log.warn("GET_BALANCE_NULL_RESPONSE - accountNumber: {}, using zero balance", accountNumber);
             return BigDecimal.ZERO;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted", e);
         } catch (Exception e) {
             log.error("GET_BALANCE_ERROR - accountNumber: {}, error: {}", accountNumber, e.getMessage(), e);
             throw new RuntimeException("Failed to get balance from core banking: " + e.getMessage(), e);
