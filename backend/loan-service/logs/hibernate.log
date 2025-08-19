@@ -16363,3 +16363,131 @@ java.lang.Exception: exception just for purpose of providing stack trace
 2025-08-19 13:27:22 DEBUG [scheduling-1] o.h.internal.util.EntityPrinter [,] - com.example.loan_service.entity.Repayment{principal=2083333.33, auditCreatedAt=null, loan=com.example.loan_service.entity.Loan#85, auditLastModifiedAt=null, auditCreatedBy=null, interest=44270.83, repaymentId=539, dueDate=2025-10-01, paidAmount=0.00, auditLastModifiedBy=null, status=UNPAID}
 2025-08-19 13:27:22 DEBUG [scheduling-1] o.h.internal.util.EntityPrinter [,] - com.example.loan_service.entity.Repayment{principal=2083333.33, auditCreatedAt=null, loan=com.example.loan_service.entity.Loan#84, auditLastModifiedAt=null, auditCreatedBy=null, interest=147569.44, repaymentId=508, dueDate=2024-11-01, paidAmount=2230902.77, auditLastModifiedBy=null, status=PAID}
 2025-08-19 13:27:22 DEBUG [scheduling-1] o.h.internal.util.EntityPrinter [,] - More......
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.orm.sql.ast.create [,] - Created new SQL alias : l1_0
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.ast.create [,] - Created new SQL alias : l1_0
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.ast.create [,] - Registration of TableGroup [StandardTableGroup(com.example.loan_service.entity.Loan(4))] with identifierForTableGroup [com.example.loan_service.entity.Loan] for NavigablePath [com.example.loan_service.entity.Loan] 
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.orm.sql.ast.create [,] - Registration of TableGroup [StandardTableGroup(com.example.loan_service.entity.Loan(4))] with identifierForTableGroup [com.example.loan_service.entity.Loan] for NavigablePath [com.example.loan_service.entity.Loan] 
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@4d7dce23
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(4).status) 
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@21744796
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(4).status) 
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@61996c0b
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(4).customerId) 
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmParameter : org.hibernate.query.sqm.tree.expression.SqmJpaCriteriaParameterWrapper@6a249e52
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] o.h.q.s.sql.BaseSqmToSqlAstConverter [,] - Determining mapping-model type for SqmPath : SqmBasicValuedSimplePath(com.example.loan_service.entity.Loan(4).customerId) 
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.orm.results.graph.AST [,] - DomainResult Graph:
+ \-EntityResultImpl [com.example.loan_service.entity.Loan(4)]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).amount]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).approvedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditCreatedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditCreatedBy]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditLastModifiedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditLastModifiedBy]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).createdAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).customerId]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).disbursementAccountNumber]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).interestRate]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).loanType]
+ |  +-SelectEagerCollectionFetch [com.example.loan_service.entity.Loan(4).rejectionReasons]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).repaymentAccountNumber]
+ |  +-SelectEagerCollectionFetch [com.example.loan_service.entity.Loan(4).repayments]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).status]
+ |  \-BasicFetch [com.example.loan_service.entity.Loan(4).termMonths]
+
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.orm.sql.ast.tree [,] - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (l1 : com.example.loan_service.entity.Loan(4)) {
+          primaryTableReference : loan as l1_0
+        }
+      }
+    }
+
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results.graph.AST [,] - DomainResult Graph:
+ \-EntityResultImpl [com.example.loan_service.entity.Loan(4)]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).amount]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).approvedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditCreatedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditCreatedBy]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditLastModifiedAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).auditLastModifiedBy]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).createdAt]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).customerId]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).disbursementAccountNumber]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).interestRate]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).loanType]
+ |  +-SelectEagerCollectionFetch [com.example.loan_service.entity.Loan(4).rejectionReasons]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).repaymentAccountNumber]
+ |  +-SelectEagerCollectionFetch [com.example.loan_service.entity.Loan(4).repayments]
+ |  +-BasicFetch [com.example.loan_service.entity.Loan(4).status]
+ |  \-BasicFetch [com.example.loan_service.entity.Loan(4).termMonths]
+
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.ast.tree [,] - SQL AST Tree:
+    SelectStatement {
+      FromClause {
+        StandardTableGroup (l1 : com.example.loan_service.entity.Loan(4)) {
+          primaryTableReference : loan as l1_0
+        }
+      }
+    }
+
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.sql.exec [,] - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.orm.results [,] - Initializer list:
+	  com.example.loan_service.entity.Loan(4).repayments -> SelectEagerCollectionInitializer(com.example.loan_service.entity.Loan(4).repayments)@353931475 (PluralAttribute(com.example.loan_service.entity.Loan.repayments))
+	  com.example.loan_service.entity.Loan(4) -> EntityResultInitializer(com.example.loan_service.entity.Loan(4))@41971971 (SingleTableEntityPersister(com.example.loan_service.entity.Loan))
+	  com.example.loan_service.entity.Loan(4).rejectionReasons -> SelectEagerCollectionInitializer(com.example.loan_service.entity.Loan(4).rejectionReasons)@1970702820 (PluralAttribute(com.example.loan_service.entity.Loan.rejectionReasons))
+
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.orm.sql.exec [,] - Skipping reading Query result cache data: cache-enabled = false, cache-mode = NORMAL
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.orm.results [,] - Initializer list:
+	  com.example.loan_service.entity.Loan(4).repayments -> SelectEagerCollectionInitializer(com.example.loan_service.entity.Loan(4).repayments)@472377504 (PluralAttribute(com.example.loan_service.entity.Loan.repayments))
+	  com.example.loan_service.entity.Loan(4) -> EntityResultInitializer(com.example.loan_service.entity.Loan(4))@1561722539 (SingleTableEntityPersister(com.example.loan_service.entity.Loan))
+	  com.example.loan_service.entity.Loan(4).rejectionReasons -> SelectEagerCollectionInitializer(com.example.loan_service.entity.Loan(4).rejectionReasons)@532204336 (PluralAttribute(com.example.loan_service.entity.Loan.rejectionReasons))
+
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-3] org.hibernate.SQL [,] - 
+    select
+        l1_0.loan_id,
+        l1_0.amount,
+        l1_0.approved_at,
+        l1_0.audit_created_at,
+        l1_0.audit_created_by,
+        l1_0.audit_last_modified_at,
+        l1_0.audit_last_modified_by,
+        l1_0.created_at,
+        l1_0.customer_id,
+        l1_0.disbursement_account_number,
+        l1_0.interest_rate,
+        l1_0.loan_type,
+        l1_0.repayment_account_number,
+        l1_0.status,
+        l1_0.term_months 
+    from
+        loan l1_0 
+    where
+        l1_0.status=? 
+        and l1_0.customer_id=?
+2025-08-19 13:50:44 DEBUG [http-nio-9827-exec-4] org.hibernate.SQL [,] - 
+    select
+        l1_0.loan_id,
+        l1_0.amount,
+        l1_0.approved_at,
+        l1_0.audit_created_at,
+        l1_0.audit_created_by,
+        l1_0.audit_last_modified_at,
+        l1_0.audit_last_modified_by,
+        l1_0.created_at,
+        l1_0.customer_id,
+        l1_0.disbursement_account_number,
+        l1_0.interest_rate,
+        l1_0.loan_type,
+        l1_0.repayment_account_number,
+        l1_0.status,
+        l1_0.term_months 
+    from
+        loan l1_0 
+    where
+        l1_0.status=? 
+        and l1_0.customer_id=?
+2025-08-19 14:29:26 DEBUG [SpringContextShutdownHook] o.h.internal.SessionFactoryImpl [,] - HHH000031: Closing
+2025-08-19 14:29:26 DEBUG [SpringContextShutdownHook] o.h.type.spi.TypeConfiguration$Scope [,] - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@38919c2e] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@5ffb1ee0]
+2025-08-19 14:29:26 DEBUG [SpringContextShutdownHook] o.h.s.i.AbstractServiceRegistryImpl [,] - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
+2025-08-19 14:29:26 DEBUG [SpringContextShutdownHook] o.h.b.r.i.BootstrapServiceRegistryImpl [,] - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries

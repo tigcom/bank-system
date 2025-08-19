@@ -524,3 +524,480 @@ java.lang.IllegalArgumentException: The class with org.springframework.security.
 2025-08-19 10:37:51 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.apache.kafka.clients.NetworkClient [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Node -1 disconnected.
 2025-08-19 10:40:30 INFO  [NettyServerWorker-5-3] o.a.d.r.t.netty4.NettyServerHandler [,] -  [DUBBO] The connection [id: 0x452c6e3f, L:/10.2.36.61:20882 ! R:/10.2.36.61:51706] of 10.2.36.61:51706 -> 10.2.36.61:20882 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.61
 2025-08-19 10:40:42 INFO  [NettyServerWorker-5-4] o.a.d.r.t.netty4.NettyServerHandler [,] -  [DUBBO] The connection [id: 0xc1e6e06f, L:/10.2.36.61:20882 - R:/10.2.36.61:33438] of 10.2.36.61:33438 -> 10.2.36.61:20882 is established., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 13:50:50 WARN  [DubboServerHandler-10.2.36.61:20882-thread-9] o.a.d.s.s.jackson.ObjectMapperCodec [,] -  [DUBBO] , dubbo version: 3.3.2, current host: 10.2.36.61, error code: 0-23. This may be caused by objectMapper! deserialize error, you can try to customize the ObjectMapperCodecCustomer., go to https://dubbo.apache.org/faq/0/23 to find instructions. 
+java.lang.IllegalArgumentException: The class with org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken and name of org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken is not in the allowlist. If you believe this class is safe to deserialize, please provide an explicit mapping using Jackson annotations or by providing a Mixin. If the serialization is only done by a trusted source, you can also enable default typing. See https://github.com/spring-projects/spring-security/issues/4370 for details
+	at org.springframework.security.jackson2.SecurityJackson2Modules$AllowlistTypeIdResolver.typeFromId(SecurityJackson2Modules.java:292)
+	at com.fasterxml.jackson.databind.jsontype.impl.TypeDeserializerBase._findDeserializer(TypeDeserializerBase.java:159)
+	at com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer._deserializeTypedForId(AsPropertyTypeDeserializer.java:151)
+	at com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer.deserializeTypedFromObject(AsPropertyTypeDeserializer.java:136)
+	at com.fasterxml.jackson.databind.deser.AbstractDeserializer.deserializeWithType(AbstractDeserializer.java:263)
+	at com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer.deserialize(TypeWrappedDeserializer.java:74)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:342)
+	at com.fasterxml.jackson.databind.ObjectMapper._readMapAndClose(ObjectMapper.java:4905)
+	at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3909)
+	at org.apache.dubbo.spring.security.jackson.ObjectMapperCodec.deserialize(ObjectMapperCodec.java:50)
+	at org.apache.dubbo.spring.security.jackson.ObjectMapperCodec.deserialize(ObjectMapperCodec.java:67)
+	at org.apache.dubbo.spring.security.filter.ContextHolderAuthenticationResolverFilter.getSecurityContext(ContextHolderAuthenticationResolverFilter.java:74)
+	at org.apache.dubbo.spring.security.filter.ContextHolderAuthenticationResolverFilter.invoke(ContextHolderAuthenticationResolverFilter.java:61)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.GenericFilter.invoke(GenericFilter.java:222)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.protocol.tri.h12.HttpContextFilter.invoke(HttpContextFilter.java:38)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ClassLoaderFilter.invoke(ClassLoaderFilter.java:54)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.EchoFilter.invoke(EchoFilter.java:41)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.metrics.filter.MetricsFilter.invoke(MetricsFilter.java:86)
+	at org.apache.dubbo.metrics.filter.MetricsProviderFilter.invoke(MetricsProviderFilter.java:37)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.tracing.filter.ObservationReceiverFilter.invoke(ObservationReceiverFilter.java:59)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ProfilerServerFilter.invoke(ProfilerServerFilter.java:66)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ContextFilter.invoke(ContextFilter.java:191)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CallbackRegistrationInvoker.invoke(FilterChainBuilder.java:197)
+	at org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol$1.reply(DubboProtocol.java:167)
+	at org.apache.dubbo.remoting.exchange.support.header.HeaderExchangeHandler.handleRequest(HeaderExchangeHandler.java:110)
+	at org.apache.dubbo.remoting.exchange.support.header.HeaderExchangeHandler.received(HeaderExchangeHandler.java:205)
+	at org.apache.dubbo.remoting.transport.DecodeHandler.received(DecodeHandler.java:52)
+	at org.apache.dubbo.remoting.transport.dispatcher.ChannelEventRunnable.run(ChannelEventRunnable.java:64)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at org.apache.dubbo.common.threadlocal.InternalRunnable.run(InternalRunnable.java:39)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2025-08-19 13:50:51 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.i.AccountCustomerDubboServiceImpl [,] - CUSTOMER_INFO_RETRIEVED - UserId: b93230c9-4fc9-4ff2-be19-b0747cf04d50, CifCode: 9704520171006, CustomerStatus: ACTIVE
+2025-08-19 13:50:51 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.i.AccountCustomerDubboServiceImpl [,] - PAYMENT_ACCOUNTS_FOUND - UserId: b93230c9-4fc9-4ff2-be19-b0747cf04d50, CifCode: 9704520171006, Count: 2
+2025-08-19 13:50:51 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.impl.AccountServiceImpl [,] - GET_BALANCE_FROM_COREBANKING_START - AccountNumber: 421010005
+2025-08-19 13:50:51 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.impl.AccountServiceImpl [,] - CORE_BANKING_BALANCE_REQUEST - AccountNumber: 421010005, Url: http://localhost:8083/corebanking/get-balance-by-accountNumber/421010005
+2025-08-19 13:50:53 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.impl.AccountServiceImpl [,] - GET_BALANCE_FROM_COREBANKING_SUCCESS - AccountNumber: 421010005, Balance: 0.00
+2025-08-19 13:50:53 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.impl.AccountServiceImpl [,] - GET_BALANCE_FROM_COREBANKING_START - AccountNumber: 37654329
+2025-08-19 13:50:53 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.impl.AccountServiceImpl [,] - CORE_BANKING_BALANCE_REQUEST - AccountNumber: 37654329, Url: http://localhost:8083/corebanking/get-balance-by-accountNumber/37654329
+2025-08-19 13:50:53 WARN  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.impl.AccountServiceImpl [,] - GET_BALANCE_FROM_COREBANKING_ERROR - AccountNumber: 37654329, Error: 500 : "{"timestamp":"2025-08-19T06:50:53.660+00:00","status":500,"error":"Internal Server Error","trace":"java.lang.NullPointerException: Cannot invoke \"com.example.corebanking_service.entity.CoreAccount.getCoreAccountNumber()\" because \"account\" is null\n\tat com.example.corebanking_service.service.impl.CoreAccountServiceImpl.getBalanceByAccountNumber(CoreAccountServiceImpl.java:63)\n\tat com.example.corebanking_service.Controller.CoreAccountController.getBalanceByAccountNumber(CoreAccountController.java:31)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)\n\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:569)\n\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)\n\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188)\n\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)\n\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)\n\tat org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)\n\tat jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)\n\tat jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)\n\tat org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)\n\tat org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)\n\tat org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)\n\tat org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat com.example.corebanking_service.Config.ApiKeyFilter.doFilterInternal(ApiKeyFilter.java:28)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)\n\tat org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\n\tat org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)\n\tat org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)\n\tat org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)\n\tat org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)\n\tat org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)\n\tat org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)\n\tat org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)\n\tat org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat com.example.corebanking_service.Config.CustomCorsFilter.doFilterInternal(CustomCorsFilter.java:29)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)\n\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\n\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)\n\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)\n\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\n\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\n\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)\n\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)\n\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\n\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)\n\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1740)\n\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\n\tat org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)\n\tat org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)\n\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)\n\tat java.base/java.lang.Thread.run(Thread.java:840)\n","message":"Cannot invoke \"com.example.corebanking_service.entity.CoreAccount.getCoreAccountNumber()\" because \"account\" is null","path":"/corebanking/get-balance-by-accountNumber/37654329"}", UsingZeroBalance: true
+org.springframework.web.client.HttpServerErrorException$InternalServerError: 500 : "{"timestamp":"2025-08-19T06:50:53.660+00:00","status":500,"error":"Internal Server Error","trace":"java.lang.NullPointerException: Cannot invoke \"com.example.corebanking_service.entity.CoreAccount.getCoreAccountNumber()\" because \"account\" is null\n\tat com.example.corebanking_service.service.impl.CoreAccountServiceImpl.getBalanceByAccountNumber(CoreAccountServiceImpl.java:63)\n\tat com.example.corebanking_service.Controller.CoreAccountController.getBalanceByAccountNumber(CoreAccountController.java:31)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)\n\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:569)\n\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)\n\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188)\n\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)\n\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)\n\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\n\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)\n\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)\n\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)\n\tat org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)\n\tat jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)\n\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)\n\tat jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)\n\tat org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)\n\tat org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)\n\tat org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)\n\tat org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat com.example.corebanking_service.Config.ApiKeyFilter.doFilterInternal(ApiKeyFilter.java:28)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)\n\tat org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\n\tat org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)\n\tat org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)\n\tat org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)\n\tat org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)\n\tat org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)\n\tat org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)\n\tat org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)\n\tat org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)\n\tat org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat com.example.corebanking_service.Config.CustomCorsFilter.doFilterInternal(CustomCorsFilter.java:29)\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\n\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)\n\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\n\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)\n\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)\n\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\n\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\n\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)\n\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)\n\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\n\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)\n\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1740)\n\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\n\tat org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)\n\tat org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)\n\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)\n\tat java.base/java.lang.Thread.run(Thread.java:840)\n","message":"Cannot invoke \"com.example.corebanking_service.entity.CoreAccount.getCoreAccountNumber()\" because \"account\" is null","path":"/corebanking/get-balance-by-accountNumber/37654329"}"
+	at org.springframework.web.client.HttpServerErrorException.create(HttpServerErrorException.java:102)
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:186)
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:137)
+	at org.springframework.web.client.ResponseErrorHandler.handleError(ResponseErrorHandler.java:63)
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:942)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:891)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:790)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:701)
+	at com.example.account_service.service.impl.AccountServiceImpl.getBalanceFromCorebanking(AccountServiceImpl.java:1069)
+	at com.example.account_service.service.impl.AccountCustomerDubboServiceImpl.lambda$getAllPaymentAccountsbyUserId$0(AccountCustomerDubboServiceImpl.java:200)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1625)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+	at com.example.account_service.service.impl.AccountCustomerDubboServiceImpl.getAllPaymentAccountsbyUserId(AccountCustomerDubboServiceImpl.java:212)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:355)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717)
+	at com.example.account_service.service.impl.AccountCustomerDubboServiceImpl$$SpringCGLIB$$0.getAllPaymentAccountsbyUserId(<generated>)
+	at com.example.common_service.services.customer.CustomerCommonServiceDubboWrap3.invokeMethod(CustomerCommonServiceDubboWrap3.java)
+	at org.apache.dubbo.rpc.proxy.javassist.JavassistProxyFactory$1.doInvoke(JavassistProxyFactory.java:89)
+	at org.apache.dubbo.rpc.proxy.AbstractProxyInvoker.invoke(AbstractProxyInvoker.java:100)
+	at org.apache.dubbo.config.invoker.DelegateProviderMetaDataInvoker.invoke(DelegateProviderMetaDataInvoker.java:55)
+	at org.apache.dubbo.rpc.protocol.InvokerWrapper.invoke(InvokerWrapper.java:56)
+	at org.apache.dubbo.rpc.filter.ClassLoaderCallbackFilter.invoke(ClassLoaderCallbackFilter.java:38)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.spring.security.filter.AuthenticationExceptionTranslatorFilter.invoke(AuthenticationExceptionTranslatorFilter.java:51)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.protocol.tri.rest.filter.RestFilterAdapter.invoke(RestFilterAdapter.java:38)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.protocol.tri.h12.HttpContextCallbackFilter.invoke(HttpContextCallbackFilter.java:37)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.protocol.dubbo.filter.TraceFilter.invoke(TraceFilter.java:80)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.TimeoutFilter.invoke(TimeoutFilter.java:45)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.monitor.support.MonitorFilter.invoke(MonitorFilter.java:109)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ExceptionFilter.invoke(ExceptionFilter.java:55)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.AccessLogFilter.invoke(AccessLogFilter.java:120)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.spring.security.filter.ContextHolderAuthenticationResolverFilter.invoke(ContextHolderAuthenticationResolverFilter.java:64)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.GenericFilter.invoke(GenericFilter.java:222)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.protocol.tri.h12.HttpContextFilter.invoke(HttpContextFilter.java:38)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ClassLoaderFilter.invoke(ClassLoaderFilter.java:54)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.EchoFilter.invoke(EchoFilter.java:41)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.metrics.filter.MetricsFilter.invoke(MetricsFilter.java:86)
+	at org.apache.dubbo.metrics.filter.MetricsProviderFilter.invoke(MetricsProviderFilter.java:37)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.tracing.filter.ObservationReceiverFilter.invoke(ObservationReceiverFilter.java:59)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ProfilerServerFilter.invoke(ProfilerServerFilter.java:66)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.filter.ContextFilter.invoke(ContextFilter.java:191)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CopyOfFilterChainNode.invoke(FilterChainBuilder.java:349)
+	at org.apache.dubbo.rpc.cluster.filter.FilterChainBuilder$CallbackRegistrationInvoker.invoke(FilterChainBuilder.java:197)
+	at org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol$1.reply(DubboProtocol.java:167)
+	at org.apache.dubbo.remoting.exchange.support.header.HeaderExchangeHandler.handleRequest(HeaderExchangeHandler.java:110)
+	at org.apache.dubbo.remoting.exchange.support.header.HeaderExchangeHandler.received(HeaderExchangeHandler.java:205)
+	at org.apache.dubbo.remoting.transport.DecodeHandler.received(DecodeHandler.java:52)
+	at org.apache.dubbo.remoting.transport.dispatcher.ChannelEventRunnable.run(ChannelEventRunnable.java:64)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at org.apache.dubbo.common.threadlocal.InternalRunnable.run(InternalRunnable.java:39)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+2025-08-19 13:50:53 INFO  [DubboServerHandler-10.2.36.61:20882-thread-9] c.e.a.s.i.AccountCustomerDubboServiceImpl [,] - GET_PAYMENT_ACCOUNTS_SUCCESS - UserId: b93230c9-4fc9-4ff2-be19-b0747cf04d50, CifCode: 9704520171006, TotalAccounts: 2
+2025-08-19 14:29:25 INFO  [DubboShutdownHook] o.a.dubbo.config.DubboShutdownHook [,] -  [DUBBO] Run shutdown hook now., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [DubboShutdownHook] o.a.dubbo.config.DubboShutdownHook [,] -  [DUBBO] Waiting for modules(Dubbo Application[1.1](account-service)) managed by Spring to be shutdown., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [DubboClientHandler-thread-2] o.a.d.r.e.s.h.HeaderExchangeHandler [,] -  [DUBBO] ChannelReadOnly set true for channel: NettyChannel [channel=[id: 0xba80c8cb, L:/10.2.36.61:34396 - R:/10.2.36.61:20889]], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.c.deploy.DefaultModuleDeployer [,] -  [DUBBO] Dubbo Module[1.1.1] is stopping., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.c.d.DefaultApplicationDeployer [,] -  [DUBBO] Dubbo Application[1.1](account-service) has completed., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [DubboShutdownHook] o.a.dubbo.config.DubboShutdownHook [,] -  [DUBBO] Dubbo wait for application(Dubbo Application[1.1](account-service)) managed by Spring to be shutdown failed, time usage: 42ms, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [DubboShutdownHook] o.a.dubbo.config.DubboShutdownHook [,] -  [DUBBO] Dubbo shutdown hooks execute now. Dubbo Application[1.1](account-service), dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [DubboClientHandler-thread-2] o.a.d.r.e.s.h.HeaderExchangeHandler [,] -  [DUBBO] ChannelReadOnly set true for channel: NettyChannel [channel=[id: 0x50ee06b5, L:/10.2.36.61:46548 - R:/10.2.36.61:20880]], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unregister: dubbo://10.2.36.61:20882/com.example.common_service.services.account.AccountDubboService?application=account-service&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.example.common_service.services.account.AccountDubboService&methods=createLoanAccount,updateAccountFromLoan,updateOutstandingDebt&prefer.serialization=hessian2&release=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service-name-mapping=true&service.filter=-contextHolderAuthenticationResolverFilter&side=provider&timestamp=1755573531967, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unregister: dubbo://10.2.36.61:20882/com.example.common_service.services.customer.CustomerCommonService?application=account-service&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.example.common_service.services.customer.CustomerCommonService&methods=createPaymentInit,getAccountsByCifCode,getAllPaymentAccountsbyUserId&prefer.serialization=hessian2&release=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service-name-mapping=true&service.filter=-contextHolderAuthenticationResolverFilter&side=provider&timestamp=1755573531994, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.s.CacheableFailbackRegistry [,] -  [DUBBO] Evicting urls for service com.example.common_service.services.CommonService, size 1, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unregister: dubbo://10.2.36.61:20882/com.example.common_service.services.account.AccountQueryService?application=account-service&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.example.common_service.services.account.AccountQueryService&methods=existsAccountByAccountNumberAndCifCode,getAccountByAccountNumber,getAllAccountPaymentForCurrentCustomer,getCustomerByAccountNumber&prefer.serialization=hessian2&release=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service-name-mapping=true&service.filter=-contextHolderAuthenticationResolverFilter&side=provider&timestamp=1755573531685, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 WARN  [restartedMain-EventThread] o.a.d.r.s.CacheableFailbackRegistry [,] -  [DUBBO] Service com.example.common_service.services.CommonService received empty address list and empty protection is disabled, will clear current available addresses, dubbo version: 3.3.2, current host: 10.2.36.61, error code: 1-4. This may be caused by , go to https://dubbo.apache.org/faq/1/4 to find instructions. 
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Notify urls for subscribe url consumer://10.2.36.61/com.example.common_service.services.CommonService?application=account-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.CommonService&methods=checkCustomer,getCurrentCustomer,getCustomerByCifCode&pid=49733&qos.enable=false&reference.filter=-contextHolderAuthenticationResolverFilter&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1755573532236&unloadClusterRelated=false, url size: 1, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.i.RegistryDirectory [,] -  [DUBBO] Received invokers changed event from registry. Registry type: interface. Service Key: com.example.common_service.services.CommonService. Urls Size : 1. Invokers Size : 0. Available Size: 0. Available Invokers : empty, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.s.CacheableFailbackRegistry [,] -  [DUBBO] Evicting urls for service com.example.common_service.services.customer.CustomerQueryService, size 1, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 WARN  [restartedMain-EventThread] o.a.d.r.s.CacheableFailbackRegistry [,] -  [DUBBO] Service com.example.common_service.services.customer.CustomerQueryService received empty address list and empty protection is disabled, will clear current available addresses, dubbo version: 3.3.2, current host: 10.2.36.61, error code: 1-4. This may be caused by , go to https://dubbo.apache.org/faq/1/4 to find instructions. 
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Notify urls for subscribe url consumer://10.2.36.61/com.example.common_service.services.customer.CustomerQueryService?application=account-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.customer.CustomerQueryService&methods=getCurrentCustomer,getCustomerByCifCode,getCustomerById,getCustomerByUserId&pid=49733&qos.enable=false&reference.filter=-contextHolderAuthenticationResolverFilter&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1755573532202&unloadClusterRelated=false, url size: 1, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.i.RegistryDirectory [,] -  [DUBBO] Received invokers changed event from registry. Registry type: interface. Service Key: com.example.common_service.services.customer.CustomerQueryService. Urls Size : 1. Invokers Size : 0. Available Size: 0. Available Invokers : empty, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.s.CacheableFailbackRegistry [,] -  [DUBBO] Evicting urls for service com.example.common_service.services.transactions.CommonTransactionService, size 1, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 WARN  [restartedMain-EventThread] o.a.d.r.s.CacheableFailbackRegistry [,] -  [DUBBO] Service com.example.common_service.services.transactions.CommonTransactionService received empty address list and empty protection is disabled, will clear current available addresses, dubbo version: 3.3.2, current host: 10.2.36.61, error code: 1-4. This may be caused by , go to https://dubbo.apache.org/faq/1/4 to find instructions. 
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Notify urls for subscribe url consumer://10.2.36.61/com.example.common_service.services.transactions.CommonTransactionService?application=account-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.transactions.CommonTransactionService&methods=autoDeductRepayment,confirmTransaction,createAccountSaving,deposit,loanDisbursement,loanPayment,loanRecovery,payinterestInternal,reSendOtp,withdrawAccountSaving&pid=49733&qos.enable=false&reference.filter=-contextHolderAuthenticationResolverFilter&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1755573532032&unloadClusterRelated=false, url size: 1, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [restartedMain-EventThread] o.a.d.r.i.RegistryDirectory [,] -  [DUBBO] Received invokers changed event from registry. Registry type: interface. Service Key: com.example.common_service.services.transactions.CommonTransactionService. Urls Size : 1. Invokers Size : 0. Available Size: 0. Available Invokers : empty, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unsubscribe: provider://10.2.36.61:20882/com.example.common_service.services.account.AccountQueryService?anyhost=true&application=account-service&background=false&bind.ip=10.2.36.61&bind.port=20882&category=configurators&check=false&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&file-cache=true&generic=false&interface=com.example.common_service.services.account.AccountQueryService&methods=existsAccountByAccountNumberAndCifCode,getAccountByAccountNumber,getAllAccountPaymentForCurrentCustomer,getCustomerByAccountNumber&pid=49733&prefer.serialization=hessian2&qos.enable=false&release=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service-name-mapping=true&service.filter=-contextHolderAuthenticationResolverFilter&side=provider&timestamp=1755573531685, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unsubscribe: provider://10.2.36.61:20882/com.example.common_service.services.account.AccountDubboService?anyhost=true&application=account-service&background=false&bind.ip=10.2.36.61&bind.port=20882&category=configurators&check=false&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&file-cache=true&generic=false&interface=com.example.common_service.services.account.AccountDubboService&methods=createLoanAccount,updateAccountFromLoan,updateOutstandingDebt&pid=49733&prefer.serialization=hessian2&qos.enable=false&release=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service-name-mapping=true&service.filter=-contextHolderAuthenticationResolverFilter&side=provider&timestamp=1755573531967, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unsubscribe: provider://10.2.36.61:20882/com.example.common_service.services.customer.CustomerCommonService?anyhost=true&application=account-service&background=false&bind.ip=10.2.36.61&bind.port=20882&category=configurators&check=false&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&file-cache=true&generic=false&interface=com.example.common_service.services.customer.CustomerCommonService&methods=createPaymentInit,getAccountsByCifCode,getAllPaymentAccountsbyUserId&pid=49733&prefer.serialization=hessian2&qos.enable=false&release=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service-name-mapping=true&service.filter=-contextHolderAuthenticationResolverFilter&side=provider&timestamp=1755573531994, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unsubscribe: consumer://10.2.36.61/com.example.common_service.services.CommonService?application=account-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.CommonService&methods=checkCustomer,getCurrentCustomer,getCustomerByCifCode&pid=49733&qos.enable=false&reference.filter=-contextHolderAuthenticationResolverFilter&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1755573532236&unloadClusterRelated=false, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unsubscribe: consumer://10.2.36.61/com.example.common_service.services.transactions.CommonTransactionService?application=account-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.transactions.CommonTransactionService&methods=autoDeductRepayment,confirmTransaction,createAccountSaving,deposit,loanDisbursement,loanPayment,loanRecovery,payinterestInternal,reSendOtp,withdrawAccountSaving&pid=49733&qos.enable=false&reference.filter=-contextHolderAuthenticationResolverFilter&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1755573532032&unloadClusterRelated=false, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.c.e.l.ServiceInstancesChangedListener [,] -  [DUBBO] Destroying instance listener of  [transaction-service], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.t.netty4.NettyChannel [,] -  [DUBBO] Close netty channel [id: 0x50ee06b5, L:/10.2.36.61:46548 - R:/10.2.36.61:20880], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [NettyClientWorker-6-1] o.a.d.r.t.netty4.NettyClientHandler [,] -  [DUBBO] The connection [id: 0x50ee06b5, L:/10.2.36.61:46548 ! R:/10.2.36.61:20880] of 10.2.36.61:46548 -> 10.2.36.61:20880 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [NettyServerWorker-5-2] o.a.d.r.t.netty4.NettyServerHandler [,] -  [DUBBO] The connection [id: 0x48a0a9c7, L:/10.2.36.61:20882 ! R:/10.2.36.61:57200] of 10.2.36.61:57200 -> 10.2.36.61:20882 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Unsubscribe: consumer://10.2.36.61/com.example.common_service.services.customer.CustomerQueryService?application=account-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.customer.CustomerQueryService&methods=getCurrentCustomer,getCustomerByCifCode,getCustomerById,getCustomerByUserId&pid=49733&qos.enable=false&reference.filter=-contextHolderAuthenticationResolverFilter&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1755573532202&unloadClusterRelated=false, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.c.e.l.ServiceInstancesChangedListener [,] -  [DUBBO] Destroying instance listener of  [customer_service], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.t.netty4.NettyChannel [,] -  [DUBBO] Close netty channel [id: 0xba80c8cb, L:/10.2.36.61:34396 - R:/10.2.36.61:20889], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [NettyClientWorker-6-2] o.a.d.r.t.netty4.NettyClientHandler [,] -  [DUBBO] The connection [id: 0xba80c8cb, L:/10.2.36.61:34396 ! R:/10.2.36.61:20889] of 10.2.36.61:34396 -> 10.2.36.61:20889 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.c.deploy.DefaultModuleDeployer [,] -  [DUBBO] Dubbo Module[1.1.1] has stopped., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.c.d.DefaultApplicationDeployer [,] -  [DUBBO] Dubbo Application[1.1](account-service) has completed., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.dubbo.rpc.model.FrameworkModel [,] -  [DUBBO] Reset global default application from Dubbo Application[1.1](account-service) to null, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.c.d.DefaultApplicationDeployer [,] -  [DUBBO] Dubbo Application[1.1](account-service) is stopping., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.protocol.dubbo.DubboProtocol [,] -  [DUBBO] Destroying protocol [DubboProtocol] ..., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.protocol.dubbo.DubboProtocol [,] -  [DUBBO] Closing dubbo server: /10.2.36.61:20882, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [NettyServerWorker-5-1] o.a.d.r.t.netty4.NettyServerHandler [,] -  [DUBBO] The connection [id: 0x2ae1d643, L:/10.2.36.61:20882 ! R:/10.2.36.61:57196] of 10.2.36.61:57196 -> 10.2.36.61:20882 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 WARN  [NettyServerWorker-5-4] o.a.d.r.transport.AbstractServer [,] -  [DUBBO] All clients has disconnected from /10.2.36.61:20882. You can graceful shutdown now., dubbo version: 3.3.2, current host: 10.2.36.61, error code: 99-0. This may be caused by unknown error in remoting module, go to https://dubbo.apache.org/faq/99/0 to find instructions. 
+2025-08-19 14:29:25 INFO  [NettyServerWorker-5-4] o.a.d.r.t.netty4.NettyServerHandler [,] -  [DUBBO] The connection [id: 0xc1e6e06f, L:/10.2.36.61:20882 ! R:/10.2.36.61:33438] of 10.2.36.61:33438 -> 10.2.36.61:20882 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:25 INFO  [SpringApplicationShutdownHook] o.a.d.r.transport.AbstractServer [,] -  [DUBBO] Close NettyServer bind /0.0.0.0:20882, export /10.2.36.61:20882, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.r.protocol.dubbo.DubboProtocol [,] -  [DUBBO] Unexport service: dubbo://10.2.36.61:20882/org.apache.dubbo.metadata.MetadataService?anyhost=true&application=account-service&background=false&bind.ip=10.2.36.61&bind.port=20882&delay=0&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&file-cache=true&generic=false&getAndListenInstanceMetadata.1.callback=true&getAndListenInstanceMetadata.return=true&getAndListenInstanceMetadata.sent=true&group=account-service&interface=org.apache.dubbo.metadata.MetadataService&methods=exportInstanceMetadata,getAndListenInstanceMetadata,getExportedServiceURLs,getExportedURLs,getInstanceMetadataChangedListenerMap,getMetadataInfo,getMetadataInfos,getMetadataURL,getServiceDefinition,getSubscribedURLs,isMetadataService,serviceName,toSortedStrings,version&pid=49733&prefer.serialization=hessian2&qos.enable=false&register=false&release=3.3.2&revision=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service.filter=-contextHolderAuthenticationResolverFilter,-default&side=provider&timestamp=1755573531944&version=1.0.0, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.r.protocol.injvm.InjvmProtocol [,] -  [DUBBO] Unexport service: injvm://127.0.0.1/org.apache.dubbo.metadata.MetadataService?anyhost=true&application=account-service&background=false&bind.ip=10.2.36.61&bind.port=20882&delay=0&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&exporter.listener=injvm&file-cache=true&generic=false&getAndListenInstanceMetadata.1.callback=true&getAndListenInstanceMetadata.return=true&getAndListenInstanceMetadata.sent=true&group=account-service&interface=org.apache.dubbo.metadata.MetadataService&methods=exportInstanceMetadata,getAndListenInstanceMetadata,getExportedServiceURLs,getExportedURLs,getInstanceMetadataChangedListenerMap,getMetadataInfo,getMetadataInfos,getMetadataURL,getServiceDefinition,getSubscribedURLs,isMetadataService,serviceName,toSortedStrings,version&pid=49733&prefer.serialization=hessian2&qos.enable=false&register=false&release=3.3.2&revision=3.3.2&serialization=hessian2&serialize.check.status=DISABLE&service.filter=-contextHolderAuthenticationResolverFilter,-default&side=provider&timestamp=1755573531944&version=1.0.0, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.deploy.DefaultModuleDeployer [,] -  [DUBBO] Dubbo Module[1.1.0] is stopping., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.deploy.DefaultModuleDeployer [,] -  [DUBBO] Dubbo Module[1.1.0] has stopped., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.r.support.RegistryManager [,] -  [DUBBO] Close all registries [zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=account-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=49733&qos.enable=false&register=false&release=3.3.2&serialize.check.status=DISABLE, zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=account-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=49733&qos.enable=false&register=false&release=3.3.2&serialize.check.status=DISABLE, zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=account-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=49733&qos.enable=false&release=3.3.2&serialize.check.status=DISABLE], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [Curator-Framework-0] o.a.c.f.imps.CuratorFrameworkImpl [,] - backgroundOperationsLoop exiting
+2025-08-19 14:29:27 INFO  [restartedMain-EventThread] org.apache.zookeeper.ClientCnxn [,] - EventThread shut down for session: 0x100004ddb840005
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] org.apache.zookeeper.ZooKeeper [,] - Session: 0x100004ddb840005 closed
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.r.zookeeper.ZookeeperRegistry [,] -  [DUBBO] Destroy registry:zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=account-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=49733&qos.enable=false&register=false&release=3.3.2&serialize.check.status=DISABLE, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.t.m.DefaultExecutorRepository [,] -  [DUBBO] destroying application executor repository .., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.d.DefaultApplicationDeployer [,] -  [DUBBO] Dubbo Application[1.1](account-service) has stopped., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [Curator-Framework-0] o.a.c.f.imps.CuratorFrameworkImpl [,] - backgroundOperationsLoop exiting
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] org.apache.zookeeper.ZooKeeper [,] - Session: 0x100004ddb840000 closed
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.dubbo.rpc.model.FrameworkModel [,] -  [DUBBO] Destroying default framework model: Dubbo Framework[1], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.dubbo.rpc.model.FrameworkModel [,] -  [DUBBO] Dubbo Framework[1] is destroying ..., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.d.DefaultApplicationDeployer [,] -  [DUBBO] Dubbo Application[1.0](DUBBO_INTERNAL_APPLICATION) is stopping., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.deploy.DefaultModuleDeployer [,] -  [DUBBO] Dubbo Module[1.0.0] is stopping., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 ERROR [restartedMain-EventThread] o.a.c.f.recipes.cache.NodeCache [,] - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-08-19 14:29:27 INFO  [restartedMain-EventThread] org.apache.zookeeper.ClientCnxn [,] - EventThread shut down for session: 0x100004ddb840000
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.deploy.DefaultModuleDeployer [,] -  [DUBBO] Dubbo Module[1.0.0] has stopped., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.r.support.RegistryManager [,] -  [DUBBO] Close all registries [], dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.t.m.DefaultExecutorRepository [,] -  [DUBBO] destroying application executor repository .., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.d.DefaultApplicationDeployer [,] -  [DUBBO] Dubbo Application[1.0](DUBBO_INTERNAL_APPLICATION) has stopped., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.dubbo.rpc.model.FrameworkModel [,] -  [DUBBO] Dubbo Framework[1] is destroyed, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.dubbo.rpc.model.FrameworkModel [,] -  [DUBBO] Reset global default framework from Dubbo Framework[1] to null, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.r.GlobalResourcesRepository [,] -  [DUBBO] Destroying global resources ..., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.r.GlobalResourcesRepository [,] -  [DUBBO] Dubbo is completely destroyed, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.t.m.FrameworkExecutorRepository [,] -  [DUBBO] destroying framework executor repository .., dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [SpringApplicationShutdownHook] o.a.d.c.s.c.DubboSpringInitializer [,] -  [DUBBO] Unbind Dubbo Module[1.1.1] from spring container: org.springframework.beans.factory.support.DefaultListableBeanFactory@2ffa3e32, dubbo version: 3.3.2, current host: 10.2.36.61
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.ConsumerRebalanceListenerInvoker [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Revoke previously assigned partitions card-registration-topic-0
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer [,] - card-registration-consumer: partitions revoked: [card-registration-topic-0]
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.ConsumerCoordinator [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Member consumer-card-registration-consumer-1-11d36657-b1f1-47e4-9023-0c15443c7ded sending LeaveGroup request to coordinator localhost:9094 (id: 2147483647 rack: null) due to the consumer unsubscribed from all topics
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.ConsumerCoordinator [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.ConsumerCoordinator [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Request joining group due to: consumer pro-actively leaving the group
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.LegacyKafkaConsumer [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Unsubscribed all topics or patterns and assigned partitions
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.ConsumerCoordinator [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Resetting generation and member id due to: consumer pro-actively leaving the group
+2025-08-19 14:29:27 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.k.c.c.i.ConsumerCoordinator [,] - [Consumer clientId=consumer-card-registration-consumer-1, groupId=card-registration-consumer] Request joining group due to: consumer pro-actively leaving the group
+2025-08-19 14:29:28 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.kafka.common.metrics.Metrics [,] - Metrics scheduler closed
+2025-08-19 14:29:28 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.kafka.common.metrics.Metrics [,] - Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2025-08-19 14:29:28 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.kafka.common.metrics.Metrics [,] - Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2025-08-19 14:29:28 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.kafka.common.metrics.Metrics [,] - Metrics reporters closed
+2025-08-19 14:29:28 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser [,] - App info kafka.consumer for consumer-card-registration-consumer-1 unregistered
+2025-08-19 14:29:28 INFO  [org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer [,] - card-registration-consumer: Consumer stopped
+2025-08-19 14:29:28 INFO  [SpringApplicationShutdownHook] o.s.i.endpoint.EventDrivenConsumer [,] - Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2025-08-19 14:29:28 INFO  [SpringApplicationShutdownHook] o.s.i.c.PublishSubscribeChannel [,] - Channel 'account-service.errorChannel' has 0 subscriber(s).
+2025-08-19 14:29:28 INFO  [SpringApplicationShutdownHook] o.s.i.endpoint.EventDrivenConsumer [,] - stopped bean '_org.springframework.integration.errorLogger'
+2025-08-19 14:29:28 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean [,] - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-19 14:29:28 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource [,] - HikariPool-1 - Shutdown initiated...
+2025-08-19 14:29:28 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource [,] - HikariPool-1 - Shutdown completed.
