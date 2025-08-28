@@ -2,7 +2,6 @@ package com.example.account_service.service;
 
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
-import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.AccountCreateReponse;
 import com.example.account_service.dto.response.CicResponse;
 import com.example.account_service.dto.response.CreditRequestReponse;
@@ -59,4 +58,12 @@ public interface AccountService {
      * Cập nhật dư nợ tài khoản vay dựa trên thông tin khoản vay
      */
     void updateAccountFromLoan(LoanRequestDTO dto);
+
+    List<com.example.common_service.dto.response.LoanAccountResponse> getAllLoanAccountsByCifCode();
+
+    com.example.common_service.dto.response.LoanAccountResponse getLoanAccountByNumber(String accountNumber);
+
+    void updateLoanOutstandingDebt(String accountNumber, java.math.BigDecimal newOutstandingDebt);
+
+    void closeLoanAccount(String accountNumber);
 }

@@ -3,7 +3,6 @@ import com.example.account_service.dto.response.CreditRequestReponse;
 
 import com.example.account_service.dto.request.PaymentConfirmOtpDTO;
 import com.example.account_service.dto.request.PaymentCreateDTO;
-import com.example.account_service.dto.request.PaymentRequest;
 import com.example.account_service.dto.response.*;
 import com.example.account_service.dto.response.ApiResponseWrapper;
 import com.example.account_service.service.AccountService;
@@ -14,6 +13,7 @@ import com.example.common_service.dto.response.AccountPaymentResponse;
 import com.example.common_service.dto.response.AccountSummaryDTO;
 import com.example.common_service.dto.response.CreditAccountResponse;
 import com.example.common_service.dto.response.SavingAccountResponse;
+import com.example.common_service.dto.response.LoanAccountResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -136,6 +135,39 @@ public class AccountController {
         return response;
     }
 
+    @GetMapping("/getAllLoanAccounts")
+    public ApiResponseWrapper<List<LoanAccountResponse>> getAllLoanAccountsByCurrentCustomer() {
+        List<LoanAccountResponse> list = accountService.getAllLoanAccountsByCifCode();
+        return new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.get-all.success"),
+                list
+        );
+    }
+
+    @GetMapping("/loan/{accountNumber}")
+    public ApiResponseWrapper<LoanAccountResponse> getLoanAccountByNumber(@PathVariable String accountNumber) {
+        LoanAccountResponse data = accountService.getLoanAccountByNumber(accountNumber);
+        return new ApiResponseWrapper<>(
+                HttpStatus.OK.value(),
+                messageUtils.getMessage("account.getAccount-loan.success"),
+                data
+        );
+    }
+
+    @PutMapping("/loan/{accountNumber}/debt")
+    public ApiResponseWrapper<String> updateLoanOutstandingDebt(@PathVariable String accountNumber,
+                                                                @RequestParam("outstandingDebt") java.math.BigDecimal outstandingDebt) {
+        accountService.updateLoanOutstandingDebt(accountNumber, outstandingDebt);
+        return new ApiResponseWrapper<>(HttpStatus.OK.value(), "Cập nhật dư nợ thành công", "OK");
+    }
+
+    @PutMapping("/loan/{accountNumber}/close")
+    public ApiResponseWrapper<String> closeLoanAccount(@PathVariable String accountNumber) {
+        accountService.closeLoanAccount(accountNumber);
+        return new ApiResponseWrapper<>(HttpStatus.OK.value(), "Đóng tài khoản vay thành công", "OK");
+    }
+
     @GetMapping("/getAccountPaymentByID/{id}")
     public ApiResponseWrapper<AccountPaymentResponse> getAccountPaymentByID(@PathVariable String id) {
         AccountPaymentResponse accountPaymentResponse = accountService.getAccountPaymentbyID(id);
@@ -148,9 +180,7 @@ public class AccountController {
     }
     @PostMapping("/testAuth")
     public ResponseEntity<String> testAuth(@AuthenticationPrincipal Jwt jwt) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
-        System.out.println(token);
         return ResponseEntity.ok("Test auth with service, user: " + token);
     }
     @GetMapping("/get-customer/{accountNumber}")
@@ -188,11 +218,6 @@ public class AccountController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("admin/get-all-credit-crequest")
     public ApiResponseWrapper<List<CreditRequestReponse>> getAllCreditRequesstPending() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        authentication.getAuthorities().forEach(authority ->
-                log.info("Role: {}", authority.getAuthority())
-        );
-
         List<CreditRequestReponse> list = accountService.getAllCreditRequestPending();
         ApiResponseWrapper<List<CreditRequestReponse>> response = new ApiResponseWrapper<>(
                 HttpStatus.OK.value(),

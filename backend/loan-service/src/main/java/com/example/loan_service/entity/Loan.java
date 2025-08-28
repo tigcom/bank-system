@@ -92,3 +92,4 @@ public class Loan {
     @Enumerated(EnumType.STRING)
     private  LoanType loanType ;
 }
+ 

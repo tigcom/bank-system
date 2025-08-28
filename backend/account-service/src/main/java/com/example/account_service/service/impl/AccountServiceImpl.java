@@ -167,6 +167,23 @@ public class AccountServiceImpl implements AccountService {
                         .build());
             }
 
+            // Lấy Loan Accounts
+            List<LoanAccount> loanAccounts = loanAccountRepository.findActiveLoanAccountsByCifCode(cifCode);
+            log.info("LOAN_ACCOUNTS_RETRIEVED - CifCode: {}, Count: {}",
+                    cifCode, loanAccounts.size());
+            for (LoanAccount account : loanAccounts) {
+                BigDecimal balance = getBalanceFromCorebanking(account.getAccountNumber());
+                result.add(AccountSummaryDTO.builder()
+                        .accountNumber(account.getAccountNumber())
+                        .cifCode(account.getCifCode())
+                        .accountType(account.getAccountType())
+                        .balance(balance)
+                        .status(account.getStatus())
+                        .openedDate(account.getCreatedDate().toLocalDate())
+                        .interestRate(account.getInterestRate())
+                        .build());
+            }
+
             log.info("GET_ALL_ACCOUNTS_SUCCESS - UserId: {}, CifCode: {}, TotalAccounts: {}, PaymentAccounts: {}, SavingsAccounts: {}, CreditAccounts: {}",
                     userId, cifCode, result.size(), paymentAccounts.size(), savingsAccounts.size(), creditAccounts.size());
 
@@ -393,6 +410,60 @@ public class AccountServiceImpl implements AccountService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LoanAccountResponse> getAllLoanAccountsByCifCode() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        CustomerDTO currentCustomer = commonService.getCurrentCustomer(userId);
+        String cifCode = currentCustomer.getCifCode();
+        List<LoanAccount> loanAccounts = loanAccountRepository.findByCifCode(cifCode);
+        return loanAccounts.stream().map(acc -> LoanAccountResponse.builder()
+                .accountNumber(acc.getAccountNumber())
+                .cifCode(acc.getCifCode())
+                .accountType(acc.getAccountType().name())
+                .status(acc.getStatus().name())
+                .openedDate(acc.getCreatedDate().toLocalDate())
+                .loanAmount(acc.getLoanAmount())
+                .outstandingDebt(acc.getOutstandingDebt())
+                .interestRate(acc.getInterestRate())
+                .termMonths(acc.getTermMonths())
+                .build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public LoanAccountResponse getLoanAccountByNumber(String accountNumber) {
+        LoanAccount acc = loanAccountRepository.findByAccountNumber(accountNumber);
+        if (acc == null) throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        return LoanAccountResponse.builder()
+                .accountNumber(acc.getAccountNumber())
+                .cifCode(acc.getCifCode())
+                .accountType(acc.getAccountType().name())
+                .status(acc.getStatus().name())
+                .openedDate(acc.getCreatedDate().toLocalDate())
+                .loanAmount(acc.getLoanAmount())
+                .outstandingDebt(acc.getOutstandingDebt())
+                .interestRate(acc.getInterestRate())
+                .termMonths(acc.getTermMonths())
+                .build();
+    }
+
+    @Override
+    public void updateLoanOutstandingDebt(String accountNumber, BigDecimal newOutstandingDebt) {
+        LoanAccount acc = loanAccountRepository.findByAccountNumber(accountNumber);
+        if (acc == null) throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        acc.setOutstandingDebt(newOutstandingDebt);
+        loanAccountRepository.save(acc);
+    }
+
+    @Override
+    public void closeLoanAccount(String accountNumber) {
+        LoanAccount acc = loanAccountRepository.findByAccountNumber(accountNumber);
+        if (acc == null) throw new AppException(ErrorCode.ACCOUNT_NOT_FOUND);
+        acc.setStatus(AccountStatus.CLOSED);
+        acc.setOutstandingDebt(BigDecimal.ZERO);
+        loanAccountRepository.save(acc);
     }
 
     @Override
