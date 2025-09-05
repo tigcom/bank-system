@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/master/registration",
+    "headers": {
+      "Content-Type": {"equalTo": "application/json"},
+      "Mock-API-Key": {"equalTo": "ApiKey abc123xyz"}
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.cardType == 'MASTER')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 500,
+    "bodyFileName": "master-error-response.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

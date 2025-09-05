@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/visa/registration",
+    "headers": {
+      "Content-Type": {"equalTo": "application/json"},
+      "Mock-API-Key": {"equalTo": "ApiKey abc123xyz"}
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.cifCode == '9704527163706')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "visa-response-success2.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

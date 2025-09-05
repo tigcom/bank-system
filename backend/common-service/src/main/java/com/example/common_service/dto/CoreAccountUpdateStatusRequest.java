@@ -1,0 +1,12 @@
+package com.example.common_service.dto;
+
+import com.example.common_service.constant.AccountStatus;
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class CoreAccountUpdateStatusRequest {
+    private String accountNumber;
+    private AccountStatus status;
+}

@@ -1,0 +1,4 @@
+2025-08-19 13:50:33 INFO  [http-nio-8080-exec-1] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 25b8ab12-fb20-4c14-8c5c-d4642450ba68, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 299 ms
+2025-08-19 13:50:33 INFO  [http-nio-8080-exec-2] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 3cd6b862-2f2c-4748-ab75-431ce6ab18ed, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 10 ms
+2025-08-19 13:50:43 INFO  [http-nio-8080-exec-4] ACCESS_LOG [,] - ACCESS_LOG - RequestId: e7366219-5e54-4fab-a36c-4531c51ce41e, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 6 ms
+2025-08-19 13:50:50 INFO  [http-nio-8080-exec-3] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 430ff5ea-2df6-477b-a16d-15f0feb15b1c, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 6 ms
