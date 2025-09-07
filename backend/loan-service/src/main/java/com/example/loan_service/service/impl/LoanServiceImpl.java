@@ -355,6 +355,19 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    public BigDecimal getTotalBorrowed (Long customerId) {
+        log.info("GET_TOTAL_Borrowed_START");
+        try {
+            BigDecimal total = loanRepository.getTotalBorrowed(customerId);
+            log.info("GET_TOTAL_Borrowed_SUCCESS - total: {}", total);
+            return total;
+        } catch (Exception e) {
+            log.error("GET_TOTAL_Borrowed_ERROR - error: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
     public List<Loan> getPendingLoans() {
         log.info("GET_PENDING_LOANS_START");
         try {

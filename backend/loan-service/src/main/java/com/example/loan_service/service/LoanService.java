@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface LoanService {
     Loan createLoan(Loan loan);
-
+    BigDecimal getTotalBorrowed (Long customerId);
     Loan updateLoan(Loan loan);
     Loan approveLoan(Loan loan);
     Loan getLoanById(Long loanId);
@@ -27,6 +27,7 @@ public interface LoanService {
 
     void deleteLoan(Long loanId);
     java.math.BigDecimal getTotalDisbursedSystem();
-    
+
+
     List<Loan> getPendingLoans();
 }

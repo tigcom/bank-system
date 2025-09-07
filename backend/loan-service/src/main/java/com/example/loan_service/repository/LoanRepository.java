@@ -37,4 +37,7 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
             "JOIN repayment r ON l.loan_id = r.loan_id\n" +
             "WHERE l.loan_id = :loanId",nativeQuery = true)
     BigDecimal getTotalOutstandingByLoan(@Param("loanId")  Long loanId);
+
+    @Query(value = "select COALESCE(sum(l.amount )) from loan l where customer_id = :customerId and status in ( 'APPROVED','CLOSED')",nativeQuery = true)
+    BigDecimal getTotalBorrowed (@Param("customerId") Long customerId);
 }

@@ -426,8 +426,7 @@ public class LoanHandler {
         log.info("GET_TOTAL_BORROWED_HANDLER_START");
         try {
             Long customerId = getCustomerId();
-            BigDecimal total = loanService.getLoansApproveAndCustomerId(customerId)
-                    .stream().map(Loan::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal total = loanService.getTotalBorrowed(customerId);
             log.info("GET_TOTAL_BORROWED_HANDLER_SUCCESS - total: {}", total);
             return total;
         } catch (Exception e) {
