@@ -381,10 +381,11 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
-    public Integer checkPreviousMonthLate(Long repaymentId) {
+    public Integer checkPreviousMonthLate(Long repaymentId,Long loanId) {
         log.info("CHECK_PREVIOUS_MONTH_LATE_START - repaymentId: {}", repaymentId);
         try {
-            Integer grp = repaymentRepository.findGrpBeforeRepayment(repaymentId);
+
+            Integer grp = repaymentRepository.findGrpBeforeRepayment(repaymentId,loanId);
             log.info("CHECK_PREVIOUS_MONTH_LATE_SUCCESS - repaymentId: {}, grp: {}", repaymentId, grp);
             return grp != null ? grp : 0;
         } catch (Exception e) {

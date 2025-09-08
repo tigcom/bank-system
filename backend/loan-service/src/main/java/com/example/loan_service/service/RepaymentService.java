@@ -25,7 +25,7 @@ public interface RepaymentService {
     List<Repayment> getOverdueRepayments(Long loanId);
     List<Repayment> getUpcomingRepayments(Long loanId);
     Boolean checkLastMonthRepayment(Repayment repayment);
-    Integer checkPreviousMonthLate(Long repaymentId);
+    Integer checkPreviousMonthLate(Long repaymentId,Long loanId);
     Boolean shouldCloseLoan(Long loanId);
 
     java.math.BigDecimal getTotalCollectedSystem();

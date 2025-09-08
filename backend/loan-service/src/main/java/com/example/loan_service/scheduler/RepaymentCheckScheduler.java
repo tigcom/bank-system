@@ -69,19 +69,9 @@ public class RepaymentCheckScheduler {
         
         for (Repayment repayment : overdueRepayments) {
             try {
-                // Kiểm tra trạng thái để tránh xử lý trùng lặp
-                if (repayment.getStatus() != RepaymentStatus.UNPAID) {
-                    log.info("SKIP_REPAYMENT_NOT_UNPAID - repaymentId: {}, status: {}", 
-                        repayment.getRepaymentId(), repayment.getStatus());
-                    continue;
-                }
-                
                 Loan loan = repayment.getLoan();
                 log.info("PROCESS_OVERDUE_REPAYMENT_START - loanId: {}, repaymentId: {}, dueDate: {}", 
                     loan.getLoanId(), repayment.getRepaymentId(), repayment.getDueDate());
-                
-                // Kiểm tra xem tháng trước có trễ hạn không
-
 
                 // Kiểm tra số dư repayment account
                 BigDecimal repaymentBalance = getRepaymentAccountBalance(loan.getRepaymentAccountNumber());
@@ -94,7 +84,7 @@ public class RepaymentCheckScheduler {
                     // Có đủ tiền, thực hiện tự động trừ
                     performAutoDeduct(loan, repayment, requiredAmount);
                 } else {
-                    Integer previousMonthLate = repaymentService.checkPreviousMonthLate(repayment.getRepaymentId());
+                    Integer previousMonthLate = repaymentService.checkPreviousMonthLate(repayment.getRepaymentId(),loan.getLoanId());
                     if (previousMonthLate >= 3) {
                         // Nếu tháng trước cũng trễ hạn, đóng khoản vay và thu hồi
                         log.info("CLOSE_LOAN_DUE_TO_CONSECUTIVE_LATE - loanId: {}", loan.getLoanId());
@@ -128,7 +118,6 @@ public class RepaymentCheckScheduler {
 
             // Tính số tiền chưa trả (gốc + lãi)
             BigDecimal unpaid = requiredAmount.subtract(repayment.getPaidAmount());
-            if (unpaid.compareTo(BigDecimal.ZERO) < 0) unpaid = BigDecimal.ZERO;
             
             // Phạt 1.5% trên tổng số tiền chưa trả
             BigDecimal penalty = unpaid.multiply(BigDecimal.valueOf(0.015)).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -154,16 +143,16 @@ public class RepaymentCheckScheduler {
                     current.setPrincipal(current.getPrincipal().add(unpaid));
                     current.setInterest(current.getInterest().add(penalty));
                     repaymentService.updateRepayment(current);
-                    // Cập nhật dư nợ còn lại lên account loan
-                    BigDecimal outstandingDebt = repaymentRepository.getOutstandingDebtByLoanId(loan.getLoanId());
-                    updateOutstandingDebtToLoanAccount(loan.getLoanId(), outstandingDebt);
+
                     log.info("ROLL_FORWARD_PENALTY_SUCCESS - currentRepaymentId: {}", current.getRepaymentId());
                 } else {
                     log.warn("ROLL_FORWARD_PENALTY_SKIPPED - no current repayment for loanId: {}",
                             loan.getLoanId());
                 }
             }
-
+            // Cập nhật dư nợ còn lại lên account loan
+            BigDecimal outstandingDebt = repaymentRepository.getOutstandingDebtByLoanId(loan.getLoanId());
+            updateOutstandingDebtToLoanAccount(loan.getLoanId(), outstandingDebt);
             // Gửi thông báo trễ
             sendLateRepaymentNotification(loan, repayment, unpaid, penalty);
             
@@ -198,7 +187,6 @@ public class RepaymentCheckScheduler {
                 // Cập nhật trạng thái repayment
                 BigDecimal newPaidAmount = repayment.getPaidAmount().add(amount);
                 repayment.setPaidAmount(newPaidAmount);
-                // Kiểm tra xem đã trả đủ chưa
                 BigDecimal totalRequired = repayment.getPrincipal().add(repayment.getInterest());
                 if (newPaidAmount.compareTo(totalRequired) >= 0) {
                     repayment.setStatus(RepaymentStatus.PAID);
@@ -216,17 +204,10 @@ public class RepaymentCheckScheduler {
                 updateDto.setLoanId(loan.getLoanId());
                 updateDto.setAmount(loan.getAmount());
                 updateDto.setPaidAmount(newPaidAmount);
-                String statusName = loan.getStatus() != null ? loan.getStatus().toString() : "PENDING";
                 com.example.common_service.constant.LoanStatus mappedStatus = com.example.common_service.constant.LoanStatus.PENDING;
                 if (shouldCloseLoan(loan.getLoanId())) {
                     mappedStatus = com.example.common_service.constant.LoanStatus.CLOSED;
-                } else {
-                    for (com.example.common_service.constant.LoanStatus s : com.example.common_service.constant.LoanStatus.values()) {
-                        if (s.name().equalsIgnoreCase(statusName)) {
-                            mappedStatus = s;
-                            break;
-                        }
-                    }
+                    loanService.closedLoan(loan.getLoanId());
                 }
                 updateDto.setStatus(mappedStatus);
                 updateDto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
