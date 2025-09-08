@@ -142,7 +142,7 @@ public class LoanHandler {
                     cicResponse.getMessage()
             );
             if (!"success".equalsIgnoreCase(cicResponse.getStatus())) {
-                throw new IllegalArgumentException("Không thể truy vấn CIC: " + cicResponse.getMessage());
+                throw new IllegalArgumentException("Không thể truy vấn CIC");
             }
             int score = cicResponse.getCreditScore();
             boolean overdue = cicResponse.getOverdue();

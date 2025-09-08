@@ -78,7 +78,6 @@ public class CICClientImpl implements CICClient {
 
     public CicResponse checkCICFallback(CICRequest cicRequest, Throwable t) {
         log.warn("CHECK_CIC_FALLBACK - cicRequest: {}, error: {}", cicRequest, t.getMessage());
-        // Return a default CIC response indicating service unavailable
         CicResponse fallbackResponse = new CicResponse();
         fallbackResponse.setStatus("error");
         fallbackResponse.setMessage("CIC service is temporarily unavailable: " + t.getMessage());

@@ -2,6 +2,7 @@
   <configuration default="false" name="AccountServiceApplication" type="Application" factoryName="Application" folderName="2" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.example.account_service.AccountServiceApplication" />
     <module name="account-service" />
+    <option name="VM_PARAMETERS" value="-javaagent:telemetry/opentelemetry-javaagent.jar -Dotel.service.name=account-service -Dotel.traces.exporter=zipkin -Dotel.exporter.zipkin.endpoint=http://localhost:9411/api/v2/spans -Dotel.metrics.exporter=none -Dotel.logs.exporter=none -Dotel.instrumentation.logback-appender.enabled=true -Dotel.instrumentation.logback-mdc.add-baggage=true -Dotel.propagators=tracecontext,baggage,b3 -Dotel.resource.attributes=service.name=account-service,service.version=1.0.0 -Dotel.instrumentation.spring-webmvc.enabled=true -Dotel.instrumentation.spring-web.enabled=true -Dotel.instrumentation.jdbc.enabled=true -Dotel.instrumentation.http.enabled=true" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.example.account_service.*" />
