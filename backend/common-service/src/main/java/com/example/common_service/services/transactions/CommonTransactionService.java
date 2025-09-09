@@ -6,7 +6,7 @@ import com.example.common_service.dto.CommonTransactionDTO;
 public interface CommonTransactionService {
     CommonTransactionDTO loanPayment(PayRepaymentRequest paymentRequest);
 
-    CommonTransactionDTO loanDisbursement(CommonDisburseRequest disburseRequest);
+    CommonTransactionDTO loanDisbursement(CommonDisburseRequest disburseRequest,String username);
 
     CommonTransactionDTO deposit(CommonDepositRequest depositRequest);
 

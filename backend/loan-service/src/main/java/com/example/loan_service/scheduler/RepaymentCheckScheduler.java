@@ -55,7 +55,7 @@ public class RepaymentCheckScheduler {
      */
 
     @Transactional
-//    @Scheduled(fixedRateString = "${repayment.scheduler.fix-rate:5000000}")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void processRepayments() {
         log.info("PROCESS_OVERDUE_REPAYMENTS_START");
         
@@ -463,7 +463,7 @@ public class RepaymentCheckScheduler {
 
 
     @Transactional
-//    @Scheduled(fixedRateString = "${repayment.scheduler.fix-rate:5000000}")
+    @Scheduled(cron = "0 0 3 * * ?")
     public void remindUpcomingRepayments() {
         long startTime = System.currentTimeMillis();
         log.info("REMIND_UPCOMING_REPAYMENTS_START -");
@@ -478,12 +478,9 @@ public class RepaymentCheckScheduler {
                     Long customerId = next.getLoan().getCustomerId();
                     LocalDate dueDate = next.getDueDate();
                     BigDecimal totalAmount = next.getPrincipal().add(next.getInterest());
-
                     log.info("REMIND_UPCOMING_REPAYMENT_DETAIL - repaymentId: {}, loanId: {}, customerId: {}, dueDate: {}, amount: {}",
                             next.getRepaymentId(), loanId, customerId, dueDate, totalAmount);
-
                     CustomerResponseDTO cust = customerQueryService.getCustomerById(customerId);
-
                     String body = String.format(
                             "Kính chào %s,%n%n" +
                                     "Bạn còn %d ngày đến kỳ thanh toán khoản vay ID: %s với tổng số tiền %s VND.%n" +

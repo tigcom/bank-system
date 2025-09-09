@@ -28,34 +28,24 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         System.out.println(">>> Filter triggered for: " + request.getRequestURI());
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
-
-        // Đọc trước tham số để kích hoạt caching (cho form-urlencoded)
         wrappedRequest.getParameterMap();
-
-        // Tiếp tục filter chain
         filterChain.doFilter(wrappedRequest, response);
-
-        // Ghi log sau khi xử lý để chắc chắn body được đọc
         logRequest(wrappedRequest);
     }
 
     private void logRequest(ContentCachingRequestWrapper request) {
         if (!logger.isDebugEnabled()) {
-            return; // Không log nếu không ở chế độ DEBUG
+            return;
         }
-
         StringBuilder sb = new StringBuilder();
         sb.append("REQUEST DATA: ");
         sb.append(request.getMethod()).append(" ");
         sb.append(request.getRequestURI());
-
         if (request.getQueryString() != null) {
             sb.append("?").append(request.getQueryString());
         }
-
         sb.append(", client=").append(request.getRemoteAddr());
         sb.append(", user=").append(request.getRemoteUser() != null ? request.getRemoteUser() : "anonymous");
-
         sb.append(", headers=[");
         Map<String, String> headerMap = new HashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
@@ -72,7 +62,6 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
                 .map(entry -> entry.getKey() + ":\"" + entry.getValue() + "\"")
                 .collect(Collectors.joining(", ")));
         sb.append("]");
-
         if (request.getContentAsByteArray().length > 0) {
             try {
                 String payload = new String(request.getContentAsByteArray(), request.getCharacterEncoding());
@@ -81,7 +70,6 @@ public class CustomRequestLoggingFilter extends OncePerRequestFilter {
                 logger.warn("Could not read request payload", e);
             }
         }
-
         logger.debug(sb.toString());
     }
 }

@@ -95,7 +95,7 @@
             log.info("Disbursing loan to account: {}", disburseReq.getToAccountNumber());
             RpcContext.getContext().setAttachment("username", username);
 
-            CommonTransactionDTO tx = commonTransactionService.loanDisbursement(disburseReq);
+            CommonTransactionDTO tx = commonTransactionService.loanDisbursement(disburseReq,username);
             log.info("Disbursement transaction: status={}, ref={}", tx.getStatus(), tx.getReferenceCode());
 
             if (!"COMPLETED".equalsIgnoreCase(tx.getStatus())) {

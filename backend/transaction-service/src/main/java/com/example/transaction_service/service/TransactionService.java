@@ -26,6 +26,7 @@ public interface TransactionService {
 
     TransactionDTO payBill(BillPaymentRequest request);
     Map<String, List<ProviderDTO>> getGroupedProviders();
+    TransactionDTO disburse(DisburseRequest disburseRequest,String username);
     TransactionDTO disburse(DisburseRequest disburseRequest);
     TransactionDTO createAccountSaving(CreateAccountSavingRequest accountSavingRequest);
     TransactionDTO confirmTransaction(ConfirmTransactionRequest confirmTransactionRequest);

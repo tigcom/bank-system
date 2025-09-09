@@ -48,16 +48,8 @@ public class LoanServiceImpl implements LoanService {
             if (simulateFail) {
                 throw new RuntimeException("Simulated loanService createLoan failure");
             }
-            // Increment loan applications counter
             metricsService.incrementLoanApplications();
-            
-            // Record loan amount and term for distribution
-            if (loan.getAmount() != null) {
-                metricsService.recordLoanAmount(loan.getAmount().doubleValue());
-            }
-            if (loan.getTermMonths() != null) {
-                metricsService.recordLoanTerm(loan.getTermMonths());
-            }
+
             
             loan.setStatus(LoanStatus.PENDING);
             loan.setCreatedAt(LocalDateTime.now());

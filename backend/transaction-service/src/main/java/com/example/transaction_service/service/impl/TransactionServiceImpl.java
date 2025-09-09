@@ -295,6 +295,38 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     @Transactional
+    public TransactionDTO disburse(DisburseRequest disburseRequest,String username) {
+        CustomerResponseDTO currentCustomer = customerQueryService.getCustomerByUserId(username);
+        RpcContext.getContext().setAttachment("username", username);
+
+        log.info("[customerId:{}][cifCode:{}][DISBURSE] To: {} | Amount: {} | Currency: {} | Desc: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), disburseRequest.getToAccountNumber(), disburseRequest.getAmount(), disburseRequest.getCurrency(), disburseRequest.getDescription());
+        Transaction transaction = new Transaction();
+        transaction.setToAccountNumber(disburseRequest.getToAccountNumber());
+        transaction.setAmount(disburseRequest.getAmount());
+        transaction.setDescription(disburseRequest.getDescription());
+        transaction.setCurrency(CurrencyType.valueOf(disburseRequest.getCurrency()));
+        transaction.setType(TransactionType.DISBURSEMENT);
+        transaction.setFromAccountNumber(masterAccount);
+        try {
+            log.info("[DISBURSE] Validate transaction...");
+            validateTransaction(transaction);
+            log.info("[DISBURSE] Validate thành công");
+            initTransaction(transaction);
+            log.info("[customerId:{}][cifCode:{}][DISBURSE] Init transaction thành công | ReferenceCode: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            processTransaction(transaction);
+            log.info("[customerId:{}][cifCode:{}][DISBURSE] Process transaction thành công | ReferenceCode: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            transactionRepository.save(transaction);
+            log.info("[customerId:{}][cifCode:{}][DISBURSE] Lưu transaction thành công | ReferenceCode: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            log.info("[customerId:{}][cifCode:{}][DISBURSE] Giao dịch giải ngân thành công | ReferenceCode: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode());
+            return transactionMapper.toDTO(transaction);
+        } catch (Exception ex) {
+            log.error("[customerId:{}][cifCode:{}][DISBURSE] Lỗi khi thực hiện giao dịch giải ngân | ReferenceCode: {} | To: {} | Amount: {} | Lý do: {}",
+                    currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode(), disburseRequest.getToAccountNumber(), disburseRequest.getAmount(), ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+    @Override
+    @Transactional
     public TransactionDTO disburse(DisburseRequest disburseRequest) {
         CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
         log.info("[customerId:{}][cifCode:{}][DISBURSE] To: {} | Amount: {} | Currency: {} | Desc: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), disburseRequest.getToAccountNumber(), disburseRequest.getAmount(), disburseRequest.getCurrency(), disburseRequest.getDescription());
@@ -965,15 +997,18 @@ public class TransactionServiceImpl implements TransactionService{
 
     //    Kiểm tra thông tin Transaction
     private void validateTransaction(Transaction transaction){
-        String username = null;
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            username = SecurityContextHolder.getContext().getAuthentication().getName();
-            RpcContext.getContext().setAttachment("username", username);
-        }else if (RpcContext.getContext() != null) {
-           username = RpcContext.getContext().getAttachment("username");
+        log.info("context: {}",RpcContext.getServerAttachment().getAttachment("username"));
+        CustomerResponseDTO currentCustomer = null;
+        if (RpcContext.getContext() != null) {
+            String username = RpcContext.getServerAttachment().getAttachment("username");
+             currentCustomer = customerQueryService.getCustomerByUserId(username);
+
+        }else {
+            CustomerResponse currentCustomer1 = customerQueryService.getCurrentCustomer();
+            currentCustomer.setUserId(currentCustomer1.getUserId());
+            currentCustomer.setCifCode(currentCustomer1.getCifCode());
         }
 
-        CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
         log.info("[customerId:{}][cifCode:{}][VALIDATE] fromAccount: {} | toAccount: {} | amount: {} | type: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getFromAccountNumber(), transaction.getToAccountNumber(), transaction.getAmount(), transaction.getType());
         AccountDTO fromAccount = accountQueryService.getAccountByAccountNumber(transaction.getFromAccountNumber());
         AccountDTO toAccount = accountQueryService.getAccountByAccountNumber(transaction.getToAccountNumber());
@@ -1132,7 +1167,16 @@ public class TransactionServiceImpl implements TransactionService{
         log.info("[SEND_OTP] Đã gửi OTP cho account: {}", accountNumberRecipient);
     }
     private void processTransaction(Transaction transaction) {
-        CustomerResponse currentCustomer = customerQueryService.getCurrentCustomer();
+        CustomerResponseDTO currentCustomer = null;
+        if (RpcContext.getContext() != null) {
+            String username = RpcContext.getServerAttachment().getAttachment("username");
+            currentCustomer = customerQueryService.getCustomerByUserId(username);
+
+        }else {
+            CustomerResponse currentCustomer1 = customerQueryService.getCurrentCustomer();
+            currentCustomer.setUserId(currentCustomer1.getUserId());
+            currentCustomer.setCifCode(currentCustomer1.getCifCode());
+        }
         log.info("[customerId:{}][cifCode:{}][PROCESS_TXN] Bắt đầu xử lý transaction | ReferenceCode: {} | Type: {} | Amount: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getReferenceCode(), transaction.getType(), transaction.getAmount());
         try {
             TransactionRequest request = TransactionRequest.builder()

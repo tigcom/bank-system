@@ -23,14 +23,7 @@ public class LoanMetricsService {
     private final Timer coreBankingCallTimer;
     private final Timer loanDisbursementTimer;
     private final Timer loanRepaymentTimer;
-    
 
-    
-    // Distribution Summaries - Phân bố giá trị
-    private final DistributionSummary loanAmountSummary;
-    private final DistributionSummary loanTermSummary;
-    private final DistributionSummary creditScoreSummary;
-    private final DistributionSummary monthlyIncomeSummary;
 
     public LoanMetricsService(MeterRegistry registry) {
         // Khởi tạo Counters
@@ -61,10 +54,7 @@ public class LoanMetricsService {
         this.coreBankingCallsCounter = Counter.builder("corebanking.calls.total")
                 .description("Total number of core banking API calls")
                 .register(registry);
-                
 
-
-        // Khởi tạo Timers
         this.loanApplicationProcessingTimer = Timer.builder("loan.application.processing.time")
                 .description("Time taken to process loan applications")
                 .register(registry);
@@ -87,119 +77,50 @@ public class LoanMetricsService {
                 .description("Time taken for loan repayment processing")
                 .register(registry);
 
-
-
-        // Khởi tạo Distribution Summaries
-        this.loanAmountSummary = DistributionSummary.builder("loan.amount.distribution")
-                .description("Distribution of loan amounts")
-                .baseUnit("VND")
-                .register(registry);
-                
-        this.loanTermSummary = DistributionSummary.builder("loan.term.distribution")
-                .description("Distribution of loan terms")
-                .baseUnit("months")
-                .register(registry);
-                
-        this.creditScoreSummary = DistributionSummary.builder("credit.score.distribution")
-                .description("Distribution of credit scores")
-                .register(registry);
-                
-        this.monthlyIncomeSummary = DistributionSummary.builder("monthly.income.distribution")
-                .description("Distribution of monthly incomes")
-                .baseUnit("VND")
-                .register(registry);
     }
 
-    // Counter methods
     public void incrementLoanApplications() {
         loanApplicationsCounter.increment();
     }
-
     public void incrementLoanApprovals() {
         loanApprovalsCounter.increment();
     }
-
     public void incrementLoanRejections() {
         loanRejectionsCounter.increment();
     }
-
     public void incrementLoanDisbursements() {
         loanDisbursementsCounter.increment();
     }
-
-    public void incrementLoanRepayments() {
-        loanRepaymentsCounter.increment();
-    }
-
     public void incrementCicChecks() {
         cicChecksCounter.increment();
     }
-
     public void incrementCoreBankingCalls() {
         coreBankingCallsCounter.increment();
     }
 
-
-
-    // Timer methods
     public Timer.Sample startLoanApplicationProcessing() {
         return Timer.start();
     }
-
     public void stopLoanApplicationProcessing(Timer.Sample sample) {
         sample.stop(loanApplicationProcessingTimer);
     }
-
     public Timer.Sample startCicCheck() {
         return Timer.start();
     }
-
     public void stopCicCheck(Timer.Sample sample) {
         sample.stop(cicCheckTimer);
     }
-
     public Timer.Sample startCoreBankingCall() {
         return Timer.start();
     }
-
     public void stopCoreBankingCall(Timer.Sample sample) {
         sample.stop(coreBankingCallTimer);
     }
-
-
-
     public Timer.Sample startLoanDisbursement() {
         return Timer.start();
     }
-
     public void stopLoanDisbursement(Timer.Sample sample) {
         sample.stop(loanDisbursementTimer);
     }
 
-    public Timer.Sample startLoanRepayment() {
-        return Timer.start();
-    }
-
-    public void stopLoanRepayment(Timer.Sample sample) {
-        sample.stop(loanRepaymentTimer);
-    }
-
-
-
-    // Distribution Summary methods
-    public void recordLoanAmount(double amount) {
-        loanAmountSummary.record(amount);
-    }
-
-    public void recordLoanTerm(int term) {
-        loanTermSummary.record(term);
-    }
-
-    public void recordCreditScore(int score) {
-        creditScoreSummary.record(score);
-    }
-
-    public void recordMonthlyIncome(double income) {
-        monthlyIncomeSummary.record(income);
-    }
 } 

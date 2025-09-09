@@ -38,7 +38,7 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
     }
 
     @Override
-    public CommonTransactionDTO loanDisbursement(CommonDisburseRequest disburseRequest) {
+    public CommonTransactionDTO loanDisbursement(CommonDisburseRequest disburseRequest,String username) {
         log.info("[DUBBO][loanDisbursement] Nhận yêu cầu giải ngân: {}", disburseRequest);
         try {
             DisburseRequest request = DisburseRequest.builder()
@@ -47,7 +47,7 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
                     .currency(disburseRequest.getCurrency())
                     .description(disburseRequest.getDescription())
                     .build();
-            TransactionDTO transactionDTO = transactionService.disburse(request);
+            TransactionDTO transactionDTO = transactionService.disburse(request, username);
             log.info("[DUBBO][loanDisbursement] Kết quả: {}", transactionDTO);
             return toCommonTransactionDTO(transactionDTO);
         } catch (Exception ex) {
