@@ -1,0 +1,8 @@
+2025-08-28 16:27:24 INFO  [http-nio-8080-exec-1] ACCESS_LOG [,] - ACCESS_LOG - RequestId: befab4e0-f8aa-41c1-977a-ae139f65a0b9, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 111 ms
+2025-08-28 16:27:24 INFO  [http-nio-8080-exec-2] ACCESS_LOG [,] - ACCESS_LOG - RequestId: d950d7a1-4d7d-45a9-95da-e442e2743795, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 5 ms
+2025-08-28 16:27:27 INFO  [http-nio-8080-exec-3] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 1954d0b1-8497-498b-907b-884f1453dc4f, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 5 ms
+2025-08-28 16:27:35 INFO  [http-nio-8080-exec-4] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 62a0000f-06b6-438b-ae49-201d134e439e, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 6 ms
+2025-08-28 16:27:35 INFO  [http-nio-8080-exec-5] ACCESS_LOG [,] - [getCustomerDetail] GET_CUSTOMER_DETAIL_START - RequestId: 75ee38bb-d3b7-4f76-9ee3-d7585cd702cd, UserId: 183c3e38-93a5-486f-a443-191621b09804
+2025-08-28 16:27:35 INFO  [http-nio-8080-exec-5] ACCESS_LOG [,] - [getCustomerDetail] CUSTOMER_DETAIL_RETRIEVED - RequestId: 75ee38bb-d3b7-4f76-9ee3-d7585cd702cd, UserId: 183c3e38-93a5-486f-a443-191621b09804, CifCode: CIF00000005
+2025-08-28 16:27:35 INFO  [http-nio-8080-exec-5] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 9129cbef-aef3-4d70-a836-1c215e1f6449, IP: 127.0.0.1, Method: GET, URL: /api/customers/detail, Status: 200, Duration: 11 ms
+2025-08-28 16:52:54 INFO  [http-nio-8080-exec-8] ACCESS_LOG [,] - ACCESS_LOG - RequestId: 0dd2198b-5c13-4a6d-97cb-ce67bcbe6d15, IP: 127.0.0.1, Method: GET, URL: /api/customers/status, Status: 200, Duration: 120 ms

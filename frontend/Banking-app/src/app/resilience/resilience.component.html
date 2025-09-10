@@ -1,0 +1,72 @@
+<div class="container">
+  <h2>Resilience4j Tester - Loan Service</h2>
+
+  <section class="card">
+    <h3>Authorization</h3>
+    <div class="row">
+      <input [(ngModel)]="token" placeholder="Paste Bearer token (without 'Bearer ')" />
+      <button (click)="saveToken()">Save Token</button>
+      <button (click)="clearToken()" class="secondary">Clear</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Create Loan (RateLimiter + CIC CB/Retry/Bulkhead)</h3>
+    <div class="form-grid">
+      <label>Disbursement Acc</label>
+      <input [(ngModel)]="createPayload.disbursementAccountNumber" />
+      <label>Repayment Acc</label>
+      <input [(ngModel)]="createPayload.repaymentAccountNumber" />
+      <label>Amount</label>
+      <input type="number" [(ngModel)]="createPayload.amount" />
+      <label>Interest Rate</label>
+      <input type="number" [(ngModel)]="createPayload.interestRate" />
+      <label>Term (months)</label>
+      <input type="number" [(ngModel)]="createPayload.termMonths" />
+      <label>Loan Type</label>
+      <input [(ngModel)]="createPayload.loanType" />
+    </div>
+    <button (click)="callCreateLoan()">Call /api/loans (POST)</button>
+  </section>
+
+  <section class="card">
+    <h3>Update Loan (CoreBanking CB/Retry/Bulkhead)</h3>
+    <div class="form-grid">
+      <label>Loan ID</label>
+      <input type="number" [(ngModel)]="updatePayload.loanId" />
+      <label>Amount</label>
+      <input type="number" [(ngModel)]="updatePayload.amount" />
+      <label>Interest Rate</label>
+      <input type="number" [(ngModel)]="updatePayload.interestRate" />
+    </div>
+    <button (click)="callUpdateLoan()">Call /api/loans (PUT)</button>
+  </section>
+
+  <section class="card">
+    <h3>Approve Loan (RateLimiter)</h3>
+    <div class="row">
+      <label>Loan ID</label>
+      <input type="number" [(ngModel)]="approveLoanId" />
+      <button (click)="callApproveLoan()">Call /api/loans/ id /approve</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Metrics & Health</h3>
+    <button (click)="refreshMetrics()">Refresh</button>
+    <div class="metrics">
+      <pre>Health (CircuitBreakers): {{ metrics['cbHealth'] | json }}</pre>
+      <pre>CB Calls: {{ metrics['cbMetrics'] | json }}</pre>
+      <pre>Retry Calls: {{ metrics['retry'] | json }}</pre>
+      <pre>RateLimiter Perms: {{ metrics['rateLimiter'] | json }}</pre>
+      <pre>Bulkhead Concurrency: {{ metrics['bulkhead'] | json }}</pre>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Last Response</h3>
+    <div *ngIf="loading">Loading...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    <pre *ngIf="lastResponse">{{ lastResponse | json }}</pre>
+  </section>
+</div> 

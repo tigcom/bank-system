@@ -1,0 +1,171 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /account
+
+app:
+  api:
+    key: QWErtyuiopaqwer
+spring:
+  application:
+    name: account-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/accountdb
+    username: root
+    password: 22572
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/myrealm
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  messages:
+    basename:
+      - i18n/messages
+    encoding: UTF-8
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${DOCKER_HOST:localhost}:9094
+          # Sử dụng consumer group riêng cho Spring Cloud Stream
+          configuration:
+            group.id: stream-consumer-group
+      bindings:
+        mail-out-0:
+          destination: send-mail-html
+          content-type: application/json
+        card-registration-out-0:
+          destination: card-registration-topic
+          content-type: application/json
+  data:
+    redis:
+      host: ${DOCKER_HOST:localhost}
+      port: 6379
+      password: 123
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: account-service-kafka
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+
+# Core Banking Service Configuration
+core-banking:
+  base-url: http://localhost:8083/corebanking
+
+  api:
+    key: a5dde333-b181-406d-8b41-5ae960579488
+dubbo:
+  provider:
+    filter: -contextHolderAuthenticationResolverFilter
+  consumer:
+    filter: -contextHolderAuthenticationResolverFilter
+  application:
+    name: account-service
+    qos-enable: false
+    serialize-check-status: DISABLE
+    # hoặc nếu cần thiết (không khuyến nghị cho production):
+    # serialize-check-status: DISABLE
+    serialize:
+      allowlist: com.example.customer_service.exceptions.AppException,java.lang.RuntimeException,java.lang.Exception
+
+  protocol:
+    name: dubbo
+    port: 20882
+    serialization: hessian2
+
+  registry:
+    address: zookeeper://localhost:2181
+
+  scan:
+    base-packages: com.example.account_service.service
+
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+resilience4j:
+  retry:
+    instances:
+      visa-registration:
+        max-attempts: 3
+        wait-duration: 2s
+        exponential-backoff-multiplier: 2
+        exponential-max-wait-duration: 10s
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+      mastercard-registration:
+        max-attempts: 3
+        wait-duration: 2s
+        exponential-backoff-multiplier: 2
+        exponential-max-wait-duration: 10s
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+  circuitbreaker:
+    instances:
+      visa-registration:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 30s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+      mastercard-registration:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 30s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+
+# Enable resilience4j actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,retries,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0  # Sample 100% of requests in development
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans

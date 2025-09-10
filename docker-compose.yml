@@ -1,0 +1,179 @@
+services:
+  kafka:
+    image: bitnami/kafka:3.7.0
+    container_name: Apache-Kafka
+    hostname: kafka
+    ports:
+      - "9094:9094"
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+  vault-server:
+    image: hashicorp/vault
+    container_name: Vault
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault-data:/vault/data
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "myroot"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    restart: always
+  init-vault:
+    image: hashicorp/vault
+    depends_on:
+      - vault-server
+    command: >
+      sh -c "
+      sleep 15;
+      export VAULT_ADDR=http://vault-server:8200;
+      export VAULT_TOKEN=myroot;
+      vault secrets enable -path=secret kv-v2 || true;
+      vault kv put secret/myapp username_transaction_DB=root password_transaction_DB=0986341885dai masterAccount=421010688
+      provider.api.electricity.url=http://localhost:8089/mock-api/electricity provider.api.telephone.url=http://localhost:8089/mock-api/telephone
+      core-banking.api.url=http://localhost:8083/corebanking/api/core-bank mock-provider-api=http://localhost:8089/mock-api
+      mock-napas-api=http://localhost:8089/mock-napas core-banking.api-key=a5dde333-b181-406d-8b41-5ae960579488
+      mock-server-api-key=961a800c-9839-4140-9bf3-f4208fe61ab2 account-number-provider-electricity=8080808080
+      DB_PASSWORD=22572 DB_USERNAME=root car_account_number=421010234 home_account_number=294020053
+      CORE_BANKING_API_KEY=a5dde333-b181-406d-8b41-5ae960579488
+      account-number-provider-telephone=8686868686;
+      "
+
+
+  #  redis:
+#    image: redis:latest
+#    container_name: redis
+#    ports:
+#      - "6379:6379"
+#    volumes:
+  #      - redis-data:/data
+  #    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9411/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  zookeeper:
+    image: zookeeper:latest
+    container_name: zookeeperRegistry
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=mysql
+      - KC_DB_URL=jdbc:mysql://host.docker.internal:3306/keycloak?useSSL=false&serverTimezone=UTC
+      - KC_DB_USERNAME=root
+      - KC_DB_PASSWORD=22572
+      - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=edge
+    ports:
+      - "8081:8080"
+    command:
+      - start-dev
+      - --import-realm
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    command: [ "bash", "-c", "redis-server --appendonly yes --requirepass 123" ]
+    volumes:
+      - cache:/data
+
+  temporal:
+    image: temporalio/auto-setup:1.25
+    container_name: temporal
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=temporal-postgres
+    depends_on:
+      - temporal-postgres
+  temporal-admin-tools:
+      image: temporalio/admin-tools:1.25
+      container_name: temporal-admin-tools
+      depends_on:
+        - temporal
+      stdin_open: true
+      tty: true
+      environment:
+        - TEMPORAL_CLI_ADDRESS=temporal:7233
+  temporal-web:
+      image: temporalio/web:latest
+      container_name: temporal-web
+      depends_on:
+        - temporal
+      ports:
+        - "8233:8088"
+      environment:
+        - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+        - TEMPORAL_PERMIT_WRITE_API=true
+  temporal-postgres:
+      image: postgres:13
+      container_name: temporal-postgres
+      ports:
+        - "5432:5432"
+      environment:
+        - POSTGRES_PASSWORD=temporal
+        - POSTGRES_USER=temporal
+      volumes:
+        - temporal-postgres-data:/var/lib/postgresql/data
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+
+volumes:
+  vault-data:
+  cache:
+  temporal-postgres-data:
+  grafana-storage:
