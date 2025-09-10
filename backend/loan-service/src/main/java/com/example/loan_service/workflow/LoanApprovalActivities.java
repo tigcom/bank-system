@@ -1,5 +1,6 @@
 package com.example.loan_service.workflow;
 
+import com.example.common_service.constant.LoanType;
 import com.example.common_service.dto.request.CommonDisburseRequest;
 import com.example.common_service.dto.request.LoanRequestDTO;
 import io.temporal.activity.ActivityInterface;
@@ -28,4 +29,7 @@ public interface LoanApprovalActivities {
     
     @ActivityMethod
     void rollbackLoanApproval(Long loanId);
+
+    @ActivityMethod
+    String resolveDisbursementAccount(LoanType loanType);
 } 

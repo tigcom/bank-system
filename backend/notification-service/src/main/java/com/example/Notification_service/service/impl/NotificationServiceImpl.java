@@ -308,6 +308,48 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @KafkaListener(topics = "send-mail-loan", groupId = "mail-loan-group", containerFactory = "kafkaListenerContainerFactory")
+    public void sendLoanNotification(byte[] payload) {
+        try {
+            String payloadStr = new String(payload);
+            log.info("Raw payload received for loan notification: {}", payloadStr);
+            
+            ObjectMapper objectMapper = new ObjectMapper();
+            MailMessageDTO mailMessage;
+            
+            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
+            try {
+                String base64Str = payloadStr;
+                if (base64Str.startsWith("\"") && base64Str.endsWith("\"")) {
+                    base64Str = base64Str.substring(1, base64Str.length() - 1);
+                }
+                
+                byte[] decodedBytes = Base64.getDecoder().decode(base64Str);
+                mailMessage = objectMapper.readValue(decodedBytes, MailMessageDTO.class);
+            } catch (Exception base64Exception) {
+                log.warn("Base64 decode failed, trying direct JSON parse: {}", base64Exception.getMessage());
+                mailMessage = objectMapper.readValue(payload, MailMessageDTO.class);
+            }
+            
+            log.info("Sending loan notification email to: {}", mailMessage.getRecipient());
+            
+            Context context = new Context();
+            context.setVariable("name", mailMessage.getRecipientName() != null ? mailMessage.getRecipientName() : "bạn");
+            context.setVariable("content", mailMessage.getBody());
+            context.setVariable("subject", mailMessage.getSubject());
+            
+            // Use loan-specific template
+            String htmlContent = templateEngine.process("loan-notification-template", context);
+            
+            // Retry mechanism for email sending
+            sendEmailWithRetry(mailMessage, htmlContent, 3);
+            
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý loan notification message: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
     @KafkaListener(topics = "send-mail-transaction", groupId = "mail-transaction-group", containerFactory = "kafkaListenerContainerFactory")
     public void notificationTransaction(Message<byte[]> messagee) {
         try {

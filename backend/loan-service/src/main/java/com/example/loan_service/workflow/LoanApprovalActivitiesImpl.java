@@ -1,6 +1,7 @@
     package com.example.loan_service.workflow;
 
     import com.example.common_service.dto.*;
+    import com.example.common_service.constant.LoanType;
     import com.example.common_service.dto.request.CommonDisburseRequest;
     import com.example.common_service.dto.request.LoanRequestDTO;
     import com.example.common_service.services.CommonService;
@@ -17,6 +18,7 @@
     import org.apache.dubbo.config.annotation.DubboReference;
     import org.apache.dubbo.rpc.RpcContext;
     import org.springframework.cloud.stream.function.StreamBridge;
+    import org.springframework.beans.factory.annotation.Value;
     import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.stereotype.Component;
     import org.springframework.stereotype.Service;
@@ -31,6 +33,12 @@
         private final LoanService loanService;
         private final RepaymentService repaymentService;
         private final StreamBridge streamBridge;
+
+        @Value("${car_account_number}")
+        private String carAccountNumber;
+
+        @Value("${home_account_number}")
+        private String homeAccountNumber;
 
         @DubboReference
         private CustomerQueryService customerQueryService;
@@ -136,14 +144,76 @@
 
                 CustomerResponseDTO customer = customerQueryService.getCustomerById(loan.getCustomerId());
 
+                String subject;
+                String body;
+                
+                if (loan.getLoanType() == LoanType.PERSONAL) {
+                    subject = "KÍCH HOẠT KHOẢN VAY TIÊU DÙNG CÁ NHÂN";
+                    body = String.format(
+                        "Kính chào %s,%n%n" +
+                        "Khoản vay tiêu dùng cá nhân ID: %s đã được phê duyệt thành công.%n" +
+                        "Số tiền: %s VND đã được giải ngân vào tài khoản vay: %s%n" +
+                        "Lãi suất: %s%%/năm, Kỳ hạn: %s tháng%n%n" +
+                        "Vui lòng kiểm tra tài khoản và thực hiện thanh toán theo lịch trình đã thỏa thuận.%n%n" +
+                        "Trân trọng, Ngân hàng",
+                        customer.getFullName(),
+                        loan.getLoanId(),
+                        loan.getAmount(),
+                        accountNumber,
+                        loan.getInterestRate(),
+                        loan.getTermMonths()
+                    );
+                } else if (loan.getLoanType() == LoanType.AUTO) {
+                    subject = "PHÊ DUYỆT KHOẢN VAY MUA XE";
+                    body = String.format(
+                        "Kính chào %s,%n%n" +
+                        "Khoản vay mua xe ID: %s đã được phê duyệt thành công.%n" +
+                        "Số tiền: %s VND đã được giải ngân đến đại lý xe hơi đã đăng ký.%n" +
+                        "Lãi suất: %s%%/năm, Kỳ hạn: %s tháng%n%n" +
+                        "Vui lòng liên hệ đại lý để hoàn tất thủ tục nhận xe.%n%n" +
+                        "Trân trọng, Ngân hàng",
+                        customer.getFullName(),
+                        loan.getLoanId(),
+                        loan.getAmount(),
+                        loan.getInterestRate(),
+                        loan.getTermMonths()
+                    );
+                } else if (loan.getLoanType() == LoanType.MORTGAGE) {
+                    subject = "PHÊ DUYỆT KHOẢN VAY MUA NHÀ";
+                    body = String.format(
+                        "Kính chào %s,%n%n" +
+                        "Khoản vay mua nhà ID: %s đã được phê duyệt thành công.%n" +
+                        "Số tiền: %s VND đã được giải ngân đến chủ đầu tư bất động sản đã đăng ký.%n" +
+                        "Lãi suất: %s%%/năm, Kỳ hạn: %s tháng%n%n" +
+                        "Vui lòng liên hệ chủ đầu tư để hoàn tất thủ tục nhận nhà.%n%n" +
+                        "Trân trọng, Ngân hàng",
+                        customer.getFullName(),
+                        loan.getLoanId(),
+                        loan.getAmount(),
+                        loan.getInterestRate(),
+                        loan.getTermMonths()
+                    );
+                } else {
+                    subject = "PHÊ DUYỆT KHOẢN VAY";
+                    body = String.format(
+                        "Kính chào %s,%n%n" +
+                        "Khoản vay ID: %s đã được phê duyệt thành công.%n" +
+                        "Số tiền: %s VND đã được giải ngân đến dịch vụ đã đăng ký.%n%n" +
+                        "Trân trọng, Ngân hàng",
+                        customer.getFullName(),
+                        loan.getLoanId(),
+                        loan.getAmount()
+                    );
+                }
+
                 MailMessageDTO mail = new MailMessageDTO();
-                mail.setSubject("KÍCH HOẠT KHOẢN VAY");
+                mail.setSubject(subject);
                 mail.setRecipient("phanhuynhphuckhang12c8@gmail.com");
-                mail.setBody("Khoản vay đã duyệt và giải ngân tài khoản: " + accountNumber);
+                mail.setBody(body);
                 mail.setRecipientName(customer.getFullName());
 
-                streamBridge.send("mail-out-0", mail);
-                log.info("Approval notification sent for loan: {}", loanId);
+                streamBridge.send("loan-notification-out-0", mail);
+                log.info("Approval notification sent for loan: {} with type: {}", loanId, loan.getLoanType());
 
             } catch (Exception e) {
                 log.error("Failed to send approval notification for loan: {}, error: {}", loanId, e.getMessage());
@@ -168,6 +238,23 @@
                 }
             } catch (Exception e) {
                 log.error("Failed to rollback loan approval: {}, error: {}", loanId, e.getMessage());
+            }
+        }
+
+        @Override
+        public String resolveDisbursementAccount(LoanType loanType) {
+            if (loanType == null) {
+                throw new IllegalArgumentException("LoanType must not be null");
+            }
+            switch (loanType) {
+                case AUTO:
+                    return carAccountNumber;
+                case MORTGAGE:
+                    return homeAccountNumber;
+                case PERSONAL:
+                default:
+                    // PERSONAL will create its own loan account; return null to indicate not applicable
+                    return null;
             }
         }
     }

@@ -40,7 +40,7 @@ services:
       core-banking.api.url=http://localhost:8083/corebanking/api/core-bank mock-provider-api=http://localhost:8089/mock-api
       mock-napas-api=http://localhost:8089/mock-napas core-banking.api-key=a5dde333-b181-406d-8b41-5ae960579488
       mock-server-api-key=961a800c-9839-4140-9bf3-f4208fe61ab2 account-number-provider-electricity=8080808080
-      DB_PASSWORD=22572 DB_USERNAME=root
+      DB_PASSWORD=22572 DB_USERNAME=root car_account_number=421010234 home_account_number=294020053
       CORE_BANKING_API_KEY=a5dde333-b181-406d-8b41-5ae960579488
       account-number-provider-telephone=8686868686;
       "

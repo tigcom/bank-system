@@ -10,6 +10,7 @@ import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.common_service.services.transactions.CommonTransactionService;
 import com.example.common_service.services.account.AccountDubboService;
 import com.example.loan_service.entity.Loan;
+import com.example.common_service.constant.LoanType;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.mapper.LoanMapper;
 import com.example.loan_service.mapper.CoreAccountMapper;
@@ -70,12 +71,28 @@ public class RepaymentCheckScheduler {
         for (Repayment repayment : overdueRepayments) {
             try {
                 Loan loan = repayment.getLoan();
+                BigDecimal requiredAmount = repayment.getPrincipal().add(repayment.getInterest());
+                if (loan.getLoanType() == LoanType.AUTO || loan.getLoanType() == LoanType.MORTGAGE) {
+                    log.info("SKIP_OVERDUE_REPAYMENT_FOR_NON_PERSONAL - loanId: {}, type: {}", loan.getLoanId(), loan.getLoanType());
+                    Integer previousMonthLate = repaymentService.checkPreviousMonthLate(repayment.getRepaymentId(),loan.getLoanId());
+                    if (previousMonthLate >= 3) {
+                        log.info("CLOSE_LOAN_DUE_TO_CONSECUTIVE_LATE - loanId: {}", loan.getLoanId());
+                        closeLoanAndRecover(loan);
+                        repayment.setStatus(RepaymentStatus.LATE);
+                        repaymentService.updateRepayment(repayment);
+                        log.info("MARK_REPAYMENT_LATE_SUCCESS - repaymentId: {}", repayment.getRepaymentId());
+                        continue;
+                    }
+                    // Không đủ tiền, đánh dấu trễ và xử lý phạt
+                    handleLateRepayment(loan, repayment, requiredAmount);
+                    continue;
+                }
                 log.info("PROCESS_OVERDUE_REPAYMENT_START - loanId: {}, repaymentId: {}, dueDate: {}", 
                     loan.getLoanId(), repayment.getRepaymentId(), repayment.getDueDate());
 
                 // Kiểm tra số dư repayment account
                 BigDecimal repaymentBalance = getRepaymentAccountBalance(loan.getRepaymentAccountNumber());
-                BigDecimal requiredAmount = repayment.getPrincipal().add(repayment.getInterest());
+
                 
                 log.info("REPAYMENT_ACCOUNT_BALANCE - account: {}, balance: {}, required: {}", 
                     loan.getRepaymentAccountNumber(), repaymentBalance, requiredAmount);
@@ -271,7 +288,7 @@ public class RepaymentCheckScheduler {
                     .recipientName(cust.getFullName())
                     .body(body)
                     .build();
-            streamBridge.send("mail-out-0", mail);
+            streamBridge.send("loan-notification-out-0", mail);
             log.info("LATE_REPAYMENT_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
         } catch (Exception e) {
             log.error("SEND_LATE_REPAYMENT_NOTIFICATION_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
@@ -302,7 +319,7 @@ public class RepaymentCheckScheduler {
                     .recipientName(cust.getFullName())
                     .body(body)
                     .build();
-            streamBridge.send("mail-out-0", mail);
+            streamBridge.send("loan-notification-out-0", mail);
             log.info("SUCCESSFUL_PAYMENT_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
         } catch (Exception e) {
             log.error("SEND_SUCCESSFUL_PAYMENT_NOTIFICATION_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
@@ -331,7 +348,7 @@ public class RepaymentCheckScheduler {
                     .recipientName(cust.getFullName())
                     .body(body)
                     .build();
-            streamBridge.send("mail-out-0", mail);
+            streamBridge.send("loan-notification-out-0", mail);
             log.info("LOAN_CLOSED_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
         } catch (Exception e) {
             log.error("SEND_LOAN_CLOSED_NOTIFICATION_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
@@ -356,7 +373,7 @@ public class RepaymentCheckScheduler {
             log.info("LOAN_ACCOUNT_BALANCE - account: {}, balance: {}", loan.getDisbursementAccountNumber(), loanBalance);
 
             // 3. Chỉ thu hồi nếu có tài sản
-            if (loanBalance.compareTo(BigDecimal.ZERO) > 0) {
+            if (loanBalance.compareTo(BigDecimal.ZERO) > 0  && loan.getLoanType() == LoanType.PERSONAL ) {
                 log.info("RECOVER_LOAN_AMOUNT - amount: {}", loanBalance);
                 CommonDisburseRequest recoverRequest = new CommonDisburseRequest();
                 recoverRequest.setToAccountNumber(loan.getDisbursementAccountNumber());
@@ -504,7 +521,7 @@ public class RepaymentCheckScheduler {
                     log.info("REMIND_UPCOMING_REPAYMENT_MAIL_PREPARED - to: {}, name: {}, subject: {}",
                             mail.getRecipient(), mail.getRecipientName(), mail.getSubject());
 
-                    streamBridge.send("mail-out-0", mail);
+                    streamBridge.send("loan-notification-out-0", mail);
                     log.info("REMIND_UPCOMING_REPAYMENT_NOTIFICATION_SENT - repaymentId: {}, loanId: {}, email: {}",
                             next.getRepaymentId(), loanId, cust.getEmail());
 

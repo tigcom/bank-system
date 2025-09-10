@@ -11,4 +11,6 @@ public interface NotificationService {
     void sendOtpForgotPassword(byte[] message);
     @KafkaListener(topics = "send-mail-transaction", groupId = "mail-transaction-group", containerFactory = "kafkaListenerContainerFactory")
     void notificationTransaction(Message<byte[]> messagee);
+    
+    void sendLoanNotification(byte[] payload);
 }

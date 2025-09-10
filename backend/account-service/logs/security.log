@@ -8052,3 +8052,863 @@
 2025-09-09 17:01:54 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [b0fa78ae177cd6048dd47b216721955e,b7f64775d4324550] - Set SecurityContextHolder to anonymous SecurityContext
 2025-09-09 17:01:59 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [,] - Securing GET /actuator/prometheus
 2025-09-09 17:01:59 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [,] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.AccountController.getAllCreditRequesstPendingPaginated(int,int,java.lang.String,java.lang.String)
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.AccountController; public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.AccountController.getAllCreditRequesstPendingPaginated(int,int,java.lang.String,java.lang.String)]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.AccountController.getAllCreditRequesstPending()
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.AccountController; public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.AccountController.getAllCreditRequesstPending()]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.CreditController.approveRequest(java.lang.String)
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.CreditController; public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.CreditController.approveRequest(java.lang.String)]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.CreditController.rejectRequest(java.lang.String)
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.CreditController; public com.example.account_service.dto.response.ApiResponseWrapper com.example.account_service.controller.CreditController.rejectRequest(java.lang.String)]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getMaturitySavingsAccounts(java.time.LocalDate,java.time.LocalDate)
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.StatisticController; public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getMaturitySavingsAccounts(java.time.LocalDate,java.time.LocalDate)]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getCreditRequestStatistics()
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.StatisticController; public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getCreditRequestStatistics()]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getDashboardStatistics()
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.StatisticController; public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getDashboardStatistics()]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getAccountStatistics()
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.StatisticController; public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getAccountStatistics()]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getAccountGrowthStatistics(java.time.LocalDate,java.time.LocalDate)
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.StatisticController; public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getAccountGrowthStatistics(java.time.LocalDate,java.time.LocalDate)]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.p.PrePostAnnotationSecurityMetadataSource [,] - @org.springframework.security.access.prepost.PreAuthorize("hasRole(\'ADMIN\')") found on specific method: public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getSavingsStatistics()
+2025-09-09 18:28:59 DEBUG [restartedMain] o.s.s.a.m.DelegatingMethodSecurityMetadataSource [,] - Caching method [CacheKey[com.example.account_service.controller.StatisticController; public org.springframework.http.ResponseEntity com.example.account_service.controller.StatisticController.getSavingsStatistics()]] with attributes [[authorize: 'hasRole('ADMIN')', filter: 'null', filterTarget: 'null']]
+2025-09-09 18:29:00 DEBUG [restartedMain] o.s.s.c.a.a.c.AuthenticationConfiguration$DefaultPasswordEncoderAuthenticationManagerBuilder [,] - No authenticationProviders and no parentAuthenticationManager defined. Returning null.
+2025-09-09 18:29:04 DEBUG [restartedMain] o.s.s.web.DefaultSecurityFilterChain [,] - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, BearerTokenAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-09-09 18:45:07 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [2ec0590e6fe152595a5606919f2d7da0,ccae5a7b3c897bd8] - Securing GET /actuator/prometheus
+2025-09-09 18:45:07 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [2ec0590e6fe152595a5606919f2d7da0,ccae5a7b3c897bd8] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:10 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [dc164fbb436def14ad1a157e64f501b3,c9914cbcc0a45144] - Securing GET /actuator/prometheus
+2025-09-09 18:45:10 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [dc164fbb436def14ad1a157e64f501b3,c9914cbcc0a45144] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:14 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [094750a9fdaa67f4567f1e9a74c323df,8470060ba322a80d] - Securing GET /actuator/prometheus
+2025-09-09 18:45:14 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [094750a9fdaa67f4567f1e9a74c323df,8470060ba322a80d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:19 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [45d7c4967d5038b6e1a76f8e12863504,ad6ed4bf25b746db] - Securing GET /actuator/prometheus
+2025-09-09 18:45:19 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [45d7c4967d5038b6e1a76f8e12863504,ad6ed4bf25b746db] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:24 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [2b4612ac0156177a7363f3e663e51072,39fe1987cf11aec9] - Securing GET /actuator/prometheus
+2025-09-09 18:45:24 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [2b4612ac0156177a7363f3e663e51072,39fe1987cf11aec9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:28 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [b166e22c4418a4bb63f98da21244633b,b4fcb0b33fd9e67a] - Securing GET /actuator/prometheus
+2025-09-09 18:45:28 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [b166e22c4418a4bb63f98da21244633b,b4fcb0b33fd9e67a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:33 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [121bb8711c86841312a477a20386ed3a,e987e8cba1797ce2] - Securing GET /actuator/prometheus
+2025-09-09 18:45:33 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [121bb8711c86841312a477a20386ed3a,e987e8cba1797ce2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:37 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [16efa7e0eb7e7509774f4edd58cf4081,2df5666aa315e97b] - Securing GET /actuator/prometheus
+2025-09-09 18:45:37 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [16efa7e0eb7e7509774f4edd58cf4081,2df5666aa315e97b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:42 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [bc01f826ca8c775cf85556402ba32aaf,07aff35796705fc0] - Securing GET /actuator/prometheus
+2025-09-09 18:45:42 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [bc01f826ca8c775cf85556402ba32aaf,07aff35796705fc0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:47 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [2d3b5b765c9ba8416ba444e6b822f3fa,a53fe1143af2a6bc] - Securing GET /actuator/prometheus
+2025-09-09 18:45:47 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [2d3b5b765c9ba8416ba444e6b822f3fa,a53fe1143af2a6bc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:51 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [0ffb3fd7bf9309a567da1118d162bad9,6ec71d54718084d7] - Securing GET /actuator/prometheus
+2025-09-09 18:45:51 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [0ffb3fd7bf9309a567da1118d162bad9,6ec71d54718084d7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:45:56 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [572ca32e7690d310037025ff12f223db,e812f27b0d4d7678] - Securing GET /actuator/prometheus
+2025-09-09 18:45:56 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [572ca32e7690d310037025ff12f223db,e812f27b0d4d7678] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:01 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [e02e7eb1fa7198fba8fd2d0ecadc2ae3,6e60878df4c83071] - Securing GET /actuator/prometheus
+2025-09-09 18:46:01 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [e02e7eb1fa7198fba8fd2d0ecadc2ae3,6e60878df4c83071] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:05 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [89d3359bb6e0144d66b165824f0188fd,c857908dc6448252] - Securing GET /actuator/prometheus
+2025-09-09 18:46:05 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [89d3359bb6e0144d66b165824f0188fd,c857908dc6448252] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:10 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [535b23ae2585b575dfb7e9dcbf72c54d,a53defa627de1d98] - Securing GET /actuator/prometheus
+2025-09-09 18:46:10 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [535b23ae2585b575dfb7e9dcbf72c54d,a53defa627de1d98] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:15 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [aaf796281f304042a2445a8ebac9cb40,0bb0c19e68eb9cd2] - Securing GET /actuator/prometheus
+2025-09-09 18:46:15 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [aaf796281f304042a2445a8ebac9cb40,0bb0c19e68eb9cd2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:19 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [67a7d5597fca1a2d1fe295677b96f01e,ed65a391976215ed] - Securing GET /actuator/prometheus
+2025-09-09 18:46:19 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [67a7d5597fca1a2d1fe295677b96f01e,ed65a391976215ed] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:24 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [db8efa0b0dd652b99c6e9e0abad86a33,a616cc85ba64a2ae] - Securing GET /actuator/prometheus
+2025-09-09 18:46:24 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [db8efa0b0dd652b99c6e9e0abad86a33,a616cc85ba64a2ae] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:29 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [90b907d7ab3bf3ffc4f6ab7d70ee9292,32e806b15676affa] - Securing GET /actuator/prometheus
+2025-09-09 18:46:29 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [90b907d7ab3bf3ffc4f6ab7d70ee9292,32e806b15676affa] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:33 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [7250388c1100989011ab5caa93fc0f7e,845420a3e15f881e] - Securing GET /actuator/prometheus
+2025-09-09 18:46:33 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [7250388c1100989011ab5caa93fc0f7e,845420a3e15f881e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:38 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [2c74765c26e32c03d1d113a6df8bc5a1,9a93d6b574fc6c12] - Securing GET /actuator/prometheus
+2025-09-09 18:46:38 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [2c74765c26e32c03d1d113a6df8bc5a1,9a93d6b574fc6c12] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:43 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [0195809ca780a41682eed86ce1226cb8,e9bbf9adf5dd9337] - Securing GET /actuator/prometheus
+2025-09-09 18:46:43 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [0195809ca780a41682eed86ce1226cb8,e9bbf9adf5dd9337] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:47 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [cb7e141585cc2eaf4b46fc238a268f11,37faeb923ead6d2a] - Securing GET /actuator/prometheus
+2025-09-09 18:46:47 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [cb7e141585cc2eaf4b46fc238a268f11,37faeb923ead6d2a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:52 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [f12750f5d45909d6c6f550b43a381606,9d2d1bab6434cd55] - Securing GET /actuator/prometheus
+2025-09-09 18:46:52 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [f12750f5d45909d6c6f550b43a381606,9d2d1bab6434cd55] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:46:57 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [f87c8df3611b28763cecc4822176631d,ff0000ce71ab7bd3] - Securing GET /actuator/prometheus
+2025-09-09 18:46:57 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [f87c8df3611b28763cecc4822176631d,ff0000ce71ab7bd3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:01 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [37a271e945fc34a1a80025fbffe8a8f2,1c016bfdfb9971f6] - Securing GET /actuator/prometheus
+2025-09-09 18:47:01 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [37a271e945fc34a1a80025fbffe8a8f2,1c016bfdfb9971f6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:06 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [dd6f88913f221151ca60510561e788d5,4dc7ccbc11f5c063] - Securing GET /actuator/prometheus
+2025-09-09 18:47:06 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [dd6f88913f221151ca60510561e788d5,4dc7ccbc11f5c063] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:11 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [1fa656ba51aeb1aa15d17e5dc40fcbe2,9ff98d32a3dd896d] - Securing GET /actuator/prometheus
+2025-09-09 18:47:11 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [1fa656ba51aeb1aa15d17e5dc40fcbe2,9ff98d32a3dd896d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:15 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [762d23fe25a58f0489751c448e583b1b,99c019994c8b4068] - Securing GET /actuator/prometheus
+2025-09-09 18:47:15 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [762d23fe25a58f0489751c448e583b1b,99c019994c8b4068] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:20 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [feea5b35f35312a0b2c032cbb15567ef,61b73ce57943eb98] - Securing GET /actuator/prometheus
+2025-09-09 18:47:20 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [feea5b35f35312a0b2c032cbb15567ef,61b73ce57943eb98] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:24 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [bd3f89337c018e1fe371a6586516cd8f,95bcf23748ff4baf] - Securing GET /actuator/prometheus
+2025-09-09 18:47:24 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [bd3f89337c018e1fe371a6586516cd8f,95bcf23748ff4baf] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:29 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [3cd5cf49718a0ecef8a96b3f14688938,a46e93b1ced498a1] - Securing GET /actuator/prometheus
+2025-09-09 18:47:29 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [3cd5cf49718a0ecef8a96b3f14688938,a46e93b1ced498a1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:34 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [45537f447bf18b1882cfb9fdfaa2bea2,edd3e377b2cfbee9] - Securing GET /actuator/prometheus
+2025-09-09 18:47:34 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [45537f447bf18b1882cfb9fdfaa2bea2,edd3e377b2cfbee9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:38 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [97eefeb8407781def83ac78679dde377,36e6d73429854e04] - Securing GET /actuator/prometheus
+2025-09-09 18:47:38 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [97eefeb8407781def83ac78679dde377,36e6d73429854e04] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:43 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [fc754da0969e40c903bcd3243601a852,cd6a20be50394d3b] - Securing GET /actuator/prometheus
+2025-09-09 18:47:43 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [fc754da0969e40c903bcd3243601a852,cd6a20be50394d3b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:48 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [bf4f86fde5af84320612be08709ce657,0c17b4b661913ef9] - Securing GET /actuator/prometheus
+2025-09-09 18:47:48 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [bf4f86fde5af84320612be08709ce657,0c17b4b661913ef9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:52 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [2927fc80932f0ac104834b01ab080e9d,2b109985bc3a0566] - Securing GET /actuator/prometheus
+2025-09-09 18:47:52 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [2927fc80932f0ac104834b01ab080e9d,2b109985bc3a0566] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:47:57 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [25d372c901ed37ae1e6ae5987181842f,5f26d9ce277fd44a] - Securing GET /actuator/prometheus
+2025-09-09 18:47:57 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [25d372c901ed37ae1e6ae5987181842f,5f26d9ce277fd44a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:02 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [f2074e464a209398f754a7a5c5e082e5,cc8d23321b14ab4f] - Securing GET /actuator/prometheus
+2025-09-09 18:48:02 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [f2074e464a209398f754a7a5c5e082e5,cc8d23321b14ab4f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:06 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [5960b7a9fe0e8f127829da0e1f682280,4763a1a2a38b509b] - Securing GET /actuator/prometheus
+2025-09-09 18:48:06 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [5960b7a9fe0e8f127829da0e1f682280,4763a1a2a38b509b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:11 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [cfa1eefb11dcf678895f84c9d9d7b80b,8727403246ed92a3] - Securing GET /actuator/prometheus
+2025-09-09 18:48:11 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [cfa1eefb11dcf678895f84c9d9d7b80b,8727403246ed92a3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:16 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [381700b57e91a8d82218f4d2b591d02a,2f0a60cf46c5b2b4] - Securing GET /actuator/prometheus
+2025-09-09 18:48:16 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [381700b57e91a8d82218f4d2b591d02a,2f0a60cf46c5b2b4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:20 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [3c8fcc0debedb6f4f5c25e4a320c5300,88b1feec20e39c6f] - Securing GET /actuator/prometheus
+2025-09-09 18:48:20 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [3c8fcc0debedb6f4f5c25e4a320c5300,88b1feec20e39c6f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:25 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [2119333d708477e66daceeac059b0682,b779dc95b471273d] - Securing GET /actuator/prometheus
+2025-09-09 18:48:25 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [2119333d708477e66daceeac059b0682,b779dc95b471273d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:30 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [e18d02de6efd4d4c42e73975fa98b3fe,2e8929f741f82b69] - Securing GET /actuator/prometheus
+2025-09-09 18:48:30 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [e18d02de6efd4d4c42e73975fa98b3fe,2e8929f741f82b69] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:34 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [fc50ac13f2c8f8fba178d0ec87fd9890,50c6a0be9b9e0edc] - Securing GET /actuator/prometheus
+2025-09-09 18:48:34 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [fc50ac13f2c8f8fba178d0ec87fd9890,50c6a0be9b9e0edc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:39 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [e5f68bffa70a860910621ecb10dbbdf5,8487ae27ac326e91] - Securing GET /actuator/prometheus
+2025-09-09 18:48:39 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [e5f68bffa70a860910621ecb10dbbdf5,8487ae27ac326e91] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:44 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [d6c26b6d9ad51e4f5a0b257d04d7fc34,2d25f4660a85dcb2] - Securing GET /actuator/prometheus
+2025-09-09 18:48:44 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [d6c26b6d9ad51e4f5a0b257d04d7fc34,2d25f4660a85dcb2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:48 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [10bfb2fac2fe9d0b9e408dc8a8d52764,319a7b5eefc18896] - Securing GET /actuator/prometheus
+2025-09-09 18:48:48 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [10bfb2fac2fe9d0b9e408dc8a8d52764,319a7b5eefc18896] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:53 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [074151c07112ec42c3f68f5199374f9a,b9a7bbd512651ca2] - Securing GET /actuator/prometheus
+2025-09-09 18:48:53 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [074151c07112ec42c3f68f5199374f9a,b9a7bbd512651ca2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:48:57 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [2c0e230a293e06f22a5bec76039c0485,3de66483d8a45574] - Securing GET /actuator/prometheus
+2025-09-09 18:48:57 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [2c0e230a293e06f22a5bec76039c0485,3de66483d8a45574] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:02 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [e8187ea6b204074be90429fd1fe8fa29,846a2155c049eea7] - Securing GET /actuator/prometheus
+2025-09-09 18:49:02 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [e8187ea6b204074be90429fd1fe8fa29,846a2155c049eea7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:07 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [467e3fad22970492d84ea4e0bf84c144,fe79f97b8260ccd7] - Securing GET /actuator/prometheus
+2025-09-09 18:49:07 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [467e3fad22970492d84ea4e0bf84c144,fe79f97b8260ccd7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:11 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [e210d8056ca4e1909d3f154d517fbef2,7f7ef40f0c391083] - Securing GET /actuator/prometheus
+2025-09-09 18:49:11 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [e210d8056ca4e1909d3f154d517fbef2,7f7ef40f0c391083] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:16 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [0465e0a52f218c1169527fb0bdbb8a63,ab28e7f9fe25a5a9] - Securing GET /actuator/prometheus
+2025-09-09 18:49:16 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [0465e0a52f218c1169527fb0bdbb8a63,ab28e7f9fe25a5a9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:21 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [14faa6f0ffad64ed3df608b4530dae04,cdaef7a00c1e5811] - Securing GET /actuator/prometheus
+2025-09-09 18:49:21 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [14faa6f0ffad64ed3df608b4530dae04,cdaef7a00c1e5811] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:25 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [2eeda9bb6fd1532bcea8e960e75bb5ad,72b1e9316f85515f] - Securing GET /actuator/prometheus
+2025-09-09 18:49:25 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [2eeda9bb6fd1532bcea8e960e75bb5ad,72b1e9316f85515f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:30 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [39c3c66e82bb565365eccbd7cdeb2cdb,1c15dd14b0bd5b28] - Securing GET /actuator/prometheus
+2025-09-09 18:49:30 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [39c3c66e82bb565365eccbd7cdeb2cdb,1c15dd14b0bd5b28] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:35 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [353197a92932b28763e1299582336b9b,4923b1afcdeacf71] - Securing GET /actuator/prometheus
+2025-09-09 18:49:35 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [353197a92932b28763e1299582336b9b,4923b1afcdeacf71] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:39 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [5305c20002912326bb767df746bbc4c5,1dc311068d6179be] - Securing GET /actuator/prometheus
+2025-09-09 18:49:39 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [5305c20002912326bb767df746bbc4c5,1dc311068d6179be] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:44 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [027162eba1f43fe652bbdd80018ebe72,87717a736172b8cf] - Securing GET /actuator/prometheus
+2025-09-09 18:49:44 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [027162eba1f43fe652bbdd80018ebe72,87717a736172b8cf] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:49 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [6624429b969fec8066b12b425df496ca,74c3fbc6c527e1e1] - Securing GET /actuator/prometheus
+2025-09-09 18:49:49 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [6624429b969fec8066b12b425df496ca,74c3fbc6c527e1e1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:53 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [6a2949d02b7b999f62ae4af9fd4d7554,5912b2a546c584a1] - Securing GET /actuator/prometheus
+2025-09-09 18:49:53 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [6a2949d02b7b999f62ae4af9fd4d7554,5912b2a546c584a1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:49:58 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [7913fc462aa013d044aed109eb3a2c21,45232ef254b1b14d] - Securing GET /actuator/prometheus
+2025-09-09 18:49:58 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [7913fc462aa013d044aed109eb3a2c21,45232ef254b1b14d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:03 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [bcc09d17b69804ba6aa8414267d81148,b2fe26c07e1f0a8b] - Securing GET /actuator/prometheus
+2025-09-09 18:50:03 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [bcc09d17b69804ba6aa8414267d81148,b2fe26c07e1f0a8b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:07 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [a8062e5ebb0233d683417de487dad927,18bdc43ce23b2aa6] - Securing GET /actuator/prometheus
+2025-09-09 18:50:07 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [a8062e5ebb0233d683417de487dad927,18bdc43ce23b2aa6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:12 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [be643ac521936467fb529f641ded56c0,a8124350e7be13e6] - Securing GET /actuator/prometheus
+2025-09-09 18:50:12 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [be643ac521936467fb529f641ded56c0,a8124350e7be13e6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:17 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [874c9bbc84e7a13cf1df8ef189e16ee4,7009caa161fc211f] - Securing GET /actuator/prometheus
+2025-09-09 18:50:17 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [874c9bbc84e7a13cf1df8ef189e16ee4,7009caa161fc211f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:21 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [f644f40345d0f21619cfd7f212807cf6,33d2d3248960c93e] - Securing GET /actuator/prometheus
+2025-09-09 18:50:21 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [f644f40345d0f21619cfd7f212807cf6,33d2d3248960c93e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:26 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [ac6a0f6c61419d317925092773fe988b,32f8f0f31b6f539f] - Securing GET /actuator/prometheus
+2025-09-09 18:50:26 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [ac6a0f6c61419d317925092773fe988b,32f8f0f31b6f539f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:30 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [0b07859b4f05c4315aad25a9ec8af52a,88e5791879c9d184] - Securing GET /actuator/prometheus
+2025-09-09 18:50:30 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [0b07859b4f05c4315aad25a9ec8af52a,88e5791879c9d184] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:35 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [70110bd7dfaf126a3c9c8c181b3747d9,5e2cfe324af6612d] - Securing GET /actuator/prometheus
+2025-09-09 18:50:35 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [70110bd7dfaf126a3c9c8c181b3747d9,5e2cfe324af6612d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:40 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [38989cebb817f1128477455bcfcf7c9a,f07e4d87bb291e9b] - Securing GET /actuator/prometheus
+2025-09-09 18:50:40 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [38989cebb817f1128477455bcfcf7c9a,f07e4d87bb291e9b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:44 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [eb40421764453fdcf8d19472f313f6de,d975f19bc97b6406] - Securing GET /actuator/prometheus
+2025-09-09 18:50:44 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [eb40421764453fdcf8d19472f313f6de,d975f19bc97b6406] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:49 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [5e33ecc8f442b49e43aa7e94503fef09,1fe2e8b588929c48] - Securing GET /actuator/prometheus
+2025-09-09 18:50:49 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [5e33ecc8f442b49e43aa7e94503fef09,1fe2e8b588929c48] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:54 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [6216d02f116ff293a3b68504af69cad0,31ce1c11d05a675a] - Securing GET /actuator/prometheus
+2025-09-09 18:50:54 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [6216d02f116ff293a3b68504af69cad0,31ce1c11d05a675a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:50:58 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [d2b5276db958ee1ded42dd63077075e8,3eb00504543afde2] - Securing GET /actuator/prometheus
+2025-09-09 18:50:58 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [d2b5276db958ee1ded42dd63077075e8,3eb00504543afde2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:03 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [405e57b4fe6c95d7424679a35054154c,961847b662466062] - Securing GET /actuator/prometheus
+2025-09-09 18:51:03 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [405e57b4fe6c95d7424679a35054154c,961847b662466062] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:08 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [87ccd93e629ae8cdcf698cad065b7d08,70fdb87389243787] - Securing GET /actuator/prometheus
+2025-09-09 18:51:08 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [87ccd93e629ae8cdcf698cad065b7d08,70fdb87389243787] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:12 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [459932b7c365d730880a4ca7f436d11a,fb4d2a6f4a2c94b4] - Securing GET /actuator/prometheus
+2025-09-09 18:51:12 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [459932b7c365d730880a4ca7f436d11a,fb4d2a6f4a2c94b4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:17 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [862b797dee5b63387d3d6aa2b8cbc924,02dd4d73c3365d65] - Securing GET /actuator/prometheus
+2025-09-09 18:51:17 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [862b797dee5b63387d3d6aa2b8cbc924,02dd4d73c3365d65] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:21 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [aa1ae5959a1cba455fed6000cbe17dd5,1d85aa155789421f] - Securing GET /actuator/prometheus
+2025-09-09 18:51:21 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [aa1ae5959a1cba455fed6000cbe17dd5,1d85aa155789421f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:26 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [e892572444375b8c8ea42cc3ce3650ba,8f8309cca16f08ae] - Securing GET /actuator/prometheus
+2025-09-09 18:51:26 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [e892572444375b8c8ea42cc3ce3650ba,8f8309cca16f08ae] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:31 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [4bd3268b93ce694e219ee00f68b14cf7,e7cc2572be01809d] - Securing GET /actuator/prometheus
+2025-09-09 18:51:31 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [4bd3268b93ce694e219ee00f68b14cf7,e7cc2572be01809d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:35 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [198f9ccb8787c8d74fb6a0a383fd93bb,e86caf160de67333] - Securing GET /actuator/prometheus
+2025-09-09 18:51:35 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [198f9ccb8787c8d74fb6a0a383fd93bb,e86caf160de67333] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:40 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [4753f31bab59e7351cb6daa5879eb5be,836b3c3e53679613] - Securing GET /actuator/prometheus
+2025-09-09 18:51:40 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [4753f31bab59e7351cb6daa5879eb5be,836b3c3e53679613] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:45 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [f6376c942d55d07bec73725cbe888076,20f54d6e66cc59a0] - Securing GET /actuator/prometheus
+2025-09-09 18:51:45 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [f6376c942d55d07bec73725cbe888076,20f54d6e66cc59a0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:49 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [7da4083688b832ebb626e9956e9e4785,cb757c98dd2571a9] - Securing GET /actuator/prometheus
+2025-09-09 18:51:49 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [7da4083688b832ebb626e9956e9e4785,cb757c98dd2571a9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:54 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [a8e3b0dfd841925475b9cec37d3c5db5,06749c1a5c01c6c1] - Securing GET /actuator/prometheus
+2025-09-09 18:51:54 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [a8e3b0dfd841925475b9cec37d3c5db5,06749c1a5c01c6c1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:51:59 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [f6568d8449db658374704b96b7bb1089,376aa7bf7b2ea118] - Securing GET /actuator/prometheus
+2025-09-09 18:51:59 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [f6568d8449db658374704b96b7bb1089,376aa7bf7b2ea118] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:03 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [87a27a14301c4e1cb7cbf2d11d2db930,7a0895640d1888ec] - Securing GET /actuator/prometheus
+2025-09-09 18:52:03 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [87a27a14301c4e1cb7cbf2d11d2db930,7a0895640d1888ec] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:08 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [2c48158ad87263df0735a7b3307627b5,02ec0c8ba432a3ec] - Securing GET /actuator/prometheus
+2025-09-09 18:52:08 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [2c48158ad87263df0735a7b3307627b5,02ec0c8ba432a3ec] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:13 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [f38578dc6fc59827fbe9136bebfdc92a,d338132ee7a7eee2] - Securing GET /actuator/prometheus
+2025-09-09 18:52:13 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [f38578dc6fc59827fbe9136bebfdc92a,d338132ee7a7eee2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:17 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [f9b1bff6953b08414961dd8102f319e3,12a50fa4e8dc8831] - Securing GET /actuator/prometheus
+2025-09-09 18:52:17 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [f9b1bff6953b08414961dd8102f319e3,12a50fa4e8dc8831] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:22 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [2a39bdbad735018e506d3eb2d2e623db,5812b8a7ae9a6c3e] - Securing GET /actuator/prometheus
+2025-09-09 18:52:22 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [2a39bdbad735018e506d3eb2d2e623db,5812b8a7ae9a6c3e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:27 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [c4a75d3aa3e63e322d119d1c16ba67a6,c1375979665dd8c4] - Securing GET /actuator/prometheus
+2025-09-09 18:52:27 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [c4a75d3aa3e63e322d119d1c16ba67a6,c1375979665dd8c4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:31 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [01ceef59f896580019ba2ebc42422b9e,98a24765f487f3d1] - Securing GET /actuator/prometheus
+2025-09-09 18:52:31 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [01ceef59f896580019ba2ebc42422b9e,98a24765f487f3d1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:36 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [1c3446dc75ac78ea72f16289101c560c,0b494da94c858d30] - Securing GET /actuator/prometheus
+2025-09-09 18:52:36 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [1c3446dc75ac78ea72f16289101c560c,0b494da94c858d30] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:40 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [9dd495db87eea01d3ee5db3c202c87b3,b3146cab20bf34c8] - Securing GET /actuator/prometheus
+2025-09-09 18:52:40 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [9dd495db87eea01d3ee5db3c202c87b3,b3146cab20bf34c8] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:45 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [00165f158f0bcfab22c4aec527cb763e,1aa2ef4e3882670a] - Securing GET /actuator/prometheus
+2025-09-09 18:52:45 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [00165f158f0bcfab22c4aec527cb763e,1aa2ef4e3882670a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:50 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [532ac67311c69da2c96c6c5e33ea3fa5,f31e45f254047a05] - Securing GET /actuator/prometheus
+2025-09-09 18:52:50 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [532ac67311c69da2c96c6c5e33ea3fa5,f31e45f254047a05] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:54 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [911da45fa4c1ece063520bf29bf6e3b4,596bfe44876c254b] - Securing GET /actuator/prometheus
+2025-09-09 18:52:54 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [911da45fa4c1ece063520bf29bf6e3b4,596bfe44876c254b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:52:59 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [93cfdfaca8bc61dc06614a2e5e12d2f3,c863a82cb85d8d0a] - Securing GET /actuator/prometheus
+2025-09-09 18:52:59 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [93cfdfaca8bc61dc06614a2e5e12d2f3,c863a82cb85d8d0a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:04 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [a386bfd876af555b683832a86a35be4c,ff14686d3d0a5c26] - Securing GET /actuator/prometheus
+2025-09-09 18:53:04 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [a386bfd876af555b683832a86a35be4c,ff14686d3d0a5c26] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:08 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [482d8b3fe798e0d3e6603d2f10d7c00a,0927f0293fa9573b] - Securing GET /actuator/prometheus
+2025-09-09 18:53:08 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [482d8b3fe798e0d3e6603d2f10d7c00a,0927f0293fa9573b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:13 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [1e9a7c8e9d843dc10a69f8784710819a,69168ac3ba64aaf2] - Securing GET /actuator/prometheus
+2025-09-09 18:53:13 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [1e9a7c8e9d843dc10a69f8784710819a,69168ac3ba64aaf2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:18 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [c6061022add98e90563be7fc110ec76d,b12352a9e605f36e] - Securing GET /actuator/prometheus
+2025-09-09 18:53:18 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [c6061022add98e90563be7fc110ec76d,b12352a9e605f36e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:22 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [1e1994d238414dd5c87a2ee5110989ce,ef3ac04787debbb2] - Securing GET /actuator/prometheus
+2025-09-09 18:53:22 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [1e1994d238414dd5c87a2ee5110989ce,ef3ac04787debbb2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:27 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [e502c0dbe7b64f9b4ef51113d4bbbe8d,8405877443327b7e] - Securing GET /actuator/prometheus
+2025-09-09 18:53:27 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [e502c0dbe7b64f9b4ef51113d4bbbe8d,8405877443327b7e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:32 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [6a00dffdfb6cd3f558f4d2d4038c4710,cb577951472ccb5d] - Securing GET /actuator/prometheus
+2025-09-09 18:53:32 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [6a00dffdfb6cd3f558f4d2d4038c4710,cb577951472ccb5d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:36 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [c20206acc48a66d2b99dcf88bb343aca,bd927d0fb01f38be] - Securing GET /actuator/prometheus
+2025-09-09 18:53:36 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [c20206acc48a66d2b99dcf88bb343aca,bd927d0fb01f38be] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:41 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [1a7abaf5ddfd7fc870c4151f20c12c5d,752c53f871577fd0] - Securing GET /actuator/prometheus
+2025-09-09 18:53:41 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [1a7abaf5ddfd7fc870c4151f20c12c5d,752c53f871577fd0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:46 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [f8b24ededb7e263ca7ebcf8818ee314c,7b2cb82745cc387c] - Securing GET /actuator/prometheus
+2025-09-09 18:53:46 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [f8b24ededb7e263ca7ebcf8818ee314c,7b2cb82745cc387c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:50 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [139fcd90269e75955ecb5ffa69036bc7,10309c0094c50bd1] - Securing GET /actuator/prometheus
+2025-09-09 18:53:50 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [139fcd90269e75955ecb5ffa69036bc7,10309c0094c50bd1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:55 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [9e134f732c5a82057d57998444679c01,4092903cbdf9423b] - Securing GET /actuator/prometheus
+2025-09-09 18:53:55 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [9e134f732c5a82057d57998444679c01,4092903cbdf9423b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:53:59 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [f2da6838fe15771a6bc57880fb27fcb6,a63e633055c37dd2] - Securing GET /actuator/prometheus
+2025-09-09 18:53:59 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [f2da6838fe15771a6bc57880fb27fcb6,a63e633055c37dd2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:04 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [5972f49a7901b191f1d46f95bb3ed13d,6c9c542336596f39] - Securing GET /actuator/prometheus
+2025-09-09 18:54:04 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [5972f49a7901b191f1d46f95bb3ed13d,6c9c542336596f39] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:09 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [3eb46aef1c16718c797f27f8cb5e3e45,1f8e7af80612f3f6] - Securing GET /actuator/prometheus
+2025-09-09 18:54:09 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [3eb46aef1c16718c797f27f8cb5e3e45,1f8e7af80612f3f6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:13 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [0046d262aa3e223f486271da92c80472,8c69717960c37cc3] - Securing GET /actuator/prometheus
+2025-09-09 18:54:13 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [0046d262aa3e223f486271da92c80472,8c69717960c37cc3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:18 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [e51fc780e55e2f01d667a4ca21a0c698,d0f2cd816aaa3059] - Securing GET /actuator/prometheus
+2025-09-09 18:54:18 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [e51fc780e55e2f01d667a4ca21a0c698,d0f2cd816aaa3059] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:23 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [9244dae466836bf393187048934f994e,ad04d6c576a0d457] - Securing GET /actuator/prometheus
+2025-09-09 18:54:23 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [9244dae466836bf393187048934f994e,ad04d6c576a0d457] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:27 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [3f49f1fef5e7fab412cb786f7c7fd001,f5c8ec6020798700] - Securing GET /actuator/prometheus
+2025-09-09 18:54:27 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [3f49f1fef5e7fab412cb786f7c7fd001,f5c8ec6020798700] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:32 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [fc477b9981ad93abb479de0750034fa9,ca5486ab482d50e7] - Securing GET /actuator/prometheus
+2025-09-09 18:54:32 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [fc477b9981ad93abb479de0750034fa9,ca5486ab482d50e7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:37 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [724fc37c589032c31550369a39c21e61,fded3fb324618d63] - Securing GET /actuator/prometheus
+2025-09-09 18:54:37 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [724fc37c589032c31550369a39c21e61,fded3fb324618d63] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:41 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [6edee5d21960ed41b9e11f9a37fd9e52,af51ab4c0412aa0b] - Securing GET /actuator/prometheus
+2025-09-09 18:54:41 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [6edee5d21960ed41b9e11f9a37fd9e52,af51ab4c0412aa0b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:46 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [73a8785ce855294c3eef98b3e9149878,c22d83b51b859dc5] - Securing GET /actuator/prometheus
+2025-09-09 18:54:46 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [73a8785ce855294c3eef98b3e9149878,c22d83b51b859dc5] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:50 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [0d6f43d12da758ee76ed61f478565f1b,a35cb2a860503e5c] - Securing GET /actuator/prometheus
+2025-09-09 18:54:50 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [0d6f43d12da758ee76ed61f478565f1b,a35cb2a860503e5c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:54:55 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [7627eceea53e9c021e02a3d5333d5fcc,8999ab486a47bfdc] - Securing GET /actuator/prometheus
+2025-09-09 18:54:55 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [7627eceea53e9c021e02a3d5333d5fcc,8999ab486a47bfdc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:00 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [c65fd8292a834d8b30d2261e19fdf0d9,574350dc50d1ecd3] - Securing GET /actuator/prometheus
+2025-09-09 18:55:00 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [c65fd8292a834d8b30d2261e19fdf0d9,574350dc50d1ecd3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:04 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [a7a6133be9f05fd4110ecc013cfbd373,ce90f101c0c16d6a] - Securing GET /actuator/prometheus
+2025-09-09 18:55:04 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [a7a6133be9f05fd4110ecc013cfbd373,ce90f101c0c16d6a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:09 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [99e922eef1762e3616653d648d95dfcb,6a36375256504fce] - Securing GET /actuator/prometheus
+2025-09-09 18:55:09 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [99e922eef1762e3616653d648d95dfcb,6a36375256504fce] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:14 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [899efc638df10226935b1689550cf26c,5888466b94b25f3c] - Securing GET /actuator/prometheus
+2025-09-09 18:55:14 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [899efc638df10226935b1689550cf26c,5888466b94b25f3c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:18 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [04f16816b943d78123e98e2964989361,899216b4d38c92f4] - Securing GET /actuator/prometheus
+2025-09-09 18:55:18 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [04f16816b943d78123e98e2964989361,899216b4d38c92f4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:23 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [5387dbe3413c8473e69f57f33214f695,690d0adb90d2be28] - Securing GET /actuator/prometheus
+2025-09-09 18:55:23 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [5387dbe3413c8473e69f57f33214f695,690d0adb90d2be28] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:28 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [f66fbff84c0dbdcabbedb7e1932f457b,f85f42805441af58] - Securing GET /actuator/prometheus
+2025-09-09 18:55:28 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [f66fbff84c0dbdcabbedb7e1932f457b,f85f42805441af58] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:32 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [36c9b9fcb93e029600c91ea62950db8a,812643989b87ee56] - Securing GET /actuator/prometheus
+2025-09-09 18:55:32 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [36c9b9fcb93e029600c91ea62950db8a,812643989b87ee56] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:37 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [21237731c46ca1eb4d1299eeeb9df39c,afb7a918158aa712] - Securing GET /actuator/prometheus
+2025-09-09 18:55:37 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [21237731c46ca1eb4d1299eeeb9df39c,afb7a918158aa712] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:41 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [a7d2c3a89de6e90a9aae2d3c48b61d55,e31aa94fa8bb7a5a] - Securing GET /actuator/prometheus
+2025-09-09 18:55:41 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [a7d2c3a89de6e90a9aae2d3c48b61d55,e31aa94fa8bb7a5a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:46 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [49d4473c3c30c40a715b899c70bf3fac,e08ad62fd28b1d9f] - Securing GET /actuator/prometheus
+2025-09-09 18:55:46 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [49d4473c3c30c40a715b899c70bf3fac,e08ad62fd28b1d9f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:51 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [998af3610c03ca878bd53e7e55c54b11,cc2a2c0ba024295f] - Securing GET /actuator/prometheus
+2025-09-09 18:55:51 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [998af3610c03ca878bd53e7e55c54b11,cc2a2c0ba024295f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:55:55 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [eb061c3676a8b0380d20d25b8de141ea,70eb001a848aa2ac] - Securing GET /actuator/prometheus
+2025-09-09 18:55:55 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [eb061c3676a8b0380d20d25b8de141ea,70eb001a848aa2ac] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:00 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [204c9ca186b95db4ded23fd5ff2bd039,479fc9b05a3ee98f] - Securing GET /actuator/prometheus
+2025-09-09 18:56:00 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [204c9ca186b95db4ded23fd5ff2bd039,479fc9b05a3ee98f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:05 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [11dcfe9e97fc25189353394ec97f6f80,070cd4024dd0fa6e] - Securing GET /actuator/prometheus
+2025-09-09 18:56:05 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [11dcfe9e97fc25189353394ec97f6f80,070cd4024dd0fa6e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:09 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [14eff087beccc4fd4265214b61bc135d,03c2e54dbebb8964] - Securing GET /actuator/prometheus
+2025-09-09 18:56:09 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [14eff087beccc4fd4265214b61bc135d,03c2e54dbebb8964] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:14 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [aa4a2ffee003708cd1469abec7abd51a,39a3fe2e26d24ecd] - Securing GET /actuator/prometheus
+2025-09-09 18:56:14 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [aa4a2ffee003708cd1469abec7abd51a,39a3fe2e26d24ecd] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:19 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [1efe276a30117da580448c7615887885,fd9b53449aea96e0] - Securing GET /actuator/prometheus
+2025-09-09 18:56:19 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [1efe276a30117da580448c7615887885,fd9b53449aea96e0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:23 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [646f52aa5015cd0793f8e065cc4a128b,ae525fa03998baaf] - Securing GET /actuator/prometheus
+2025-09-09 18:56:23 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [646f52aa5015cd0793f8e065cc4a128b,ae525fa03998baaf] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:28 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [4d1a1564c7a1cd59ddd93fc5e04bd3dd,874979a41e56ffd5] - Securing GET /actuator/prometheus
+2025-09-09 18:56:28 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [4d1a1564c7a1cd59ddd93fc5e04bd3dd,874979a41e56ffd5] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:33 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [676da92d48766ffce62aef706c9f6205,50334a459c55474d] - Securing GET /actuator/prometheus
+2025-09-09 18:56:33 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [676da92d48766ffce62aef706c9f6205,50334a459c55474d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:37 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [44474dc159f479d162803af2e6614690,03e7a41502d6c2dd] - Securing GET /actuator/prometheus
+2025-09-09 18:56:37 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [44474dc159f479d162803af2e6614690,03e7a41502d6c2dd] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:42 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [00e627b58f0a95a1119d65049f795686,049de134430c266a] - Securing GET /actuator/prometheus
+2025-09-09 18:56:42 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [00e627b58f0a95a1119d65049f795686,049de134430c266a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:46 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [d646b30b173673adb6522c9344b63b2a,155262066a0c5e31] - Securing GET /actuator/prometheus
+2025-09-09 18:56:46 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [d646b30b173673adb6522c9344b63b2a,155262066a0c5e31] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:51 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [a88c1b233d814609d8320eeebbecf22e,a2bc1916de9c7189] - Securing GET /actuator/prometheus
+2025-09-09 18:56:51 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [a88c1b233d814609d8320eeebbecf22e,a2bc1916de9c7189] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:56:56 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [86cb7908fc9cc51d52b8e1bfd79434d9,32d92d0042561d38] - Securing GET /actuator/prometheus
+2025-09-09 18:56:56 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [86cb7908fc9cc51d52b8e1bfd79434d9,32d92d0042561d38] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:00 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [ae96ce88a8a3cf31d1e3f57d81414436,0b75bc3c9dabc542] - Securing GET /actuator/prometheus
+2025-09-09 18:57:00 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [ae96ce88a8a3cf31d1e3f57d81414436,0b75bc3c9dabc542] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:05 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [961680f3b21b8ba037c6649e9978112c,ac648ef9be8d512a] - Securing GET /actuator/prometheus
+2025-09-09 18:57:05 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [961680f3b21b8ba037c6649e9978112c,ac648ef9be8d512a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:10 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [1f9ba75321892913b5947f51886d8a22,f9bb02a482525437] - Securing GET /actuator/prometheus
+2025-09-09 18:57:10 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [1f9ba75321892913b5947f51886d8a22,f9bb02a482525437] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:14 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [de91b647a0075e754694cb7c081791a6,90faed638e30f179] - Securing GET /actuator/prometheus
+2025-09-09 18:57:14 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [de91b647a0075e754694cb7c081791a6,90faed638e30f179] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:19 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [818b2915a400358696e03cef515c2118,a38f5ff11391f27e] - Securing GET /actuator/prometheus
+2025-09-09 18:57:19 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [818b2915a400358696e03cef515c2118,a38f5ff11391f27e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:24 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [ac0fe65d99349b3a49a355a120925ea2,f8a5b5635a0b34b7] - Securing GET /actuator/prometheus
+2025-09-09 18:57:24 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [ac0fe65d99349b3a49a355a120925ea2,f8a5b5635a0b34b7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:28 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [8bebb95d10dac507094b548dad0b50f7,c70477d1ac627aed] - Securing GET /actuator/prometheus
+2025-09-09 18:57:28 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [8bebb95d10dac507094b548dad0b50f7,c70477d1ac627aed] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:33 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [3d4fc3d8e8ac0bc9587de0b5ec9d2408,8beca92e7da80544] - Securing GET /actuator/prometheus
+2025-09-09 18:57:33 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [3d4fc3d8e8ac0bc9587de0b5ec9d2408,8beca92e7da80544] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:38 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [bf3e32075babde6639e3804af52012ff,3c29972fc4d33419] - Securing GET /actuator/prometheus
+2025-09-09 18:57:38 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [bf3e32075babde6639e3804af52012ff,3c29972fc4d33419] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:42 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [d253cbc263cfadc64ca5ed9d41b42cac,ee79689182c5ed9f] - Securing GET /actuator/prometheus
+2025-09-09 18:57:42 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [d253cbc263cfadc64ca5ed9d41b42cac,ee79689182c5ed9f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:47 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [6e0d2630b1c2512ae680d876d41ada59,63fc1bdce9cb3764] - Securing GET /actuator/prometheus
+2025-09-09 18:57:47 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [6e0d2630b1c2512ae680d876d41ada59,63fc1bdce9cb3764] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:52 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [2a967baa9116376347df904eb38f9563,34091818e6f1c8fa] - Securing GET /actuator/prometheus
+2025-09-09 18:57:52 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [2a967baa9116376347df904eb38f9563,34091818e6f1c8fa] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:57:57 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [3215bf3f3b483940b1c5020bd77736e0,27720c7ade2c85b9] - Securing GET /actuator/prometheus
+2025-09-09 18:57:57 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [3215bf3f3b483940b1c5020bd77736e0,27720c7ade2c85b9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:01 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [a113771ae716091795a5596bdf83e2b1,8a3b45daa7140bb7] - Securing GET /actuator/prometheus
+2025-09-09 18:58:01 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [a113771ae716091795a5596bdf83e2b1,8a3b45daa7140bb7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:06 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [c30166749ebdb9f9114a19d2475b0b71,66a1284254d34473] - Securing GET /actuator/prometheus
+2025-09-09 18:58:06 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [c30166749ebdb9f9114a19d2475b0b71,66a1284254d34473] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:11 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [99169985ba2cdbcbebda5b41ed422e83,cd3f83449f3415d2] - Securing GET /actuator/prometheus
+2025-09-09 18:58:11 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [99169985ba2cdbcbebda5b41ed422e83,cd3f83449f3415d2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:15 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [95cbfaad1cbb5882fb8d19bc1478ee0b,25edc719a1262309] - Securing GET /actuator/prometheus
+2025-09-09 18:58:15 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [95cbfaad1cbb5882fb8d19bc1478ee0b,25edc719a1262309] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:20 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [5477da902568a22d6ff03aedd96853ac,d0366245be3cd0e0] - Securing GET /actuator/prometheus
+2025-09-09 18:58:20 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [5477da902568a22d6ff03aedd96853ac,d0366245be3cd0e0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:24 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [b5e9fc2348d5401dea1b2e0c2aa11f5d,f7c1e31fc7939327] - Securing GET /actuator/prometheus
+2025-09-09 18:58:24 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [b5e9fc2348d5401dea1b2e0c2aa11f5d,f7c1e31fc7939327] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:29 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [2028ae77c122babb6812ad084bee95bb,80a230054462d002] - Securing GET /actuator/prometheus
+2025-09-09 18:58:29 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [2028ae77c122babb6812ad084bee95bb,80a230054462d002] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:34 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [40f17bc7b6fbbe8f39745112c12050e4,5c6c63c10e147fec] - Securing GET /actuator/prometheus
+2025-09-09 18:58:34 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [40f17bc7b6fbbe8f39745112c12050e4,5c6c63c10e147fec] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:38 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [ce7fcb9d47c407ec513cf2547b0513ec,4d19cf13a8703026] - Securing GET /actuator/prometheus
+2025-09-09 18:58:38 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [ce7fcb9d47c407ec513cf2547b0513ec,4d19cf13a8703026] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:43 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [ead352949648e8743083628e8e5efa8c,d1593dfae0536072] - Securing GET /actuator/prometheus
+2025-09-09 18:58:43 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [ead352949648e8743083628e8e5efa8c,d1593dfae0536072] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:48 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [20512646aeed5563d76e26e6e4f9788d,6dbb84c3ce690ecc] - Securing GET /actuator/prometheus
+2025-09-09 18:58:48 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [20512646aeed5563d76e26e6e4f9788d,6dbb84c3ce690ecc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:52 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [4f53f0db5d98aa611ece10b33e8d6214,23f8eb55242cad55] - Securing GET /actuator/prometheus
+2025-09-09 18:58:52 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [4f53f0db5d98aa611ece10b33e8d6214,23f8eb55242cad55] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:58:57 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [a0b1b3670fcb958e30c2f2cb5e0a2fba,0c80eb5c3bb5cba4] - Securing GET /actuator/prometheus
+2025-09-09 18:58:57 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [a0b1b3670fcb958e30c2f2cb5e0a2fba,0c80eb5c3bb5cba4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:02 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [7a778fc6273f4ee354c3f59c574d2619,f15d3b58975b17e6] - Securing GET /actuator/prometheus
+2025-09-09 18:59:02 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [7a778fc6273f4ee354c3f59c574d2619,f15d3b58975b17e6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:06 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [10e319e709476c3c6e5e33ba17888ae4,cf9879bb209a81c8] - Securing GET /actuator/prometheus
+2025-09-09 18:59:06 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [10e319e709476c3c6e5e33ba17888ae4,cf9879bb209a81c8] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:11 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [75d983f14fc26ddad2e032fbba5fff25,70c7823a9dd1848f] - Securing GET /actuator/prometheus
+2025-09-09 18:59:11 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [75d983f14fc26ddad2e032fbba5fff25,70c7823a9dd1848f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:16 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [f4d732c790ce7981ec6c2570a970af66,c279d9b9483cd0de] - Securing GET /actuator/prometheus
+2025-09-09 18:59:16 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [f4d732c790ce7981ec6c2570a970af66,c279d9b9483cd0de] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:20 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [37f2b0c3ec5af8084c7a310e7d1519b8,6df9654201eb7d97] - Securing GET /actuator/prometheus
+2025-09-09 18:59:20 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [37f2b0c3ec5af8084c7a310e7d1519b8,6df9654201eb7d97] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:25 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [e02e7964ed69076bf6d62a2a84fccee3,48dfd8d812964109] - Securing GET /actuator/prometheus
+2025-09-09 18:59:25 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [e02e7964ed69076bf6d62a2a84fccee3,48dfd8d812964109] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:30 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [08bd883e85f5dc3e54c976575e197588,4f88d1a0e175cbeb] - Securing GET /actuator/prometheus
+2025-09-09 18:59:30 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [08bd883e85f5dc3e54c976575e197588,4f88d1a0e175cbeb] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:34 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [c26b0faadf04f3a9a0efafa09729cd23,446bee682e0a4da4] - Securing GET /actuator/prometheus
+2025-09-09 18:59:34 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [c26b0faadf04f3a9a0efafa09729cd23,446bee682e0a4da4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:39 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [8bd897fb5e4a42b07855329c0aff7ecf,08a9997c132d4e8d] - Securing GET /actuator/prometheus
+2025-09-09 18:59:39 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [8bd897fb5e4a42b07855329c0aff7ecf,08a9997c132d4e8d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:44 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [bc5f5bfed5ed1c0634c8914222950369,71e627feb9f1818b] - Securing GET /actuator/prometheus
+2025-09-09 18:59:44 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [bc5f5bfed5ed1c0634c8914222950369,71e627feb9f1818b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:48 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [9bce9ac54749d75621373f76d3f76e77,d96aece98ebc5221] - Securing GET /actuator/prometheus
+2025-09-09 18:59:48 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [9bce9ac54749d75621373f76d3f76e77,d96aece98ebc5221] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:53 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [ab0ce279611a0ca42dd75b7f8274f8bd,9b7ee4950b066bcb] - Securing GET /actuator/prometheus
+2025-09-09 18:59:53 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [ab0ce279611a0ca42dd75b7f8274f8bd,9b7ee4950b066bcb] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 18:59:57 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [87b4a767ee1fafd6b7630117a1a73fbe,10b7a721dd04bdf8] - Securing GET /actuator/prometheus
+2025-09-09 18:59:57 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [87b4a767ee1fafd6b7630117a1a73fbe,10b7a721dd04bdf8] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:02 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [e51e89aba0842023465b39db1ef5721f,75946547d9ac1b30] - Securing GET /actuator/prometheus
+2025-09-09 19:00:02 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [e51e89aba0842023465b39db1ef5721f,75946547d9ac1b30] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:07 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [dcc63c5414410ee6039251c8d1737221,bfcb0b347578841a] - Securing GET /actuator/prometheus
+2025-09-09 19:00:07 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [dcc63c5414410ee6039251c8d1737221,bfcb0b347578841a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:11 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [3cf3187008a9a409c168c292e471338b,6d5ddd137f002d89] - Securing GET /actuator/prometheus
+2025-09-09 19:00:11 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [3cf3187008a9a409c168c292e471338b,6d5ddd137f002d89] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:16 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [96533a4cc48e6b7a33d26336d6a60134,0bb2cd6d7068e27a] - Securing GET /actuator/prometheus
+2025-09-09 19:00:16 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [96533a4cc48e6b7a33d26336d6a60134,0bb2cd6d7068e27a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:21 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [349b478d6572c96adb05b74f0cc1af48,58d024ebc5244e91] - Securing GET /actuator/prometheus
+2025-09-09 19:00:21 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [349b478d6572c96adb05b74f0cc1af48,58d024ebc5244e91] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:25 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [4bb25b89365a0b93ea0fa6693a97bdcc,0541072c4ace7274] - Securing GET /actuator/prometheus
+2025-09-09 19:00:25 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [4bb25b89365a0b93ea0fa6693a97bdcc,0541072c4ace7274] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:30 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [602959de620a4b124a15282aa47a1dd6,b21f16f84590c631] - Securing GET /actuator/prometheus
+2025-09-09 19:00:30 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [602959de620a4b124a15282aa47a1dd6,b21f16f84590c631] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:35 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [f850eb7edf04e10e4743b83793e4ab77,764c3cf37baa308c] - Securing GET /actuator/prometheus
+2025-09-09 19:00:35 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [f850eb7edf04e10e4743b83793e4ab77,764c3cf37baa308c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:39 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [76e6f930ca63b0dd0423859d70223912,9c2ca75ea5ce596a] - Securing GET /actuator/prometheus
+2025-09-09 19:00:39 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [76e6f930ca63b0dd0423859d70223912,9c2ca75ea5ce596a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:44 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [f40a88b7f0b75edb8e24d1e985f1448a,8ee5165b09729f44] - Securing GET /actuator/prometheus
+2025-09-09 19:00:44 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [f40a88b7f0b75edb8e24d1e985f1448a,8ee5165b09729f44] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:49 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [8f98c5b91fdd0dbc62d2b006db07e77f,4b5bbf37fb1a1803] - Securing GET /actuator/prometheus
+2025-09-09 19:00:49 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [8f98c5b91fdd0dbc62d2b006db07e77f,4b5bbf37fb1a1803] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:53 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [09c81895f39e0f2dcc09c16a4c6fde16,7efdf6219e648472] - Securing GET /actuator/prometheus
+2025-09-09 19:00:53 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [09c81895f39e0f2dcc09c16a4c6fde16,7efdf6219e648472] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:00:58 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [463be0e3157fb054ee982614ac64eb7b,303e3043c1ec7feb] - Securing GET /actuator/prometheus
+2025-09-09 19:00:58 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [463be0e3157fb054ee982614ac64eb7b,303e3043c1ec7feb] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:02 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [3e08a1993372fd96f5898cb9e937895e,2789d4c1c63bf2fc] - Securing GET /actuator/prometheus
+2025-09-09 19:01:02 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [3e08a1993372fd96f5898cb9e937895e,2789d4c1c63bf2fc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:07 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [57608415ce38f5ec0e1a305706916167,b7d7daa1833b7818] - Securing GET /actuator/prometheus
+2025-09-09 19:01:07 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [57608415ce38f5ec0e1a305706916167,b7d7daa1833b7818] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:12 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [ead562f41e37c1a5b71e9ee1f6d2ac51,6945afd02d7cb556] - Securing GET /actuator/prometheus
+2025-09-09 19:01:12 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [ead562f41e37c1a5b71e9ee1f6d2ac51,6945afd02d7cb556] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:16 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [15edd6afbedc8d430e644b86edda7fab,4f23c64195f14515] - Securing GET /actuator/prometheus
+2025-09-09 19:01:16 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [15edd6afbedc8d430e644b86edda7fab,4f23c64195f14515] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:21 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [dcef8f2bcc930dff5762541cdbf6e318,953e723018c24074] - Securing GET /actuator/prometheus
+2025-09-09 19:01:21 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [dcef8f2bcc930dff5762541cdbf6e318,953e723018c24074] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:26 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [3b3824c586fdcfd4e236ce86f3f560db,1c649b315b4aed7c] - Securing GET /actuator/prometheus
+2025-09-09 19:01:26 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [3b3824c586fdcfd4e236ce86f3f560db,1c649b315b4aed7c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:30 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [91ac14c5de77cd224a307cd376d9988e,992758818dcda868] - Securing GET /actuator/prometheus
+2025-09-09 19:01:30 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [91ac14c5de77cd224a307cd376d9988e,992758818dcda868] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:35 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [52a42f52836bc624a9e1a2bdd5e2d1e8,41a84499d877ad93] - Securing GET /actuator/prometheus
+2025-09-09 19:01:35 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [52a42f52836bc624a9e1a2bdd5e2d1e8,41a84499d877ad93] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:40 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [1fc6b4f9cb189f42c9dde2fa7b4ea2b8,ba786c70d64cbc77] - Securing GET /actuator/prometheus
+2025-09-09 19:01:40 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [1fc6b4f9cb189f42c9dde2fa7b4ea2b8,ba786c70d64cbc77] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:44 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [f1d9b061c6afadc063c2e82b5f77d457,7949e747db528329] - Securing GET /actuator/prometheus
+2025-09-09 19:01:44 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [f1d9b061c6afadc063c2e82b5f77d457,7949e747db528329] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:49 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [707e182809b88369d3755caa3e199059,fc13f350d37a26b5] - Securing GET /actuator/prometheus
+2025-09-09 19:01:49 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [707e182809b88369d3755caa3e199059,fc13f350d37a26b5] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:54 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [af9176e651f11d854f3e13b53bc9aed5,ce7c0ce07ed63abd] - Securing GET /actuator/prometheus
+2025-09-09 19:01:54 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [af9176e651f11d854f3e13b53bc9aed5,ce7c0ce07ed63abd] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:01:58 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [683c8ddda87886a9fcd93da12db55d31,ee7c568f03919eab] - Securing GET /actuator/prometheus
+2025-09-09 19:01:58 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [683c8ddda87886a9fcd93da12db55d31,ee7c568f03919eab] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:03 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [66c984d5b97ffc279ef5bcf6340429b1,7167cceec7744248] - Securing GET /actuator/prometheus
+2025-09-09 19:02:03 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [66c984d5b97ffc279ef5bcf6340429b1,7167cceec7744248] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:08 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [a7479b4dd774958c1e4fd5ef7d76e978,7906e3dfde4bb213] - Securing GET /actuator/prometheus
+2025-09-09 19:02:08 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [a7479b4dd774958c1e4fd5ef7d76e978,7906e3dfde4bb213] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:12 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [afb659393d134b93cbc9cc0745221f99,b5c4a52482e4160a] - Securing GET /actuator/prometheus
+2025-09-09 19:02:12 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [afb659393d134b93cbc9cc0745221f99,b5c4a52482e4160a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:17 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [8309bb2c4844f51253b113ac48be2e06,27a1ef7865304116] - Securing GET /actuator/prometheus
+2025-09-09 19:02:17 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [8309bb2c4844f51253b113ac48be2e06,27a1ef7865304116] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:22 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [b5dae219a5c9ebe3f4fd6bc42d050c54,dbbcba938ce2831a] - Securing GET /actuator/prometheus
+2025-09-09 19:02:22 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [b5dae219a5c9ebe3f4fd6bc42d050c54,dbbcba938ce2831a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:26 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [619173e8b94eef5053880be8f578e48e,223c72409aa4abeb] - Securing GET /actuator/prometheus
+2025-09-09 19:02:26 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [619173e8b94eef5053880be8f578e48e,223c72409aa4abeb] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:31 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [f2416af755883486451a74364790003a,2b8ced38121ab73c] - Securing GET /actuator/prometheus
+2025-09-09 19:02:31 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [f2416af755883486451a74364790003a,2b8ced38121ab73c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:35 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [663761b44068f5bdc63c53299e6eae0c,76d792d75e07013e] - Securing GET /actuator/prometheus
+2025-09-09 19:02:35 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [663761b44068f5bdc63c53299e6eae0c,76d792d75e07013e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:40 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [efc6aedb7eddacd4a377d927d73ef9a5,5d1f511385e84e6f] - Securing GET /actuator/prometheus
+2025-09-09 19:02:40 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [efc6aedb7eddacd4a377d927d73ef9a5,5d1f511385e84e6f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:45 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [5fd95d8cd34a29fc661402fcfbc713a6,9013409f2b3e894f] - Securing GET /actuator/prometheus
+2025-09-09 19:02:45 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [5fd95d8cd34a29fc661402fcfbc713a6,9013409f2b3e894f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:49 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [b70be00c492efac8567e555f26510ed9,5dd947f46823b868] - Securing GET /actuator/prometheus
+2025-09-09 19:02:49 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [b70be00c492efac8567e555f26510ed9,5dd947f46823b868] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:54 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [44076729f6cf9e28b4092c56b431c1cf,9829a2ed679d5ce4] - Securing GET /actuator/prometheus
+2025-09-09 19:02:54 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [44076729f6cf9e28b4092c56b431c1cf,9829a2ed679d5ce4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:02:59 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [c90d486fb2efa605a02a140e3776738c,0b096cf378c45289] - Securing GET /actuator/prometheus
+2025-09-09 19:02:59 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [c90d486fb2efa605a02a140e3776738c,0b096cf378c45289] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:03 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [712b1f8b0db3841a840fb661483ff0f2,7cd59e7e009c72e7] - Securing GET /actuator/prometheus
+2025-09-09 19:03:03 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [712b1f8b0db3841a840fb661483ff0f2,7cd59e7e009c72e7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:08 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [af8384781d4fdc06ea4eb4b7c53828ad,20586382add40194] - Securing GET /actuator/prometheus
+2025-09-09 19:03:08 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [af8384781d4fdc06ea4eb4b7c53828ad,20586382add40194] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:13 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [b95e8b847dc5bc8b502f33fc5d45b11a,b15246e81b25da58] - Securing GET /actuator/prometheus
+2025-09-09 19:03:13 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [b95e8b847dc5bc8b502f33fc5d45b11a,b15246e81b25da58] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:17 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [30b2e0c7fab12a200f6b797b74c1a67e,2d158356925cf339] - Securing GET /actuator/prometheus
+2025-09-09 19:03:17 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [30b2e0c7fab12a200f6b797b74c1a67e,2d158356925cf339] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:22 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [b71c861de8a8f95dc88f6705369fb73e,5afeb1c20765322c] - Securing GET /actuator/prometheus
+2025-09-09 19:03:22 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [b71c861de8a8f95dc88f6705369fb73e,5afeb1c20765322c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:27 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [c17c7f25af4a21e9d3fa10ab371a5906,8bfb6b84c244675f] - Securing GET /actuator/prometheus
+2025-09-09 19:03:27 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [c17c7f25af4a21e9d3fa10ab371a5906,8bfb6b84c244675f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:31 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [264157aef5a28dde15053c2c3a6899d6,7b0fcc42032f339b] - Securing GET /actuator/prometheus
+2025-09-09 19:03:31 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [264157aef5a28dde15053c2c3a6899d6,7b0fcc42032f339b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:36 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [8bfd7bb5efcdcb34deb80ca22f93173f,65983a045365910a] - Securing GET /actuator/prometheus
+2025-09-09 19:03:36 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [8bfd7bb5efcdcb34deb80ca22f93173f,65983a045365910a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:41 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ba82d9ba74a8c1facfed0aac4327cfa5,33553cb5a0cd43fd] - Securing GET /actuator/prometheus
+2025-09-09 19:03:41 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ba82d9ba74a8c1facfed0aac4327cfa5,33553cb5a0cd43fd] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:45 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [5915fefffcec3d5cfa226b0951c1b95a,d8d71aa26cc71bd3] - Securing GET /actuator/prometheus
+2025-09-09 19:03:45 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [5915fefffcec3d5cfa226b0951c1b95a,d8d71aa26cc71bd3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:50 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [77b4f362d6375c1e4bee2ea58a78b9a1,f2229aa0342f0e01] - Securing GET /actuator/prometheus
+2025-09-09 19:03:50 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [77b4f362d6375c1e4bee2ea58a78b9a1,f2229aa0342f0e01] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:54 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [f20ee27c7631a3c09488a1444e857ec9,c73257cc70696420] - Securing GET /actuator/prometheus
+2025-09-09 19:03:54 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [f20ee27c7631a3c09488a1444e857ec9,c73257cc70696420] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:03:59 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [bc9693dcd9002e7407c2326804966af7,73374293bebcd3df] - Securing GET /actuator/prometheus
+2025-09-09 19:03:59 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [bc9693dcd9002e7407c2326804966af7,73374293bebcd3df] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:04 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [8d8e85601398ac4169481a2aea665c63,81e31f5eb194b95f] - Securing GET /actuator/prometheus
+2025-09-09 19:04:04 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [8d8e85601398ac4169481a2aea665c63,81e31f5eb194b95f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:08 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [ea3c9ee44b49720512d2a468d6e12f07,7e478172a72fe6e1] - Securing GET /actuator/prometheus
+2025-09-09 19:04:08 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [ea3c9ee44b49720512d2a468d6e12f07,7e478172a72fe6e1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:13 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [2d9bd3f99161159c411a7ca1e1777f6b,00010aae687bbb49] - Securing GET /actuator/prometheus
+2025-09-09 19:04:13 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [2d9bd3f99161159c411a7ca1e1777f6b,00010aae687bbb49] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:18 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [e25051ba2f1646a85b31ddc368fd786b,8fc376aed93db9b6] - Securing GET /actuator/prometheus
+2025-09-09 19:04:18 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [e25051ba2f1646a85b31ddc368fd786b,8fc376aed93db9b6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:22 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [18d0bcb91ddb811f7611cb4c9343928f,3a1c0865ef725e43] - Securing GET /actuator/prometheus
+2025-09-09 19:04:22 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [18d0bcb91ddb811f7611cb4c9343928f,3a1c0865ef725e43] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:27 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [1047fc966c2f818c4469f536e9d3244f,222631a1232afb20] - Securing GET /actuator/prometheus
+2025-09-09 19:04:27 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [1047fc966c2f818c4469f536e9d3244f,222631a1232afb20] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:32 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [c6b8cb630af82c1eb76c7e885bf7783e,8a522c4212a6c389] - Securing GET /actuator/prometheus
+2025-09-09 19:04:32 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [c6b8cb630af82c1eb76c7e885bf7783e,8a522c4212a6c389] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:36 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [7c25f28e0e34ada3c3f7c904bfafeca1,437161769117162c] - Securing GET /actuator/prometheus
+2025-09-09 19:04:36 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [7c25f28e0e34ada3c3f7c904bfafeca1,437161769117162c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:41 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [8beeb6d62ac8cdca2e8b8eb273d7c7d8,ded18b878436f8be] - Securing GET /actuator/prometheus
+2025-09-09 19:04:41 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [8beeb6d62ac8cdca2e8b8eb273d7c7d8,ded18b878436f8be] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:45 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [2394dfc9d69196ee371b60a18d783e06,74bd6c45eb20dbff] - Securing GET /actuator/prometheus
+2025-09-09 19:04:45 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [2394dfc9d69196ee371b60a18d783e06,74bd6c45eb20dbff] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:50 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [907f0ffd53126e6c4d68a54e87534bc4,3095032b2f1e5460] - Securing GET /actuator/prometheus
+2025-09-09 19:04:50 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [907f0ffd53126e6c4d68a54e87534bc4,3095032b2f1e5460] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:55 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [ed4c6d14af13e72505d5af171e94476f,651488334820e1e7] - Securing GET /actuator/prometheus
+2025-09-09 19:04:55 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [ed4c6d14af13e72505d5af171e94476f,651488334820e1e7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:04:59 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [1c5b3098886ced378324f03472f73386,319115a3f1e91ed4] - Securing GET /actuator/prometheus
+2025-09-09 19:04:59 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [1c5b3098886ced378324f03472f73386,319115a3f1e91ed4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:04 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [ba41ccc869ba5b5dec6a0ca0279db812,067e787bd1c1bdf2] - Securing GET /actuator/prometheus
+2025-09-09 19:05:04 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [ba41ccc869ba5b5dec6a0ca0279db812,067e787bd1c1bdf2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:09 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [fe057354f008cf9e463cff39471117fb,6c6c38c0596fdd3d] - Securing GET /actuator/prometheus
+2025-09-09 19:05:09 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [fe057354f008cf9e463cff39471117fb,6c6c38c0596fdd3d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:13 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ae7ccdd3a7d5543b64a1a70a37ee94cc,b8a3921c8a9c487b] - Securing GET /actuator/prometheus
+2025-09-09 19:05:13 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ae7ccdd3a7d5543b64a1a70a37ee94cc,b8a3921c8a9c487b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:18 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [7b744fd8eb9f8511a7150a6e9248ad0c,3b62e7f2aabbcbd5] - Securing GET /actuator/prometheus
+2025-09-09 19:05:18 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [7b744fd8eb9f8511a7150a6e9248ad0c,3b62e7f2aabbcbd5] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:23 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [0251975e7c27324c33928c5a4393ecfa,da2b8052e780bab1] - Securing GET /actuator/prometheus
+2025-09-09 19:05:23 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [0251975e7c27324c33928c5a4393ecfa,da2b8052e780bab1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:27 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [79144b473b0adcd29187fdbfeaa34cd4,9bd40c1f5f88dc77] - Securing GET /actuator/prometheus
+2025-09-09 19:05:27 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [79144b473b0adcd29187fdbfeaa34cd4,9bd40c1f5f88dc77] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:32 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [222984d460456d338ee30960041a8ef5,1c7efaa470e7cc14] - Securing GET /actuator/prometheus
+2025-09-09 19:05:32 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [222984d460456d338ee30960041a8ef5,1c7efaa470e7cc14] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:36 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [94cba2df714373eb76bed83cd91fd1f8,6683451f0bfa7164] - Securing GET /actuator/prometheus
+2025-09-09 19:05:36 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [94cba2df714373eb76bed83cd91fd1f8,6683451f0bfa7164] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:41 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [10928adc3eff0326efb9386a68523f54,05aba5169c220a40] - Securing GET /actuator/prometheus
+2025-09-09 19:05:41 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [10928adc3eff0326efb9386a68523f54,05aba5169c220a40] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:46 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [dcf90b5b3ffed74728c76ba2b31a3957,064d3503e270872e] - Securing GET /actuator/prometheus
+2025-09-09 19:05:46 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [dcf90b5b3ffed74728c76ba2b31a3957,064d3503e270872e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:50 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [9ae19310ea02d04dfbb5e18ab7a20670,d5ef9a32b41f54a1] - Securing GET /actuator/prometheus
+2025-09-09 19:05:50 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [9ae19310ea02d04dfbb5e18ab7a20670,d5ef9a32b41f54a1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:05:55 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [11c60297c5f776091e067dd656ca44a4,6ac7a48a26d25d30] - Securing GET /actuator/prometheus
+2025-09-09 19:05:55 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [11c60297c5f776091e067dd656ca44a4,6ac7a48a26d25d30] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:00 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [271ea6acd962dadcc2ba0699dba118f1,8b7e97da7cad510e] - Securing GET /actuator/prometheus
+2025-09-09 19:06:00 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [271ea6acd962dadcc2ba0699dba118f1,8b7e97da7cad510e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:04 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [40cd090920a05cecef116c6598374ccd,4cbd83fed2eae161] - Securing GET /actuator/prometheus
+2025-09-09 19:06:04 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [40cd090920a05cecef116c6598374ccd,4cbd83fed2eae161] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:09 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [506417c181f07db225d30f4788f19ea3,552853a406ec434e] - Securing GET /actuator/prometheus
+2025-09-09 19:06:09 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [506417c181f07db225d30f4788f19ea3,552853a406ec434e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:14 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [4573104657e14758109d120f7ed5cf9c,5c84808c567dfffe] - Securing GET /actuator/prometheus
+2025-09-09 19:06:14 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [4573104657e14758109d120f7ed5cf9c,5c84808c567dfffe] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:18 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [72174d28edd799a458cd5d97c6fe944e,32f244fa63ea2952] - Securing GET /actuator/prometheus
+2025-09-09 19:06:18 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [72174d28edd799a458cd5d97c6fe944e,32f244fa63ea2952] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:23 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [4e6c9f32005a15bd03ac3aaf638a0558,ea2a5c7c8b0a5c87] - Securing GET /actuator/prometheus
+2025-09-09 19:06:23 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [4e6c9f32005a15bd03ac3aaf638a0558,ea2a5c7c8b0a5c87] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:28 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [34de9a9c0880441da6d153ab44f887fa,d8099b663fb63d27] - Securing GET /actuator/prometheus
+2025-09-09 19:06:28 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [34de9a9c0880441da6d153ab44f887fa,d8099b663fb63d27] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:32 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [bcbdd7da6cca9eb0c5591138b0b7c749,9ffc73f17259e6dc] - Securing GET /actuator/prometheus
+2025-09-09 19:06:32 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [bcbdd7da6cca9eb0c5591138b0b7c749,9ffc73f17259e6dc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:37 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [0b2fff3cc31ab0bd32cb7619824bffd9,ea84a1d46abe1659] - Securing GET /actuator/prometheus
+2025-09-09 19:06:37 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [0b2fff3cc31ab0bd32cb7619824bffd9,ea84a1d46abe1659] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:42 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [7f861b201d2070bf7dc717d35e6185ef,a4f908df0c77ef95] - Securing GET /actuator/prometheus
+2025-09-09 19:06:42 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [7f861b201d2070bf7dc717d35e6185ef,a4f908df0c77ef95] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:46 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [cf5c52b9284f9ec6bdc6a9fa9b5c57c6,e89b9a22ca45416f] - Securing GET /actuator/prometheus
+2025-09-09 19:06:46 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [cf5c52b9284f9ec6bdc6a9fa9b5c57c6,e89b9a22ca45416f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:51 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [f3f17411a44037d5f5834931295a6033,54aa0c1aa485ce88] - Securing GET /actuator/prometheus
+2025-09-09 19:06:51 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [f3f17411a44037d5f5834931295a6033,54aa0c1aa485ce88] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:06:56 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [c2f6d9dc585c242736af620b587ee181,ced1f7ef4744baed] - Securing GET /actuator/prometheus
+2025-09-09 19:06:56 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [c2f6d9dc585c242736af620b587ee181,ced1f7ef4744baed] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:00 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [429f33a8ed314877b020ae588ff0240d,2b855edd263a0535] - Securing GET /actuator/prometheus
+2025-09-09 19:07:00 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [429f33a8ed314877b020ae588ff0240d,2b855edd263a0535] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:05 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [bb2a340ed0e476cfbb4787119b2a7fd2,ca4183c2f64e803c] - Securing GET /actuator/prometheus
+2025-09-09 19:07:05 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [bb2a340ed0e476cfbb4787119b2a7fd2,ca4183c2f64e803c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:09 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [46f966bc877faab281ad627ea9b8d91f,3d80cb4b22fd01d1] - Securing GET /actuator/prometheus
+2025-09-09 19:07:09 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [46f966bc877faab281ad627ea9b8d91f,3d80cb4b22fd01d1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:14 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [b1c73f2224a3315beecfc3c916acc1fc,51472b083db6f879] - Securing GET /actuator/prometheus
+2025-09-09 19:07:14 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [b1c73f2224a3315beecfc3c916acc1fc,51472b083db6f879] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:19 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [dbfacc2c908723b7ef3718221401ae8d,bb08b38939a0e36c] - Securing GET /actuator/prometheus
+2025-09-09 19:07:19 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [dbfacc2c908723b7ef3718221401ae8d,bb08b38939a0e36c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:23 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [ba83c041afe44ae8b636522b734ea888,0522f0531e8fa710] - Securing GET /actuator/prometheus
+2025-09-09 19:07:23 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [ba83c041afe44ae8b636522b734ea888,0522f0531e8fa710] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:28 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [72df930f2c0b9dd65e6b363ca41da29d,c6f04e3596feb49a] - Securing GET /actuator/prometheus
+2025-09-09 19:07:28 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [72df930f2c0b9dd65e6b363ca41da29d,c6f04e3596feb49a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:33 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [8fce7e7a5db68c2a5840406a9f0682b3,663d14436024f6fb] - Securing GET /actuator/prometheus
+2025-09-09 19:07:33 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [8fce7e7a5db68c2a5840406a9f0682b3,663d14436024f6fb] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:37 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [de830eb09c739d08402f074d3543e0a8,82977d5885234a84] - Securing GET /actuator/prometheus
+2025-09-09 19:07:37 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [de830eb09c739d08402f074d3543e0a8,82977d5885234a84] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:42 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [5eb36371883e732e83ea3ac1d2c4610b,f7a180e3c82240c0] - Securing GET /actuator/prometheus
+2025-09-09 19:07:42 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [5eb36371883e732e83ea3ac1d2c4610b,f7a180e3c82240c0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:47 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [2db2fb1e9289a386bf0056f7f6618eff,0f62f005213353f7] - Securing GET /actuator/prometheus
+2025-09-09 19:07:47 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [2db2fb1e9289a386bf0056f7f6618eff,0f62f005213353f7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:51 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [ca87c2260ff205350ea49259657bcc53,bbcce59acafea147] - Securing GET /actuator/prometheus
+2025-09-09 19:07:51 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [ca87c2260ff205350ea49259657bcc53,bbcce59acafea147] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:07:56 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [4b9ceaeaddc0d3e8f7db2917f81c3757,3dd32b75d847b95e] - Securing GET /actuator/prometheus
+2025-09-09 19:07:56 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [4b9ceaeaddc0d3e8f7db2917f81c3757,3dd32b75d847b95e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:00 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [38cbb2519b8309999d711221f2b3de2a,eb75392823b4ec2e] - Securing GET /actuator/prometheus
+2025-09-09 19:08:00 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [38cbb2519b8309999d711221f2b3de2a,eb75392823b4ec2e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:05 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [1929fcdb6e1862a9e777d57e86a11d62,c44f48f593e1fe30] - Securing GET /actuator/prometheus
+2025-09-09 19:08:05 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [1929fcdb6e1862a9e777d57e86a11d62,c44f48f593e1fe30] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:10 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [98604025ba7eac18639fc8e2aa48adef,0298e47f456bb0cc] - Securing GET /actuator/prometheus
+2025-09-09 19:08:10 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [98604025ba7eac18639fc8e2aa48adef,0298e47f456bb0cc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:14 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [72b14af281151fa4969f7d45c2639bec,c27e45819ef771c0] - Securing GET /actuator/prometheus
+2025-09-09 19:08:14 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [72b14af281151fa4969f7d45c2639bec,c27e45819ef771c0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:19 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ff8c7ea8e17546979660b9720ff1272f,d24500b304a39e42] - Securing GET /actuator/prometheus
+2025-09-09 19:08:19 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ff8c7ea8e17546979660b9720ff1272f,d24500b304a39e42] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:24 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [da4a06be47e43722a3c02f9beab33263,a8ea0fdf495f58c3] - Securing GET /actuator/prometheus
+2025-09-09 19:08:24 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [da4a06be47e43722a3c02f9beab33263,a8ea0fdf495f58c3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:28 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [facda71978d086ee68c3cdd1d0503773,3708a039c2042299] - Securing GET /actuator/prometheus
+2025-09-09 19:08:28 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [facda71978d086ee68c3cdd1d0503773,3708a039c2042299] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:33 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [a23328327630427677f432f931d649e6,34de2073f98fbada] - Securing GET /actuator/prometheus
+2025-09-09 19:08:33 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [a23328327630427677f432f931d649e6,34de2073f98fbada] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:38 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [7b9ed6ad01bff08c29b3ca9565594310,1b0af5ab016fbb15] - Securing GET /actuator/prometheus
+2025-09-09 19:08:38 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [7b9ed6ad01bff08c29b3ca9565594310,1b0af5ab016fbb15] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:42 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [3b5701ea2aa9e34af9bdc8b7ed6b904b,d05512045a667f06] - Securing GET /actuator/prometheus
+2025-09-09 19:08:42 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [3b5701ea2aa9e34af9bdc8b7ed6b904b,d05512045a667f06] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:47 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [d914765eee10d7bf505b94a43c09b666,3ca0a7d0819eca88] - Securing GET /actuator/prometheus
+2025-09-09 19:08:47 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [d914765eee10d7bf505b94a43c09b666,3ca0a7d0819eca88] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:52 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [18a8d3745f17d77772f643c301e29bd4,11ad6e2da33dad3c] - Securing GET /actuator/prometheus
+2025-09-09 19:08:52 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [18a8d3745f17d77772f643c301e29bd4,11ad6e2da33dad3c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:08:56 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [4b42a1c260427465eada1d0b99a66b46,d81d1a4ddb9f6588] - Securing GET /actuator/prometheus
+2025-09-09 19:08:56 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [4b42a1c260427465eada1d0b99a66b46,d81d1a4ddb9f6588] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:01 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [b546b1140a0b79e69b57ba2f18a18c51,9200c893a9358c23] - Securing GET /actuator/prometheus
+2025-09-09 19:09:01 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [b546b1140a0b79e69b57ba2f18a18c51,9200c893a9358c23] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:05 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ca13bf6ffb764755f0cb8c8d56d9af1c,d061a68254fd805c] - Securing GET /actuator/prometheus
+2025-09-09 19:09:05 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ca13bf6ffb764755f0cb8c8d56d9af1c,d061a68254fd805c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:10 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [3ea72c3f5db96528ab9244860f513117,9d22e8b5c175e4ce] - Securing GET /actuator/prometheus
+2025-09-09 19:09:10 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [3ea72c3f5db96528ab9244860f513117,9d22e8b5c175e4ce] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:15 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [3a6734d9178e74aff72e693d5840e4e0,3cd8a69fc1a322ea] - Securing GET /actuator/prometheus
+2025-09-09 19:09:15 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [3a6734d9178e74aff72e693d5840e4e0,3cd8a69fc1a322ea] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:19 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [9101356e4820a77a76cf519fa86c1a99,63a1ade0cbb7bf47] - Securing GET /actuator/prometheus
+2025-09-09 19:09:19 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [9101356e4820a77a76cf519fa86c1a99,63a1ade0cbb7bf47] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:24 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [a078d673b5c36955616478d283919a8c,0644f11039a6b560] - Securing GET /actuator/prometheus
+2025-09-09 19:09:24 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [a078d673b5c36955616478d283919a8c,0644f11039a6b560] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:29 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [8967884996babc783218c3f21aee8f95,50cbad6553b9477b] - Securing GET /actuator/prometheus
+2025-09-09 19:09:29 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [8967884996babc783218c3f21aee8f95,50cbad6553b9477b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:33 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [35be69b35e45aa42228688c830059d77,afef9764b2d700f6] - Securing GET /actuator/prometheus
+2025-09-09 19:09:33 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [35be69b35e45aa42228688c830059d77,afef9764b2d700f6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:38 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [f8f3bf8a0b063fcdfac3e61cf2b7e855,547acef28da52609] - Securing GET /actuator/prometheus
+2025-09-09 19:09:38 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [f8f3bf8a0b063fcdfac3e61cf2b7e855,547acef28da52609] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:43 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [1d800431ddfa8584dde93549df4b0f80,b38d2269c40a02fd] - Securing GET /actuator/prometheus
+2025-09-09 19:09:43 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [1d800431ddfa8584dde93549df4b0f80,b38d2269c40a02fd] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:47 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [d1fd8612e74e048e628a91c916b0084c,31a9e8be3617db6f] - Securing GET /actuator/prometheus
+2025-09-09 19:09:47 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [d1fd8612e74e048e628a91c916b0084c,31a9e8be3617db6f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:52 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [73dd7dc14d5224c15d6a67cf6ed1e2c8,1a7a381498c27936] - Securing GET /actuator/prometheus
+2025-09-09 19:09:52 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [73dd7dc14d5224c15d6a67cf6ed1e2c8,1a7a381498c27936] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:09:56 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [55a4715b3b7821495db164fdd8e4f115,ac7f40f34202b6c2] - Securing GET /actuator/prometheus
+2025-09-09 19:09:56 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [55a4715b3b7821495db164fdd8e4f115,ac7f40f34202b6c2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:01 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [76a9c259a375d8f65e8a403342959f60,5107bd4633282da4] - Securing GET /actuator/prometheus
+2025-09-09 19:10:01 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [76a9c259a375d8f65e8a403342959f60,5107bd4633282da4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:06 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [d1bf7da18446fb876ce9dd469d73b990,8e952a038da2c76c] - Securing GET /actuator/prometheus
+2025-09-09 19:10:06 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [d1bf7da18446fb876ce9dd469d73b990,8e952a038da2c76c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:10 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [2302a1829a488a69aa3bc6354f45dc36,7c42e4a33563e735] - Securing GET /actuator/prometheus
+2025-09-09 19:10:10 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [2302a1829a488a69aa3bc6354f45dc36,7c42e4a33563e735] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:15 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [1530f794f8ff9b522283a5a7e37d48d7,56ec2462d3c35d73] - Securing GET /actuator/prometheus
+2025-09-09 19:10:15 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [1530f794f8ff9b522283a5a7e37d48d7,56ec2462d3c35d73] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:20 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [d6ee19b9eeb396c3be05825bf74d46ac,1c6ad9fcc285f42e] - Securing GET /actuator/prometheus
+2025-09-09 19:10:20 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [d6ee19b9eeb396c3be05825bf74d46ac,1c6ad9fcc285f42e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:24 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [b94f759d4e44fef74fa69bec10d479e2,6c8efbe89a3d93ab] - Securing GET /actuator/prometheus
+2025-09-09 19:10:24 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [b94f759d4e44fef74fa69bec10d479e2,6c8efbe89a3d93ab] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:29 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [af303aeb4532d8ceae1e3419dca12ba0,71ccf3397e9b570f] - Securing GET /actuator/prometheus
+2025-09-09 19:10:29 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [af303aeb4532d8ceae1e3419dca12ba0,71ccf3397e9b570f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:34 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [93208f95d59b6f4a7877e3abeb096bea,29ddcf6e7fe93fb5] - Securing GET /actuator/prometheus
+2025-09-09 19:10:34 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [93208f95d59b6f4a7877e3abeb096bea,29ddcf6e7fe93fb5] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:38 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [9b472cbc3e8ca67a5e8ca582b627174d,cef13cfb07350c48] - Securing GET /actuator/prometheus
+2025-09-09 19:10:38 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [9b472cbc3e8ca67a5e8ca582b627174d,cef13cfb07350c48] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:43 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [19cb445c248d3e55b40ea0fc8186706f,0a343d55c4ccafa3] - Securing GET /actuator/prometheus
+2025-09-09 19:10:43 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [19cb445c248d3e55b40ea0fc8186706f,0a343d55c4ccafa3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:48 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [d3f968f0f9e28f956a5fb39cc8b475b9,25144e5d00132dec] - Securing GET /actuator/prometheus
+2025-09-09 19:10:48 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [d3f968f0f9e28f956a5fb39cc8b475b9,25144e5d00132dec] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:52 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [a0f4a50e88e72e6d9caaa1e18b5d8323,aa463bccc4e9f91d] - Securing GET /actuator/prometheus
+2025-09-09 19:10:52 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [a0f4a50e88e72e6d9caaa1e18b5d8323,aa463bccc4e9f91d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:10:57 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [d6379b10cc8bae16fdf309110a90b03b,8762e986fd4aa8c7] - Securing GET /actuator/prometheus
+2025-09-09 19:10:57 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [d6379b10cc8bae16fdf309110a90b03b,8762e986fd4aa8c7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:01 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [0a278815b4313268c5e4b827f9bd6d6c,48555eba387c32b2] - Securing GET /actuator/prometheus
+2025-09-09 19:11:01 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [0a278815b4313268c5e4b827f9bd6d6c,48555eba387c32b2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:06 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [68ac75279fe0b46bb0b584c9c4dd6a2c,feefe5abb0903dec] - Securing GET /actuator/prometheus
+2025-09-09 19:11:06 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [68ac75279fe0b46bb0b584c9c4dd6a2c,feefe5abb0903dec] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:11 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [34bb0a263d8877ad60c3c1865f4de836,a0a5423ef602d242] - Securing GET /actuator/prometheus
+2025-09-09 19:11:11 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [34bb0a263d8877ad60c3c1865f4de836,a0a5423ef602d242] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:15 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [e173923215a8d0105e8da97e9e35bf2e,d009a45922b8e9eb] - Securing GET /actuator/prometheus
+2025-09-09 19:11:15 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [e173923215a8d0105e8da97e9e35bf2e,d009a45922b8e9eb] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:20 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [b997e22897f12b01f79bc66f286a3792,4dbb09d5e68b22c9] - Securing GET /actuator/prometheus
+2025-09-09 19:11:20 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [b997e22897f12b01f79bc66f286a3792,4dbb09d5e68b22c9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:25 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [9ef0ae2d6e2e6ccc9cfc2e5f5c6f670c,7fbb50334bd94974] - Securing GET /actuator/prometheus
+2025-09-09 19:11:25 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [9ef0ae2d6e2e6ccc9cfc2e5f5c6f670c,7fbb50334bd94974] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:29 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [993918c4e666367a5980e47842da7400,d75919036fb4560f] - Securing GET /actuator/prometheus
+2025-09-09 19:11:29 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [993918c4e666367a5980e47842da7400,d75919036fb4560f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:34 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [a21d3613a733ecd7f0f65c816a5837a0,df1c45bc7486126a] - Securing GET /actuator/prometheus
+2025-09-09 19:11:34 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [a21d3613a733ecd7f0f65c816a5837a0,df1c45bc7486126a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:38 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [4bf15cbf079bdd48545b1b0f19d7ceac,3ae1e4e5a3386d64] - Securing GET /actuator/prometheus
+2025-09-09 19:11:38 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [4bf15cbf079bdd48545b1b0f19d7ceac,3ae1e4e5a3386d64] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:43 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [cbe894896d77575cc1dab6f243ee7dd4,8ab909a1c3689a19] - Securing GET /actuator/prometheus
+2025-09-09 19:11:43 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [cbe894896d77575cc1dab6f243ee7dd4,8ab909a1c3689a19] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:48 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [27e86bce0cbc1365eb8ca53a7394c127,2ff093d0ee9baf12] - Securing GET /actuator/prometheus
+2025-09-09 19:11:48 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [27e86bce0cbc1365eb8ca53a7394c127,2ff093d0ee9baf12] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:52 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [7811efa284837f8b352dee4caa626cd9,5ce0884885d0088e] - Securing GET /actuator/prometheus
+2025-09-09 19:11:52 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [7811efa284837f8b352dee4caa626cd9,5ce0884885d0088e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:11:57 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [61e98437044f30658bd81fe49c3b6db4,3f6e3dec51981957] - Securing GET /actuator/prometheus
+2025-09-09 19:11:57 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [61e98437044f30658bd81fe49c3b6db4,3f6e3dec51981957] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:02 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [82576bc2a8e2af788a7148f8a2badb67,8ae9cd2ec03a6192] - Securing GET /actuator/prometheus
+2025-09-09 19:12:02 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [82576bc2a8e2af788a7148f8a2badb67,8ae9cd2ec03a6192] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:06 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [5f8bfa520ff5a9463f36a157c6919bf8,0d41ea18e37fdcba] - Securing GET /actuator/prometheus
+2025-09-09 19:12:06 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [5f8bfa520ff5a9463f36a157c6919bf8,0d41ea18e37fdcba] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:11 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [0eb114e6de68a0c0ddbe7d77bc98fafd,a6fe5d55791393fc] - Securing GET /actuator/prometheus
+2025-09-09 19:12:11 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [0eb114e6de68a0c0ddbe7d77bc98fafd,a6fe5d55791393fc] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:16 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [aba18f53d76684983cabf91148d83eb7,afca9d02c481d648] - Securing GET /actuator/prometheus
+2025-09-09 19:12:16 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [aba18f53d76684983cabf91148d83eb7,afca9d02c481d648] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:20 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [b28d5db7502f9b90fc802310b7f064e9,f9f7c53a3b72650e] - Securing GET /actuator/prometheus
+2025-09-09 19:12:20 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [b28d5db7502f9b90fc802310b7f064e9,f9f7c53a3b72650e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:25 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [79e8920698a8bd635cb43ec2a4dfc2f6,6f17019c1fe062f1] - Securing GET /actuator/prometheus
+2025-09-09 19:12:25 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [79e8920698a8bd635cb43ec2a4dfc2f6,6f17019c1fe062f1] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:30 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [a7f08b9b8c296dc0c927f60dfea9e021,61bbee63fee20659] - Securing GET /actuator/prometheus
+2025-09-09 19:12:30 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [a7f08b9b8c296dc0c927f60dfea9e021,61bbee63fee20659] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:34 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [4d93af72af2d1d89e610bba775dc676c,6dc2c15cef44a345] - Securing GET /actuator/prometheus
+2025-09-09 19:12:34 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [4d93af72af2d1d89e610bba775dc676c,6dc2c15cef44a345] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:39 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [eba16af26cec4bad2053db0632612603,f023887a7458ff78] - Securing GET /actuator/prometheus
+2025-09-09 19:12:39 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [eba16af26cec4bad2053db0632612603,f023887a7458ff78] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:43 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [6b9c3f616ac14eb3fd63ca62708b0ecc,443c84d9c39e4b23] - Securing GET /actuator/prometheus
+2025-09-09 19:12:43 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [6b9c3f616ac14eb3fd63ca62708b0ecc,443c84d9c39e4b23] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:48 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [e95ad812c50c2d57beb74c1ef2c462a3,db73358b556d6549] - Securing GET /actuator/prometheus
+2025-09-09 19:12:48 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [e95ad812c50c2d57beb74c1ef2c462a3,db73358b556d6549] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:53 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [8c2fc7dc2ad2b478ce6bf826810bbb84,c1cbb43258a5e723] - Securing GET /actuator/prometheus
+2025-09-09 19:12:53 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [8c2fc7dc2ad2b478ce6bf826810bbb84,c1cbb43258a5e723] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:12:57 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [9b15c7a07eeb0deead9073af549d1ccd,0e9dc471f24e540b] - Securing GET /actuator/prometheus
+2025-09-09 19:12:57 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [9b15c7a07eeb0deead9073af549d1ccd,0e9dc471f24e540b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:02 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [f4262fb3078feeb67ae93ea340ab5a84,f1f6a8502da2a874] - Securing GET /actuator/prometheus
+2025-09-09 19:13:02 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [f4262fb3078feeb67ae93ea340ab5a84,f1f6a8502da2a874] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:07 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [95ad82c7c0c1f70a939a3b5b49b58cf5,c75591909648589b] - Securing GET /actuator/prometheus
+2025-09-09 19:13:07 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [95ad82c7c0c1f70a939a3b5b49b58cf5,c75591909648589b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:11 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [d4b74108dea160cd10a2ab120d9494a3,439bbded000e6036] - Securing GET /actuator/prometheus
+2025-09-09 19:13:11 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [d4b74108dea160cd10a2ab120d9494a3,439bbded000e6036] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:16 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [aaefa9ac1200e35e1db66c958e06cb88,7763f488677a1b5a] - Securing GET /actuator/prometheus
+2025-09-09 19:13:16 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [aaefa9ac1200e35e1db66c958e06cb88,7763f488677a1b5a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:21 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [498946afe07803c62f71d6148e8f50b5,bd40743770a75348] - Securing GET /actuator/prometheus
+2025-09-09 19:13:21 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [498946afe07803c62f71d6148e8f50b5,bd40743770a75348] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:25 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [9d0a596bb330035bd297a0a22e10d671,0487d8f7f54165b6] - Securing GET /actuator/prometheus
+2025-09-09 19:13:25 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [9d0a596bb330035bd297a0a22e10d671,0487d8f7f54165b6] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:30 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [02fbbcf70a8d1c157f1d132e2036bf65,4852a56dd9aa1f75] - Securing GET /actuator/prometheus
+2025-09-09 19:13:30 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [02fbbcf70a8d1c157f1d132e2036bf65,4852a56dd9aa1f75] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:34 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [2e1f6366a5466ae6cbc4b5ae26730cd6,2123b403cc57f7f3] - Securing GET /actuator/prometheus
+2025-09-09 19:13:34 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [2e1f6366a5466ae6cbc4b5ae26730cd6,2123b403cc57f7f3] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:39 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [e437d50fced53ebd7a87c1ee91c518cf,a0c6a4dad51af24f] - Securing GET /actuator/prometheus
+2025-09-09 19:13:39 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [e437d50fced53ebd7a87c1ee91c518cf,a0c6a4dad51af24f] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:44 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [b77dbc4917d184a21671471972fca91a,2fc6a0b2fcc38771] - Securing GET /actuator/prometheus
+2025-09-09 19:13:44 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [b77dbc4917d184a21671471972fca91a,2fc6a0b2fcc38771] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:48 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [f795ab7026b88b1ad00fe623d3282c4d,8aa2366a8b57684d] - Securing GET /actuator/prometheus
+2025-09-09 19:13:48 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [f795ab7026b88b1ad00fe623d3282c4d,8aa2366a8b57684d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:53 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [1ccb1b82378964360beaf8fd3521bd4d,b5413cf55bf73636] - Securing GET /actuator/prometheus
+2025-09-09 19:13:53 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [1ccb1b82378964360beaf8fd3521bd4d,b5413cf55bf73636] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:13:58 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [2d0a33ed29caa22d13671ea802c04ec7,94ba0c1c901f8d13] - Securing GET /actuator/prometheus
+2025-09-09 19:13:58 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [2d0a33ed29caa22d13671ea802c04ec7,94ba0c1c901f8d13] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:02 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [d567e4dd8796322cb45762e97801edaa,c9b025742afb561d] - Securing GET /actuator/prometheus
+2025-09-09 19:14:02 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [d567e4dd8796322cb45762e97801edaa,c9b025742afb561d] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:07 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [92f231175003420e978e5c4a5117859b,27c113c7683ccd25] - Securing GET /actuator/prometheus
+2025-09-09 19:14:07 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [92f231175003420e978e5c4a5117859b,27c113c7683ccd25] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:12 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [4ce7a54516f6c14cbcea6e0487a04a60,fed6982d3b7a715e] - Securing GET /actuator/prometheus
+2025-09-09 19:14:12 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [4ce7a54516f6c14cbcea6e0487a04a60,fed6982d3b7a715e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:16 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [f284e11e57b2fafc28201ec61038f4e1,a5e758e6efbc54a9] - Securing GET /actuator/prometheus
+2025-09-09 19:14:16 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [f284e11e57b2fafc28201ec61038f4e1,a5e758e6efbc54a9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:21 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [fb849040319d0e70fa4c62cb94d99425,d0b6c4ab2a874f42] - Securing GET /actuator/prometheus
+2025-09-09 19:14:21 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [fb849040319d0e70fa4c62cb94d99425,d0b6c4ab2a874f42] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:25 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [9f149d866bb750e37dd7a20161359d65,2db2881c068030cd] - Securing GET /actuator/prometheus
+2025-09-09 19:14:25 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [9f149d866bb750e37dd7a20161359d65,2db2881c068030cd] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:30 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ba41bd055f28bb00535db1e3926e166f,75e520050d1f4de9] - Securing GET /actuator/prometheus
+2025-09-09 19:14:30 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ba41bd055f28bb00535db1e3926e166f,75e520050d1f4de9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:35 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [d28a4e0bb8aa43c195d8eb2ccd6d1417,ea4933a2c07b37d4] - Securing GET /actuator/prometheus
+2025-09-09 19:14:35 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [d28a4e0bb8aa43c195d8eb2ccd6d1417,ea4933a2c07b37d4] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:39 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [fb50f6de51fadae4b8008f15423c037b,aae430f4401d79e7] - Securing GET /actuator/prometheus
+2025-09-09 19:14:39 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [fb50f6de51fadae4b8008f15423c037b,aae430f4401d79e7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:44 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [ad1eee37d58b73f6aabdb94b98f502a8,4a4a495e0b170246] - Securing GET /actuator/prometheus
+2025-09-09 19:14:44 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [ad1eee37d58b73f6aabdb94b98f502a8,4a4a495e0b170246] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:49 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [edbb5618f4c41aa64df6387bf66a541f,2e21f31f07f32da8] - Securing GET /actuator/prometheus
+2025-09-09 19:14:49 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [edbb5618f4c41aa64df6387bf66a541f,2e21f31f07f32da8] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:14:53 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [3fd0296f7775b0b4b2729fc0698b1021,290b5f702ca9d9a8] - Securing GET /actuator/prometheus
+2025-09-09 19:14:53 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [3fd0296f7775b0b4b2729fc0698b1021,290b5f702ca9d9a8] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:15:50 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [2fb310878594199b4babcd0703fea64f,4aa7cb1646f87f22] - Securing GET /actuator/prometheus
+2025-09-09 19:15:50 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [2fb310878594199b4babcd0703fea64f,4aa7cb1646f87f22] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:15:55 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [6d51a0112ee516a689bdc8740abbee3d,19b9815775bfff6c] - Securing GET /actuator/prometheus
+2025-09-09 19:15:55 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [6d51a0112ee516a689bdc8740abbee3d,19b9815775bfff6c] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:00 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [09af9a6020acda1ee77dd658acd0b26c,32b0d29fdcfc63f2] - Securing GET /actuator/prometheus
+2025-09-09 19:16:00 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [09af9a6020acda1ee77dd658acd0b26c,32b0d29fdcfc63f2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:04 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [65ec6ce3d6b32bc5b5e3c0e0665f0f04,652e8d3d22f79245] - Securing GET /actuator/prometheus
+2025-09-09 19:16:04 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [65ec6ce3d6b32bc5b5e3c0e0665f0f04,652e8d3d22f79245] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:09 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ca9f20820bd40fbe1305cfc81444e1eb,8377226cf6c75c35] - Securing GET /actuator/prometheus
+2025-09-09 19:16:09 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ca9f20820bd40fbe1305cfc81444e1eb,8377226cf6c75c35] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:14 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [76b46ed7582a40311a3875deb94c9ca8,5b4310e38cf03513] - Securing GET /actuator/prometheus
+2025-09-09 19:16:14 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [76b46ed7582a40311a3875deb94c9ca8,5b4310e38cf03513] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:18 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [996cc94714172d0ddb8865bab65de56d,2e7c285ab2f011d2] - Securing GET /actuator/prometheus
+2025-09-09 19:16:18 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [996cc94714172d0ddb8865bab65de56d,2e7c285ab2f011d2] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:23 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [e9cdae287de0323c526442d61e5d755b,a8e559241408b108] - Securing GET /actuator/prometheus
+2025-09-09 19:16:23 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [e9cdae287de0323c526442d61e5d755b,a8e559241408b108] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:28 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [e1887205422abae89efa074617426cb5,6b3177af93d4b24b] - Securing GET /actuator/prometheus
+2025-09-09 19:16:28 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [e1887205422abae89efa074617426cb5,6b3177af93d4b24b] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:32 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [4fe88228589b57063a2dea85d5e9c27c,ef0d87eb27a93ce9] - Securing GET /actuator/prometheus
+2025-09-09 19:16:32 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [4fe88228589b57063a2dea85d5e9c27c,ef0d87eb27a93ce9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:37 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [9137f56bccadbb19f9b146121fb61eb8,5e8996de8ddd5632] - Securing GET /actuator/prometheus
+2025-09-09 19:16:37 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [9137f56bccadbb19f9b146121fb61eb8,5e8996de8ddd5632] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:42 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [59f2e250ad64a66d21cd49365927174c,056a3980694cfb32] - Securing GET /actuator/prometheus
+2025-09-09 19:16:42 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [59f2e250ad64a66d21cd49365927174c,056a3980694cfb32] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:46 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [c9ab8be91eebf059b01b5b48baa3e0dc,8c08203720f565e0] - Securing GET /actuator/prometheus
+2025-09-09 19:16:46 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [c9ab8be91eebf059b01b5b48baa3e0dc,8c08203720f565e0] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:51 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [04b78f7bbf23cd3bccfe8c9654c0691e,4db0b8672c486a23] - Securing GET /actuator/prometheus
+2025-09-09 19:16:51 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [04b78f7bbf23cd3bccfe8c9654c0691e,4db0b8672c486a23] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:16:56 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [ed8ab6a981efb6e0296ea55cb3824fd4,cb07ed86d56e9c86] - Securing GET /actuator/prometheus
+2025-09-09 19:16:56 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [ed8ab6a981efb6e0296ea55cb3824fd4,cb07ed86d56e9c86] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:00 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [c29d69c6826a69d954c6348426475296,c6637e83a41eca24] - Securing GET /actuator/prometheus
+2025-09-09 19:17:00 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [c29d69c6826a69d954c6348426475296,c6637e83a41eca24] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:05 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [b2cc3e722ae11795730f42419d89eb83,aaa67756dc2aca50] - Securing GET /actuator/prometheus
+2025-09-09 19:17:05 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [b2cc3e722ae11795730f42419d89eb83,aaa67756dc2aca50] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:09 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [dd8dbe7c0b55788df0c01677c825c0fa,ed96834f30a127c9] - Securing GET /actuator/prometheus
+2025-09-09 19:17:09 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [dd8dbe7c0b55788df0c01677c825c0fa,ed96834f30a127c9] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:14 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [cb990b68845d9f32f65ad1e55d44e004,fcb5b7adea4ff34e] - Securing GET /actuator/prometheus
+2025-09-09 19:17:14 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [cb990b68845d9f32f65ad1e55d44e004,fcb5b7adea4ff34e] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:19 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [f15e4754d516a016f8967b2939b35f15,fc8aee7166529600] - Securing GET /actuator/prometheus
+2025-09-09 19:17:19 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [f15e4754d516a016f8967b2939b35f15,fc8aee7166529600] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:23 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [6b356b37a1871bf69380a248f448bee0,77e829a292c44ffa] - Securing GET /actuator/prometheus
+2025-09-09 19:17:23 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [6b356b37a1871bf69380a248f448bee0,77e829a292c44ffa] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:28 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [052e5e8b76969d38e045f5c61137f3da,d3e33e5d1ff8d714] - Securing GET /actuator/prometheus
+2025-09-09 19:17:28 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [052e5e8b76969d38e045f5c61137f3da,d3e33e5d1ff8d714] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:32 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [ccadc5741acaef5f04f6923be245346c,ec3c311d251f9e60] - Securing GET /actuator/prometheus
+2025-09-09 19:17:32 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [ccadc5741acaef5f04f6923be245346c,ec3c311d251f9e60] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:37 DEBUG [http-nio-8082-exec-10] o.s.security.web.FilterChainProxy [d3143f1315010b0ea52d4b530126bc86,e9aec897e39efcca] - Securing GET /actuator/prometheus
+2025-09-09 19:17:37 DEBUG [http-nio-8082-exec-10] o.s.s.w.a.AnonymousAuthenticationFilter [d3143f1315010b0ea52d4b530126bc86,e9aec897e39efcca] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:41 DEBUG [http-nio-8082-exec-1] o.s.security.web.FilterChainProxy [4a26e3a22b3f66fad4cfa578eb038d90,03018a260a768680] - Securing GET /actuator/prometheus
+2025-09-09 19:17:41 DEBUG [http-nio-8082-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter [4a26e3a22b3f66fad4cfa578eb038d90,03018a260a768680] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:46 DEBUG [http-nio-8082-exec-2] o.s.security.web.FilterChainProxy [7e0dc26104c038c17aff87c1684a4543,7f05a75c09712c29] - Securing GET /actuator/prometheus
+2025-09-09 19:17:46 DEBUG [http-nio-8082-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter [7e0dc26104c038c17aff87c1684a4543,7f05a75c09712c29] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:51 DEBUG [http-nio-8082-exec-3] o.s.security.web.FilterChainProxy [21d3894282622f21987c7f4f4aa6ca00,7b675f0db677650a] - Securing GET /actuator/prometheus
+2025-09-09 19:17:51 DEBUG [http-nio-8082-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter [21d3894282622f21987c7f4f4aa6ca00,7b675f0db677650a] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:17:55 DEBUG [http-nio-8082-exec-4] o.s.security.web.FilterChainProxy [b69ca92f3b5a0252128c84d4a9a82f05,e0b4074af1700ce7] - Securing GET /actuator/prometheus
+2025-09-09 19:17:55 DEBUG [http-nio-8082-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter [b69ca92f3b5a0252128c84d4a9a82f05,e0b4074af1700ce7] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:18:00 DEBUG [http-nio-8082-exec-5] o.s.security.web.FilterChainProxy [6399b3ce9fec364ce9166097248dee64,fa001933266ef6bf] - Securing GET /actuator/prometheus
+2025-09-09 19:18:00 DEBUG [http-nio-8082-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter [6399b3ce9fec364ce9166097248dee64,fa001933266ef6bf] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:18:04 DEBUG [http-nio-8082-exec-6] o.s.security.web.FilterChainProxy [9c2ae01d5c97e18495221638539d0dd7,49c5b721e70d7e04] - Securing GET /actuator/prometheus
+2025-09-09 19:18:04 DEBUG [http-nio-8082-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter [9c2ae01d5c97e18495221638539d0dd7,49c5b721e70d7e04] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:18:09 DEBUG [http-nio-8082-exec-7] o.s.security.web.FilterChainProxy [73733e158c96864ef6f3e975dba254cc,10ecde7f3918a777] - Securing GET /actuator/prometheus
+2025-09-09 19:18:09 DEBUG [http-nio-8082-exec-7] o.s.s.w.a.AnonymousAuthenticationFilter [73733e158c96864ef6f3e975dba254cc,10ecde7f3918a777] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:18:14 DEBUG [http-nio-8082-exec-8] o.s.security.web.FilterChainProxy [42c14088253433453c890a4a4fe8078d,fb31d1e981844289] - Securing GET /actuator/prometheus
+2025-09-09 19:18:14 DEBUG [http-nio-8082-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter [42c14088253433453c890a4a4fe8078d,fb31d1e981844289] - Set SecurityContextHolder to anonymous SecurityContext
+2025-09-09 19:18:18 DEBUG [http-nio-8082-exec-9] o.s.security.web.FilterChainProxy [f10d4edfc4a6e4a4108b96c016890fa0,60cb7ab5a02da4ce] - Securing GET /actuator/prometheus
+2025-09-09 19:18:18 DEBUG [http-nio-8082-exec-9] o.s.s.w.a.AnonymousAuthenticationFilter [f10d4edfc4a6e4a4108b96c016890fa0,60cb7ab5a02da4ce] - Set SecurityContextHolder to anonymous SecurityContext

@@ -69,8 +69,19 @@ public class LoanHandler {
     @DubboReference private final AccountDubboService accountDubboService;
     @DubboReference private final CustomerCommonService customerCommonService;
 
+    private String getCurrentUserIdSafe() {
+        try {
+            return Optional.ofNullable(customerQueryService.getCurrentCustomer())
+                .map(com.example.common_service.dto.response.CustomerResponse::getUserId)
+                .orElse("UNKNOWN");
+        } catch (Exception ex) {
+            log.warn("GET_CURRENT_USER_ID_FAILED - {}", ex.getMessage());
+            return "UNKNOWN";
+        }
+    }
+
     public Loan approveLoan(Long loanId) {
-        log.info("APPROVE_LOAN_HANDLER_START - loanId: {}", loanId);
+        log.info("APPROVE_LOAN_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication != null ? authentication.getName() : null;
@@ -95,7 +106,7 @@ public class LoanHandler {
     }
 
     public LoanApprovalResult approveLoanAsync(Long loanId) {
-        log.info("APPROVE_LOAN_ASYNC_HANDLER_START - loanId: {}", loanId);
+        log.info("APPROVE_LOAN_ASYNC_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication != null ? authentication.getName() : null;
@@ -111,7 +122,7 @@ public class LoanHandler {
         }
     }
     public Loan createLoan(LoanRequestDTO dto) {
-        log.info("CREATE_LOAN_HANDLER_START - request: {}", dto);
+        log.info("CREATE_LOAN_HANDLER_START - userId: {}, request: {}", getCurrentUserIdSafe(), dto);
         try {
             Long customerId = getCustomerId();
             log.debug("CUSTOMER_ID_FETCHED - {}", customerId);
@@ -172,7 +183,7 @@ public class LoanHandler {
     }
 
     public Loan updateLoan(LoanRequestDTO dto) {
-        log.info("UPDATE_LOAN_HANDLER_START - request: {}", dto);
+        log.info("UPDATE_LOAN_HANDLER_START - userId: {}, request: {}", getCurrentUserIdSafe(), dto);
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         RpcContext.getClientAttachment().setAttachment("username", username);
         try {
@@ -186,7 +197,7 @@ public class LoanHandler {
         }
     }
     public Loan getLoanById(Long loanId) {
-        log.info("GET_LOAN_BY_ID_HANDLER_START - loanId: {}", loanId);
+        log.info("GET_LOAN_BY_ID_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             Loan loan = loanService.getLoanById(loanId);
             log.info("GET_LOAN_BY_ID_HANDLER_SUCCESS - found: {}", loan.getLoanId());
@@ -197,7 +208,7 @@ public class LoanHandler {
         }
     }
     public List<Loan> getLoansByCustomerId() {
-        log.info("GET_LOANS_BY_CUSTOMER_HANDLER_START");
+        log.info("GET_LOANS_BY_CUSTOMER_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Long customerId = getCustomerId();
             List<Loan> list = loanService.getLoansByCustomerId(customerId);
@@ -209,7 +220,7 @@ public class LoanHandler {
         }
     }
     public Loan closedLoan(Long loanId) {
-        log.info("CLOSE_LOAN_HANDLER_START - loanId: {}", loanId);
+        log.info("CLOSE_LOAN_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             Loan loan = loanService.closedLoan(loanId);
             com.example.common_service.dto.CoreAccountRequest coreAccountRequest = com.example.loan_service.mapper.CoreAccountMapper.INSTANCE.fromLoan(loan);
@@ -222,7 +233,7 @@ public class LoanHandler {
         }
     }
     public Loan rejectedLoan(Long loanId, LoanRejectionReasonRequestDTO req) {
-        log.info("REJECT_LOAN_HANDLER_START - loanId: {}, reason: {}", loanId, req.getReason());
+        log.info("REJECT_LOAN_HANDLER_START - userId: {}, loanId: {}, reason: {}", getCurrentUserIdSafe(), loanId, req.getReason());
         try {
             Loan loan = loanService.rejectedLoan(loanId);
             LoanRejectionReason reason = new LoanRejectionReason();
@@ -237,7 +248,7 @@ public class LoanHandler {
         }
     }
     public List<Loan> findall() {
-        log.info("FIND_ALL_LOANS_HANDLER_START");
+        log.info("FIND_ALL_LOANS_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
@@ -250,7 +261,7 @@ public class LoanHandler {
         }
     }
     public List<Loan> findPendingLoans() {
-        log.info("FIND_ALL_LOANS_HANDLER_START");
+        log.info("FIND_ALL_LOANS_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
@@ -263,7 +274,7 @@ public class LoanHandler {
         }
     }
     public void deleteLoan(Long loanId) {
-        log.info("DELETE_LOAN_HANDLER_START - loanId: {}", loanId);
+        log.info("DELETE_LOAN_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             loanService.deleteLoan(loanId);
             coreBankingClient.deleteLoan(loanId);
@@ -274,7 +285,7 @@ public class LoanHandler {
         }
     }
     public List<Repayment> getRepaymentsByLoanId(Long loanId) {
-        log.info("GET_REPAYMENTS_BY_LOAN_HANDLER_START - loanId: {}", loanId);
+        log.info("GET_REPAYMENTS_BY_LOAN_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             List<Repayment> list = repaymentService.getRepaymentsByLoanId(loanId);
             log.info("GET_REPAYMENTS_BY_LOAN_HANDLER_SUCCESS - loanId: {}, count: {}", loanId, list.size());
@@ -285,7 +296,7 @@ public class LoanHandler {
         }
     }
     public String makeRepayment(Long repaymentId, BigDecimal amount, String accountNumber) {
-        log.info("MAKE_REPAYMENT_HANDLER_START - repaymentId: {}, amount: {}, account: {}", repaymentId, amount, accountNumber);
+        log.info("MAKE_REPAYMENT_HANDLER_START - userId: {}, repaymentId: {}, amount: {}, account: {}", getCurrentUserIdSafe(), repaymentId, amount, accountNumber);
         try {
             PayRepaymentRequest pay = new PayRepaymentRequest();
             pay.setAmount(amount);
@@ -315,7 +326,7 @@ public class LoanHandler {
         throw new RuntimeException("Transaction service is temporarily unavailable: " + t.getMessage(), t);
     }
     public Repayment confirmRepayment(Long repaymentId, BigDecimal amount, String otpCode, String referenceCode) {
-        log.info("CONFIRM_REPAYMENT_HANDLER_START - repaymentId: {}, referenceCode: {}", repaymentId, referenceCode);
+        log.info("CONFIRM_REPAYMENT_HANDLER_START - userId: {}, repaymentId: {}, referenceCode: {}", getCurrentUserIdSafe(), repaymentId, referenceCode);
         try {
             CommonConfirmTransactionRequest confirm = new CommonConfirmTransactionRequest();
             confirm.setOtpCode(otpCode);
@@ -365,7 +376,7 @@ public class LoanHandler {
         }
     }
     public List<Repayment> getHistory() {
-        log.info("GET_HISTORY_HANDLER_START");
+        log.info("GET_HISTORY_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Long customerId = getCustomerId();
             List<Repayment> history = repaymentService.getHistoryRepayment(customerId);
@@ -377,7 +388,7 @@ public class LoanHandler {
         }
     }
     public Repayment getCurrentRepayment() {
-        log.info("GET_CURRENT_REPAYMENT_HANDLER_START");
+        log.info("GET_CURRENT_REPAYMENT_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Long customerId = getCustomerId();
             Repayment r = repaymentService.getCurrentRepayment(customerId);
@@ -390,7 +401,7 @@ public class LoanHandler {
         }
     }
     public Optional<Repayment> getRepaymentById(Long repaymentId) {
-        log.info("GET_REPAYMENT_BY_ID_HANDLER_START - repaymentId: {}", repaymentId);
+        log.info("GET_REPAYMENT_BY_ID_HANDLER_START - userId: {}, repaymentId: {}", getCurrentUserIdSafe(), repaymentId);
         try {
             Optional<Repayment> r = repaymentService.getRepaymentById(repaymentId);
             log.info("GET_REPAYMENT_BY_ID_HANDLER_SUCCESS - found: {}", r.isPresent());
@@ -401,7 +412,7 @@ public class LoanHandler {
         }
     }
     public Repayment unpaidRepayment(Long repaymentId) {
-        log.info("UNPAID_REPAYMENT_HANDLER_START - repaymentId: {}", repaymentId);
+        log.info("UNPAID_REPAYMENT_HANDLER_START - userId: {}, repaymentId: {}", getCurrentUserIdSafe(), repaymentId);
         try {
             Repayment r = repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.UNPAID);
             log.info("UNPAID_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", repaymentId);
@@ -412,7 +423,7 @@ public class LoanHandler {
         }
     }
     public Repayment lateRepayment(Long repaymentId) {
-        log.info("LATE_REPAYMENT_HANDLER_START - repaymentId: {}", repaymentId);
+        log.info("LATE_REPAYMENT_HANDLER_START - userId: {}, repaymentId: {}", getCurrentUserIdSafe(), repaymentId);
         try {
             Repayment r = repaymentService.updateRepaymentStatus(repaymentId, RepaymentStatus.LATE);
             log.info("LATE_REPAYMENT_HANDLER_SUCCESS - repaymentId: {}", repaymentId);
@@ -423,7 +434,7 @@ public class LoanHandler {
         }
     }
     public BigDecimal getTotalBorrowed() {
-        log.info("GET_TOTAL_BORROWED_HANDLER_START");
+        log.info("GET_TOTAL_BORROWED_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Long customerId = getCustomerId();
             BigDecimal total = loanService.getTotalBorrowed(customerId);
@@ -435,7 +446,7 @@ public class LoanHandler {
         }
     }
     public BigDecimal getTotalOutstanding() {
-        log.info("GET_TOTAL_OUTSTANDING_HANDLER_START");
+        log.info("GET_TOTAL_OUTSTANDING_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Long customerId = getCustomerId();
             BigDecimal total = loanService.getTotalOutstanding(customerId);
@@ -447,7 +458,7 @@ public class LoanHandler {
         }
     }
     public Long getCustomerId() {
-        log.info("GET_CUSTOMER_ID_HANDLER_START");
+        log.info("GET_CUSTOMER_ID_HANDLER_START - userId: {}", getCurrentUserIdSafe());
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             JwtAuthenticationToken jwt = (JwtAuthenticationToken) auth;
@@ -461,7 +472,7 @@ public class LoanHandler {
         }
     }
     public void deleteRepaymentsByLoanId(Long loanId) {
-        log.info("DELETE_REPAYMENTS_BY_LOAN_HANDLER_START - loanId: {}", loanId);
+        log.info("DELETE_REPAYMENTS_BY_LOAN_HANDLER_START - userId: {}, loanId: {}", getCurrentUserIdSafe(), loanId);
         try {
             repaymentService.deleteRepaymentsByLoanId(loanId);
             log.info("DELETE_REPAYMENTS_BY_LOAN_HANDLER_SUCCESS - loanId: {}", loanId);
