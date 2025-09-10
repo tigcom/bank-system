@@ -36,8 +36,6 @@ public class NotificationServiceImpl implements NotificationService {
             String payloadStr = new String(payload);
             ObjectMapper objectMapper = new ObjectMapper();
             MailMessageDTO mailMessage;
-            
-            // Always try Base64 decode first since the data from Spring Cloud Stream is Base64 encoded
             try {
                 // Strip quotes if present
                 String base64Str = payloadStr;

@@ -178,7 +178,7 @@
                         loan.getInterestRate(),
                         loan.getTermMonths()
                     );
-                } else if (loan.getLoanType() == LoanType.MORTGAGE) {
+                } else if (loan.getLoanType() == LoanType.HOME) {
                     subject = "PHÊ DUYỆT KHOẢN VAY MUA NHÀ";
                     body = String.format(
                         "Kính chào %s,%n%n" +
@@ -249,7 +249,7 @@
             switch (loanType) {
                 case AUTO:
                     return carAccountNumber;
-                case MORTGAGE:
+                case HOME:
                     return homeAccountNumber;
                 case PERSONAL:
                 default:

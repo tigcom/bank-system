@@ -1,115 +1,136 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${subject}">Thông báo khoản vay</title>
+    <meta charset="UTF-8" />
+    <title th:text="${subject}">Thông báo khoản vay - Ngân hàng ABC</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
         }
+
+        .banner {
+            background: linear-gradient(to right, #1f4037, #99f2c8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #00c9a7;
+        }
+
+        .banner-logo {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .banner-logo svg {
+            height: 50px;
+            width: 50px;
+        }
+
+        .banner-title {
+            display: inline-block;
+            margin-left: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            vertical-align: middle;
+        }
+
         .container {
-            background-color: #ffffff;
+            max-width: 600px;
+            background-color: #1a1a2e;
+            margin: 40px auto;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
         }
-        .header {
+
+        h2 {
+            color: #00ffe7;
             text-align: center;
-            border-bottom: 3px solid #2c5aa0;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
         }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c5aa0;
-            margin-bottom: 10px;
-        }
-        .title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c5aa0;
-            margin-bottom: 20px;
-        }
-        .content {
-            font-size: 16px;
-            line-height: 1.8;
-            margin-bottom: 30px;
-        }
+
         .highlight {
-            background-color: #e8f4fd;
-            padding: 15px;
-            border-left: 4px solid #2c5aa0;
-            margin: 20px 0;
-            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #00ffe7;
+            margin: 25px 0;
+            color: #d0d0d0;
+            font-size: 18px
         }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 14px;
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #d0d0d0;
         }
+
         .contact-info {
-            background-color: #f8f9fa;
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.05);
             padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+            border-radius: 8px;
         }
-        .btn {
-            display: inline-block;
-            background-color: #2c5aa0;
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 10px 0;
+
+        .contact-info h4 {
+            margin-bottom: 10px;
+            color: #00ffe7;
         }
-        .btn:hover {
-            background-color: #1e3d6f;
+
+        .contact-info p {
+            margin: 5px 0;
+            color: #bbb;
         }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">🏦 Ngân hàng ABC</div>
-            <div class="title" th:text="${subject}">Thông báo khoản vay</div>
-        </div>
-        
-        <div class="content">
-            <p>Kính chào <strong th:text="${name}">bạn</strong>,</p>
-            
-            <div class="highlight">
-                <div th:utext="${content}">
-                    Nội dung thông báo khoản vay sẽ được hiển thị ở đây.
-                </div>
-            </div>
-            
-            <p>Chúng tôi cam kết cung cấp dịch vụ tài chính tốt nhất và hỗ trợ khách hàng trong mọi tình huống.</p>
-            
-            <div class="contact-info">
-                <h4>📞 Thông tin liên hệ:</h4>
-                <p><strong>Hotline:</strong> 1900 1234</p>
-                <p><strong>Email:</strong> support@nganhangabc.com</p>
-                <p><strong>Website:</strong> www.nganhangabc.com</p>
-                <p><strong>Giờ làm việc:</strong> 8:00 - 17:00 (Thứ 2 - Thứ 6)</p>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>Trân trọng,<br><strong>Ngân hàng ABC</strong></p>
-            <p>Email này được gửi tự động, vui lòng không trả lời.</p>
-            <p>© 2024 Ngân hàng ABC. Tất cả quyền được bảo lưu.</p>
-        </div>
+
+<div class="banner">
+    <div class="banner-logo">
+        <svg viewBox="0 0 64 64" fill="#00ffe7" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="30" stroke="#00ffe7" stroke-width="4" fill="none"/>
+            <path d="M32 12 L42 32 L32 52 L22 32 Z" fill="#00ffe7"/>
+        </svg>
     </div>
+    <div class="banner-title">Ngân hàng ABC</div>
+</div>
+
+<div class="container">
+    <h2 th:text="${subject}">Thông báo khoản vay</h2>
+
+    <p>Kính chào <strong th:text="${name}">Quý khách</strong>,</p>
+
+    <div class="highlight" th:utext="${content}">
+        Nội dung thông báo khoản vay sẽ hiển thị tại đây.
+    </div>
+
+    <p>Chúng tôi cam kết cung cấp dịch vụ tài chính tốt nhất và luôn đồng hành cùng khách hàng.</p>
+
+    <div class="contact-info">
+        <h4>📞 Thông tin liên hệ:</h4>
+        <p><strong>Hotline:</strong> 1900 1234</p>
+        <p><strong>Email:</strong> support@nganhangabc.com</p>
+        <p><strong>Website:</strong> www.nganhangabc.com</p>
+        <p><strong>Giờ làm việc:</strong> 8:00 - 17:00 (Thứ 2 - Thứ 6)</p>
+    </div>
+
+    <div class="footer">
+        <p>Trân trọng,<br><strong>Ngân hàng ABC</strong></p>
+        <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+        <p>© 2025 Ngân hàng ABC. Thiết kế bởi CTV JAVA TEAM PRO.</p>
+    </div>
+</div>
+
 </body>
 </html>

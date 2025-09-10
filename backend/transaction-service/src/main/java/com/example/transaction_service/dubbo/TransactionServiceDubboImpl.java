@@ -47,7 +47,7 @@ public class TransactionServiceDubboImpl implements CommonTransactionService {
                     .currency(disburseRequest.getCurrency())
                     .description(disburseRequest.getDescription())
                     .build();
-            TransactionDTO transactionDTO = transactionService.disburse(request, username);
+            TransactionDTO transactionDTO = transactionService.disburse2(request, username);
             log.info("[DUBBO][loanDisbursement] Kết quả: {}", transactionDTO);
             return toCommonTransactionDTO(transactionDTO);
         } catch (Exception ex) {

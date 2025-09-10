@@ -43,6 +43,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -319,12 +320,6 @@ public class LoanHandler {
             throw e;
         }
     }
-
-    public CompletableFuture<String>  makeRepaymentFallback(Long repaymentId, BigDecimal amount, String accountNumber, Throwable t) {
-        log.warn("MAKE_REPAYMENT_HANDLER_FALLBACK - repaymentId: {}, amount: {}, account: {}, error: {}", 
-                repaymentId, amount, accountNumber, t.getMessage());
-        throw new RuntimeException("Transaction service is temporarily unavailable: " + t.getMessage(), t);
-    }
     public Repayment confirmRepayment(Long repaymentId, BigDecimal amount, String otpCode, String referenceCode) {
         log.info("CONFIRM_REPAYMENT_HANDLER_START - userId: {}, repaymentId: {}, referenceCode: {}", getCurrentUserIdSafe(), repaymentId, referenceCode);
         try {
@@ -341,27 +336,25 @@ public class LoanHandler {
             Repayment r = repaymentService.makeRepayment(repaymentId, amount);
             // Gọi updateAccountFromLoan với paidAmount
             try {
-                Loan loan = r.getLoan();
                 LoanRequestDTO updateDto = new LoanRequestDTO();
-                updateDto.setLoanId(loan.getLoanId());
-                updateDto.setAmount(loan.getAmount());
-                updateDto.setInterestRate(loan.getInterestRate());
-                updateDto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
-                updateDto.setTermMonths(loan.getTermMonths());
-                updateDto.setPaidAmount(r.getPaidAmount());
-                // Đồng bộ corebanking
-
-                if (repaymentService.shouldCloseLoan(loan.getLoanId())) {
-                    log.info("CLOSE_LOAN_AFTER_REPAYMENT - loanId: {}", loan.getLoanId());
-                    loanService.closedLoan(loan.getLoanId());
-                    updateDto.setStatus(com.example.common_service.constant.LoanStatus.CLOSED);
-                    loan.setStatus(LoanStatus.CLOSED);
+                updateDto.setLoanId(r.getLoan().getLoanId());
+                updateDto.setAmount(r.getLoan().getAmount());
+                updateDto.setPaidAmount(amount);
+                com.example.common_service.constant.LoanStatus mappedStatus = com.example.common_service.constant.LoanStatus.PENDING;
+                if (repaymentService.shouldCloseLoan(r.getLoan().getLoanId())) {
+                    log.info("CLOSE_LOAN_AFTER_AUTO_DEDUCT - loanId: {}", r.getLoan().getLoanId());
+                    loanService.closedLoan(r.getLoan().getLoanId());
+                    sendLoanClosedNotification(r.getLoan(), "Hoàn thành trả nợ");
                 }
-                CoreAccountRequest coreAccountRequest = CoreAccountMapper.INSTANCE.fromLoan(loan);
-                coreAccountRequest.setBalance(repaymentService.getOutstandingDebtByLoanId(loan.getLoanId()));
-                log.warn("UPDATE_ACCOUNT_core: {}",repaymentService.getOutstandingDebtByLoanId(loan.getLoanId()));
+                updateDto.setStatus(mappedStatus);
+                updateDto.setDisbursementAccountNumber(r.getLoan().getDisbursementAccountNumber());
+                updateDto.setRepaymentAccountNumber(r.getLoan().getRepaymentAccountNumber());
+                updateDto.setInterestRate(r.getLoan().getInterestRate());
+                updateDto.setTermMonths(r.getLoan().getTermMonths());
                 accountDubboService.updateAccountFromLoan(updateDto);
-                coreBankingClient.updateAccount(coreAccountRequest);
+                // Gửi thông báo thanh toán thành công
+                sendSuccessfulPaymentNotification(r.getLoan(), r, amount);
+                log.info("MAKE_REPAYMENT_SUCCESS - repaymentId: {}, status: {}", repaymentId, r.getStatus());
             } catch (Exception ex) {
                 log.warn("UPDATE_ACCOUNT_FROM_LOAN_AFTER_REPAYMENT_FAILED: {}", ex.getMessage());
             }
@@ -373,6 +366,58 @@ public class LoanHandler {
         } catch (Exception e) {
             log.error("CONFIRM_REPAYMENT_HANDLER_ERROR - error: {}", e.getMessage(), e);
             throw e;
+        }
+    }
+    private void sendSuccessfulPaymentNotification(Loan loan, Repayment repayment, BigDecimal amount) {
+        try {
+            CustomerResponseDTO cust = customerQueryService.getCustomerById(loan.getCustomerId());
+            String body = String.format(
+                    "Kính chào %s,%n%n" +
+                            "Khoản vay ID: %s đã được thanh toán thành công.%n" +
+                            "Số tiền: %s VND.%n" +
+                            "Kỳ thanh toán: %s.%n%n" +
+                            "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.%n%n" +
+                            "Trân trọng, Ngân hàng",
+                    cust.getFullName(),
+                    loan.getLoanId(),
+                    amount,
+                    repayment.getDueDate().format(DateTimeFormatter.ofPattern("MM/yyyy"))
+            );
+            MailMessageDTO mail = MailMessageDTO.builder()
+                    .subject("THÔNG BÁO THANH TOÁN THÀNH CÔNG")
+                    .recipient(cust.getEmail())
+                    .recipientName(cust.getFullName())
+                    .body(body)
+                    .build();
+            streamBridge.send("loan-notification-out-0", mail);
+            log.info("SUCCESSFUL_PAYMENT_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
+        } catch (Exception e) {
+            log.error("SEND_SUCCESSFUL_PAYMENT_NOTIFICATION_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
+        }
+    }
+    private void sendLoanClosedNotification(Loan loan, String reason) {
+        try {
+            CustomerResponseDTO cust = customerQueryService.getCustomerById(loan.getCustomerId());
+            String body = String.format(
+                    "Kính chào %s,%n%n" +
+                            "Khoản vay ID: %s đã được đóng.%n" +
+                            "Lý do: %s.%n%n" +
+                            "Vui lòng liên hệ ngân hàng để biết thêm chi tiết.%n%n" +
+                            "Trân trọng, Ngân hàng",
+                    cust.getFullName(),
+                    loan.getLoanId(),
+                    reason
+            );
+            MailMessageDTO mail = MailMessageDTO.builder()
+                    .subject("THÔNG BÁO ĐÓNG KHOẢN VAY")
+                    .recipient(cust.getEmail())
+                    .recipientName(cust.getFullName())
+                    .body(body)
+                    .build();
+            streamBridge.send("loan-notification-out-0", mail);
+            log.info("LOAN_CLOSED_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
+        } catch (Exception e) {
+            log.error("SEND_LOAN_CLOSED_NOTIFICATION_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
         }
     }
     public List<Repayment> getHistory() {

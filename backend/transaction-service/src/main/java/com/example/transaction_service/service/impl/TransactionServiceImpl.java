@@ -295,7 +295,7 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     @Transactional
-    public TransactionDTO disburse(DisburseRequest disburseRequest,String username) {
+    public TransactionDTO disburse2(DisburseRequest disburseRequest,String username) {
         CustomerResponseDTO currentCustomer = customerQueryService.getCustomerByUserId(username);
         RpcContext.getContext().setAttachment("username", username);
 
@@ -999,12 +999,13 @@ public class TransactionServiceImpl implements TransactionService{
     private void validateTransaction(Transaction transaction){
         log.info("context: {}",RpcContext.getServerAttachment().getAttachment("username"));
         CustomerResponseDTO currentCustomer = null;
-        if (RpcContext.getContext() != null) {
+        if (RpcContext.getServerAttachment().getAttachment("username") != null) {
             String username = RpcContext.getServerAttachment().getAttachment("username");
              currentCustomer = customerQueryService.getCustomerByUserId(username);
 
         }else {
             CustomerResponse currentCustomer1 = customerQueryService.getCurrentCustomer();
+            currentCustomer = new CustomerResponseDTO();
             currentCustomer.setUserId(currentCustomer1.getUserId());
             currentCustomer.setCifCode(currentCustomer1.getCifCode());
         }
@@ -1042,13 +1043,6 @@ public class TransactionServiceImpl implements TransactionService{
         if(!toCustomer.getStatus().name().equals("ACTIVE")){
             log.error("[customerId:{}][cifCode:{}][VALIDATE] Lỗi: TO_CUSTOMER_NOT_ACTIVE | fromAccount: {} | toAccount: {} | amount: {} | type: {}", currentCustomer.getUserId(), currentCustomer.getCifCode(), transaction.getFromAccountNumber(), transaction.getToAccountNumber(), transaction.getAmount(), transaction.getType());
             throw new AppException(ErrorCode.TO_CUSTOMER_NOT_ACTIVE);
-        }
-
-        if (EnumSet.of(TransactionType.TRANSFER, TransactionType.WITHDRAW,TransactionType.LOAN_PAYMENT,
-                TransactionType.PAY_BILL).contains(transaction.getType())) {
-            if(!accountQueryService.existsAccountByAccountNumberAndCifCode( fromAccount.getAccountNumber(),currentCustomer.getCifCode())){
-                throw new AppException(ErrorCode.INVALID_ACCOUNT);
-            }
         }
 
 
@@ -1168,12 +1162,13 @@ public class TransactionServiceImpl implements TransactionService{
     }
     private void processTransaction(Transaction transaction) {
         CustomerResponseDTO currentCustomer = null;
-        if (RpcContext.getContext() != null) {
+        if (RpcContext.getServerAttachment().getAttachment("username")!= null) {
             String username = RpcContext.getServerAttachment().getAttachment("username");
             currentCustomer = customerQueryService.getCustomerByUserId(username);
 
         }else {
             CustomerResponse currentCustomer1 = customerQueryService.getCurrentCustomer();
+            currentCustomer = new CustomerResponseDTO();
             currentCustomer.setUserId(currentCustomer1.getUserId());
             currentCustomer.setCifCode(currentCustomer1.getCifCode());
         }

@@ -304,7 +304,7 @@ public class LoanServiceImpl implements LoanService {
             Loan loan = loanRepository.findById(loanId)
                     .orElseThrow(() -> new EntityNotFoundException("Loan not found: " + loanId));
             if (!LoanStatus.APPROVED.equals(loan.getStatus())) {
-                log.warn("CLOSE_LOAN_INVALID - loanId: {}, status: {}", loanId, loan.getStatus());
+                    log.warn("CLOSE_LOAN_INVALID - loanId: {}, status: {}", loanId, loan.getStatus());
                 throw new IllegalStateException("Loan is not in APPROVED status");
             }
             

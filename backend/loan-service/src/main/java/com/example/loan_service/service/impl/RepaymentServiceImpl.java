@@ -1,5 +1,10 @@
 package com.example.loan_service.service.impl;
 
+import com.example.common_service.dto.CustomerResponseDTO;
+import com.example.common_service.dto.MailMessageDTO;
+import com.example.common_service.dto.request.LoanRequestDTO;
+import com.example.common_service.services.account.AccountDubboService;
+import com.example.common_service.services.customer.CustomerQueryService;
 import com.example.loan_service.entity.Loan;
 import com.example.loan_service.entity.Repayment;
 import com.example.loan_service.mapper.LoanMapper;
@@ -11,11 +16,14 @@ import com.example.loan_service.service.CoreBankingClient;
 import com.example.loan_service.service.LoanService;
 import com.example.loan_service.service.RepaymentService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,19 +31,22 @@ import org.springframework.beans.factory.annotation.Value;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RepaymentServiceImpl implements RepaymentService {
-
+    @DubboReference
+    private final CustomerQueryService customerQueryService;
+    @DubboReference private final AccountDubboService accountDubboService;
     private final RepaymentRepository repaymentRepository;
     private final LoanRepository loanRepository;
     private final LoanService loanService;
     private final LoanMapper loanMapper;
     private final CoreBankingClient bankingClient;
-
+    private final StreamBridge streamBridge;
     @Value("${app.simulate.repaymentService.fail:false}")
     private boolean simulateFail;
     @Value("${app.simulate.repaymentService.delayMs:0}")
@@ -249,42 +260,32 @@ public class RepaymentServiceImpl implements RepaymentService {
 
     @Override
     @CacheEvict(value = "repaymentHistory", allEntries = true)
+    @CachePut(value = "repaymentById", key = "#repaymentId")
     @RateLimiter(name = "repaymentProcessing", fallbackMethod = "makeRepaymentFallback")
+    @Transactional
     public Repayment makeRepayment(Long repaymentId, BigDecimal amount) {
         log.info("MAKE_REPAYMENT_START - repaymentId: {}, amount: {}", repaymentId, amount);
         try {
-            if (simulateDelayMs > 0) {
-                Thread.sleep(simulateDelayMs);
-            }
-            if (simulateFail) {
-                throw new RuntimeException("Simulated repaymentService makeRepayment failure");
-            }
+
             Repayment repayment = repaymentRepository.findById(repaymentId)
                     .orElseThrow(() -> new EntityNotFoundException("Repayment not found: " + repaymentId));
             BigDecimal newPaid = repayment.getPaidAmount().add(amount);
             repayment.setPaidAmount(newPaid);
-
             BigDecimal totalDue = repayment.getPrincipal().add(repayment.getInterest());
             log.debug("MAKE_REPAYMENT_CALC - repaymentId: {}, totalDue: {}, newPaid: {}", repaymentId, totalDue, newPaid);
             Repayment saved = new Repayment();
             if (newPaid.compareTo(totalDue) >= 0) {
                 repayment.setStatus(RepaymentStatus.PAID);
                 saved = repaymentRepository.save(repayment);
-                // Kiểm tra xem khoản vay có thể đóng không
 
-            } else if (newPaid.compareTo(BigDecimal.ZERO) > 0) {
+            } else {
                 repayment.setStatus(RepaymentStatus.PARTIAL);
                 saved = repaymentRepository.save(repayment);
             }
+            this.updateRepayment(repayment);
 
-
-
-            log.info("MAKE_REPAYMENT_SUCCESS - repaymentId: {}, status: {}", repaymentId, saved.getStatus());
             return saved;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted", e);
-        } catch (EntityNotFoundException e) {
+        }  catch (EntityNotFoundException e) {
             log.warn("MAKE_REPAYMENT_NOT_FOUND - repaymentId: {}", repaymentId);
             throw e;
         } catch (Exception e) {
@@ -308,6 +309,33 @@ public class RepaymentServiceImpl implements RepaymentService {
         } catch (Exception e) {
             log.error("DELETE_REPAYMENTS_BY_LOAN_ERROR - loanId: {}, error: {}", loanId, e.getMessage(), e);
             throw e;
+        }
+    }
+    private void sendSuccessfulPaymentNotification(Loan loan, Repayment repayment, BigDecimal amount) {
+        try {
+            CustomerResponseDTO cust = customerQueryService.getCustomerById(loan.getCustomerId());
+            String body = String.format(
+                    "Kính chào %s,%n%n" +
+                            "Khoản vay ID: %s đã được thanh toán thành công.%n" +
+                            "Số tiền: %s VND.%n" +
+                            "Kỳ thanh toán: %s.%n%n" +
+                            "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.%n%n" +
+                            "Trân trọng, Ngân hàng",
+                    cust.getFullName(),
+                    loan.getLoanId(),
+                    amount,
+                    repayment.getDueDate().format(DateTimeFormatter.ofPattern("MM/yyyy"))
+            );
+            MailMessageDTO mail = MailMessageDTO.builder()
+                    .subject("THÔNG BÁO THANH TOÁN THÀNH CÔNG")
+                    .recipient(cust.getEmail())
+                    .recipientName(cust.getFullName())
+                    .body(body)
+                    .build();
+            streamBridge.send("loan-notification-out-0", mail);
+            log.info("SUCCESSFUL_PAYMENT_NOTIFICATION_SENT - loanId: {}", loan.getLoanId());
+        } catch (Exception e) {
+            log.error("SEND_SUCCESSFUL_PAYMENT_NOTIFICATION_ERROR - loanId: {}, error: {}", loan.getLoanId(), e.getMessage());
         }
     }
 

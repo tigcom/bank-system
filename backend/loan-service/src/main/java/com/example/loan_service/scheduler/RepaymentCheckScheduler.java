@@ -23,6 +23,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -56,47 +57,26 @@ public class RepaymentCheckScheduler {
      */
 
     @Transactional
-    @Scheduled(cron = "0 0 3 * * ?")
+//    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(fixedRate = 60 * 60 * 1000)
     public void processRepayments() {
         log.info("PROCESS_OVERDUE_REPAYMENTS_START");
-        
         // Lấy trực tiếp tất cả các kỳ trả nợ đã quá hạn (từ ngày hôm qua trở về trước)
         List<Repayment> overdueRepayments = repaymentService.getAllOverdueRepayments();
-        
         if (overdueRepayments.isEmpty()) {
             log.info("PROCESS_OVERDUE_REPAYMENTS_NO_OVERDUE");
             return;
         }
-        
         for (Repayment repayment : overdueRepayments) {
             try {
                 Loan loan = repayment.getLoan();
                 BigDecimal requiredAmount = repayment.getPrincipal().add(repayment.getInterest());
-                if (loan.getLoanType() == LoanType.AUTO || loan.getLoanType() == LoanType.MORTGAGE) {
-                    log.info("SKIP_OVERDUE_REPAYMENT_FOR_NON_PERSONAL - loanId: {}, type: {}", loan.getLoanId(), loan.getLoanType());
-                    Integer previousMonthLate = repaymentService.checkPreviousMonthLate(repayment.getRepaymentId(),loan.getLoanId());
-                    if (previousMonthLate >= 3) {
-                        log.info("CLOSE_LOAN_DUE_TO_CONSECUTIVE_LATE - loanId: {}", loan.getLoanId());
-                        closeLoanAndRecover(loan);
-                        repayment.setStatus(RepaymentStatus.LATE);
-                        repaymentService.updateRepayment(repayment);
-                        log.info("MARK_REPAYMENT_LATE_SUCCESS - repaymentId: {}", repayment.getRepaymentId());
-                        continue;
-                    }
-                    // Không đủ tiền, đánh dấu trễ và xử lý phạt
-                    handleLateRepayment(loan, repayment, requiredAmount);
-                    continue;
-                }
                 log.info("PROCESS_OVERDUE_REPAYMENT_START - loanId: {}, repaymentId: {}, dueDate: {}", 
                     loan.getLoanId(), repayment.getRepaymentId(), repayment.getDueDate());
-
                 // Kiểm tra số dư repayment account
                 BigDecimal repaymentBalance = getRepaymentAccountBalance(loan.getRepaymentAccountNumber());
-
-                
                 log.info("REPAYMENT_ACCOUNT_BALANCE - account: {}, balance: {}, required: {}", 
                     loan.getRepaymentAccountNumber(), repaymentBalance, requiredAmount);
-                
                 if (repaymentBalance.compareTo(requiredAmount) >= 0) {
                     // Có đủ tiền, thực hiện tự động trừ
                     performAutoDeduct(loan, repayment, requiredAmount);
@@ -120,22 +100,18 @@ public class RepaymentCheckScheduler {
         }
         log.info("PROCESS_OVERDUE_REPAYMENTS_SUCCESS");
     }
-
     /**
      * Xử lý trường hợp trễ hạn - đánh dấu trễ và cộng dồn phạt
      */
     private void handleLateRepayment(Loan loan, Repayment repayment, BigDecimal requiredAmount) {
         try {
             log.info("HANDLE_LATE_REPAYMENT_START - repaymentId: {}", repayment.getRepaymentId());
-            
             // Đánh dấu trễ
             repayment.setStatus(RepaymentStatus.LATE);
             repaymentService.updateRepayment(repayment);
             log.info("MARK_REPAYMENT_LATE_SUCCESS - repaymentId: {}", repayment.getRepaymentId());
-
             // Tính số tiền chưa trả (gốc + lãi)
             BigDecimal unpaid = requiredAmount.subtract(repayment.getPaidAmount());
-            
             // Phạt 1.5% trên tổng số tiền chưa trả
             BigDecimal penalty = unpaid.multiply(BigDecimal.valueOf(0.015)).setScale(2, BigDecimal.ROUND_HALF_UP);
             boolean isLast = repaymentService.checkLastMonthRepayment(repayment);
@@ -182,6 +158,7 @@ public class RepaymentCheckScheduler {
     /**
      * Thực hiện tự động trừ tiền
      */
+    @CachePut(value = "repaymentById", key = "#repayment.repaymentId")
     private void performAutoDeduct(Loan loan, Repayment repayment, BigDecimal amount) {
         try {
             log.info("PERFORM_AUTO_DEDUCT_START - loanId: {}, repaymentId: {}, amount: {}", 
@@ -207,12 +184,6 @@ public class RepaymentCheckScheduler {
                 BigDecimal totalRequired = repayment.getPrincipal().add(repayment.getInterest());
                 if (newPaidAmount.compareTo(totalRequired) >= 0) {
                     repayment.setStatus(RepaymentStatus.PAID);
-                    // Kiểm tra xem có phải kỳ cuối không
-                    if (shouldCloseLoan(repayment.getLoan().getLoanId())) {
-                        log.info("CLOSE_LOAN_AFTER_AUTO_DEDUCT - loanId: {}", loan.getLoanId());
-                        loanService.closedLoan(loan.getLoanId());
-                        sendLoanClosedNotification(loan, "Hoàn thành trả nợ");
-                    }
                 } else {
                     repayment.setStatus(RepaymentStatus.PARTIAL);
                 }
@@ -222,9 +193,10 @@ public class RepaymentCheckScheduler {
                 updateDto.setAmount(loan.getAmount());
                 updateDto.setPaidAmount(newPaidAmount);
                 com.example.common_service.constant.LoanStatus mappedStatus = com.example.common_service.constant.LoanStatus.PENDING;
-                if (shouldCloseLoan(loan.getLoanId())) {
-                    mappedStatus = com.example.common_service.constant.LoanStatus.CLOSED;
+                if (shouldCloseLoan(repayment.getLoan().getLoanId())) {
+                    log.info("CLOSE_LOAN_AFTER_AUTO_DEDUCT - loanId: {}", loan.getLoanId());
                     loanService.closedLoan(loan.getLoanId());
+                    sendLoanClosedNotification(loan, "Hoàn thành trả nợ");
                 }
                 updateDto.setStatus(mappedStatus);
                 updateDto.setDisbursementAccountNumber(loan.getDisbursementAccountNumber());
@@ -252,7 +224,6 @@ public class RepaymentCheckScheduler {
             // Đánh dấu trễ hạn nếu có lỗi
             repayment.setStatus(RepaymentStatus.LATE);
             repaymentService.updateRepayment(repayment);
-            
             // Gửi thông báo trễ do lỗi hệ thống
             sendLateRepaymentNotification(loan, repayment, 
                 repayment.getPrincipal().add(repayment.getInterest()).subtract(repayment.getPaidAmount()),
@@ -367,7 +338,10 @@ public class RepaymentCheckScheduler {
             // 1. Đóng khoản vay trước
             loanService.closedLoan(loan.getLoanId());
             log.info("LOAN_CLOSED_SUCCESS - loanId: {}", loan.getLoanId());
-
+            if (loan.getLoanType() != LoanType.PERSONAL){
+                sendLoanClosedNotification(loan, "Vi phạm điều khoản trả nợ liên tiếp");
+                return;
+            }
             // 2. Kiểm tra số dư loan account
             BigDecimal loanBalance = getLoanAccountBalance(loan.getDisbursementAccountNumber());
             log.info("LOAN_ACCOUNT_BALANCE - account: {}, balance: {}", loan.getDisbursementAccountNumber(), loanBalance);
@@ -480,7 +454,8 @@ public class RepaymentCheckScheduler {
 
 
     @Transactional
-    @Scheduled(cron = "0 0 3 * * ?")
+//    @Scheduled(cron = "0 0 3 * * ?")
+//    @Scheduled(fixedRate = 60 * 60 * 1000)
     public void remindUpcomingRepayments() {
         long startTime = System.currentTimeMillis();
         log.info("REMIND_UPCOMING_REPAYMENTS_START -");

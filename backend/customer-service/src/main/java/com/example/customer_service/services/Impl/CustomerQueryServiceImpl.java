@@ -69,7 +69,7 @@ public class CustomerQueryServiceImpl implements CustomerQueryService {
         String tokenValue = "";
         log.info("===> getCurrentCustomer() called");
 
-        if (RpcContext.getContext() == null) {
+        if (RpcContext.getContext().getObjectAttachment("security_authentication_context") == null) {
             log.info("RpcContext is not null → returning SYSTEM user");
             return CustomerResponse.builder()
                     .userId("U123")

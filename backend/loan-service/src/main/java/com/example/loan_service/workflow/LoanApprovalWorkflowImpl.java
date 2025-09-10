@@ -50,10 +50,6 @@ public class LoanApprovalWorkflowImpl implements LoanApprovalWorkflow {
                 // Bước 4: Approve loan trong database
                 log.info("Step 4: Approving loan in database {}", loanId);
                 activities.approveLoanInDatabase(loanId,accountNumber);
-                
-                // Bước 5: Tạo lịch trả nợ
-                log.info("Step 5: Generating repayment schedule for loan {}", loanId);
-                activities.generateRepaymentSchedule(loanId);
             } else {
                 // AUTO / MORTGAGE: không tạo loan account. Giải ngân trực tiếp theo Vault
                 log.info("Step 2: Resolving disbursement account via Vault for loan {}", loanId);
@@ -71,11 +67,11 @@ public class LoanApprovalWorkflowImpl implements LoanApprovalWorkflow {
                 // Cập nhật approve trong DB nhưng không có loan account => lưu số tài khoản giải ngân là targetAccount
                 log.info("Step 4: Approving loan in database {} (no loan account created)", loanId);
                 activities.approveLoanInDatabase(loanId, targetAccount);
-                // Bỏ qua tạo lịch trả nợ cho AUTO/MORTGAGE
-                log.info("Skip Step 5: Repayment schedule generation skipped for loan type {}", loanData.getLoanType());
                 accountNumber = targetAccount;
             }
-            
+            // Bước 5: Tạo lịch trả nợ
+            log.info("Step 5: Generating repayment schedule for loan {}", loanId);
+            activities.generateRepaymentSchedule(loanId);
             // Bước 6: Gửi thông báo
             log.info("Step 6: Sending approval notification for loan {}", loanId);
             activities.sendApprovalNotification(loanId, accountNumber);

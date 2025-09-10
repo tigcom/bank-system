@@ -46,13 +46,6 @@ public class CoreBankingClientImpl implements CoreBankingClient {
         Timer.Sample timer = metricsService.startCoreBankingCall();
         
         try {
-            // Simulation toggles for testing Resilience4j
-            if (simulateDelayMs > 0) {
-                Thread.sleep(simulateDelayMs);
-            }
-            if (simulateFail) {
-                throw new RuntimeException("Simulated coreBanking updateAccount failure");
-            }
             // Increment core banking calls counter
             metricsService.incrementCoreBankingCalls();
             
@@ -63,10 +56,7 @@ public class CoreBankingClientImpl implements CoreBankingClient {
             );
             log.info("UPDATE_ACCOUNT_SUCCESS - request: {}", request);
             return response.getBody();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted", e);
-        } catch (Exception e) {
+        }catch (Exception e) {
             log.error("UPDATE_ACCOUNT_ERROR - request: {}, error: {}", request, e.getMessage(), e);
             throw new RuntimeException("Failed to update account in core banking: " + e.getMessage(), e);
         } finally {
