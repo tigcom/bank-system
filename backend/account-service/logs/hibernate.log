@@ -88284,3 +88284,7 @@ java.lang.Exception: exception just for purpose of providing stack trace
 	  com.example.account_service.entity.LoanAccount(40) -> EntityResultInitializer(com.example.account_service.entity.LoanAccount(40))@1003912648 (JoinedSubclassEntityPersister(com.example.account_service.entity.LoanAccount))
 
 2025-09-10 16:34:13 DEBUG [DubboServerHandler-10.2.36.135:20882-thread-148] org.hibernate.SQL [d5c28be933b6791d36551b0623c72aac,2f44c5fb7957a1b1] - select la1_0.id,la1_1.account_number,la1_1.account_type,la1_1.cif_code,la1_1.created_by,la1_1.created_date,la1_1.last_modified_by,la1_1.last_modified_date,la1_1.status,la1_0.interest_rate,la1_0.loan_amount,la1_0.loan_id,la1_0.outstanding_debt,la1_0.term_months from loan_accounts la1_0 join accounts la1_1 on la1_0.id=la1_1.id where la1_0.loan_id=?
+2025-09-10 17:14:46 DEBUG [SpringApplicationShutdownHook] o.h.internal.SessionFactoryImpl [,] - HHH000031: Closing
+2025-09-10 17:14:46 DEBUG [SpringApplicationShutdownHook] o.h.type.spi.TypeConfiguration$Scope [,] - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@107bedb7] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@36f959a]
+2025-09-10 17:14:46 DEBUG [SpringApplicationShutdownHook] o.h.s.i.AbstractServiceRegistryImpl [,] - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
+2025-09-10 17:14:46 DEBUG [SpringApplicationShutdownHook] o.h.b.r.i.BootstrapServiceRegistryImpl [,] - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries

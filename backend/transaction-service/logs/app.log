@@ -45180,3 +45180,307 @@ java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
 2025-09-10 16:32:37 INFO  o.a.d.r.t.netty4.NettyServerHandler -  [DUBBO] The connection [id: 0xd3813676, L:/10.2.36.135:20880 - R:/10.2.36.135:52194] of 10.2.36.135:52194 -> 10.2.36.135:20880 is established., dubbo version: 3.3.2, current host: 10.2.36.135
 2025-09-10 16:33:59 INFO  o.a.d.r.t.netty4.NettyServerHandler -  [DUBBO] The connection [id: 0xd3813676, L:/10.2.36.135:20880 ! R:/10.2.36.135:52194] of 10.2.36.135:52194 -> 10.2.36.135:20880 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.135
 2025-09-10 16:34:12 INFO  o.a.d.r.t.netty4.NettyServerHandler -  [DUBBO] The connection [id: 0x9c544b19, L:/10.2.36.135:20880 - R:/10.2.36.135:37726] of 10.2.36.135:37726 -> 10.2.36.135:20880 is established., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.dubbo.config.DubboShutdownHook -  [DUBBO] Run shutdown hook now., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.dubbo.config.DubboShutdownHook -  [DUBBO] Waiting for modules(Dubbo Application[1.1](transaction-service)) managed by Spring to be shutdown., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.e.s.h.HeaderExchangeHandler -  [DUBBO] ChannelReadOnly set true for channel: NettyChannel [channel=[id: 0x28e71cec, L:/10.2.36.135:46750 - R:/10.2.36.135:20889]], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.e.s.h.HeaderExchangeHandler -  [DUBBO] ChannelReadOnly set true for channel: NettyChannel [channel=[id: 0x3fc8c96d, L:/10.2.36.135:46780 - R:/10.2.36.135:20882]], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.c.deploy.DefaultModuleDeployer -  [DUBBO] Dubbo Module[1.1.1] is stopping., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.c.d.DefaultApplicationDeployer -  [DUBBO] Dubbo Application[1.1](transaction-service) has completed., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.dubbo.config.DubboShutdownHook -  [DUBBO] Dubbo wait for application(Dubbo Application[1.1](transaction-service)) managed by Spring to be shutdown failed, time usage: 41ms, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.dubbo.config.DubboShutdownHook -  [DUBBO] Dubbo shutdown hooks execute now. Dubbo Application[1.1](transaction-service), dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Unregister: dubbo://10.2.36.135:20880/com.example.common_service.services.transactions.CommonTransactionService?application=transaction-service&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.example.common_service.services.transactions.CommonTransactionService&methods=autoDeductRepayment,confirmTransaction,createAccountSaving,deposit,loanDisbursement,loanPayment,loanRecovery,payinterestInternal,reSendOtp,withdrawAccountSaving&prefer.serialization=hessian2,fastjson2&release=3.3.2&serialize.check.status=DISABLE&service-name-mapping=true&side=provider&timestamp=1757495205693, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Unsubscribe: provider://10.2.36.135:20880/com.example.common_service.services.transactions.CommonTransactionService?anyhost=true&application=transaction-service&background=false&bind.ip=10.2.36.135&bind.port=20880&category=configurators&check=false&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&file-cache=true&generic=false&interface=com.example.common_service.services.transactions.CommonTransactionService&methods=autoDeductRepayment,confirmTransaction,createAccountSaving,deposit,loanDisbursement,loanPayment,loanRecovery,payinterestInternal,reSendOtp,withdrawAccountSaving&pid=361656&prefer.serialization=hessian2,fastjson2&release=3.3.2&serialize.check.status=DISABLE&service-name-mapping=true&side=provider&timestamp=1757495205693, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Unsubscribe: consumer://10.2.36.135/com.example.common_service.services.account.AccountQueryService?application=transaction-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.account.AccountQueryService&methods=existsAccountByAccountNumberAndCifCode,getAccountByAccountNumber,getAllAccountPaymentForCurrentCustomer,getCustomerByAccountNumber&pid=361656&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1757495206342&unloadClusterRelated=false, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.s.CacheableFailbackRegistry -  [DUBBO] Evicting urls for service com.example.common_service.services.account.AccountQueryService, size 1, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.s.CacheableFailbackRegistry -  [DUBBO] Evicting urls for service com.example.common_service.services.CommonService, size 1, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 WARN  o.a.d.r.s.CacheableFailbackRegistry -  [DUBBO] Service com.example.common_service.services.CommonService received empty address list and empty protection is disabled, will clear current available addresses, dubbo version: 3.3.2, current host: 10.2.36.135, error code: 1-4. This may be caused by , go to https://dubbo.apache.org/faq/1/4 to find instructions. 
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Notify urls for subscribe url consumer://10.2.36.135/com.example.common_service.services.CommonService?application=transaction-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.CommonService&methods=checkCustomer,getCurrentCustomer,getCurrentCustomer2,getCustomerByCifCode&pid=361656&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timestamp=1757495206317&unloadClusterRelated=false, url size: 1, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.i.RegistryDirectory -  [DUBBO] Received invokers changed event from registry. Registry type: interface. Service Key: com.example.common_service.services.CommonService. Urls Size : 1. Invokers Size : 0. Available Size: 0. Available Invokers : empty, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.s.CacheableFailbackRegistry -  [DUBBO] Evicting urls for service com.example.common_service.services.customer.CustomerQueryService, size 1, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 WARN  o.a.d.r.s.CacheableFailbackRegistry -  [DUBBO] Service com.example.common_service.services.customer.CustomerQueryService received empty address list and empty protection is disabled, will clear current available addresses, dubbo version: 3.3.2, current host: 10.2.36.135, error code: 1-4. This may be caused by , go to https://dubbo.apache.org/faq/1/4 to find instructions. 
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Notify urls for subscribe url consumer://10.2.36.135/com.example.common_service.services.customer.CustomerQueryService?application=transaction-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.customer.CustomerQueryService&methods=getCurrentCustomer,getCustomerByCifCode,getCustomerById,getCustomerByUserId&pid=361656&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1757495206067&unloadClusterRelated=false, url size: 1, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.i.RegistryDirectory -  [DUBBO] Received invokers changed event from registry. Registry type: interface. Service Key: com.example.common_service.services.customer.CustomerQueryService. Urls Size : 1. Invokers Size : 0. Available Size: 0. Available Invokers : empty, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.c.e.l.ServiceInstancesChangedListener -  [DUBBO] Destroying instance listener of  [account-service], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.t.netty4.NettyChannel -  [DUBBO] Close netty channel [id: 0x3fc8c96d, L:/10.2.36.135:46780 - R:/10.2.36.135:20882], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.t.netty4.NettyClientHandler -  [DUBBO] The connection [id: 0x3fc8c96d, L:/10.2.36.135:46780 ! R:/10.2.36.135:20882] of 10.2.36.135:46780 -> 10.2.36.135:20882 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Unsubscribe: consumer://10.2.36.135/com.example.common_service.services.CommonService?application=transaction-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.CommonService&methods=checkCustomer,getCurrentCustomer,getCurrentCustomer2,getCustomerByCifCode&pid=361656&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timestamp=1757495206317&unloadClusterRelated=false, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Unsubscribe: consumer://10.2.36.135/com.example.common_service.services.customer.CustomerQueryService?application=transaction-service&background=false&category=providers,configurators,routers&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=com.example.common_service.services.customer.CustomerQueryService&methods=getCurrentCustomer,getCustomerByCifCode,getCustomerById,getCustomerByUserId&pid=361656&release=3.3.2&serialize.check.status=DISABLE&side=consumer&sticky=false&timeout=5000&timestamp=1757495206067&unloadClusterRelated=false, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.c.e.l.ServiceInstancesChangedListener -  [DUBBO] Destroying instance listener of  [customer_service], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.t.netty4.NettyChannel -  [DUBBO] Close netty channel [id: 0x28e71cec, L:/10.2.36.135:46750 - R:/10.2.36.135:20889], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.t.netty4.NettyClientHandler -  [DUBBO] The connection [id: 0x28e71cec, L:/10.2.36.135:46750 ! R:/10.2.36.135:20889] of 10.2.36.135:46750 -> 10.2.36.135:20889 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.c.deploy.DefaultModuleDeployer -  [DUBBO] Dubbo Module[1.1.1] has stopped., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.c.d.DefaultApplicationDeployer -  [DUBBO] Dubbo Application[1.1](transaction-service) has completed., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.dubbo.rpc.model.FrameworkModel -  [DUBBO] Reset global default application from Dubbo Application[1.1](transaction-service) to null, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.c.d.DefaultApplicationDeployer -  [DUBBO] Dubbo Application[1.1](transaction-service) is stopping., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.protocol.dubbo.DubboProtocol -  [DUBBO] Destroying protocol [DubboProtocol] ..., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:42 INFO  o.a.d.r.protocol.dubbo.DubboProtocol -  [DUBBO] Closing dubbo server: /10.2.36.135:20880, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:43 WARN  o.a.d.r.transport.AbstractServer -  [DUBBO] All clients has disconnected from /10.2.36.135:20880. You can graceful shutdown now., dubbo version: 3.3.2, current host: 10.2.36.135, error code: 99-0. This may be caused by unknown error in remoting module, go to https://dubbo.apache.org/faq/99/0 to find instructions. 
+2025-09-10 17:14:43 INFO  o.a.d.r.t.netty4.NettyServerHandler -  [DUBBO] The connection [id: 0x9c544b19, L:/10.2.36.135:20880 ! R:/10.2.36.135:37726] of 10.2.36.135:37726 -> 10.2.36.135:20880 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:43 INFO  o.a.d.r.t.netty4.NettyServerHandler -  [DUBBO] The connection [id: 0xd8cffaab, L:/10.2.36.135:20880 ! R:/10.2.36.135:58032] of 10.2.36.135:58032 -> 10.2.36.135:20880 is disconnected., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:43 INFO  o.a.d.r.transport.AbstractServer -  [DUBBO] Close NettyServer bind /0.0.0.0:20880, export /10.2.36.135:20880, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.r.protocol.dubbo.DubboProtocol -  [DUBBO] Unexport service: dubbo://10.2.36.135:20880/org.apache.dubbo.metadata.MetadataService?anyhost=true&application=transaction-service&background=false&bind.ip=10.2.36.135&bind.port=20880&delay=0&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&file-cache=true&generic=false&getAndListenInstanceMetadata.1.callback=true&getAndListenInstanceMetadata.return=true&getAndListenInstanceMetadata.sent=true&group=transaction-service&interface=org.apache.dubbo.metadata.MetadataService&methods=exportInstanceMetadata,getAndListenInstanceMetadata,getExportedServiceURLs,getExportedURLs,getInstanceMetadataChangedListenerMap,getMetadataInfo,getMetadataInfos,getMetadataURL,getServiceDefinition,getSubscribedURLs,isMetadataService,serviceName,toSortedStrings,version&pid=361656&prefer.serialization=hessian2,fastjson2&register=false&release=3.3.2&revision=3.3.2&serialize.check.status=DISABLE&service.filter=-default&side=provider&timestamp=1757495206042&version=1.0.0, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  org.apache.dubbo.qos.server.Server -  [DUBBO] qos-server stopped., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.r.protocol.injvm.InjvmProtocol -  [DUBBO] Unexport service: injvm://127.0.0.1/org.apache.dubbo.metadata.MetadataService?anyhost=true&application=transaction-service&background=false&bind.ip=10.2.36.135&bind.port=20880&delay=0&deprecated=false&dubbo=2.0.2&dynamic=true&executor-management-mode=isolation&exporter.listener=injvm&file-cache=true&generic=false&getAndListenInstanceMetadata.1.callback=true&getAndListenInstanceMetadata.return=true&getAndListenInstanceMetadata.sent=true&group=transaction-service&interface=org.apache.dubbo.metadata.MetadataService&methods=exportInstanceMetadata,getAndListenInstanceMetadata,getExportedServiceURLs,getExportedURLs,getInstanceMetadataChangedListenerMap,getMetadataInfo,getMetadataInfos,getMetadataURL,getServiceDefinition,getSubscribedURLs,isMetadataService,serviceName,toSortedStrings,version&pid=361656&prefer.serialization=hessian2,fastjson2&register=false&release=3.3.2&revision=3.3.2&serialize.check.status=DISABLE&service.filter=-default&side=provider&timestamp=1757495206042&version=1.0.0, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.deploy.DefaultModuleDeployer -  [DUBBO] Dubbo Module[1.1.0] is stopping., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.deploy.DefaultModuleDeployer -  [DUBBO] Dubbo Module[1.1.0] has stopped., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.r.support.RegistryManager -  [DUBBO] Close all registries [zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=transaction-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=361656&release=3.3.2&serialize.check.status=DISABLE, zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=transaction-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=361656&register=false&release=3.3.2&serialize.check.status=DISABLE, zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=transaction-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=361656&register=false&release=3.3.2&serialize.check.status=DISABLE], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.c.f.imps.CuratorFrameworkImpl - backgroundOperationsLoop exiting
+2025-09-10 17:14:45 INFO  org.apache.zookeeper.ZooKeeper - Session: 0x1000112daca0023 closed
+2025-09-10 17:14:45 INFO  org.apache.zookeeper.ClientCnxn - EventThread shut down for session: 0x1000112daca0023
+2025-09-10 17:14:45 INFO  o.a.d.r.zookeeper.ZookeeperRegistry -  [DUBBO] Destroy registry:zookeeper://localhost:2181/org.apache.dubbo.registry.RegistryService?REGISTRY_CLUSTER=default&application=transaction-service&dubbo=2.0.2&executor-management-mode=isolation&file-cache=true&interface=org.apache.dubbo.registry.RegistryService&pid=361656&register=false&release=3.3.2&serialize.check.status=DISABLE, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.t.m.DefaultExecutorRepository -  [DUBBO] destroying application executor repository .., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.d.DefaultApplicationDeployer -  [DUBBO] Dubbo Application[1.1](transaction-service) has stopped., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.c.f.imps.CuratorFrameworkImpl - backgroundOperationsLoop exiting
+2025-09-10 17:14:45 INFO  org.apache.zookeeper.ZooKeeper - Session: 0x1000112daca0022 closed
+2025-09-10 17:14:45 INFO  o.a.dubbo.rpc.model.FrameworkModel -  [DUBBO] Destroying default framework model: Dubbo Framework[1], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.dubbo.rpc.model.FrameworkModel -  [DUBBO] Dubbo Framework[1] is destroying ..., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.d.DefaultApplicationDeployer -  [DUBBO] Dubbo Application[1.0](DUBBO_INTERNAL_APPLICATION) is stopping., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.deploy.DefaultModuleDeployer -  [DUBBO] Dubbo Module[1.0.0] is stopping., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.deploy.DefaultModuleDeployer -  [DUBBO] Dubbo Module[1.0.0] has stopped., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.r.support.RegistryManager -  [DUBBO] Close all registries [], dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.t.m.DefaultExecutorRepository -  [DUBBO] destroying application executor repository .., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.d.DefaultApplicationDeployer -  [DUBBO] Dubbo Application[1.0](DUBBO_INTERNAL_APPLICATION) has stopped., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 INFO  o.a.dubbo.rpc.model.FrameworkModel -  [DUBBO] Dubbo Framework[1] is destroyed, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 INFO  o.a.dubbo.rpc.model.FrameworkModel -  [DUBBO] Reset global default framework from Dubbo Framework[1] to null, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 INFO  o.a.d.c.r.GlobalResourcesRepository -  [DUBBO] Destroying global resources ..., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 ERROR o.a.c.f.recipes.cache.NodeCache - 
+java.lang.IllegalStateException: Expected state [STARTED] was [STOPPED]
+	at org.apache.curator.shaded.com.google.common.base.Preconditions.checkState(Preconditions.java:823)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkState(CuratorFrameworkImpl.java:423)
+	at org.apache.curator.framework.imps.CuratorFrameworkImpl.checkExists(CuratorFrameworkImpl.java:450)
+	at org.apache.curator.framework.recipes.cache.NodeCache.reset(NodeCache.java:262)
+	at org.apache.curator.framework.recipes.cache.NodeCache.access$100(NodeCache.java:61)
+	at org.apache.curator.framework.recipes.cache.NodeCache$2.process(NodeCache.java:105)
+	at org.apache.curator.framework.imps.NamespaceWatcher.process(NamespaceWatcher.java:77)
+	at org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:578)
+	at org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:553)
+2025-09-10 17:14:45 INFO  org.apache.zookeeper.ClientCnxn - EventThread shut down for session: 0x1000112daca0022
+2025-09-10 17:14:45 INFO  o.a.d.c.r.GlobalResourcesRepository -  [DUBBO] Dubbo is completely destroyed, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.t.m.FrameworkExecutorRepository -  [DUBBO] destroying framework executor repository .., dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.a.d.c.s.c.DubboSpringInitializer -  [DUBBO] Unbind Dubbo Module[1.1.1] from spring container: org.springframework.beans.factory.support.DefaultListableBeanFactory@2612caf3, dubbo version: 3.3.2, current host: 10.2.36.135
+2025-09-10 17:14:45 INFO  o.s.i.endpoint.EventDrivenConsumer - Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2025-09-10 17:14:45 INFO  o.s.i.c.PublishSubscribeChannel - Channel 'transaction-service.errorChannel' has 0 subscriber(s).
+2025-09-10 17:14:45 INFO  o.s.i.endpoint.EventDrivenConsumer - stopped bean '_org.springframework.integration.errorLogger'
+2025-09-10 17:14:45 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-09-10 17:14:45 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-09-10 17:14:45 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
